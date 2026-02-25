@@ -170,7 +170,7 @@
 
   <!-- ── Header ───────────────────────────────────────────────────────────── -->
   <header class="site-header">
-    <a class="site-logo" href="/">Emergent Ontology</a>
+    <a class="site-logo" href="./">Emergent Ontology</a>
     <nav class="site-nav" aria-label="Main navigation">
       <ul id="nav-list">
         <!-- Populated from Matrix state, empty until data loads -->
@@ -197,17 +197,17 @@
       <ul class="content-list" id="list-wiki">
         <!-- template entries shown until Matrix data loads -->
         <li>
-          <a href="/wiki/operators/">Operators</a>
+          <a href="wiki/operators/">Operators</a>
           <span class="tags"><span class="tag">reference</span><span class="tag">core</span></span>
           <span class="template-badge">template</span>
         </li>
         <li>
-          <a href="/wiki/data-model/">Data Model</a>
+          <a href="wiki/data-model/">Data Model</a>
           <span class="tags"><span class="tag">reference</span></span>
           <span class="template-badge">template</span>
         </li>
         <li>
-          <a href="/wiki/getting-started/">Getting Started</a>
+          <a href="wiki/getting-started/">Getting Started</a>
           <span class="tags"><span class="tag">guide</span></span>
           <span class="template-badge">template</span>
         </li>
@@ -219,11 +219,11 @@
       <h2>Blog</h2>
       <ul class="content-list" id="list-blog">
         <li>
-          <a href="/blog/intro/">Introduction to Emergent Ontology</a>
+          <a href="blog/intro/">Introduction to Emergent Ontology</a>
           <span class="template-badge">template</span>
         </li>
         <li>
-          <a href="/blog/nine-operators/">Nine Operators, Infinite Composability</a>
+          <a href="blog/nine-operators/">Nine Operators, Infinite Composability</a>
           <span class="tags"><span class="tag">deep-dive</span></span>
           <span class="template-badge">template</span>
         </li>
@@ -235,7 +235,7 @@
       <h2>Experiments</h2>
       <ul class="content-list" id="list-experiment">
         <li>
-          <a href="/exp/operator-study/">Operator Composition Study</a>
+          <a href="exp/operator-study/">Operator Composition Study</a>
           <span class="template-badge">template</span>
         </li>
       </ul>
@@ -255,7 +255,7 @@
   <footer class="site-footer">
     <p>
       Content stored as append-only events in Matrix.
-      <a href="/generated/state/index.json">Site index JSON</a>
+      <a href="generated/state/index.json">Site index JSON</a>
     </p>
   </footer>
 
@@ -281,7 +281,7 @@
       const li = document.createElement('li');
       const a  = document.createElement('a');
       const dir = typeDir(entry.content_type);
-      a.href        = `/${dir}/${entry.slug}/`;
+      a.href        = `${dir}/${entry.slug}/`;
       a.textContent = entry.title;
       li.appendChild(a);
       if (entry.tags && entry.tags.length) {
@@ -309,7 +309,7 @@
       (index.nav || []).forEach(entry => {
         const li = document.createElement('li');
         const a  = document.createElement('a');
-        a.href        = `/${typeDir(entry.content_type)}/${entry.slug}/`;
+        a.href        = `${typeDir(entry.content_type)}/${entry.slug}/`;
         a.textContent = entry.title;
         li.appendChild(a);
         nav.appendChild(li);
@@ -343,7 +343,7 @@
     (async function boot() {
       // 1. Try to load the generated state snapshot
       try {
-        const res = await fetch('/generated/state/index.json', { cache: 'no-store' });
+        const res = await fetch('generated/state/index.json', { cache: 'no-store' });
         if (res.ok) {
           const index = await res.json();
           applyIndex(index);
@@ -354,10 +354,10 @@
 
       // 2. Try to load the live-sync script (present after Astro build deploys)
       try {
-        const probe = await fetch('/js/live-sync.js', { method: 'HEAD' });
+        const probe = await fetch('js/live-sync.js', { method: 'HEAD' });
         if (probe.ok) {
           const s = document.createElement('script');
-          s.src   = '/js/live-sync.js';
+          s.src   = 'js/live-sync.js';
           s.defer = true;
           document.body.appendChild(s);
         }
@@ -372,7 +372,7 @@
       input.addEventListener('focus', async () => {
         if (searchIndex) return;
         try {
-          const r = await fetch('/generated/search_index.json');
+          const r = await fetch('generated/search_index.json');
           if (r.ok) searchIndex = await r.json();
         } catch (_) {}
       });
@@ -390,7 +390,7 @@
         hits.forEach(h => {
           const a = document.createElement('a');
           a.className   = 'search-result-item';
-          a.href        = `/${typeDir(h.content_type)}/${h.slug}/`;
+          a.href        = `${typeDir(h.content_type)}/${h.slug}/`;
           a.textContent = h.title;
           results.appendChild(a);
         });
