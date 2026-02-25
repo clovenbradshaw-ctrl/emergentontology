@@ -5,7 +5,7 @@
  *   node dist/index.js
  *
  * Environment variables (all optional — defaults to hyphae.social):
- *   MATRIX_HOMESERVER   default: https://matrix.hyphae.social
+ *   MATRIX_HOMESERVER   default: https://hyphae.social
  *   MATRIX_ACCESS_TOKEN optional  include private/draft rooms in builds
  *   MATRIX_SERVER_NAME  optional  default: hyphae.social
  *   INCLUDE_DRAFTS      optional  "true" to include draft content (requires access token)
@@ -28,7 +28,7 @@ import {
   renderStateFiles,
 } from './render.js';
 
-const DEFAULT_HOMESERVER = 'https://matrix.hyphae.social';
+const DEFAULT_HOMESERVER = 'https://hyphae.social';
 const DEFAULT_SERVER_NAME = 'hyphae.social';
 
 async function main() {

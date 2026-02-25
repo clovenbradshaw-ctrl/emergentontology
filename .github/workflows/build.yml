@@ -76,7 +76,7 @@ jobs:
         env:
           # Homeserver is hardcoded — no secrets needed for the public build.
           # MATRIX_ACCESS_TOKEN is optional: only needed to include draft/private rooms.
-          MATRIX_HOMESERVER: https://matrix.hyphae.social
+          MATRIX_HOMESERVER: https://hyphae.social
           MATRIX_SERVER_NAME: hyphae.social
           MATRIX_ACCESS_TOKEN: ${{ secrets.MATRIX_ACCESS_TOKEN }}
           INCLUDE_DRAFTS: ${{ github.event.inputs.include_drafts || 'false' }}
