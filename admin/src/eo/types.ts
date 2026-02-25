@@ -115,6 +115,7 @@ export type ProjectedContent = ProjectedPage | ProjectedWiki | ProjectedBlog | P
 export interface HistoryEntry {
   event_id: string;
   op: EOOp;
+  target?: string;
   ts: string;
   agent: string;
   summary?: string;
