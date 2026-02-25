@@ -1,6 +1,6 @@
 /**
  * events.ts — EO event constructors.
- * Every edit emits one of these; they are sent to Matrix as `eo.op` events.
+ * Every edit emits one of these; they are appended to the Xano EOwiki event log.
  */
 
 import type { EOEvent, EOOp, ContentMeta, Block, WikiRevision, ExperimentEntry } from './types';

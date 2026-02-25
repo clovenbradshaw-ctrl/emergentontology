@@ -1,15 +1,37 @@
-import React, { useEffect, useState } from 'react';
+/**
+ * ExperimentEditor — log-style editor for experiment entries.
+ *
+ * Data flow:
+ *   Load  →  GET /eowikicurrent (record_id = contentId) → current entries
+ *            Fall back to static snapshot if no Xano record.
+ *   Add   →  POST /eowiki (INS entry event)
+ *            UPSERT /eowikicurrent (update current state)
+ *   Delete→  POST /eowiki (NUL entry event)
+ *            UPSERT /eowikicurrent (update current state)
+ */
+
+import React, { useEffect, useRef, useState } from 'react';
 import { useAuth } from '../auth/AuthContext';
 import { useXRay } from '../components/XRayOverlay';
-import { fetchRoomDelta, sendEOEvent, resolveAlias } from '../matrix/client';
+import {
+  fetchCurrentRecord,
+  addRecord,
+  upsertCurrentRecord,
+  eventToPayload,
+  type XanoCurrentRecord,
+} from '../xano/client';
 import { insExpEntry, nulExpEntry } from '../eo/events';
-import { applyDelta } from '../eo/replay';
-import type { ProjectedExperiment, ExperimentEntry } from '../eo/types';
+import type { ExperimentEntry } from '../eo/types';
 
 const KINDS: ExperimentEntry['kind'][] = ['note', 'dataset', 'result', 'chart', 'link', 'decision'];
 const KIND_ICONS: Record<string, string> = {
   note: '📝', dataset: '📊', result: '✅', chart: '📈', link: '🔗', decision: '⚖️',
 };
+
+interface ExpState {
+  entries: ExperimentEntry[];
+  meta: Record<string, unknown>;
+}
 
 interface Props {
   contentId: string;
@@ -17,69 +39,89 @@ interface Props {
 }
 
 export default function ExperimentEditor({ contentId, siteBase }: Props) {
-  const { creds } = useAuth();
+  const { isAuthenticated } = useAuth();
   const { registerEvent } = useXRay();
 
-  const [state, setState] = useState<ProjectedExperiment | null>(null);
+  const [state, setState] = useState<ExpState | null>(null);
   const [loading, setLoading] = useState(true);
-  const [roomId, setRoomId] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const currentRecordRef = useRef<XanoCurrentRecord | null>(null);
 
   const [kind, setKind] = useState<ExperimentEntry['kind']>('note');
   const [text, setText] = useState('');
   const [saving, setSaving] = useState(false);
 
+  // ── Load ──────────────────────────────────────────────────────────────────
+
   useEffect(() => {
     let cancelled = false;
     async function load() {
       setLoading(true);
-      const fileName = contentId.replace(':', '-') + '.json';
-      let snapshot: ProjectedExperiment | null = null;
+      let expState: ExpState | null = null;
 
+      // 1. Try Xano current record
       try {
-        const resp = await fetch(`${siteBase}/generated/state/content/${fileName}`);
-        if (resp.ok) snapshot = await resp.json() as ProjectedExperiment;
-      } catch { /* no snapshot */ }
+        const rec = await fetchCurrentRecord(contentId);
+        if (rec) {
+          currentRecordRef.current = rec;
+          expState = JSON.parse(rec.value) as ExpState;
+        }
+      } catch (err) {
+        console.warn('[ExperimentEditor] Could not fetch Xano current record:', err);
+      }
 
-      if (!cancelled && creds && snapshot) {
+      // 2. Fall back to static snapshot
+      if (!expState) {
         try {
-          const serverName = new URL(creds.homeserver).hostname;
-          const rid = await resolveAlias(creds.homeserver, `#${contentId}:${serverName}`);
-          setRoomId(rid);
-          const { events } = await fetchRoomDelta(creds.homeserver, rid, undefined, creds.access_token);
-          if (events.length) snapshot = applyDelta(snapshot, events as Parameters<typeof applyDelta>[1]) as ProjectedExperiment;
-        } catch { /* use snapshot */ }
+          const fileName = contentId.replace(':', '-') + '.json';
+          const resp = await fetch(`${siteBase}/generated/state/content/${fileName}`);
+          if (resp.ok) {
+            const snap = await resp.json() as { entries?: ExperimentEntry[]; meta?: Record<string, unknown> };
+            expState = { entries: snap.entries ?? [], meta: snap.meta ?? {} };
+          }
+        } catch { /* no snapshot */ }
       }
 
       if (!cancelled) {
-        setState(snapshot);
+        setState(expState);
         setLoading(false);
       }
     }
     load();
     return () => { cancelled = true; };
-  }, [contentId, creds, siteBase]);
+  }, [contentId, siteBase]);
+
+  // ── Add entry ─────────────────────────────────────────────────────────────
 
   async function addEntry() {
-    if (!creds || !roomId || !text.trim()) return;
+    if (!isAuthenticated || !text.trim()) return;
     setSaving(true);
     setError(null);
 
     const entryId = `e_${Date.now()}`;
+    const ts = new Date().toISOString();
     const entry: Omit<ExperimentEntry, 'deleted' | '_event_id'> = {
       entry_id: entryId,
       kind,
       data: { text: text.trim() },
-      ts: new Date().toISOString(),
+      ts,
     };
-    const event = insExpEntry(contentId, entry, creds.user_id);
+    const event = insExpEntry(contentId, entry, 'editor');
     const xid = `ins-entry-${entryId}`;
     registerEvent({ id: xid, op: event.op, target: event.target, operand: event.operand, ts: event.ctx.ts, agent: event.ctx.agent, status: 'pending' });
 
     try {
-      await sendEOEvent(creds, roomId, event as unknown as Record<string, unknown>, event.ctx.txn);
+      await addRecord(eventToPayload(event));
       registerEvent({ id: xid, op: event.op, target: event.target, operand: event.operand, ts: event.ctx.ts, agent: event.ctx.agent, status: 'sent' });
-      setState((prev) => prev ? { ...prev, entries: [...prev.entries, { ...entry, deleted: false }] } : prev);
+
+      const newEntry: ExperimentEntry = { ...entry, deleted: false };
+      const updatedState: ExpState = {
+        meta: state?.meta ?? {},
+        entries: [...(state?.entries ?? []), newEntry],
+      };
+      const updated = await upsertCurrentRecord(contentId, event.op, updatedState, 'editor', currentRecordRef.current);
+      currentRecordRef.current = updated;
+      setState(updatedState);
       setText('');
     } catch (err) {
       const msg = err instanceof Error ? err.message : String(err);
@@ -90,14 +132,23 @@ export default function ExperimentEditor({ contentId, siteBase }: Props) {
     }
   }
 
+  // ── Delete entry ──────────────────────────────────────────────────────────
+
   async function deleteEntry(entryId: string) {
-    if (!creds || !roomId) return;
-    const event = nulExpEntry(contentId, entryId, creds.user_id);
+    if (!isAuthenticated) return;
+    const event = nulExpEntry(contentId, entryId, 'editor');
     registerEvent({ id: `nul-${entryId}`, op: event.op, target: event.target, operand: event.operand, ts: event.ctx.ts, agent: event.ctx.agent, status: 'pending' });
     try {
-      await sendEOEvent(creds, roomId, event as unknown as Record<string, unknown>);
+      await addRecord(eventToPayload(event));
       registerEvent({ id: `nul-${entryId}`, op: event.op, target: event.target, operand: event.operand, ts: event.ctx.ts, agent: event.ctx.agent, status: 'sent' });
-      setState((prev) => prev ? { ...prev, entries: prev.entries.filter((e) => e.entry_id !== entryId) } : prev);
+
+      const updatedState: ExpState = {
+        meta: state?.meta ?? {},
+        entries: (state?.entries ?? []).filter((e) => e.entry_id !== entryId),
+      };
+      const updated = await upsertCurrentRecord(contentId, event.op, updatedState, 'editor', currentRecordRef.current);
+      currentRecordRef.current = updated;
+      setState(updatedState);
     } catch (err) {
       setError(err instanceof Error ? err.message : String(err));
     }
@@ -123,7 +174,7 @@ export default function ExperimentEditor({ contentId, siteBase }: Props) {
         <button
           className="btn btn-primary"
           onClick={addEntry}
-          disabled={!text.trim() || saving || !creds || !roomId}
+          disabled={!text.trim() || saving || !isAuthenticated}
         >
           {saving ? 'Adding…' : '+ Add entry'}
         </button>

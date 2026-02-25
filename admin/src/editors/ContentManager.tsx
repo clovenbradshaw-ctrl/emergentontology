@@ -1,19 +1,38 @@
 /**
- * ContentManager — create new content rooms and manage publish/draft status.
- * Also handles the "multiple editors" use case: shows who has recently edited.
+ * ContentManager — create new content entries and manage publish/draft status.
+ *
+ * Data flow:
+ *   Load  →  GET /eowikicurrent where record_id = "site:index" → content list
+ *            Fall back to static /generated/state/index.json if no Xano record.
+ *   Create → POST /eowiki (INS index event)
+ *            UPSERT /eowikicurrent record_id="site:index" with updated list
+ *            POST /eowikicurrent record_id=<contentId> (empty initial state)
+ *   Toggle → POST /eowiki (DES status event)
+ *            PATCH /eowikicurrent record_id="site:index" with updated status
  */
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { useAuth } from '../auth/AuthContext';
 import { useXRay } from '../components/XRayOverlay';
 import {
-  createRoom,
-  sendEOEvent,
-  setStateEvent,
-  resolveAlias,
-} from '../matrix/client';
+  fetchCurrentRecord,
+  addRecord,
+  upsertCurrentRecord,
+  eventToPayload,
+  type XanoCurrentRecord,
+} from '../xano/client';
 import { insIndexEntry, desContentMeta, desIndexEntry } from '../eo/events';
-import type { SiteIndex, ContentType, ContentStatus, Visibility } from '../eo/types';
+import type { ContentType, ContentStatus, Visibility } from '../eo/types';
+
+interface IndexEntry {
+  content_id: string;
+  slug: string;
+  title: string;
+  content_type: ContentType;
+  status: ContentStatus;
+  visibility: Visibility;
+  tags: string[];
+}
 
 interface Props {
   siteBase: string;
@@ -28,100 +47,134 @@ const TYPE_LABELS: Record<ContentType, string> = {
 };
 
 export default function ContentManager({ siteBase, onOpen }: Props) {
-  const { creds } = useAuth();
+  const { isAuthenticated } = useAuth();
   const { registerEvent } = useXRay();
 
-  const [index, setIndex] = useState<SiteIndex | null>(null);
+  const [entries, setEntries] = useState<IndexEntry[]>([]);
   const [loading, setLoading] = useState(true);
   const [creating, setCreating] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const indexRecordRef = useRef<XanoCurrentRecord | null>(null);
 
-  // New content form state
   const [newType, setNewType] = useState<ContentType>('wiki');
   const [newSlug, setNewSlug] = useState('');
   const [newTitle, setNewTitle] = useState('');
   const [newVisibility, setNewVisibility] = useState<Visibility>('public');
 
+  // ── Load index ─────────────────────────────────────────────────────────────
+
   useEffect(() => {
-    fetch(`${siteBase}/generated/state/index.json`)
-      .then((r) => r.ok ? r.json() : null)
-      .then((data) => { setIndex(data); setLoading(false); })
-      .catch(() => setLoading(false));
+    async function load() {
+      setLoading(true);
+
+      // 1. Try Xano current state for site:index
+      try {
+        const rec = await fetchCurrentRecord('site:index');
+        if (rec) {
+          indexRecordRef.current = rec;
+          const parsed = JSON.parse(rec.value) as { entries: IndexEntry[] };
+          setEntries(parsed.entries ?? []);
+          setLoading(false);
+          return;
+        }
+      } catch (err) {
+        console.warn('[ContentManager] Could not fetch Xano index:', err);
+      }
+
+      // 2. Fall back to static index.json
+      try {
+        const resp = await fetch(`${siteBase}/generated/state/index.json`);
+        if (resp.ok) {
+          const data = await resp.json() as { entries?: IndexEntry[] };
+          setEntries(data.entries ?? []);
+        }
+      } catch { /* no static index */ }
+
+      setLoading(false);
+    }
+
+    load();
   }, [siteBase]);
 
+  // ── Create content ─────────────────────────────────────────────────────────
+
   async function create() {
-    if (!creds || !newSlug.trim() || !newTitle.trim()) return;
+    if (!isAuthenticated || !newSlug.trim() || !newTitle.trim()) return;
     setCreating(true);
     setError(null);
 
-    const serverName = new URL(creds.homeserver).hostname;
     const contentId = `${newType}:${newSlug.trim()}`;
-    const alias = `${newType}-${newSlug.trim().replace(/\//g, '-')}`;
+    const agent = 'editor';
+    const ts = new Date().toISOString();
 
     try {
-      // Create the Matrix room
-      const roomId = await createRoom(creds, {
-        name: newTitle,
-        alias,
-        topic: `EO ${TYPE_LABELS[newType]}: ${newSlug}`,
-        preset: newVisibility === 'public' ? 'public_chat' : 'private_chat',
-      });
-
-      // Write content.meta state event
-      await setStateEvent(creds, roomId, 'com.eo.content.meta', '', {
-        content_id: contentId,
+      // 1. Emit INS index event to eowiki log
+      const insEvent = insIndexEntry(contentId, {
+        slug: newSlug.trim(),
+        title: newTitle.trim(),
         content_type: newType,
-        slug: newSlug,
-        title: newTitle,
         status: 'draft',
         visibility: newVisibility,
         tags: [],
-        updated_at: new Date().toISOString(),
-      });
+      }, agent);
+      const xid = `ins-index-${contentId}`;
+      registerEvent({ id: xid, op: insEvent.op, target: insEvent.target, operand: insEvent.operand, ts: insEvent.ctx.ts, agent: insEvent.ctx.agent, status: 'pending' });
+      await addRecord(eventToPayload(insEvent));
+      registerEvent({ id: xid, op: insEvent.op, target: insEvent.target, operand: insEvent.operand, ts: insEvent.ctx.ts, agent: insEvent.ctx.agent, status: 'sent' });
 
-      // Emit DES event for the content meta
+      // 2. Emit DES content meta event
       const desEvent = desContentMeta(contentId, {
         content_id: contentId,
         content_type: newType,
-        slug: newSlug,
-        title: newTitle,
+        slug: newSlug.trim(),
+        title: newTitle.trim(),
         status: 'draft',
         visibility: newVisibility,
         tags: [],
-        updated_at: new Date().toISOString(),
-      }, creds.user_id);
-      const xid = `des-${contentId}`;
-      registerEvent({ id: xid, op: desEvent.op, target: desEvent.target, operand: desEvent.operand, ts: desEvent.ctx.ts, agent: desEvent.ctx.agent, status: 'pending' });
-      await sendEOEvent(creds, roomId, desEvent as unknown as Record<string, unknown>);
-      registerEvent({ id: xid, op: desEvent.op, target: desEvent.target, operand: desEvent.operand, ts: desEvent.ctx.ts, agent: desEvent.ctx.agent, status: 'sent' });
+        updated_at: ts,
+      }, agent);
+      await addRecord(eventToPayload(desEvent));
 
-      // Emit INS to site:index room
-      const indexAlias = `#site:index:${serverName}`;
-      try {
-        const indexRoomId = await resolveAlias(creds.homeserver, indexAlias);
-        const insEvent = insIndexEntry(contentId, {
-          slug: newSlug,
-          title: newTitle,
+      // 3. Update site:index current state
+      const newEntry: IndexEntry = {
+        content_id: contentId,
+        slug: newSlug.trim(),
+        title: newTitle.trim(),
+        content_type: newType,
+        status: 'draft',
+        visibility: newVisibility,
+        tags: [],
+      };
+      const updatedEntries = [...entries, newEntry];
+      const updated = await upsertCurrentRecord(
+        'site:index',
+        insEvent.op,
+        { entries: updatedEntries },
+        agent,
+        indexRecordRef.current,
+      );
+      indexRecordRef.current = updated;
+
+      // 4. Create initial current state for the new content
+      await upsertCurrentRecord(contentId, desEvent.op, {
+        meta: {
+          content_id: contentId,
           content_type: newType,
+          slug: newSlug.trim(),
+          title: newTitle.trim(),
           status: 'draft',
           visibility: newVisibility,
           tags: [],
-        }, creds.user_id);
-        const xid2 = `ins-index-${contentId}`;
-        registerEvent({ id: xid2, op: insEvent.op, target: insEvent.target, operand: insEvent.operand, ts: insEvent.ctx.ts, agent: insEvent.ctx.agent, status: 'pending' });
-        await sendEOEvent(creds, indexRoomId, insEvent as unknown as Record<string, unknown>);
-        registerEvent({ id: xid2, op: insEvent.op, target: insEvent.target, operand: insEvent.operand, ts: insEvent.ctx.ts, agent: insEvent.ctx.agent, status: 'sent' });
-      } catch {
-        console.warn('[ContentManager] Could not write to site:index room — room may not exist yet');
-      }
+          updated_at: ts,
+        },
+        current_revision: null,
+        revisions: [],
+        blocks: [],
+        block_order: [],
+        entries: [],
+      }, agent, null);
 
-      // Refresh local index
-      setIndex((prev) => {
-        if (!prev) return prev;
-        const newEntry = { content_id: contentId, slug: newSlug, title: newTitle, content_type: newType, status: 'draft' as ContentStatus, visibility: newVisibility, tags: [] };
-        return { ...prev, entries: [...prev.entries, newEntry] };
-      });
-
+      setEntries(updatedEntries);
       setNewSlug('');
       setNewTitle('');
       onOpen(contentId, newType);
@@ -132,35 +185,38 @@ export default function ContentManager({ siteBase, onOpen }: Props) {
     }
   }
 
+  // ── Toggle publish ─────────────────────────────────────────────────────────
+
   async function togglePublish(contentId: string, currentStatus: ContentStatus) {
-    if (!creds) return;
+    if (!isAuthenticated) return;
     const newStatus: ContentStatus = currentStatus === 'published' ? 'draft' : 'published';
-    const serverName = new URL(creds.homeserver).hostname;
+    const agent = 'editor';
 
     try {
-      // Update site:index
-      const indexAlias = `#site:index:${serverName}`;
-      const indexRoomId = await resolveAlias(creds.homeserver, indexAlias);
-      const desEvent = desIndexEntry(contentId, { status: newStatus }, creds.user_id);
-      registerEvent({ id: `des-status-${contentId}`, op: desEvent.op, target: desEvent.target, operand: desEvent.operand, ts: desEvent.ctx.ts, agent: desEvent.ctx.agent, status: 'pending' });
-      await sendEOEvent(creds, indexRoomId, desEvent as unknown as Record<string, unknown>);
-      registerEvent({ id: `des-status-${contentId}`, op: desEvent.op, target: desEvent.target, operand: desEvent.operand, ts: desEvent.ctx.ts, agent: desEvent.ctx.agent, status: 'sent' });
+      // 1. Emit DES index event
+      const desEvent = desIndexEntry(contentId, { status: newStatus }, agent);
+      const xid = `des-status-${contentId}`;
+      registerEvent({ id: xid, op: desEvent.op, target: desEvent.target, operand: desEvent.operand, ts: desEvent.ctx.ts, agent: desEvent.ctx.agent, status: 'pending' });
+      await addRecord(eventToPayload(desEvent));
+      registerEvent({ id: xid, op: desEvent.op, target: desEvent.target, operand: desEvent.operand, ts: desEvent.ctx.ts, agent: desEvent.ctx.agent, status: 'sent' });
 
-      setIndex((prev) => {
-        if (!prev) return prev;
-        return {
-          ...prev,
-          entries: prev.entries.map((e) => e.content_id === contentId ? { ...e, status: newStatus } : e),
-        };
-      });
+      // 2. Update site:index current state
+      const updatedEntries = entries.map((e) => e.content_id === contentId ? { ...e, status: newStatus } : e);
+      const updated = await upsertCurrentRecord(
+        'site:index',
+        desEvent.op,
+        { entries: updatedEntries },
+        agent,
+        indexRecordRef.current,
+      );
+      indexRecordRef.current = updated;
+      setEntries(updatedEntries);
     } catch (err) {
       setError(err instanceof Error ? err.message : String(err));
     }
   }
 
   if (loading) return <div className="editor-loading">Loading content list…</div>;
-
-  const allEntries = index?.entries ?? [];
 
   return (
     <div className="content-manager">
@@ -182,7 +238,7 @@ export default function ContentManager({ siteBase, onOpen }: Props) {
           <button
             className="btn btn-primary"
             onClick={create}
-            disabled={creating || !creds || !newSlug || !newTitle}
+            disabled={creating || !isAuthenticated || !newSlug || !newTitle}
           >
             {creating ? 'Creating…' : 'Create'}
           </button>
@@ -191,8 +247,8 @@ export default function ContentManager({ siteBase, onOpen }: Props) {
 
       {/* Content list */}
       <section className="content-list-section">
-        <h2>All Content ({allEntries.length})</h2>
-        {allEntries.length === 0
+        <h2>All Content ({entries.length})</h2>
+        {entries.length === 0
           ? <p className="empty-msg">No content yet. Create something above.</p>
           : (
             <table className="content-table">
@@ -207,7 +263,7 @@ export default function ContentManager({ siteBase, onOpen }: Props) {
                 </tr>
               </thead>
               <tbody>
-                {allEntries.map((entry) => (
+                {entries.map((entry) => (
                   <tr key={entry.content_id}>
                     <td><span className={`type-badge type-${entry.content_type}`}>{entry.content_type}</span></td>
                     <td>{entry.title}</td>
@@ -216,7 +272,7 @@ export default function ContentManager({ siteBase, onOpen }: Props) {
                       <button
                         className={`status-toggle status-${entry.status}`}
                         onClick={() => togglePublish(entry.content_id, entry.status)}
-                        disabled={!creds}
+                        disabled={!isAuthenticated}
                         title="Toggle draft/published"
                       >
                         {entry.status}

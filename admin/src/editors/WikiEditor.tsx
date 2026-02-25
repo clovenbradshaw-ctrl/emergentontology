@@ -1,47 +1,52 @@
 /**
  * WikiEditor — markdown editor for wiki pages and blog posts.
  *
- * Load strategy:
- *   1. Fetch pre-built snapshot from /generated/state/content/<id>.json  (fast)
- *   2. Fetch delta events from Matrix since snapshot.meta.updated_at
- *   3. Apply delta on top of snapshot
- *   4. Render editor with current content
- *   5. On save: emit eo.op INS rev event → snapshot stays cached until next build
+ * Data flow:
+ *   Load  →  GET /eowikicurrent (record_id = contentId) → current state
+ *            Fall back to static snapshot if no Xano record exists yet.
+ *   Save  →  POST /eowiki (append INS rev event)
+ *            UPSERT /eowikicurrent (update current state snapshot)
  */
 
 import React, { useEffect, useRef, useState } from 'react';
 import { useAuth } from '../auth/AuthContext';
 import { useXRay } from '../components/XRayOverlay';
-import { fetchRoomDelta, sendEOEvent, resolveAlias } from '../matrix/client';
-import { insRevision, synRevision } from '../eo/events';
-import { applyDelta } from '../eo/replay';
-import type { ProjectedWiki, ProjectedBlog, WikiRevision } from '../eo/types';
+import {
+  fetchCurrentRecord,
+  addRecord,
+  upsertCurrentRecord,
+  eventToPayload,
+  type XanoCurrentRecord,
+} from '../xano/client';
+import { insRevision } from '../eo/events';
+import type { WikiRevision, ContentMeta } from '../eo/types';
 
-type WikiOrBlog = ProjectedWiki | ProjectedBlog;
+interface WikiState {
+  meta: Partial<ContentMeta>;
+  current_revision: WikiRevision | null;
+  revisions: WikiRevision[];
+}
 
 interface Props {
   contentId: string;  // e.g. "wiki:operators" or "blog:intro"
-  siteBase: string;   // e.g. "" or "/my-repo"
+  siteBase: string;
 }
 
 export default function WikiEditor({ contentId, siteBase }: Props) {
-  const { creds } = useAuth();
+  const { isAuthenticated } = useAuth();
   const { registerEvent } = useXRay();
 
-  const [state, setState] = useState<WikiOrBlog | null>(null);
+  const [state, setState] = useState<WikiState | null>(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [roomId, setRoomId] = useState<string | null>(null);
-  const [syncToken, setSyncToken] = useState<string | undefined>(undefined);
+  const currentRecordRef = useRef<XanoCurrentRecord | null>(null);
 
   const [editorContent, setEditorContent] = useState('');
   const [summary, setSummary] = useState('');
   const [isDirty, setIsDirty] = useState(false);
 
-  const snapshotTsRef = useRef<string | undefined>(undefined);
-
-  // ── 1. Load snapshot + delta ───────────────────────────────────────────────
+  // ── Load current state from Xano (with static snapshot fallback) ──────────
 
   useEffect(() => {
     let cancelled = false;
@@ -50,110 +55,94 @@ export default function WikiEditor({ contentId, siteBase }: Props) {
       setLoading(true);
       setError(null);
 
-      // Load snapshot
-      const fileName = contentId.replace(':', '-') + '.json';
-      let snapshot: WikiOrBlog | null = null;
+      let wikiState: WikiState | null = null;
+
+      // 1. Try eowikicurrent
       try {
-        const resp = await fetch(`${siteBase}/generated/state/content/${fileName}`);
-        if (resp.ok) {
-          snapshot = await resp.json() as WikiOrBlog;
-          snapshotTsRef.current = snapshot.meta.updated_at;
+        const rec = await fetchCurrentRecord(contentId);
+        if (rec) {
+          currentRecordRef.current = rec;
+          wikiState = JSON.parse(rec.value) as WikiState;
         }
-      } catch { /* no snapshot yet */ }
+      } catch (err) {
+        console.warn('[WikiEditor] Could not fetch Xano current record:', err);
+      }
 
-      if (cancelled) return;
-
-      // Resolve room ID
-      if (creds) {
+      // 2. Fall back to static snapshot
+      if (!wikiState) {
         try {
-          const serverName = new URL(creds.homeserver).hostname;
-          const alias = `#${contentId}:${serverName}`;
-          const rid = await resolveAlias(creds.homeserver, alias);
-          setRoomId(rid);
-
-          // Fetch delta events since snapshot
-          const { events: delta, end } = await fetchRoomDelta(
-            creds.homeserver,
-            rid,
-            undefined,
-            creds.access_token
-          );
-          setSyncToken(end);
-
-          if (snapshot && delta.length > 0) {
-            const updated = applyDelta(snapshot, delta as Parameters<typeof applyDelta>[1]);
-            snapshot = updated as WikiOrBlog;
+          const fileName = contentId.replace(':', '-') + '.json';
+          const resp = await fetch(`${siteBase}/generated/state/content/${fileName}`);
+          if (resp.ok) {
+            const snap = await resp.json() as { meta: ContentMeta; current_revision?: WikiRevision; revisions?: WikiRevision[] };
+            wikiState = {
+              meta: snap.meta ?? {},
+              current_revision: snap.current_revision ?? null,
+              revisions: snap.revisions ?? [],
+            };
           }
-        } catch (err) {
-          console.warn('[WikiEditor] Could not fetch delta:', err);
-        }
+        } catch { /* no snapshot */ }
       }
 
       if (cancelled) return;
-
-      if (snapshot) {
-        setState(snapshot);
-        setEditorContent(snapshot.current_revision?.content ?? '');
+      if (wikiState) {
+        setState(wikiState);
+        setEditorContent(wikiState.current_revision?.content ?? '');
       }
       setLoading(false);
     }
 
     load();
     return () => { cancelled = true; };
-  }, [contentId, creds, siteBase]);
+  }, [contentId, siteBase]);
 
-  // ── 2. Save revision ───────────────────────────────────────────────────────
+  // ── Save revision ──────────────────────────────────────────────────────────
 
   async function save() {
-    if (!creds || !roomId || !isDirty) return;
+    if (!isAuthenticated || !isDirty) return;
     setSaving(true);
     setError(null);
 
     const revId = `r_${Date.now()}`;
+    const agent = 'editor';
+    const ts = new Date().toISOString();
     const event = insRevision(contentId, {
       rev_id: revId,
       format: 'markdown',
       content: editorContent,
       summary: summary || 'Edit',
-      ts: new Date().toISOString(),
-    }, creds.user_id);
+      ts,
+    }, agent);
 
-    const xrayId = `${event.op}-${revId}`;
-    registerEvent({ id: xrayId, op: event.op, target: event.target, operand: event.operand, ts: event.ctx.ts, agent: event.ctx.agent, status: 'pending' });
+    const xid = `${event.op}-${revId}`;
+    registerEvent({ id: xid, op: event.op, target: event.target, operand: event.operand, ts: event.ctx.ts, agent: event.ctx.agent, status: 'pending' });
 
     try {
-      const eventId = await sendEOEvent(creds, roomId, event as unknown as Record<string, unknown>, event.ctx.txn);
-      registerEvent({ id: xrayId, op: event.op, target: event.target, operand: event.operand, ts: event.ctx.ts, agent: event.ctx.agent, status: 'sent' });
+      // 1. Append to event log
+      await addRecord(eventToPayload(event));
+      registerEvent({ id: xid, op: event.op, target: event.target, operand: event.operand, ts: event.ctx.ts, agent: event.ctx.agent, status: 'sent' });
 
-      // Optimistically update local state
-      const newRev: WikiRevision = { rev_id: revId, format: 'markdown', content: editorContent, summary: summary || 'Edit', ts: event.ctx.ts, _event_id: eventId };
-      setState((prev) => {
-        if (!prev) return prev;
-        const revisions = [...(prev.revisions ?? []), newRev];
-        return { ...prev, current_revision: newRev, revisions } as WikiOrBlog;
-      });
+      // 2. Build updated state
+      const newRev: WikiRevision = { rev_id: revId, format: 'markdown', content: editorContent, summary: summary || 'Edit', ts };
+      const updatedState: WikiState = {
+        meta: state?.meta ?? {},
+        revisions: [...(state?.revisions ?? []), newRev],
+        current_revision: newRev,
+      };
+
+      // 3. Upsert current-state record
+      const updated = await upsertCurrentRecord(contentId, event.op, updatedState, agent, currentRecordRef.current);
+      currentRecordRef.current = updated;
+
+      setState(updatedState);
       setIsDirty(false);
       setSummary('');
     } catch (err) {
       const msg = err instanceof Error ? err.message : String(err);
-      registerEvent({ id: xrayId, op: event.op, target: event.target, operand: event.operand, ts: event.ctx.ts, agent: event.ctx.agent, status: 'error', error: msg });
+      registerEvent({ id: xid, op: event.op, target: event.target, operand: event.operand, ts: event.ctx.ts, agent: event.ctx.agent, status: 'error', error: msg });
       setError(`Save failed: ${msg}`);
     } finally {
       setSaving(false);
-    }
-  }
-
-  // ── Conflict resolution ────────────────────────────────────────────────────
-
-  async function resolveConflict(chosenRevId: string) {
-    if (!creds || !roomId || !state || !('conflict_candidates' in state)) return;
-    const event = synRevision(contentId, chosenRevId, state.conflict_candidates, creds.user_id);
-    registerEvent({ id: `syn-${Date.now()}`, op: event.op, target: event.target, operand: event.operand, ts: event.ctx.ts, agent: event.ctx.agent, status: 'pending' });
-    try {
-      await sendEOEvent(creds, roomId, event as unknown as Record<string, unknown>);
-      setState((prev) => prev ? { ...prev, has_conflict: false, conflict_candidates: [] } as WikiOrBlog : prev);
-    } catch (err) {
-      setError(`Conflict resolution failed: ${err instanceof Error ? err.message : String(err)}`);
     }
   }
 
@@ -171,17 +160,6 @@ export default function WikiEditor({ contentId, siteBase }: Props) {
         </div>
         {isDirty && <span className="dirty-indicator">Unsaved changes</span>}
       </div>
-
-      {state && 'has_conflict' in state && state.has_conflict && (
-        <div className="conflict-banner">
-          <strong>Conflict:</strong> {state.conflict_candidates.length} concurrent revisions.
-          {state.revisions.filter((r) => state.conflict_candidates.includes(r.rev_id)).map((r) => (
-            <button key={r.rev_id} onClick={() => resolveConflict(r.rev_id)} className="btn btn-sm">
-              Keep {r.rev_id} ({r.summary || 'no summary'})
-            </button>
-          ))}
-        </div>
-      )}
 
       {error && <div className="error-banner">{error} <button onClick={() => setError(null)}>×</button></div>}
 
@@ -206,7 +184,7 @@ export default function WikiEditor({ contentId, siteBase }: Props) {
             <button
               className="btn btn-primary"
               onClick={save}
-              disabled={!isDirty || saving || !creds || !roomId}
+              disabled={!isDirty || saving || !isAuthenticated}
             >
               {saving ? 'Saving…' : 'Save revision'}
             </button>
@@ -274,7 +252,7 @@ function MarkdownToolbar({ onInsert }: { onInsert: (text: string) => void }) {
 }
 
 function simpleMarkdown(md: string): string {
-  // 1. Fenced code blocks (must run before HTML-escaping inline content)
+  // 1. Fenced code blocks
   const codeBlocks: string[] = [];
   let s = md.replace(/```(\w*)\n?([\s\S]*?)```/g, (_m, lang, code) => {
     const escaped = code.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
@@ -283,46 +261,37 @@ function simpleMarkdown(md: string): string {
     return `\x00CODE${codeBlocks.length - 1}\x00`;
   });
 
-  // 2. Escape HTML in the non-code parts
   s = s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
 
-  // 3. Headings
   s = s
     .replace(/^#{4}\s+(.+)$/gm, '<h4>$1</h4>')
     .replace(/^#{3}\s+(.+)$/gm, '<h3>$1</h3>')
     .replace(/^#{2}\s+(.+)$/gm, '<h2>$1</h2>')
     .replace(/^#{1}\s+(.+)$/gm, '<h1>$1</h1>');
 
-  // 4. Horizontal rule
   s = s.replace(/^---$/gm, '<hr>');
 
-  // 5. Unordered lists (groups of lines starting with - or *)
   s = s.replace(/((?:^[ \t]*[-*]\s+.+\n?)+)/gm, (block) => {
     const items = block.trim().split('\n').map((l) => `<li>${l.replace(/^[ \t]*[-*]\s+/, '')}</li>`).join('');
     return `<ul>${items}</ul>`;
   });
 
-  // 6. Ordered lists
   s = s.replace(/((?:^[ \t]*\d+\.\s+.+\n?)+)/gm, (block) => {
     const items = block.trim().split('\n').map((l) => `<li>${l.replace(/^[ \t]*\d+\.\s+/, '')}</li>`).join('');
     return `<ol>${items}</ol>`;
   });
 
-  // 7. Inline: bold, italic, inline code, links
   s = s
     .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
     .replace(/\*(.+?)\*/g, '<em>$1</em>')
     .replace(/`(.+?)`/g, '<code>$1</code>')
     .replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" target="_blank" rel="noopener">$1</a>');
 
-  // 8. Paragraphs (blank-line separated)
   s = s.replace(/\n\n+/g, '</p><p>');
   s = `<p>${s}</p>`;
 
-  // 9. Restore code blocks (unescape the placeholders)
   s = s.replace(/\x00CODE(\d+)\x00/g, (_m, i) => codeBlocks[Number(i)]);
 
-  // 10. Clean up empty paragraphs wrapping block elements
   s = s.replace(/<p>(<(?:h[1-6]|ul|ol|hr|pre|blockquote)[^>]*>)/g, '$1');
   s = s.replace(/(<\/(?:h[1-6]|ul|ol|hr|pre|blockquote)>)<\/p>/g, '$1');
 
