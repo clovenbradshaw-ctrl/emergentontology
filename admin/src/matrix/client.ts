@@ -44,19 +44,28 @@ export async function login(
   username: string,
   password: string
 ): Promise<MatrixCredentials> {
-  const resp = await fetch(`${homeserver}/_matrix/client/v3/login`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      type: 'm.login.password',
-      identifier: { type: 'm.id.user', user: username },
-      password,
-      initial_device_display_name: 'EO Admin Editor',
-    }),
-  });
+  let resp: Response;
+  try {
+    resp = await fetch(`${homeserver}/_matrix/client/v3/login`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        type: 'm.login.password',
+        identifier: { type: 'm.id.user', user: username },
+        password,
+        initial_device_display_name: 'EO Admin Editor',
+      }),
+      signal: AbortSignal.timeout(15_000),
+    });
+  } catch (fetchErr) {
+    if (fetchErr instanceof Error && fetchErr.name === 'TimeoutError') {
+      throw new Error('Could not reach the homeserver — request timed out. Check your connection.');
+    }
+    throw fetchErr;
+  }
   if (!resp.ok) {
     const err = await resp.json().catch(() => ({})) as { errcode?: string; error?: string };
-    throw new Error(err.error ?? `Login failed: HTTP ${resp.status}`);
+    throw new Error(err.error || `Login failed: HTTP ${resp.status}`);
   }
   const data = await resp.json() as { access_token: string; user_id: string; device_id: string };
   const creds: MatrixCredentials = { ...data, homeserver };
