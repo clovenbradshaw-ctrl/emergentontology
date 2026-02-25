@@ -1,0 +1,85 @@
+---
+import Base from '../../layouts/Base.astro';
+import { loadAllContent, loadContent } from '../../lib/state';
+import type { ProjectedWiki } from '../../lib/state';
+
+export async function getStaticPaths() {
+  const items = loadAllContent('wiki') as ProjectedWiki[];
+  return items.map((w) => ({
+    params: { slug: w.meta.slug },
+    props: { wiki: w },
+  }));
+}
+
+const { wiki } = Astro.props as { wiki: ProjectedWiki };
+const base = import.meta.env.BASE_URL.replace(/\/$/, '');
+
+function renderMarkdown(md: string): string {
+  return md
+    .replace(/^#{4}\s+(.+)$/gm, '<h4>$1</h4>')
+    .replace(/^#{3}\s+(.+)$/gm, '<h3>$1</h3>')
+    .replace(/^#{2}\s+(.+)$/gm, '<h2>$1</h2>')
+    .replace(/^#{1}\s+(.+)$/gm, '<h1>$1</h1>')
+    .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
+    .replace(/\*(.+?)\*/g, '<em>$1</em>')
+    .replace(/`(.+?)`/g, '<code>$1</code>')
+    .replace(/\[(.+?)\]\((.+?)\)/g, '<a href="$2">$1</a>')
+    .replace(/\n\n/g, '</p><p>')
+    .replace(/^(?!<)(.+)/m, '<p>$1')
+    .trimEnd() + '</p>';
+}
+---
+<Base
+  title={wiki.meta.title}
+  breadcrumbs={[
+    { label: 'Home', href: `${base}/` },
+    { label: 'Wiki', href: `${base}/wiki/` },
+    { label: wiki.meta.title, href: `${base}/wiki/${wiki.meta.slug}/` },
+  ]}
+>
+  <article class="wiki-content">
+    <header class="content-header">
+      <h1>{wiki.meta.title}</h1>
+      <div class="content-tags">
+        {wiki.meta.tags.map((t: string) => <span class="tag">{t}</span>)}
+      </div>
+    </header>
+
+    {wiki.has_conflict && (
+      <div class="conflict-banner">
+        <strong>Conflict detected:</strong> There are {wiki.conflict_candidates.length} concurrent revisions.
+        <a href="#history">View history</a> or resolve via admin.
+      </div>
+    )}
+
+    <div class="wiki-body">
+      {wiki.current_revision
+        ? <Fragment set:html={renderMarkdown(wiki.current_revision.content)} />
+        : <p class="empty-page">No content yet.</p>
+      }
+    </div>
+
+    <section class="revision-history" id="history">
+      <h2>Revision History</h2>
+      <ol class="rev-list" reversed>
+        {wiki.revisions.length > 0
+          ? wiki.revisions
+              .slice()
+              .reverse()
+              .map((r) => (
+                <li class="rev-entry">
+                  <span class="rev-id">{r.rev_id}</span>
+                  <time class="rev-ts">{new Date(r.ts).toLocaleDateString()}</time>
+                  <span class="rev-summary">{r.summary || 'No summary'}</span>
+                </li>
+              ))
+          : <li>No revisions yet.</li>
+        }
+      </ol>
+    </section>
+
+    <div class="content-actions">
+      <a class="btn btn-edit" href={`${base}/admin/#wiki/${wiki.meta.slug}`}>Edit in Admin</a>
+    </div>
+  </article>
+</Base>

@@ -1,0 +1,96 @@
+---
+import Base from '../layouts/Base.astro';
+import { loadSiteIndex } from '../lib/state';
+import type { NavEntry } from '../lib/state';
+
+const index = loadSiteIndex();
+const base = import.meta.env.BASE_URL.replace(/\/$/, '');
+
+function typeDir(entry: NavEntry) {
+  return entry.content_type === 'page' ? 'page'
+    : entry.content_type === 'experiment' ? 'exp'
+    : entry.content_type;
+}
+
+function byType(type: string) {
+  return index.nav.filter((e: NavEntry) => e.content_type === type);
+}
+---
+<Base title="Home" description="A minimal, universal framework for data transformation.">
+  <section class="hero">
+    <h1>Emergent Ontology</h1>
+    <p class="hero-sub">A minimal, universal framework for data transformation — nine operators, infinite composability.</p>
+    <div class="search-box">
+      <input id="search-input" type="search" placeholder="Search…" aria-label="Search site" autocomplete="off" />
+      <div id="search-results" class="search-results" role="list" hidden></div>
+    </div>
+  </section>
+
+  {byType('wiki').length > 0 && (
+    <section class="home-section">
+      <h2>Wiki</h2>
+      <ul class="content-list">
+        {byType('wiki').map((e: NavEntry) => (
+          <li>
+            <a href={`${base}/wiki/${e.slug}/`}>{e.title}</a>
+            {e.tags.length > 0 && (
+              <span class="tags">
+                {e.tags.map((t: string) => <span class="tag">{t}</span>)}
+              </span>
+            )}
+          </li>
+        ))}
+      </ul>
+    </section>
+  )}
+
+  {byType('blog').length > 0 && (
+    <section class="home-section">
+      <h2>Blog</h2>
+      <ul class="content-list">
+        {byType('blog').map((e: NavEntry) => (
+          <li>
+            <a href={`${base}/blog/${e.slug}/`}>{e.title}</a>
+            {e.tags.length > 0 && (
+              <span class="tags">
+                {e.tags.map((t: string) => <span class="tag">{t}</span>)}
+              </span>
+            )}
+          </li>
+        ))}
+      </ul>
+    </section>
+  )}
+
+  {byType('experiment').length > 0 && (
+    <section class="home-section">
+      <h2>Experiments</h2>
+      <ul class="content-list">
+        {byType('experiment').map((e: NavEntry) => (
+          <li>
+            <a href={`${base}/exp/${e.slug}/`}>{e.title}</a>
+          </li>
+        ))}
+      </ul>
+    </section>
+  )}
+
+  {byType('page').length > 0 && (
+    <section class="home-section">
+      <h2>Pages</h2>
+      <ul class="content-list">
+        {byType('page').map((e: NavEntry) => (
+          <li>
+            <a href={`${base}/page/${e.slug}/`}>{e.title}</a>
+          </li>
+        ))}
+      </ul>
+    </section>
+  )}
+
+  {index.nav.length === 0 && (
+    <section class="home-section">
+      <p class="empty-page">No content published yet. <a href={`${base}/admin/`}>Open the admin editor</a> to get started.</p>
+    </section>
+  )}
+</Base>

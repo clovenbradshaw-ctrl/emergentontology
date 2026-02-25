@@ -1,0 +1,68 @@
+---
+import Base from '../../layouts/Base.astro';
+import { loadAllContent } from '../../lib/state';
+import type { ProjectedBlog } from '../../lib/state';
+
+export async function getStaticPaths() {
+  const items = loadAllContent('blog') as ProjectedBlog[];
+  return items.map((b) => ({
+    params: { slug: b.meta.slug },
+    props: { post: b },
+  }));
+}
+
+const { post } = Astro.props as { post: ProjectedBlog };
+const base = import.meta.env.BASE_URL.replace(/\/$/, '');
+
+function renderMarkdown(md: string): string {
+  return md
+    .replace(/^#{4}\s+(.+)$/gm, '<h4>$1</h4>')
+    .replace(/^#{3}\s+(.+)$/gm, '<h3>$1</h3>')
+    .replace(/^#{2}\s+(.+)$/gm, '<h2>$1</h2>')
+    .replace(/^#{1}\s+(.+)$/gm, '<h1>$1</h1>')
+    .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
+    .replace(/\*(.+?)\*/g, '<em>$1</em>')
+    .replace(/`(.+?)`/g, '<code>$1</code>')
+    .replace(/\[(.+?)\]\((.+?)\)/g, '<a href="$2">$1</a>')
+    .replace(/\n\n/g, '</p><p>')
+    .replace(/^(?!<)(.+)/m, '<p>$1')
+    .trimEnd() + '</p>';
+}
+---
+<Base
+  title={post.meta.title}
+  breadcrumbs={[
+    { label: 'Home', href: `${base}/` },
+    { label: 'Blog', href: `${base}/blog/` },
+    { label: post.meta.title, href: `${base}/blog/${post.meta.slug}/` },
+  ]}
+>
+  <article class="blog-content">
+    <header class="content-header">
+      <h1>{post.meta.title}</h1>
+      <div class="post-meta">
+        {post.current_revision && (
+          <time datetime={post.current_revision.ts}>
+            {new Date(post.current_revision.ts).toLocaleDateString('en-US', {
+              year: 'numeric', month: 'long', day: 'numeric'
+            })}
+          </time>
+        )}
+        <div class="content-tags">
+          {post.meta.tags.map((t: string) => <span class="tag">{t}</span>)}
+        </div>
+      </div>
+    </header>
+
+    <div class="blog-body">
+      {post.current_revision
+        ? <Fragment set:html={renderMarkdown(post.current_revision.content)} />
+        : <p class="empty-page">No content yet.</p>
+      }
+    </div>
+
+    <div class="content-actions">
+      <a class="btn btn-edit" href={`${base}/admin/#blog/${post.meta.slug}`}>Edit in Admin</a>
+    </div>
+  </article>
+</Base>

@@ -1,0 +1,29 @@
+node_modules/
+dist/
+.env
+.env.local
+
+# Astro build output (deployed via Pages artifact, not committed)
+site/dist/
+
+# Admin build output goes into site/public/admin/ — commit placeholder only
+site/public/admin/
+!site/public/admin/.gitkeep
+
+# Generated state files — overwritten on each build, commit only placeholders
+# (placeholder files are committed so Astro doesn't 404 on first build)
+site/public/generated/state/content/
+site/public/generated/build-manifest.json
+site/public/generated/styles/
+site/public/generated/js/
+
+# TypeScript compile output for projector
+tools/projector/dist/
+
+# Editor
+.vscode/
+.idea/
+
+# OS
+.DS_Store
+Thumbs.db
