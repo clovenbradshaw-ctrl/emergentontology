@@ -5,27 +5,27 @@ Public site served as static HTML. Admin editor writes to Matrix via browser log
 
 ## Quick Start
 
-### 1. Configure GitHub Secrets
+No secrets required for the public build — the homeserver is hardcoded to `hyphae.social`.
 
-In your repo → Settings → Secrets → Actions, add:
+### 1. GitHub Secrets (optional)
+
+In your repo → Settings → Secrets → Actions, add only if needed:
 
 | Secret | Required | Description |
 |---|---|---|
-| `MATRIX_HOMESERVER` | Yes | Your Matrix homeserver URL, e.g. `https://matrix.example.com` |
 | `MATRIX_ACCESS_TOKEN` | No | Token for including draft/private rooms in builds |
-| `MATRIX_SERVER_NAME` | No | Server name, e.g. `example.com` (defaults to hostname) |
 | `SITE_BASE_URL` | No | GitHub Pages URL, e.g. `https://user.github.io/repo` |
 
-### 2. Set up Matrix rooms
+### 2. Set up Matrix rooms on hyphae.social
 
-Create rooms with these canonical aliases on your homeserver:
+Create rooms with these canonical aliases:
 
 ```
-#site:index:<server>        ← navigation + routing index
-#page:<slug>:<server>       ← flat pages
-#blog:<slug>:<server>       ← blog posts
-#wiki:<slug>:<server>       ← wiki pages
-#exp:<id>:<server>          ← experiments
+#site:index:hyphae.social        ← navigation + routing index
+#page:<slug>:hyphae.social       ← flat pages
+#blog:<slug>:hyphae.social       ← blog posts
+#wiki:<slug>:hyphae.social       ← wiki pages
+#exp:<id>:hyphae.social          ← experiments
 ```
 
 Rooms can be public (no token needed for builds) or private (requires `MATRIX_ACCESS_TOKEN`).

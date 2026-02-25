@@ -27,7 +27,7 @@ const SITE_BASE = import.meta.env.BASE_URL.replace(/\/admin\/?$/, '') || '';
 
 function LoginForm() {
   const { login, loading, error } = useAuth();
-  const [homeserver, setHomeserver] = useState(localStorage.getItem('eo_homeserver') ?? '');
+  const [homeserver, setHomeserver] = useState(localStorage.getItem('eo_homeserver') ?? 'https://matrix.hyphae.social');
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
 

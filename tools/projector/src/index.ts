@@ -4,10 +4,10 @@
  * Usage:
  *   node dist/index.js
  *
- * Environment variables:
- *   MATRIX_HOMESERVER   required  e.g. https://matrix.example.com
- *   MATRIX_ACCESS_TOKEN optional  include private/draft rooms
- *   MATRIX_SERVER_NAME  optional  e.g. example.com  (defaults to hostname in MATRIX_HOMESERVER)
+ * Environment variables (all optional — defaults to hyphae.social):
+ *   MATRIX_HOMESERVER   default: https://matrix.hyphae.social
+ *   MATRIX_ACCESS_TOKEN optional  include private/draft rooms in builds
+ *   MATRIX_SERVER_NAME  optional  default: hyphae.social
  *   INCLUDE_DRAFTS      optional  "true" to include draft content (requires access token)
  *   OUT_DIR             optional  default: "../../site/public/generated"
  *   SITE_BASE_URL       optional  default: ""  (relative, works for any gh-pages path)
@@ -28,22 +28,18 @@ import {
   renderStateFiles,
 } from './render.js';
 
-async function main() {
-  const homeserver = process.env.MATRIX_HOMESERVER;
-  if (!homeserver) {
-    // No homeserver configured: write placeholder files so the site builds cleanly.
-    console.warn('[projector] MATRIX_HOMESERVER not set — writing placeholder output');
-    writePlaceholders();
-    return;
-  }
+const DEFAULT_HOMESERVER = 'https://matrix.hyphae.social';
+const DEFAULT_SERVER_NAME = 'hyphae.social';
 
-  const serverName =
-    process.env.MATRIX_SERVER_NAME ?? new URL(homeserver).hostname;
+async function main() {
+  const homeserver = process.env.MATRIX_HOMESERVER ?? DEFAULT_HOMESERVER;
+  const serverName = process.env.MATRIX_SERVER_NAME ?? DEFAULT_SERVER_NAME;
 
   const cfg: BuildConfig = {
     homeserver,
     access_token: process.env.MATRIX_ACCESS_TOKEN,
     out_dir: process.env.OUT_DIR ?? join(import.meta.dirname, '..', '..', '..', 'site', 'public', 'generated'),
+    // Drafts only included when an access token is explicitly provided
     include_drafts: process.env.INCLUDE_DRAFTS === 'true' && !!process.env.MATRIX_ACCESS_TOKEN,
     site_base_url: process.env.SITE_BASE_URL ?? '',
   };
@@ -118,35 +114,6 @@ async function main() {
   );
 
   console.log(`[projector] Done — ${projectedContents.length} pages rendered`);
-}
-
-/**
- * When no Matrix homeserver is configured, write minimal placeholder files
- * so the static site builds and deploys without errors.
- */
-function writePlaceholders() {
-  const outDir = process.env.OUT_DIR ?? join(import.meta.dirname, '..', '..', '..', 'site', 'public', 'generated');
-  mkdirSync(join(outDir, 'state', 'content'), { recursive: true });
-  mkdirSync(join(outDir, 'styles'), { recursive: true });
-  mkdirSync(join(outDir, 'js'), { recursive: true });
-
-  writeFileSync(join(outDir, 'state', 'index.json'), JSON.stringify({
-    entries: [],
-    nav: [],
-    slug_map: {},
-    built_at: new Date().toISOString(),
-  }, null, 2));
-
-  writeFileSync(join(outDir, 'search_index.json'), '[]');
-  writeFileSync(join(outDir, 'build-manifest.json'), JSON.stringify({
-    built_at: new Date().toISOString(),
-    content_count: 0,
-    note: 'No MATRIX_HOMESERVER configured',
-  }, null, 2));
-
-  // Write empty placeholder CSS / JS so page references don't 404
-  writeFileSync(join(outDir, 'styles', 'main.css'), '/* placeholder — run projector with MATRIX_HOMESERVER set */');
-  writeFileSync(join(outDir, 'js', 'search.js'), '/* placeholder */');
 }
 
 main().catch((err) => {
