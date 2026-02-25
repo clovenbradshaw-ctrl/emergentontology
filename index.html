@@ -5,61 +5,404 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Emergent Ontology</title>
   <style>
+    /* Design tokens */
+    :root {
+      --bg:       #0f0f0f;
+      --bg2:      #1a1a1a;
+      --bg3:      #222;
+      --border:   #333;
+      --text:     #e8e8e8;
+      --text-dim: #888;
+      --accent:   #7c6fcd;
+      --link:     #9b8fd4;
+      --font-sans: system-ui, -apple-system, 'Segoe UI', sans-serif;
+      --font-mono: 'JetBrains Mono', 'Fira Code', monospace;
+      --radius:   6px;
+    }
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     body {
-      background: #0f0f0f;
-      color: #e8e8e8;
-      font-family: system-ui, -apple-system, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      font-family: var(--font-sans);
+      line-height: 1.6;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+    a { color: var(--link); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+
+    /* Header */
+    .site-header {
       display: flex;
       align-items: center;
-      justify-content: center;
-      min-height: 100vh;
-      padding: 2rem;
+      gap: 2rem;
+      padding: .75rem 2rem;
+      background: var(--bg2);
+      border-bottom: 1px solid var(--border);
+      position: sticky;
+      top: 0;
+      z-index: 100;
     }
-    .card {
-      max-width: 480px;
-      text-align: center;
+    .site-logo { font-weight: 700; font-size: 1.1rem; color: var(--text); }
+    .site-logo:hover { text-decoration: none; color: var(--accent); }
+    .site-nav ul { display: flex; gap: 1.5rem; list-style: none; }
+    .site-nav a { color: var(--text-dim); font-size: .9rem; }
+    .site-nav a:hover { color: var(--text); text-decoration: none; }
+    .admin-link {
+      margin-left: auto;
+      background: var(--accent);
+      color: #fff !important;
+      padding: .35rem .85rem;
+      border-radius: var(--radius);
+      font-size: .85rem;
     }
-    h1 {
-      font-size: 2rem;
+    .admin-link:hover { background: var(--link); text-decoration: none; }
+
+    /* Main */
+    main { flex: 1; max-width: 860px; margin: 0 auto; padding: 2rem 1.5rem; width: 100%; }
+
+    /* Hero */
+    .hero { text-align: center; padding: 3rem 0 2rem; }
+    .hero h1 { font-size: 2rem; font-weight: 700; }
+    .hero-sub { color: var(--text-dim); margin-top: .5rem; font-size: 1.1rem; }
+    .search-box { position: relative; max-width: 420px; margin: 1.5rem auto 0; }
+    #search-input {
+      width: 100%;
+      background: var(--bg2);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: .65rem 1rem;
+      color: var(--text);
+      font-size: 1rem;
+    }
+    #search-input:focus { outline: none; border-color: var(--accent); }
+    .search-results {
+      position: absolute;
+      top: calc(100% + 4px);
+      left: 0; right: 0;
+      background: var(--bg2);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      z-index: 50;
+    }
+    .search-result-item {
+      display: block;
+      padding: .6rem 1rem;
+      border-bottom: 1px solid var(--border);
+      color: var(--text);
+    }
+    .search-result-item:last-child { border-bottom: none; }
+    .search-result-item:hover { background: var(--bg3); text-decoration: none; }
+
+    /* Sections */
+    .home-section { margin-top: 2.5rem; }
+    .home-section h2 {
+      margin-bottom: 1rem;
+      border-bottom: 1px solid var(--border);
+      padding-bottom: .5rem;
+      font-size: 1.5rem;
       font-weight: 600;
-      letter-spacing: -0.02em;
-      margin-bottom: 0.75rem;
     }
-    p {
-      color: #a0a0a0;
-      line-height: 1.6;
-      margin-bottom: 1.5rem;
+    .content-list { list-style: none; display: flex; flex-direction: column; gap: .75rem; }
+    .content-list li { display: flex; align-items: baseline; gap: .75rem; flex-wrap: wrap; }
+    .tags { display: flex; flex-wrap: wrap; gap: .35rem; }
+    .tag {
+      background: var(--bg3);
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      padding: .15rem .6rem;
+      font-size: .78rem;
+      color: var(--text-dim);
     }
-    .spinner {
+    .empty-note { color: var(--text-dim); font-style: italic; font-size: .95rem; }
+
+    /* Template badge */
+    .template-badge {
       display: inline-block;
-      width: 1.25rem;
-      height: 1.25rem;
-      border: 2px solid #333;
-      border-top-color: #9b8fd4;
-      border-radius: 50%;
-      animation: spin 0.8s linear infinite;
+      font-size: .7rem;
+      background: var(--bg3);
+      border: 1px dashed var(--border);
+      color: var(--text-dim);
+      border-radius: var(--radius);
+      padding: .1rem .45rem;
       vertical-align: middle;
-      margin-right: 0.4rem;
+      margin-left: .4rem;
+      font-family: var(--font-mono);
     }
-    @keyframes spin { to { transform: rotate(360deg); } }
-    .status { font-size: 0.875rem; color: #666; }
+
+    /* Delta banner */
+    #delta-banner {
+      display: none;
+      position: fixed;
+      bottom: 1.5rem;
+      left: 50%;
+      transform: translateX(-50%);
+      background: var(--accent);
+      color: #fff;
+      padding: .55rem 1.25rem;
+      border-radius: var(--radius);
+      font-size: .9rem;
+      cursor: pointer;
+      z-index: 200;
+      box-shadow: 0 4px 20px rgba(0,0,0,.4);
+    }
+
+    /* Footer */
+    .site-footer {
+      text-align: center;
+      padding: 1.5rem;
+      color: var(--text-dim);
+      font-size: .8rem;
+      border-top: 1px solid var(--border);
+    }
+
+    /* Responsive */
+    @media (max-width: 640px) {
+      .site-header { flex-wrap: wrap; }
+      .site-nav ul { gap: 1rem; }
+      main { padding: 1.25rem 1rem; }
+      .hero h1 { font-size: 1.5rem; }
+    }
   </style>
 </head>
 <body>
-  <div class="card">
-    <h1>Emergent Ontology</h1>
-    <p>A minimal, universal framework for data transformation —<br>nine operators, infinite composability.</p>
-    <p class="status">
-      <span class="spinner"></span>
-      Site is being built and deployed&hellip;
+
+  <!-- ── Header ───────────────────────────────────────────────────────────── -->
+  <header class="site-header">
+    <a class="site-logo" href="/">Emergent Ontology</a>
+    <nav class="site-nav" aria-label="Main navigation">
+      <ul id="nav-list">
+        <!-- Populated from Matrix state, empty until data loads -->
+      </ul>
+    </nav>
+    <a class="admin-link" href="/admin/">Admin</a>
+  </header>
+
+  <!-- ── Main ─────────────────────────────────────────────────────────────── -->
+  <main>
+    <!-- Hero -->
+    <section class="hero">
+      <h1>Emergent Ontology</h1>
+      <p class="hero-sub">A minimal, universal framework for data transformation —<br>nine operators, infinite composability.</p>
+      <div class="search-box">
+        <input id="search-input" type="search" placeholder="Search…" aria-label="Search site" autocomplete="off" />
+        <div id="search-results" class="search-results" role="list" hidden></div>
+      </div>
+    </section>
+
+    <!-- Wiki section -->
+    <section class="home-section" id="section-wiki" data-type="wiki">
+      <h2>Wiki</h2>
+      <ul class="content-list" id="list-wiki">
+        <!-- template entries shown until Matrix data loads -->
+        <li>
+          <a href="/wiki/operators/">Operators</a>
+          <span class="tags"><span class="tag">reference</span><span class="tag">core</span></span>
+          <span class="template-badge">template</span>
+        </li>
+        <li>
+          <a href="/wiki/data-model/">Data Model</a>
+          <span class="tags"><span class="tag">reference</span></span>
+          <span class="template-badge">template</span>
+        </li>
+        <li>
+          <a href="/wiki/getting-started/">Getting Started</a>
+          <span class="tags"><span class="tag">guide</span></span>
+          <span class="template-badge">template</span>
+        </li>
+      </ul>
+    </section>
+
+    <!-- Blog section -->
+    <section class="home-section" id="section-blog" data-type="blog">
+      <h2>Blog</h2>
+      <ul class="content-list" id="list-blog">
+        <li>
+          <a href="/blog/intro/">Introduction to Emergent Ontology</a>
+          <span class="template-badge">template</span>
+        </li>
+        <li>
+          <a href="/blog/nine-operators/">Nine Operators, Infinite Composability</a>
+          <span class="tags"><span class="tag">deep-dive</span></span>
+          <span class="template-badge">template</span>
+        </li>
+      </ul>
+    </section>
+
+    <!-- Experiments section -->
+    <section class="home-section" id="section-experiment" data-type="experiment">
+      <h2>Experiments</h2>
+      <ul class="content-list" id="list-experiment">
+        <li>
+          <a href="/exp/operator-study/">Operator Composition Study</a>
+          <span class="template-badge">template</span>
+        </li>
+      </ul>
+    </section>
+
+    <!-- Pages section (hidden until Matrix data has page-type content) -->
+    <section class="home-section" id="section-page" data-type="page" style="display:none">
+      <h2>Pages</h2>
+      <ul class="content-list" id="list-page"></ul>
+    </section>
+  </main>
+
+  <!-- Delta reload banner -->
+  <div id="delta-banner" role="status">Content updated — click to reload</div>
+
+  <!-- ── Footer ────────────────────────────────────────────────────────────── -->
+  <footer class="site-footer">
+    <p>
+      Content stored as append-only events in Matrix.
+      <a href="/generated/state/index.json">Site index JSON</a>
     </p>
-  </div>
+  </footer>
+
   <script>
-    // Once the GitHub Actions deployment has run, the Astro-built site replaces
-    // this placeholder. Reload after a short delay in case the deployment just
-    // finished while the user was looking at this screen.
-    setTimeout(() => location.reload(), 30000);
+    /**
+     * Emergent Ontology — root index
+     *
+     * 1. Page renders immediately with hardcoded template content.
+     * 2. We try to fetch /generated/state/index.json (written by the
+     *    projector after every CI run).  If it exists we swap in the
+     *    real published content and hide any sections that have none.
+     * 3. We also try /js/live-sync.js for delta updates (present once
+     *    the Astro build has deployed).
+     */
+
+    // ── helpers ──────────────────────────────────────────────────────────────
+
+    function typeDir(type) {
+      return type === 'page' ? 'page' : type === 'experiment' ? 'exp' : type;
+    }
+
+    function buildListItem(entry) {
+      const li = document.createElement('li');
+      const a  = document.createElement('a');
+      const dir = typeDir(entry.content_type);
+      a.href        = `/${dir}/${entry.slug}/`;
+      a.textContent = entry.title;
+      li.appendChild(a);
+      if (entry.tags && entry.tags.length) {
+        const span = document.createElement('span');
+        span.className = 'tags';
+        entry.tags.forEach(t => {
+          const tag = document.createElement('span');
+          tag.className = 'tag';
+          tag.textContent = t;
+          span.appendChild(tag);
+        });
+        li.appendChild(span);
+      }
+      return li;
+    }
+
+    // ── apply a site-index snapshot to the DOM ────────────────────────────────
+
+    function applyIndex(index) {
+      const nav   = document.getElementById('nav-list');
+      const types = ['wiki', 'blog', 'experiment', 'page'];
+
+      // Rebuild nav from all published entries
+      nav.innerHTML = '';
+      (index.nav || []).forEach(entry => {
+        const li = document.createElement('li');
+        const a  = document.createElement('a');
+        a.href        = `/${typeDir(entry.content_type)}/${entry.slug}/`;
+        a.textContent = entry.title;
+        li.appendChild(a);
+        nav.appendChild(li);
+      });
+
+      // Rebuild each content section
+      types.forEach(type => {
+        const section = document.getElementById('section-' + type);
+        const list    = document.getElementById('list-' + type);
+        if (!section || !list) return;
+
+        const entries = (index.nav || []).filter(e => e.content_type === type);
+        if (entries.length === 0) {
+          // Keep section hidden if it was page, otherwise show empty note
+          if (type === 'page') {
+            section.style.display = 'none';
+          } else {
+            list.innerHTML = '<li class="empty-note">No ' + type + ' entries published yet.</li>';
+            section.style.display = '';
+          }
+        } else {
+          list.innerHTML = '';
+          entries.forEach(e => list.appendChild(buildListItem(e)));
+          section.style.display = '';
+        }
+      });
+    }
+
+    // ── bootstrap ────────────────────────────────────────────────────────────
+
+    (async function boot() {
+      // 1. Try to load the generated state snapshot
+      try {
+        const res = await fetch('/generated/state/index.json', { cache: 'no-store' });
+        if (res.ok) {
+          const index = await res.json();
+          applyIndex(index);
+        }
+      } catch (_) {
+        // generated state not present yet — template content stays visible
+      }
+
+      // 2. Try to load the live-sync script (present after Astro build deploys)
+      try {
+        const probe = await fetch('/js/live-sync.js', { method: 'HEAD' });
+        if (probe.ok) {
+          const s = document.createElement('script');
+          s.src   = '/js/live-sync.js';
+          s.defer = true;
+          document.body.appendChild(s);
+        }
+      } catch (_) {}
+
+      // 3. Wire up simple inline search against the generated search index
+      const input   = document.getElementById('search-input');
+      const results = document.getElementById('search-results');
+      if (!input || !results) return;
+
+      let searchIndex = null;
+      input.addEventListener('focus', async () => {
+        if (searchIndex) return;
+        try {
+          const r = await fetch('/generated/search_index.json');
+          if (r.ok) searchIndex = await r.json();
+        } catch (_) {}
+      });
+
+      input.addEventListener('input', () => {
+        const q = input.value.trim().toLowerCase();
+        if (!q || !searchIndex) { results.hidden = true; return; }
+        const hits = searchIndex.filter(e =>
+          (e.title  || '').toLowerCase().includes(q) ||
+          (e.body   || '').toLowerCase().includes(q) ||
+          (e.tags   || []).some(t => t.toLowerCase().includes(q))
+        ).slice(0, 8);
+        results.innerHTML = '';
+        if (!hits.length) { results.hidden = true; return; }
+        hits.forEach(h => {
+          const a = document.createElement('a');
+          a.className   = 'search-result-item';
+          a.href        = `/${typeDir(h.content_type)}/${h.slug}/`;
+          a.textContent = h.title;
+          results.appendChild(a);
+        });
+        results.hidden = false;
+      });
+
+      document.addEventListener('click', e => {
+        if (!input.contains(e.target) && !results.contains(e.target)) {
+          results.hidden = true;
+        }
+      });
+    })();
   </script>
 </body>
 </html>
