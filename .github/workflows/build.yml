@@ -1,0 +1,116 @@
+name: Build & Deploy EO Site
+
+on:
+  # Manual trigger (run from GitHub UI or API)
+  workflow_dispatch:
+    inputs:
+      include_drafts:
+        description: "Include draft content (requires MATRIX_ACCESS_TOKEN secret)"
+        type: boolean
+        default: false
+
+  # Scheduled: rebuild every 5 minutes to pick up new Matrix events.
+  # Comment this out if you prefer manual / webhook-triggered builds only.
+  schedule:
+    - cron: '*/5 * * * *'
+
+  # Also rebuild on pushes to main (for site/admin code changes)
+  push:
+    branches: [main]
+    paths:
+      - 'site/**'
+      - 'admin/**'
+      - 'tools/**'
+      - '.github/workflows/build.yml'
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# Allow only one deployment at a time; cancel in-progress runs on new push.
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    name: Build static site
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: |
+            tools/projector/package.json
+            site/package.json
+            admin/package.json
+
+      # ── Step 1: Run projector (fetch Matrix events → replay → write JSON snapshots) ──
+      - name: Install projector dependencies
+        working-directory: tools/projector
+        run: npm install
+
+      - name: Run projector
+        working-directory: tools/projector
+        env:
+          MATRIX_HOMESERVER: ${{ secrets.MATRIX_HOMESERVER }}
+          MATRIX_ACCESS_TOKEN: ${{ secrets.MATRIX_ACCESS_TOKEN }}
+          MATRIX_SERVER_NAME: ${{ secrets.MATRIX_SERVER_NAME }}
+          INCLUDE_DRAFTS: ${{ github.event.inputs.include_drafts || 'false' }}
+          OUT_DIR: ${{ github.workspace }}/site/public/generated
+          # Set to your GitHub Pages URL (e.g. https://username.github.io/repo)
+          SITE_BASE_URL: ${{ secrets.SITE_BASE_URL || '' }}
+        run: npm run dev
+        # If MATRIX_HOMESERVER is not set, projector writes placeholders and exits 0.
+        # This lets the site build cleanly without Matrix configured yet.
+
+      # ── Step 2: Build admin SPA ────────────────────────────────────────────
+      - name: Install admin dependencies
+        working-directory: admin
+        run: npm install
+
+      - name: Build admin SPA
+        working-directory: admin
+        env:
+          VITE_BASE_URL: ${{ secrets.SITE_BASE_URL || '' }}
+        run: npm run build
+        # Output lands in site/public/admin/ (configured in vite.config.ts)
+
+      # ── Step 3: Build Astro public site ───────────────────────────────────
+      - name: Install site dependencies
+        working-directory: site
+        run: npm install
+
+      - name: Build Astro site
+        working-directory: site
+        env:
+          SITE_BASE: ${{ secrets.SITE_BASE_URL || '' }}
+        run: npm run build
+        # Output: site/dist/
+
+      # ── Step 4: Upload artifact for Pages deployment ───────────────────────
+      - name: Setup Pages
+        uses: actions/configure-pages@v4
+
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: site/dist
+
+  deploy:
+    name: Deploy to GitHub Pages
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4

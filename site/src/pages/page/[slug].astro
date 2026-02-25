@@ -1,0 +1,78 @@
+---
+import Base from '../../layouts/Base.astro';
+import { loadAllContent } from '../../lib/state';
+import type { ProjectedPage, Block } from '../../lib/state';
+
+export async function getStaticPaths() {
+  const items = loadAllContent('page') as ProjectedPage[];
+  return items.map((p) => ({
+    params: { slug: p.meta.slug },
+    props: { page: p },
+  }));
+}
+
+const { page } = Astro.props as { page: ProjectedPage };
+const base = import.meta.env.BASE_URL.replace(/\/$/, '');
+const blockMap = new Map(page.blocks.map((b: Block) => [b.block_id, b]));
+
+function renderMarkdown(md: string): string {
+  return md
+    .replace(/^#{4}\s+(.+)$/gm, '<h4>$1</h4>')
+    .replace(/^#{3}\s+(.+)$/gm, '<h3>$1</h3>')
+    .replace(/^#{2}\s+(.+)$/gm, '<h2>$1</h2>')
+    .replace(/^#{1}\s+(.+)$/gm, '<h1>$1</h1>')
+    .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
+    .replace(/\*(.+?)\*/g, '<em>$1</em>')
+    .replace(/`(.+?)`/g, '<code>$1</code>')
+    .replace(/\[(.+?)\]\((.+?)\)/g, '<a href="$2">$1</a>')
+    .replace(/\n\n/g, '</p><p>')
+    .replace(/^(?!<)(.+)/m, '<p>$1')
+    .trimEnd() + '</p>';
+}
+
+function renderBlock(block: Block): string {
+  if (block.deleted) return '';
+  const { block_type, data } = block;
+  switch (block_type) {
+    case 'text':
+      return renderMarkdown(String(data.md ?? data.text ?? ''));
+    case 'callout':
+      return `<aside class="block block-callout callout-${data.kind ?? 'info'}"><div>${renderMarkdown(String(data.text ?? ''))}</div></aside>`;
+    case 'quote':
+      return `<blockquote class="block block-quote"><p>${String(data.text ?? '')}</p>${data.attribution ? `<cite>— ${String(data.attribution)}</cite>` : ''}</blockquote>`;
+    case 'divider':
+      return '<hr class="block block-divider" />';
+    case 'image':
+      return `<figure class="block block-image"><img src="${String(data.src ?? '')}" alt="${String(data.alt ?? '')}" loading="lazy" />${data.caption ? `<figcaption>${String(data.caption)}</figcaption>` : ''}</figure>`;
+    default:
+      return `<div class="block block-${block_type}">[${block_type}]</div>`;
+  }
+}
+---
+<Base
+  title={page.meta.title}
+  breadcrumbs={[
+    { label: 'Home', href: `${base}/` },
+    { label: page.meta.title, href: `${base}/page/${page.meta.slug}/` },
+  ]}
+>
+  <article class="page-content">
+    <header class="content-header">
+      <h1>{page.meta.title}</h1>
+    </header>
+
+    <div class="blocks">
+      {page.block_order.length > 0
+        ? page.block_order.map((id: string) => {
+            const block = blockMap.get(id);
+            return block ? <Fragment set:html={renderBlock(block)} /> : null;
+          })
+        : <p class="empty-page">This page has no content yet.</p>
+      }
+    </div>
+
+    <div class="content-actions">
+      <a class="btn btn-edit" href={`${base}/admin/#page/${page.meta.slug}`}>Edit in Admin</a>
+    </div>
+  </article>
+</Base>

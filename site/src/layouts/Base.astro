@@ -1,0 +1,72 @@
+---
+import { loadNav } from '../lib/state';
+import type { NavEntry } from '../lib/state';
+
+interface Props {
+  title: string;
+  description?: string;
+  breadcrumbs?: Array<{ label: string; href: string }>;
+}
+
+const { title, description, breadcrumbs } = Astro.props;
+const nav = loadNav();
+
+const base = import.meta.env.BASE_URL.replace(/\/$/, '');
+---
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>{title} — Emergent Ontology</title>
+  {description && <meta name="description" content={description} />}
+  <link rel="stylesheet" href={`${base}/styles/main.css`} />
+  <link rel="alternate" type="application/json" href={`${base}/generated/state/index.json`} />
+</head>
+<body>
+  <header class="site-header">
+    <a class="site-logo" href={`${base}/`}>Emergent Ontology</a>
+    <nav class="site-nav" aria-label="Main navigation">
+      <ul>
+        {nav.map((entry: NavEntry) => {
+          const typeDir = entry.content_type === 'page' ? 'page'
+            : entry.content_type === 'experiment' ? 'exp'
+            : entry.content_type;
+          return (
+            <li>
+              <a href={`${base}/${typeDir}/${entry.slug}/`}>{entry.title}</a>
+            </li>
+          );
+        })}
+      </ul>
+    </nav>
+    <a class="admin-link" href={`${base}/admin/`}>Admin</a>
+  </header>
+
+  <main>
+    {breadcrumbs && breadcrumbs.length > 0 && (
+      <nav class="breadcrumbs" aria-label="Breadcrumb">
+        <ol>
+          {breadcrumbs.map((crumb, i) =>
+            i === breadcrumbs.length - 1
+              ? <li aria-current="page">{crumb.label}</li>
+              : <li><a href={crumb.href}>{crumb.label}</a></li>
+          )}
+        </ol>
+      </nav>
+    )}
+    <slot />
+  </main>
+
+  <footer class="site-footer">
+    <p>
+      Content stored as append-only events in Matrix.
+      <a href={`${base}/generated/state/index.json`}>Site index JSON</a>
+    </p>
+  </footer>
+
+  <script src={`${base}/js/search.js`} defer></script>
+  <script src={`${base}/js/xray.js`} defer></script>
+  <script src={`${base}/js/live-sync.js`} defer></script>
+</body>
+</html>

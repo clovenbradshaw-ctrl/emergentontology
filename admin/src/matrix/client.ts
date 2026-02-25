@@ -1,0 +1,202 @@
+/**
+ * matrix/client.ts — Thin Matrix API wrapper for the admin app.
+ *
+ * Uses the native fetch API (no matrix-js-sdk dependency at runtime for basic ops)
+ * for simplicity.  The matrix-js-sdk is used for real-time /sync in live mode.
+ *
+ * Auth is via Matrix password login; tokens are stored in sessionStorage
+ * (cleared when the browser tab closes).
+ *
+ * Multiple editor support: each editor logs in separately; the room power level
+ * controls who can write.  Writes are attributed to the Matrix user.
+ */
+
+export interface MatrixCredentials {
+  access_token: string;
+  user_id: string;
+  device_id: string;
+  homeserver: string;
+}
+
+const STORAGE_KEY = 'eo_matrix_credentials';
+
+// ── Persistence (sessionStorage — clears on tab close) ───────────────────────
+
+export function saveCredentials(creds: MatrixCredentials): void {
+  sessionStorage.setItem(STORAGE_KEY, JSON.stringify(creds));
+}
+
+export function loadCredentials(): MatrixCredentials | null {
+  const raw = sessionStorage.getItem(STORAGE_KEY);
+  if (!raw) return null;
+  try { return JSON.parse(raw) as MatrixCredentials; }
+  catch { return null; }
+}
+
+export function clearCredentials(): void {
+  sessionStorage.removeItem(STORAGE_KEY);
+}
+
+// ── Auth ──────────────────────────────────────────────────────────────────────
+
+export async function login(
+  homeserver: string,
+  username: string,
+  password: string
+): Promise<MatrixCredentials> {
+  const resp = await fetch(`${homeserver}/_matrix/client/v3/login`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      type: 'm.login.password',
+      identifier: { type: 'm.id.user', user: username },
+      password,
+      initial_device_display_name: 'EO Admin Editor',
+    }),
+  });
+  if (!resp.ok) {
+    const err = await resp.json().catch(() => ({})) as { errcode?: string; error?: string };
+    throw new Error(err.error ?? `Login failed: HTTP ${resp.status}`);
+  }
+  const data = await resp.json() as { access_token: string; user_id: string; device_id: string };
+  const creds: MatrixCredentials = { ...data, homeserver };
+  saveCredentials(creds);
+  return creds;
+}
+
+export async function logout(creds: MatrixCredentials): Promise<void> {
+  await fetch(`${creds.homeserver}/_matrix/client/v3/logout`, {
+    method: 'POST',
+    headers: authHeaders(creds),
+  }).catch(() => {});
+  clearCredentials();
+}
+
+function authHeaders(creds: MatrixCredentials): HeadersInit {
+  return {
+    'Content-Type': 'application/json',
+    Authorization: `Bearer ${creds.access_token}`,
+  };
+}
+
+// ── Room resolution ───────────────────────────────────────────────────────────
+
+export async function resolveAlias(homeserver: string, alias: string): Promise<string> {
+  const resp = await fetch(`${homeserver}/_matrix/client/v3/directory/room/${encodeURIComponent(alias)}`);
+  if (!resp.ok) throw new Error(`Could not resolve alias ${alias}`);
+  const data = await resp.json() as { room_id: string };
+  return data.room_id;
+}
+
+export async function createRoom(creds: MatrixCredentials, opts: {
+  name: string;
+  alias: string;
+  topic?: string;
+  preset?: 'public_chat' | 'private_chat';
+}): Promise<string> {
+  const resp = await fetch(`${creds.homeserver}/_matrix/client/v3/createRoom`, {
+    method: 'POST',
+    headers: authHeaders(creds),
+    body: JSON.stringify({
+      name: opts.name,
+      room_alias_name: opts.alias.replace(/^#/, '').split(':')[0],
+      topic: opts.topic,
+      preset: opts.preset ?? 'public_chat',
+      initial_state: [],
+    }),
+  });
+  if (!resp.ok) {
+    const err = await resp.json().catch(() => ({})) as { error?: string };
+    throw new Error(err.error ?? `createRoom failed: HTTP ${resp.status}`);
+  }
+  const data = await resp.json() as { room_id: string };
+  return data.room_id;
+}
+
+// ── Events ────────────────────────────────────────────────────────────────────
+
+/** Send a single eo.op event to a room. */
+export async function sendEOEvent(
+  creds: MatrixCredentials,
+  roomId: string,
+  content: Record<string, unknown>,
+  txnId?: string
+): Promise<string> {
+  const txn = txnId ?? `eo-${Date.now()}-${Math.random().toString(36).slice(2)}`;
+  const resp = await fetch(
+    `${creds.homeserver}/_matrix/client/v3/rooms/${encodeURIComponent(roomId)}/send/eo.op/${encodeURIComponent(txn)}`,
+    {
+      method: 'PUT',
+      headers: authHeaders(creds),
+      body: JSON.stringify(content),
+    }
+  );
+  if (!resp.ok) {
+    const err = await resp.json().catch(() => ({})) as { error?: string };
+    throw new Error(err.error ?? `sendEvent failed: HTTP ${resp.status}`);
+  }
+  const data = await resp.json() as { event_id: string };
+  return data.event_id;
+}
+
+/** Set a Matrix state event (for com.eo.content.meta). */
+export async function setStateEvent(
+  creds: MatrixCredentials,
+  roomId: string,
+  eventType: string,
+  stateKey: string,
+  content: Record<string, unknown>
+): Promise<void> {
+  const resp = await fetch(
+    `${creds.homeserver}/_matrix/client/v3/rooms/${encodeURIComponent(roomId)}/state/${encodeURIComponent(eventType)}/${encodeURIComponent(stateKey)}`,
+    {
+      method: 'PUT',
+      headers: authHeaders(creds),
+      body: JSON.stringify(content),
+    }
+  );
+  if (!resp.ok) {
+    const err = await resp.json().catch(() => ({})) as { error?: string };
+    throw new Error(err.error ?? `setStateEvent failed: HTTP ${resp.status}`);
+  }
+}
+
+/**
+ * Fetch room events since a given `from` token (for delta sync).
+ * Pass `from = undefined` for all events (full history).
+ * Returns events in chronological order and the new `end` token.
+ */
+export async function fetchRoomDelta(
+  homeserver: string,
+  roomId: string,
+  from?: string,
+  accessToken?: string
+): Promise<{ events: Array<{ event_id: string; type: string; sender: string; origin_server_ts: number; content: Record<string, unknown> }>; end: string | undefined }> {
+  const params = new URLSearchParams({ dir: 'f', limit: '100', filter: JSON.stringify({ types: ['eo.op'] }) });
+  if (from) params.set('from', from);
+
+  const headers: Record<string, string> = { 'Content-Type': 'application/json' };
+  if (accessToken) headers['Authorization'] = `Bearer ${accessToken}`;
+
+  const resp = await fetch(
+    `${homeserver}/_matrix/client/v3/rooms/${encodeURIComponent(roomId)}/messages?${params}`,
+    { headers }
+  );
+  if (!resp.ok) return { events: [], end: undefined };
+
+  const data = await resp.json() as { chunk: Array<{ event_id: string; type: string; sender: string; origin_server_ts: number; content: Record<string, unknown> }>; end?: string };
+  return { events: data.chunk ?? [], end: data.end };
+}
+
+/** Fetch the current state of a room (state events). */
+export async function fetchRoomState(
+  creds: MatrixCredentials,
+  roomId: string
+): Promise<Array<{ type: string; state_key: string; content: Record<string, unknown> }>> {
+  const resp = await fetch(
+    `${creds.homeserver}/_matrix/client/v3/rooms/${encodeURIComponent(roomId)}/state`,
+    { headers: authHeaders(creds) }
+  );
+  if (!resp.ok) return [];
+  return (await resp.json()) as Array<{ type: string; state_key: string; content: Record<string, unknown> }>;
+}

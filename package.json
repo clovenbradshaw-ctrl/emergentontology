@@ -1,0 +1,15 @@
+{
+  "name": "emergent-ontology-site",
+  "version": "1.0.0",
+  "private": true,
+  "description": "EO GitHub Pages site backed by Matrix event store",
+  "scripts": {
+    "dev:site": "cd site && npm run dev",
+    "dev:admin": "cd admin && npm run dev",
+    "build:projector": "cd tools/projector && npm run dev",
+    "build:admin": "cd admin && npm run build",
+    "build:site": "cd site && npm run build",
+    "build": "npm run build:projector && npm run build:admin && npm run build:site",
+    "install:all": "cd tools/projector && npm install && cd ../../admin && npm install && cd ../site && npm install"
+  }
+}
