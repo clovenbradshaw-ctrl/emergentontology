@@ -38,6 +38,24 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
+      # Compute the site base path.
+      # If SITE_BASE_URL secret is set, use it.
+      # Otherwise auto-detect: user.github.io repos deploy at root (/),
+      # all other repos deploy at /{repo-name} on GitHub Pages.
+      - name: Compute base path
+        id: base
+        run: |
+          if [ -n "${{ secrets.SITE_BASE_URL }}" ]; then
+            echo "path=${{ secrets.SITE_BASE_URL }}" >> $GITHUB_OUTPUT
+          else
+            REPO_NAME=$(echo "$GITHUB_REPOSITORY" | cut -d'/' -f2)
+            if [[ "$REPO_NAME" == *.github.io ]]; then
+              echo "path=" >> $GITHUB_OUTPUT
+            else
+              echo "path=/${REPO_NAME}" >> $GITHUB_OUTPUT
+            fi
+          fi
+
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
@@ -63,7 +81,7 @@ jobs:
           MATRIX_ACCESS_TOKEN: ${{ secrets.MATRIX_ACCESS_TOKEN }}
           INCLUDE_DRAFTS: ${{ github.event.inputs.include_drafts || 'false' }}
           OUT_DIR: ${{ github.workspace }}/site/public/generated
-          SITE_BASE_URL: ${{ secrets.SITE_BASE_URL || '' }}
+          SITE_BASE_URL: ${{ steps.base.outputs.path }}
         run: npm run dev
 
       # ── Step 2: Build admin SPA ────────────────────────────────────────────
@@ -74,7 +92,7 @@ jobs:
       - name: Build admin SPA
         working-directory: admin
         env:
-          VITE_BASE_URL: ${{ secrets.SITE_BASE_URL || '' }}
+          VITE_BASE_URL: ${{ steps.base.outputs.path }}
         run: npm run build
         # Output lands in site/public/admin/ (configured in vite.config.ts)
 
@@ -86,7 +104,7 @@ jobs:
       - name: Build Astro site
         working-directory: site
         env:
-          SITE_BASE: ${{ secrets.SITE_BASE_URL || '' }}
+          SITE_BASE: ${{ steps.base.outputs.path }}
         run: npm run build
         # Output: site/dist/
 
