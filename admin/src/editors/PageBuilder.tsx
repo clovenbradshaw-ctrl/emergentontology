@@ -1,12 +1,14 @@
 /**
  * PageBuilder — drag/drop block-based page editor.
  *
- * Uses @dnd-kit for sortable blocks.
- * Every edit emits eo.op events immediately (append-only).
- * Reorder → emits ALT to update each block's `after` pointer.
+ * Data flow:
+ *   Load  →  GET /eowikicurrent (record_id = contentId) → current page state
+ *            Fall back to static snapshot if no Xano record.
+ *   Ops   →  POST /eowiki (append event)
+ *            PATCH /eowikicurrent (update current state snapshot)
  */
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import {
   DndContext,
   closestCenter,
@@ -27,10 +29,15 @@ import { CSS } from '@dnd-kit/utilities';
 
 import { useAuth } from '../auth/AuthContext';
 import { useXRay } from '../components/XRayOverlay';
-import { fetchRoomDelta, sendEOEvent, resolveAlias } from '../matrix/client';
+import {
+  fetchCurrentRecord,
+  addRecord,
+  upsertCurrentRecord,
+  eventToPayload,
+  type XanoCurrentRecord,
+} from '../xano/client';
 import { insBlock, altBlock, nulBlock } from '../eo/events';
-import { applyDelta } from '../eo/replay';
-import type { ProjectedPage, Block } from '../eo/types';
+import type { Block } from '../eo/types';
 
 const BLOCK_TYPES: Array<{ type: Block['block_type']; label: string; icon: string }> = [
   { type: 'text', label: 'Text', icon: '¶' },
@@ -45,70 +52,84 @@ const BLOCK_TYPES: Array<{ type: Block['block_type']; label: string; icon: strin
   { type: 'code', label: 'Code Block', icon: '</>' },
 ];
 
+interface PageState {
+  blocks: Block[];
+  block_order: string[];
+  meta: Record<string, unknown>;
+}
+
 interface Props {
-  contentId: string;  // e.g. "page:about"
+  contentId: string;
   siteBase: string;
 }
 
 export default function PageBuilder({ contentId, siteBase }: Props) {
-  const { creds } = useAuth();
+  const { isAuthenticated } = useAuth();
   const { registerEvent } = useXRay();
 
-  const [state, setState] = useState<ProjectedPage | null>(null);
+  const [state, setState] = useState<PageState | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [roomId, setRoomId] = useState<string | null>(null);
   const [selectedBlockId, setSelectedBlockId] = useState<string | null>(null);
+  const currentRecordRef = useRef<XanoCurrentRecord | null>(null);
 
   const sensors = useSensors(
     useSensor(PointerSensor),
     useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates })
   );
 
-  // ── Load snapshot + delta ──────────────────────────────────────────────────
+  // ── Load ──────────────────────────────────────────────────────────────────
 
   useEffect(() => {
     let cancelled = false;
     async function load() {
       setLoading(true);
-      const fileName = contentId.replace(':', '-') + '.json';
-      let snapshot: ProjectedPage | null = null;
+      let pageState: PageState | null = null;
 
+      // 1. Try Xano current record
       try {
-        const resp = await fetch(`${siteBase}/generated/state/content/${fileName}`);
-        if (resp.ok) snapshot = await resp.json() as ProjectedPage;
-      } catch { /* no snapshot */ }
+        const rec = await fetchCurrentRecord(contentId);
+        if (rec) {
+          currentRecordRef.current = rec;
+          pageState = JSON.parse(rec.value) as PageState;
+        }
+      } catch (err) {
+        console.warn('[PageBuilder] Could not fetch Xano current record:', err);
+      }
 
-      if (!cancelled && creds && snapshot) {
+      // 2. Fall back to static snapshot
+      if (!pageState) {
         try {
-          const serverName = new URL(creds.homeserver).hostname;
-          const rid = await resolveAlias(creds.homeserver, `#${contentId}:${serverName}`);
-          setRoomId(rid);
-          const { events } = await fetchRoomDelta(creds.homeserver, rid, undefined, creds.access_token);
-          if (events.length > 0) {
-            snapshot = applyDelta(snapshot, events as Parameters<typeof applyDelta>[1]) as ProjectedPage;
+          const fileName = contentId.replace(':', '-') + '.json';
+          const resp = await fetch(`${siteBase}/generated/state/content/${fileName}`);
+          if (resp.ok) {
+            const snap = await resp.json() as PageState;
+            pageState = { blocks: snap.blocks ?? [], block_order: snap.block_order ?? [], meta: snap.meta ?? {} };
           }
-        } catch { /* delta failed, use snapshot */ }
+        } catch { /* no snapshot */ }
       }
 
       if (!cancelled) {
-        setState(snapshot);
+        setState(pageState);
         setLoading(false);
       }
     }
     load();
     return () => { cancelled = true; };
-  }, [contentId, creds, siteBase]);
+  }, [contentId, siteBase]);
 
-  // ── Helpers ────────────────────────────────────────────────────────────────
+  // ── Emit helper ───────────────────────────────────────────────────────────
 
-  async function emit(event: ReturnType<typeof insBlock>, txn?: string) {
-    if (!creds || !roomId) return;
+  async function emit(event: ReturnType<typeof insBlock>, updatedState: PageState) {
+    if (!isAuthenticated) return;
     const xid = `${event.op}-${Date.now()}`;
     registerEvent({ id: xid, op: event.op, target: event.target, operand: event.operand, ts: event.ctx.ts, agent: event.ctx.agent, status: 'pending' });
     try {
-      await sendEOEvent(creds, roomId, event as unknown as Record<string, unknown>, txn);
+      await addRecord(eventToPayload(event));
       registerEvent({ id: xid, op: event.op, target: event.target, operand: event.operand, ts: event.ctx.ts, agent: event.ctx.agent, status: 'sent' });
+
+      const updated = await upsertCurrentRecord(contentId, event.op, updatedState, event.ctx.agent, currentRecordRef.current);
+      currentRecordRef.current = updated;
     } catch (err) {
       const msg = err instanceof Error ? err.message : String(err);
       registerEvent({ id: xid, op: event.op, target: event.target, operand: event.operand, ts: event.ctx.ts, agent: event.ctx.agent, status: 'error', error: msg });
@@ -116,89 +137,78 @@ export default function PageBuilder({ contentId, siteBase }: Props) {
     }
   }
 
-  // ── Add block ──────────────────────────────────────────────────────────────
+  // ── Add block ─────────────────────────────────────────────────────────────
 
   function addBlock(type: Block['block_type']) {
-    if (!state || !creds) return;
+    if (!state || !isAuthenticated) return;
     const blockId = `b_${Date.now()}`;
     const lastId = state.block_order.at(-1) ?? null;
     const newBlock: Block = { block_id: blockId, block_type: type, data: defaultData(type), after: lastId, deleted: false };
-    const event = insBlock(contentId, newBlock, creds.user_id);
+    const event = insBlock(contentId, newBlock, 'editor');
 
-    setState((prev) => {
-      if (!prev) return prev;
-      return {
-        ...prev,
-        blocks: [...prev.blocks, newBlock],
-        block_order: [...prev.block_order, blockId],
-      };
-    });
-    emit(event);
+    const updatedState: PageState = {
+      ...state,
+      blocks: [...state.blocks, newBlock],
+      block_order: [...state.block_order, blockId],
+    };
+    setState(updatedState);
+    emit(event, updatedState);
     setSelectedBlockId(blockId);
   }
 
-  // ── Update block ───────────────────────────────────────────────────────────
+  // ── Update block ──────────────────────────────────────────────────────────
 
   function updateBlock(blockId: string, newData: Record<string, unknown>) {
-    if (!state || !creds) return;
-    setState((prev) => {
-      if (!prev) return prev;
-      return {
-        ...prev,
-        blocks: prev.blocks.map((b) => b.block_id === blockId ? { ...b, data: newData } : b),
-      };
-    });
+    if (!state || !isAuthenticated) return;
+    const updatedState: PageState = {
+      ...state,
+      blocks: state.blocks.map((b) => b.block_id === blockId ? { ...b, data: newData } : b),
+    };
+    setState(updatedState);
     const patch = Object.entries(newData).map(([k, v]) => ({ op: 'replace', path: `/data/${k}`, value: v }));
-    const event = altBlock(contentId, blockId, patch, creds.user_id);
-    emit(event);
+    const event = altBlock(contentId, blockId, patch, 'editor');
+    emit(event, updatedState);
   }
 
-  // ── Delete block ───────────────────────────────────────────────────────────
+  // ── Delete block ──────────────────────────────────────────────────────────
 
   function deleteBlock(blockId: string) {
-    if (!state || !creds) return;
-    setState((prev) => {
-      if (!prev) return prev;
-      return {
-        ...prev,
-        blocks: prev.blocks.map((b) => b.block_id === blockId ? { ...b, deleted: true } : b),
-        block_order: prev.block_order.filter((id) => id !== blockId),
-      };
-    });
-    const event = nulBlock(contentId, blockId, creds.user_id);
-    emit(event);
+    if (!state || !isAuthenticated) return;
+    const updatedState: PageState = {
+      ...state,
+      blocks: state.blocks.map((b) => b.block_id === blockId ? { ...b, deleted: true } : b),
+      block_order: state.block_order.filter((id) => id !== blockId),
+    };
+    setState(updatedState);
+    const event = nulBlock(contentId, blockId, 'editor');
+    emit(event, updatedState);
     if (selectedBlockId === blockId) setSelectedBlockId(null);
   }
 
-  // ── Reorder (drag/drop) ────────────────────────────────────────────────────
+  // ── Reorder (drag/drop) ───────────────────────────────────────────────────
 
   async function handleDragEnd(event: DragEndEvent) {
     const { active, over } = event;
-    if (!over || active.id === over.id || !state || !creds) return;
+    if (!over || active.id === over.id || !state || !isAuthenticated) return;
 
     const oldIndex = state.block_order.indexOf(String(active.id));
     const newIndex = state.block_order.indexOf(String(over.id));
     const newOrder = arrayMove(state.block_order, oldIndex, newIndex);
 
-    // Recompute `after` pointers for the moved block
     const movedIdx = newOrder.indexOf(String(active.id));
     const newAfter = movedIdx === 0 ? null : newOrder[movedIdx - 1];
 
-    setState((prev) => {
-      if (!prev) return prev;
-      return {
-        ...prev,
-        blocks: prev.blocks.map((b) => b.block_id === String(active.id) ? { ...b, after: newAfter } : b),
-        block_order: newOrder,
-      };
-    });
-
-    // Emit ALT with updated `after`
-    const altEvent = altBlock(contentId, String(active.id), [], creds.user_id, newAfter);
-    emit(altEvent);
+    const updatedState: PageState = {
+      ...state,
+      blocks: state.blocks.map((b) => b.block_id === String(active.id) ? { ...b, after: newAfter } : b),
+      block_order: newOrder,
+    };
+    setState(updatedState);
+    const altEvent = altBlock(contentId, String(active.id), [], 'editor', newAfter);
+    emit(altEvent, updatedState);
   }
 
-  // ── Render ─────────────────────────────────────────────────────────────────
+  // ── Render ────────────────────────────────────────────────────────────────
 
   if (loading) return <div className="editor-loading">Loading page builder…</div>;
   if (!state) return <div className="editor-empty">Create this page first from the content list.</div>;
@@ -210,7 +220,6 @@ export default function PageBuilder({ contentId, siteBase }: Props) {
       {error && <div className="error-banner">{error} <button onClick={() => setError(null)}>×</button></div>}
 
       <div className="builder-layout">
-        {/* Block palette */}
         <aside className="block-palette">
           <div className="palette-title">Blocks</div>
           {BLOCK_TYPES.map((bt) => (
@@ -221,7 +230,6 @@ export default function PageBuilder({ contentId, siteBase }: Props) {
           ))}
         </aside>
 
-        {/* Canvas */}
         <main className="builder-canvas">
           <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
             <SortableContext items={state.block_order} strategy={verticalListSortingStrategy}>
@@ -246,7 +254,6 @@ export default function PageBuilder({ contentId, siteBase }: Props) {
           )}
         </main>
 
-        {/* Properties inspector */}
         <aside className="block-inspector">
           <div className="inspector-title">Properties</div>
           {selectedBlock

@@ -1,39 +1,40 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
-import { login, logout, loadCredentials, type MatrixCredentials } from '../matrix/client';
+import { verifyPassword, saveSession, loadSession, clearSession } from '../xano/client';
 
 interface AuthState {
-  creds: MatrixCredentials | null;
+  isAuthenticated: boolean;
   loading: boolean;
   error: string | null;
-  login: (homeserver: string, username: string, password: string) => Promise<void>;
-  logout: () => Promise<void>;
+  login: (password: string) => Promise<void>;
+  logout: () => void;
 }
 
 const AuthContext = createContext<AuthState>({
-  creds: null,
+  isAuthenticated: false,
   loading: false,
   error: null,
   login: async () => {},
-  logout: async () => {},
+  logout: () => {},
 });
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
-  const [creds, setCreds] = useState<MatrixCredentials | null>(null);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   // Restore session from sessionStorage on mount
   useEffect(() => {
-    const stored = loadCredentials();
-    if (stored) setCreds(stored);
+    if (loadSession()) setIsAuthenticated(true);
   }, []);
 
-  async function handleLogin(homeserver: string, username: string, password: string) {
+  async function handleLogin(password: string) {
     setLoading(true);
     setError(null);
     try {
-      const newCreds = await login(homeserver, username, password);
-      setCreds(newCreds);
+      const ok = await verifyPassword(password);
+      if (!ok) throw new Error('Incorrect password');
+      saveSession();
+      setIsAuthenticated(true);
     } catch (err) {
       setError((err instanceof Error && err.message) ? err.message : 'Login failed');
     } finally {
@@ -41,14 +42,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   }
 
-  async function handleLogout() {
-    if (!creds) return;
-    await logout(creds);
-    setCreds(null);
+  function handleLogout() {
+    clearSession();
+    setIsAuthenticated(false);
   }
 
   return (
-    <AuthContext.Provider value={{ creds, loading, error, login: handleLogin, logout: handleLogout }}>
+    <AuthContext.Provider value={{ isAuthenticated, loading, error, login: handleLogin, logout: handleLogout }}>
       {children}
     </AuthContext.Provider>
   );

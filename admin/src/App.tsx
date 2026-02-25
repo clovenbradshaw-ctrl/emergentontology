@@ -7,13 +7,15 @@
  *   /admin/#blog/<slug>          Blog editor
  *   /admin/#page/<slug>          Page builder
  *   /admin/#exp/<slug>           Experiment editor
- *   /admin/#settings             Homeserver settings
+ *   /admin/#settings             Settings
+ *
+ * Auth: password-only (verified client-side via SHA-256 against hardcoded hash).
+ * Reads from Xano are public; writes require the password.
  */
 
 import React, { useEffect, useState } from 'react';
 import { AuthProvider, useAuth } from './auth/AuthContext';
 import { XRayProvider, XRayPanel, XRayToggleButton } from './components/XRayOverlay';
-import WriteGuard from './components/WriteGuard';
 import ContentManager from './editors/ContentManager';
 import WikiEditor from './editors/WikiEditor';
 import PageBuilder from './editors/PageBuilder';
@@ -26,38 +28,25 @@ const SITE_BASE = import.meta.env.BASE_URL.replace(/\/admin\/?$/, '') || '';
 
 // ── Login form ────────────────────────────────────────────────────────────────
 
-const HYPHAE_HOMESERVER = 'https://hyphae.social';
-
 function LoginForm() {
   const { login, loading, error } = useAuth();
-  const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    await login(HYPHAE_HOMESERVER, username, password);
+    await login(password);
   }
 
   return (
     <div className="login-screen">
       <div className="login-card">
         <div className="login-logo">⊡</div>
-        <h1>Login</h1>
-        <p className="login-sub">Sign in with your hyphae.social account</p>
+        <h1>EO Admin</h1>
+        <p className="login-sub">Enter the editor password to continue</p>
 
         {error && <div className="error-banner">{error}</div>}
 
         <form onSubmit={handleSubmit}>
-          <label className="field">
-            <span>Username</span>
-            <input
-              value={username}
-              onChange={(e) => setUsername(e.target.value)}
-              placeholder="@you:hyphae.social or username"
-              required
-              autoComplete="username"
-            />
-          </label>
           <label className="field">
             <span>Password</span>
             <input
@@ -66,16 +55,17 @@ function LoginForm() {
               type="password"
               required
               autoComplete="current-password"
+              autoFocus
             />
           </label>
           <button className="btn btn-primary btn-full" type="submit" disabled={loading}>
-            {loading ? 'Signing in…' : 'Sign in'}
+            {loading ? 'Checking…' : 'Sign in'}
           </button>
         </form>
 
         <p className="login-note">
-          Content is stored append-only in your Matrix rooms.
-          Credentials are kept in session storage only (cleared on tab close).
+          Content is stored in the Xano EOwiki event log.
+          Session is kept in sessionStorage only (cleared on tab close).
         </p>
       </div>
     </div>
@@ -106,7 +96,7 @@ function parseHash(hash: string): Route {
 }
 
 function AdminShell() {
-  const { creds, logout } = useAuth();
+  const { isAuthenticated, logout } = useAuth();
   const [route, setRoute] = useState<Route>(() => parseHash(window.location.hash));
   const [currentHistory, setCurrentHistory] = useState<unknown[]>([]);
 
@@ -125,7 +115,7 @@ function AdminShell() {
     navigate(`${type}/${slug}`);
   }
 
-  if (!creds) return <LoginForm />;
+  if (!isAuthenticated) return <LoginForm />;
 
   const routeTitle = route.type === 'list' ? 'Content'
     : route.type === 'settings' ? 'Settings'
@@ -141,7 +131,6 @@ function AdminShell() {
           <button className={`nav-btn ${route.type === 'settings' ? 'active' : ''}`} onClick={() => navigate('settings')}>Settings</button>
         </nav>
         <div className="admin-header-right">
-          <span className="user-badge">{creds.user_id}</span>
           <XRayToggleButton />
           <a className="btn btn-sm" href={`${SITE_BASE}/`} target="_blank" rel="noopener noreferrer">View site ↗</a>
           <button className="btn btn-sm" onClick={() => logout()}>Sign out</button>
@@ -163,24 +152,16 @@ function AdminShell() {
           <ContentManager siteBase={SITE_BASE} onOpen={openContent} />
         )}
         {route.type === 'wiki' && (
-          <WriteGuard contentId={`wiki:${route.slug}`}>
-            <WikiEditor contentId={`wiki:${route.slug}`} siteBase={SITE_BASE} />
-          </WriteGuard>
+          <WikiEditor contentId={`wiki:${route.slug}`} siteBase={SITE_BASE} />
         )}
         {route.type === 'blog' && (
-          <WriteGuard contentId={`blog:${route.slug}`}>
-            <WikiEditor contentId={`blog:${route.slug}`} siteBase={SITE_BASE} />
-          </WriteGuard>
+          <WikiEditor contentId={`blog:${route.slug}`} siteBase={SITE_BASE} />
         )}
         {route.type === 'page' && (
-          <WriteGuard contentId={`page:${route.slug}`}>
-            <PageBuilder contentId={`page:${route.slug}`} siteBase={SITE_BASE} />
-          </WriteGuard>
+          <PageBuilder contentId={`page:${route.slug}`} siteBase={SITE_BASE} />
         )}
         {route.type === 'exp' && (
-          <WriteGuard contentId={`exp:${route.slug}`}>
-            <ExperimentEditor contentId={`exp:${route.slug}`} siteBase={SITE_BASE} />
-          </WriteGuard>
+          <ExperimentEditor contentId={`exp:${route.slug}`} siteBase={SITE_BASE} />
         )}
         {route.type === 'settings' && <SettingsPanel />}
       </main>
@@ -192,19 +173,17 @@ function AdminShell() {
 }
 
 function SettingsPanel() {
-  const { creds } = useAuth();
   return (
     <div className="settings-panel">
       <h2>Settings</h2>
       <div className="settings-info">
-        <div className="info-row"><span>Homeserver</span><code>{creds?.homeserver}</code></div>
-        <div className="info-row"><span>User ID</span><code>{creds?.user_id}</code></div>
-        <div className="info-row"><span>Device ID</span><code>{creds?.device_id}</code></div>
+        <div className="info-row"><span>Backend</span><code>Xano EOwiki</code></div>
+        <div className="info-row"><span>Event log</span><code>/api:GGzWIVAW/eowiki</code></div>
+        <div className="info-row"><span>Current state</span><code>/api:GGzWIVAW/eowikicurrent</code></div>
       </div>
       <div className="settings-note">
-        <strong>Multiple editors:</strong> Any Matrix user with room write permissions can use this admin.
-        Invite editors to the relevant rooms via your Matrix client (e.g., Element).
-        All edits are attributed to the editor's Matrix user ID.
+        <strong>Auth:</strong> Write operations require the editor password (hashed SHA-256 client-side).
+        Reads are public. Sessions are stored in sessionStorage only and cleared on tab close.
       </div>
     </div>
   );

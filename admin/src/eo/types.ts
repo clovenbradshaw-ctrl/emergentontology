@@ -61,7 +61,7 @@ export interface ExperimentEntry {
   _event_id?: string;
 }
 
-export interface MatrixRawEvent {
+export interface EORawEvent {
   event_id: string;
   type: string;
   sender: string;
