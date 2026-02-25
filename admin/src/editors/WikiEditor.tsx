@@ -187,6 +187,7 @@ export default function WikiEditor({ contentId, siteBase }: Props) {
 
       <div className="editor-split">
         <div className="editor-pane">
+          <MarkdownToolbar onInsert={(text) => { setEditorContent((c) => c + text); setIsDirty(true); }} />
           <textarea
             className="markdown-textarea"
             value={editorContent}
@@ -245,16 +246,85 @@ export default function WikiEditor({ contentId, siteBase }: Props) {
   );
 }
 
+// ── Markdown toolbar ──────────────────────────────────────────────────────────
+
+const TOOLBAR_ACTIONS = [
+  { label: 'B', title: 'Bold', snippet: '**bold**' },
+  { label: 'I', title: 'Italic', snippet: '*italic*' },
+  { label: 'H2', title: 'Heading 2', snippet: '\n## Heading\n' },
+  { label: 'H3', title: 'Heading 3', snippet: '\n### Heading\n' },
+  { label: '<>', title: 'Inline code', snippet: '`code`' },
+  { label: '```', title: 'Code block', snippet: '\n```js\n// code here\n```\n' },
+  { label: '🔗', title: 'Link', snippet: '[link text](https://)' },
+  { label: '—', title: 'Divider', snippet: '\n---\n' },
+  { label: '• list', title: 'Unordered list', snippet: '\n- item 1\n- item 2\n- item 3\n' },
+  { label: '1. list', title: 'Ordered list', snippet: '\n1. item 1\n2. item 2\n3. item 3\n' },
+];
+
+function MarkdownToolbar({ onInsert }: { onInsert: (text: string) => void }) {
+  return (
+    <div className="md-toolbar">
+      {TOOLBAR_ACTIONS.map((a) => (
+        <button key={a.label} type="button" className="md-toolbar-btn" title={a.title} onClick={() => onInsert(a.snippet)}>
+          {a.label}
+        </button>
+      ))}
+    </div>
+  );
+}
+
 function simpleMarkdown(md: string): string {
-  return md
-    .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+  // 1. Fenced code blocks (must run before HTML-escaping inline content)
+  const codeBlocks: string[] = [];
+  let s = md.replace(/```(\w*)\n?([\s\S]*?)```/g, (_m, lang, code) => {
+    const escaped = code.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+    const cls = lang ? ` class="language-${lang}"` : '';
+    codeBlocks.push(`<pre><code${cls}>${escaped}</code></pre>`);
+    return `\x00CODE${codeBlocks.length - 1}\x00`;
+  });
+
+  // 2. Escape HTML in the non-code parts
+  s = s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+
+  // 3. Headings
+  s = s
     .replace(/^#{4}\s+(.+)$/gm, '<h4>$1</h4>')
     .replace(/^#{3}\s+(.+)$/gm, '<h3>$1</h3>')
     .replace(/^#{2}\s+(.+)$/gm, '<h2>$1</h2>')
-    .replace(/^#{1}\s+(.+)$/gm, '<h1>$1</h1>')
+    .replace(/^#{1}\s+(.+)$/gm, '<h1>$1</h1>');
+
+  // 4. Horizontal rule
+  s = s.replace(/^---$/gm, '<hr>');
+
+  // 5. Unordered lists (groups of lines starting with - or *)
+  s = s.replace(/((?:^[ \t]*[-*]\s+.+\n?)+)/gm, (block) => {
+    const items = block.trim().split('\n').map((l) => `<li>${l.replace(/^[ \t]*[-*]\s+/, '')}</li>`).join('');
+    return `<ul>${items}</ul>`;
+  });
+
+  // 6. Ordered lists
+  s = s.replace(/((?:^[ \t]*\d+\.\s+.+\n?)+)/gm, (block) => {
+    const items = block.trim().split('\n').map((l) => `<li>${l.replace(/^[ \t]*\d+\.\s+/, '')}</li>`).join('');
+    return `<ol>${items}</ol>`;
+  });
+
+  // 7. Inline: bold, italic, inline code, links
+  s = s
     .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
     .replace(/\*(.+?)\*/g, '<em>$1</em>')
     .replace(/`(.+?)`/g, '<code>$1</code>')
-    .replace(/\n\n/g, '</p><p>')
-    .replace(/^(?!<)(.+)/m, '<p>$1') + '</p>';
+    .replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" target="_blank" rel="noopener">$1</a>');
+
+  // 8. Paragraphs (blank-line separated)
+  s = s.replace(/\n\n+/g, '</p><p>');
+  s = `<p>${s}</p>`;
+
+  // 9. Restore code blocks (unescape the placeholders)
+  s = s.replace(/\x00CODE(\d+)\x00/g, (_m, i) => codeBlocks[Number(i)]);
+
+  // 10. Clean up empty paragraphs wrapping block elements
+  s = s.replace(/<p>(<(?:h[1-6]|ul|ol|hr|pre|blockquote)[^>]*>)/g, '$1');
+  s = s.replace(/(<\/(?:h[1-6]|ul|ol|hr|pre|blockquote)>)<\/p>/g, '$1');
+
+  return s;
 }

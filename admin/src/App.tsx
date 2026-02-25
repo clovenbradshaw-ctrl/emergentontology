@@ -26,44 +26,34 @@ const SITE_BASE = import.meta.env.BASE_URL.replace(/\/admin\/?$/, '') || '';
 
 // ── Login form ────────────────────────────────────────────────────────────────
 
+const HYPHAE_HOMESERVER = 'https://matrix.hyphae.social';
+
 function LoginForm() {
   const { login, loading, error } = useAuth();
-  const [homeserver, setHomeserver] = useState(localStorage.getItem('eo_homeserver') ?? 'https://matrix.hyphae.social');
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    localStorage.setItem('eo_homeserver', homeserver);
-    await login(homeserver, username, password);
+    await login(HYPHAE_HOMESERVER, username, password);
   }
 
   return (
     <div className="login-screen">
       <div className="login-card">
         <div className="login-logo">⊡</div>
-        <h1>EO Admin</h1>
-        <p className="login-sub">Sign in with your Matrix account</p>
+        <h1>Login</h1>
+        <p className="login-sub">Sign in with your hyphae.social account</p>
 
         {error && <div className="error-banner">{error}</div>}
 
         <form onSubmit={handleSubmit}>
           <label className="field">
-            <span>Homeserver</span>
-            <input
-              value={homeserver}
-              onChange={(e) => setHomeserver(e.target.value)}
-              placeholder="https://matrix.example.com"
-              required
-              type="url"
-            />
-          </label>
-          <label className="field">
             <span>Username</span>
             <input
               value={username}
               onChange={(e) => setUsername(e.target.value)}
-              placeholder="@alice:example.com or alice"
+              placeholder="@you:hyphae.social or username"
               required
               autoComplete="username"
             />
