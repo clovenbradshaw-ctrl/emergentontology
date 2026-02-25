@@ -42,6 +42,7 @@ const BLOCK_TYPES: Array<{ type: Block['block_type']; label: string; icon: strin
   { type: 'toc', label: 'TOC', icon: '≡' },
   { type: 'wiki-embed', label: 'Wiki Embed', icon: '⊂' },
   { type: 'experiment-embed', label: 'Exp Embed', icon: '⊗' },
+  { type: 'code', label: 'Code Block', icon: '</>' },
 ];
 
 interface Props {
@@ -297,6 +298,7 @@ function BlockPreview({ block }: { block: Block }) {
     case 'toc': return <div style={{ color: '#888', fontSize: '13px' }}>≡ Table of Contents</div>;
     case 'wiki-embed': return <div style={{ color: '#888', fontSize: '13px' }}>⊂ Wiki: {String(data.slug ?? data.wiki_id ?? '?')}</div>;
     case 'experiment-embed': return <div style={{ color: '#888', fontSize: '13px' }}>⊗ Exp: {String(data.exp_id ?? '?')}</div>;
+    case 'code': return <pre style={{ margin: 0, background: '#1a1a2e', color: '#a8ff78', fontSize: '12px', padding: '6px 8px', borderRadius: '4px', overflow: 'hidden', maxHeight: '60px' }}>{String(data.code ?? '').slice(0, 200) || <em style={{ color: '#555' }}>Empty code block</em>}</pre>;
     default: return <div style={{ color: '#888' }}>[{block_type}]</div>;
   }
 }
@@ -357,6 +359,18 @@ function BlockInspector({ block, onUpdate }: { block: Block; onUpdate: (data: Re
       {block.block_type === 'experiment-embed' && (
         <label className="field"><span>Experiment ID</span><input value={String(local.exp_id ?? '')} onChange={(e) => set('exp_id', e.target.value)} /></label>
       )}
+      {block.block_type === 'code' && (
+        <>
+          <label className="field">
+            <span>Language</span>
+            <input value={String(local.lang ?? '')} onChange={(e) => set('lang', e.target.value)} placeholder="js, python, bash, …" />
+          </label>
+          <label className="field">
+            <span>Code</span>
+            <textarea value={String(local.code ?? '')} onChange={(e) => set('code', e.target.value)} rows={10} style={{ fontFamily: 'monospace', fontSize: '13px' }} placeholder="Paste your code here…" />
+          </label>
+        </>
+      )}
     </div>
   );
 }
@@ -370,6 +384,7 @@ function defaultData(type: Block['block_type']): Record<string, unknown> {
     case 'embed': return { src: '', title: '' };
     case 'wiki-embed': return { slug: '', title: '' };
     case 'experiment-embed': return { exp_id: '' };
+    case 'code': return { lang: '', code: '' };
     default: return {};
   }
 }
