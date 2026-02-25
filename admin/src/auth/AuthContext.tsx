@@ -35,7 +35,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       const newCreds = await login(homeserver, username, password);
       setCreds(newCreds);
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Login failed');
+      setError((err instanceof Error && err.message) ? err.message : 'Login failed');
     } finally {
       setLoading(false);
     }
