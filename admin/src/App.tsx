@@ -26,7 +26,7 @@ const SITE_BASE = import.meta.env.BASE_URL.replace(/\/admin\/?$/, '') || '';
 
 // ── Login form ────────────────────────────────────────────────────────────────
 
-const HYPHAE_HOMESERVER = 'https://matrix.hyphae.social';
+const HYPHAE_HOMESERVER = 'https://hyphae.social';
 
 function LoginForm() {
   const { login, loading, error } = useAuth();

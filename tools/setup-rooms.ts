@@ -13,7 +13,7 @@
  *   - Additional editors: invite them, then set power to 50
  *
  * Usage:
- *   MATRIX_HOMESERVER=https://matrix.hyphae.social \
+ *   MATRIX_HOMESERVER=https://hyphae.social \
  *   MATRIX_ACCESS_TOKEN=<your_token> \
  *   MATRIX_USER_ID=@you:hyphae.social \
  *   npx tsx tools/setup-rooms.ts
@@ -22,7 +22,7 @@
  *   ... npx tsx tools/setup-rooms.ts --room wiki:operators --title "Operators"
  */
 
-const HOMESERVER = process.env.MATRIX_HOMESERVER ?? 'https://matrix.hyphae.social';
+const HOMESERVER = process.env.MATRIX_HOMESERVER ?? 'https://hyphae.social';
 const SERVER_NAME = process.env.MATRIX_SERVER_NAME ?? 'hyphae.social';
 const ACCESS_TOKEN = process.env.MATRIX_ACCESS_TOKEN;
 const USER_ID = process.env.MATRIX_USER_ID;
