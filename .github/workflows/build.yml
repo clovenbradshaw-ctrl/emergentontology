@@ -14,14 +14,11 @@ on:
   schedule:
     - cron: '*/5 * * * *'
 
-  # Also rebuild on pushes to main (for site/admin code changes)
+  # Also rebuild on pushes to main/master (for site/admin code changes).
+  # No path filter here so that the very first push to either branch always
+  # triggers a deployment (avoids a 404 on first load before a scheduled run).
   push:
-    branches: [main]
-    paths:
-      - 'site/**'
-      - 'admin/**'
-      - 'tools/**'
-      - '.github/workflows/build.yml'
+    branches: [main, master]
 
 permissions:
   contents: read
