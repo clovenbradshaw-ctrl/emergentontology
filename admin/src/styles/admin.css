@@ -199,6 +199,34 @@ textarea { resize: vertical; }
 .settings-note { color: var(--text-dim); font-size: .88rem; background: var(--bg2); border: 1px solid var(--border); border-radius: var(--radius); padding: 1rem; }
 .settings-note strong { color: var(--text); }
 
+/* WriteGuard */
+.access-checking { color: var(--text-dim); padding: 3rem; text-align: center; }
+.access-denied, .access-no-room {
+  max-width: 480px;
+  margin: 4rem auto;
+  text-align: center;
+  padding: 2rem;
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+}
+.access-icon { font-size: 2.5rem; margin-bottom: .75rem; }
+.access-denied h3, .access-no-room h3 { margin-bottom: .75rem; }
+.access-denied p, .access-no-room p { color: var(--text-dim); margin-bottom: .5rem; font-size: .95rem; }
+.access-denied details { margin-top: 1.5rem; text-align: left; }
+.access-denied summary { cursor: pointer; color: var(--text-dim); font-size: .85rem; margin-bottom: .5rem; }
+.access-denied pre {
+  background: var(--bg3);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: .75rem;
+  font-size: .78rem;
+  overflow-x: auto;
+  white-space: pre-wrap;
+  word-break: break-all;
+  color: var(--text-dim);
+}
+
 /* Responsive */
 @media (max-width: 900px) {
   .builder-layout { grid-template-columns: 1fr; }

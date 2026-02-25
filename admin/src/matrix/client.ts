@@ -200,3 +200,43 @@ export async function fetchRoomState(
   if (!resp.ok) return [];
   return (await resp.json()) as Array<{ type: string; state_key: string; content: Record<string, unknown> }>;
 }
+
+/**
+ * Check whether the current user has enough power to send `eo.op` events
+ * in a given room.  Returns the user's power level and the required threshold.
+ *
+ * The server enforces power levels — this check is purely for UX (show a
+ * clear "you don't have write access" message before the user even tries).
+ */
+export async function checkWriteAccess(
+  creds: MatrixCredentials,
+  roomId: string
+): Promise<{ canWrite: boolean; userLevel: number; required: number }> {
+  try {
+    const resp = await fetch(
+      `${creds.homeserver}/_matrix/client/v3/rooms/${encodeURIComponent(roomId)}/state/m.room.power_levels/`,
+      { headers: authHeaders(creds) }
+    );
+    if (!resp.ok) {
+      // Can't read power levels (likely not a member) — assume no access
+      return { canWrite: false, userLevel: 0, required: 50 };
+    }
+
+    const pl = await resp.json() as {
+      events?: Record<string, number>;
+      events_default?: number;
+      users?: Record<string, number>;
+      users_default?: number;
+    };
+
+    // Required level: specific override for eo.op, else events_default, else 0
+    const required = pl.events?.['eo.op'] ?? pl.events_default ?? 0;
+
+    // User's level: specific override, else users_default, else 0
+    const userLevel = pl.users?.[creds.user_id] ?? pl.users_default ?? 0;
+
+    return { canWrite: userLevel >= required, userLevel, required };
+  } catch {
+    return { canWrite: false, userLevel: 0, required: 50 };
+  }
+}

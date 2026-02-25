@@ -84,10 +84,49 @@ Matrix event type: `eo.op`
 
 ---
 
-## Multiple Editors
+## Security Model
 
-Any Matrix user with room write permissions can use the admin editor.
-Invite editors to rooms via your Matrix client (e.g., Element).
+Write access is enforced by **Matrix room power levels** — no client-side trust required.
+
+| Setting | Value | Effect |
+|---|---|---|
+| `join_rule` | `invite` | Random accounts can't join rooms |
+| `history_visibility` | `world_readable` | Projector reads events without a token |
+| `events_default` | `50` | Power 50+ required to send any event |
+| `eo.op` event | `50` | Same — only moderators+ can write content |
+| Your account | `100` | Admin — full control |
+| Invited editors | `50` | Can write; cannot change room settings |
+
+The server enforces power levels. Even if someone logs into the admin UI, their write attempts will be rejected by the homeserver if they lack sufficient power level.
+
+### Initial setup
+
+Run once with your admin token to create rooms with the correct security settings:
+
+```sh
+MATRIX_ACCESS_TOKEN=<your_token> \
+MATRIX_USER_ID=@you:hyphae.social \
+npx tsx tools/setup-rooms.ts
+```
+
+Get your access token from Element → Settings → Help & About → Access Token.
+
+### Invite an editor
+
+```sh
+MATRIX_ACCESS_TOKEN=<your_token> \
+MATRIX_USER_ID=@you:hyphae.social \
+npx tsx tools/setup-rooms.ts --invite !roomid:hyphae.social @editor:hyphae.social 50
+```
+
+### Secure an existing room
+
+```sh
+MATRIX_ACCESS_TOKEN=<your_token> \
+MATRIX_USER_ID=@you:hyphae.social \
+npx tsx tools/setup-rooms.ts --secure-existing !roomid:hyphae.social
+```
+
 All edits are attributed to the editor's Matrix user ID in the event `ctx.agent`.
 
 ---

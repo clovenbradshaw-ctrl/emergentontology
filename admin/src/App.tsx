@@ -13,6 +13,7 @@
 import React, { useEffect, useState } from 'react';
 import { AuthProvider, useAuth } from './auth/AuthContext';
 import { XRayProvider, XRayPanel, XRayToggleButton } from './components/XRayOverlay';
+import WriteGuard from './components/WriteGuard';
 import ContentManager from './editors/ContentManager';
 import WikiEditor from './editors/WikiEditor';
 import PageBuilder from './editors/PageBuilder';
@@ -172,16 +173,24 @@ function AdminShell() {
           <ContentManager siteBase={SITE_BASE} onOpen={openContent} />
         )}
         {route.type === 'wiki' && (
-          <WikiEditor contentId={`wiki:${route.slug}`} siteBase={SITE_BASE} />
+          <WriteGuard contentId={`wiki:${route.slug}`}>
+            <WikiEditor contentId={`wiki:${route.slug}`} siteBase={SITE_BASE} />
+          </WriteGuard>
         )}
         {route.type === 'blog' && (
-          <WikiEditor contentId={`blog:${route.slug}`} siteBase={SITE_BASE} />
+          <WriteGuard contentId={`blog:${route.slug}`}>
+            <WikiEditor contentId={`blog:${route.slug}`} siteBase={SITE_BASE} />
+          </WriteGuard>
         )}
         {route.type === 'page' && (
-          <PageBuilder contentId={`page:${route.slug}`} siteBase={SITE_BASE} />
+          <WriteGuard contentId={`page:${route.slug}`}>
+            <PageBuilder contentId={`page:${route.slug}`} siteBase={SITE_BASE} />
+          </WriteGuard>
         )}
         {route.type === 'exp' && (
-          <ExperimentEditor contentId={`exp:${route.slug}`} siteBase={SITE_BASE} />
+          <WriteGuard contentId={`exp:${route.slug}`}>
+            <ExperimentEditor contentId={`exp:${route.slug}`} siteBase={SITE_BASE} />
+          </WriteGuard>
         )}
         {route.type === 'settings' && <SettingsPanel />}
       </main>
