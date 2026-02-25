@@ -4,7 +4,7 @@
   const resultsBox = document.getElementById('search-results');
   if (!input || !resultsBox) return;
 
-  const base = document.querySelector('link[rel="alternate"]')?.getAttribute('href')?.replace('/generated/state/index.json', '') ?? '';
+  const base = document.querySelector('link[rel="alternate"]')?.getAttribute('href')?.replace('/state/index.json', '') ?? '';
 
   // Load Fuse.js from CDN (deferred, only on first keystroke)
   let fuse = null;

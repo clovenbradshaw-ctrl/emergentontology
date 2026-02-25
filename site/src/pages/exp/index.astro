@@ -1,0 +1,36 @@
+---
+import Base from '../../layouts/Base.astro';
+import { loadAllContent } from '../../lib/state';
+import type { ProjectedExperiment } from '../../lib/state';
+
+const experiments = loadAllContent('experiment') as ProjectedExperiment[];
+const base = import.meta.env.BASE_URL.replace(/\/$/, '');
+---
+<Base
+  title="Experiments"
+  description="All experiments."
+  breadcrumbs={[
+    { label: 'Home', href: `${base}/` },
+    { label: 'Experiments', href: `${base}/exp/` },
+  ]}
+>
+  <section class="home-section">
+    <h1>Experiments</h1>
+    {experiments.length > 0 ? (
+      <ul class="content-list">
+        {experiments.map((e) => (
+          <li>
+            <a href={`${base}/exp/${e.meta.slug}/`}>{e.meta.title}</a>
+            {e.meta.tags.length > 0 && (
+              <span class="tags">
+                {e.meta.tags.map((t: string) => <span class="tag">{t}</span>)}
+              </span>
+            )}
+          </li>
+        ))}
+      </ul>
+    ) : (
+      <p class="empty-page">No experiments published yet.</p>
+    )}
+  </section>
+</Base>

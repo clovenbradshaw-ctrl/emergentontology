@@ -1,0 +1,36 @@
+---
+import Base from '../../layouts/Base.astro';
+import { loadAllContent } from '../../lib/state';
+import type { ProjectedWiki } from '../../lib/state';
+
+const wikis = loadAllContent('wiki') as ProjectedWiki[];
+const base = import.meta.env.BASE_URL.replace(/\/$/, '');
+---
+<Base
+  title="Wiki"
+  description="All wiki entries."
+  breadcrumbs={[
+    { label: 'Home', href: `${base}/` },
+    { label: 'Wiki', href: `${base}/wiki/` },
+  ]}
+>
+  <section class="home-section">
+    <h1>Wiki</h1>
+    {wikis.length > 0 ? (
+      <ul class="content-list">
+        {wikis.map((w) => (
+          <li>
+            <a href={`${base}/wiki/${w.meta.slug}/`}>{w.meta.title}</a>
+            {w.meta.tags.length > 0 && (
+              <span class="tags">
+                {w.meta.tags.map((t: string) => <span class="tag">{t}</span>)}
+              </span>
+            )}
+          </li>
+        ))}
+      </ul>
+    ) : (
+      <p class="empty-page">No wiki entries published yet.</p>
+    )}
+  </section>
+</Base>

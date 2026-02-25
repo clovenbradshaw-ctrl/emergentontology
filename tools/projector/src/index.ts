@@ -13,18 +13,14 @@
  *   SITE_BASE_URL       optional  default: ""  (relative, works for any gh-pages path)
  */
 
-import { existsSync, mkdirSync, writeFileSync } from 'fs';
+import { mkdirSync, writeFileSync } from 'fs';
 import { join } from 'path';
 
 import type { BuildConfig } from './types.js';
 import { fetchRoomEvents, fetchSiteIndex, discoverContentRooms } from './fetch_matrix.ts';
 import { replayRoom, replaySiteIndex } from './replay.js';
 import {
-  renderHome,
-  renderContentPage,
-  renderStyles,
   renderSearchIndex,
-  renderSearchScript,
   renderStateFiles,
 } from './render.js';
 
@@ -88,17 +84,9 @@ async function main() {
     }
   }
 
-  // ── 4. Render ───────────────────────────────────────────────────────────────
-  console.log('[projector] Rendering static files…');
-  renderStyles(cfg);
-  renderSearchScript(cfg);
+  // ── 4. Write JSON state (Astro reads these to generate the static site) ────
+  console.log('[projector] Writing state files…');
   renderStateFiles(siteIndex, projectedContents, cfg);
-  renderHome(siteIndex, cfg);
-
-  for (const proj of projectedContents) {
-    renderContentPage(proj, siteIndex, cfg);
-  }
-
   renderSearchIndex(projectedContents, cfg);
 
   // Write build manifest

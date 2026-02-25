@@ -1,0 +1,36 @@
+---
+import Base from '../../layouts/Base.astro';
+import { loadAllContent } from '../../lib/state';
+import type { ProjectedBlog } from '../../lib/state';
+
+const posts = loadAllContent('blog') as ProjectedBlog[];
+const base = import.meta.env.BASE_URL.replace(/\/$/, '');
+---
+<Base
+  title="Blog"
+  description="All blog posts."
+  breadcrumbs={[
+    { label: 'Home', href: `${base}/` },
+    { label: 'Blog', href: `${base}/blog/` },
+  ]}
+>
+  <section class="home-section">
+    <h1>Blog</h1>
+    {posts.length > 0 ? (
+      <ul class="content-list">
+        {posts.map((p) => (
+          <li>
+            <a href={`${base}/blog/${p.meta.slug}/`}>{p.meta.title}</a>
+            {p.meta.tags.length > 0 && (
+              <span class="tags">
+                {p.meta.tags.map((t: string) => <span class="tag">{t}</span>)}
+              </span>
+            )}
+          </li>
+        ))}
+      </ul>
+    ) : (
+      <p class="empty-page">No blog posts published yet.</p>
+    )}
+  </section>
+</Base>
