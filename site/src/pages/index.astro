@@ -47,15 +47,15 @@ const hasContent = totalArticles > 0;
 
 // Nine operators data
 const operators = [
-  { num: 1, symbol: '∅', code: 'NUL', label: 'Absence & Nullity', color: '#9ca3af', slug: 'nul' },
-  { num: 2, symbol: '⊡', code: 'DES', label: 'Designation', color: '#60a5fa', slug: 'des' },
-  { num: 3, symbol: '△', code: 'INS', label: 'Instantiation', color: '#4ade80', slug: 'ins' },
-  { num: 4, symbol: '｜', code: 'SEG', label: 'Segmentation', color: '#c084fc', slug: 'seg' },
-  { num: 5, symbol: '⋈', code: 'CON', label: 'Connection', color: '#34d399', slug: 'con' },
-  { num: 6, symbol: '∿', code: 'ALT', label: 'Alternation', color: '#fbbf24', slug: 'alt' },
-  { num: 7, symbol: '∨', code: 'SYN', label: 'Synthesis', color: '#818cf8', slug: 'syn' },
-  { num: 8, symbol: '∥', code: 'SUP', label: 'Superposition', color: '#f472b6', slug: 'sup' },
-  { num: 9, symbol: '⟳', code: 'REC', label: 'Recursion', color: '#fb923c', slug: 'rec' },
+  { num: 1, symbol: '∅', code: 'NUL', greek: 'ν', label: 'Absence & Nullity', color: '#9ca3af', slug: 'nul' },
+  { num: 2, symbol: '⊡', code: 'DES', greek: 'δ', label: 'Designation', color: '#60a5fa', slug: 'des' },
+  { num: 3, symbol: '△', code: 'INS', greek: 'ι', label: 'Instantiation', color: '#4ade80', slug: 'ins' },
+  { num: 4, symbol: '｜', code: 'SEG', greek: 'σ', label: 'Segmentation', color: '#c084fc', slug: 'seg' },
+  { num: 5, symbol: '⋈', code: 'CON', greek: 'κ', label: 'Connection', color: '#34d399', slug: 'con' },
+  { num: 6, symbol: '∿', code: 'ALT', greek: 'α', label: 'Alternation', color: '#fbbf24', slug: 'alt' },
+  { num: 7, symbol: '∨', code: 'SYN', greek: 'ψ', label: 'Synthesis', color: '#818cf8', slug: 'syn' },
+  { num: 8, symbol: '∥', code: 'SUP', greek: 'φ', label: 'Superposition', color: '#f472b6', slug: 'sup' },
+  { num: 9, symbol: '⟳', code: 'REC', greek: 'ρ', label: 'Recursion', color: '#fb923c', slug: 'rec' },
 ];
 ---
 <Base title="Home" description="A minimal, universal framework for data transformation." mainClass="home">
@@ -242,15 +242,47 @@ const operators = [
 
     <!-- ── Rune Grid (right column) ── -->
     <aside class="rune-grid-aside" aria-label="Nine Operators">
-      <div class="rune-grid">
+      <button class="rune-mode-toggle" id="rune-mode-toggle" aria-label="Toggle operator display mode" title="Toggle display: Runes / Greek / Code">
+        <span class="rune-mode-label" id="rune-mode-label">Runes</span>
+        <svg width="12" height="12" viewBox="0 0 12 12" fill="none" aria-hidden="true">
+          <path d="M3 5l3 3 3-3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </button>
+      <div class="rune-grid" id="rune-grid" data-mode="runes">
         {operators.map((op) => (
           <a class="rune-cell" href={`${base}/wiki/${op.slug}/`} title={`${op.code} — ${op.label}`} style={`--rune-color: ${op.color}`}>
-            <span class="rune-sym">{op.symbol}</span>
+            <span class="rune-sym rune-sym--rune">{op.symbol}</span>
+            <span class="rune-sym rune-sym--greek">{op.greek}</span>
+            <span class="rune-sym rune-sym--code">{op.code}</span>
             <span class="rune-code">{op.code}</span>
           </a>
         ))}
       </div>
     </aside>
   </div>{/* end .home-columns */}
+
+  <script is:inline>
+  (function() {
+    var modes = ['runes', 'greek', 'code'];
+    var labels = { runes: 'Runes', greek: 'Greek', code: 'Code' };
+    var grid = document.getElementById('rune-grid');
+    var btn = document.getElementById('rune-mode-toggle');
+    var label = document.getElementById('rune-mode-label');
+    if (!grid || !btn || !label) return;
+
+    var saved = localStorage.getItem('eo-rune-mode');
+    var idx = saved ? modes.indexOf(saved) : 0;
+    if (idx < 0) idx = 0;
+    grid.setAttribute('data-mode', modes[idx]);
+    label.textContent = labels[modes[idx]];
+
+    btn.addEventListener('click', function() {
+      idx = (idx + 1) % modes.length;
+      grid.setAttribute('data-mode', modes[idx]);
+      label.textContent = labels[modes[idx]];
+      localStorage.setItem('eo-rune-mode', modes[idx]);
+    });
+  })();
+  </script>
 
 </Base>
