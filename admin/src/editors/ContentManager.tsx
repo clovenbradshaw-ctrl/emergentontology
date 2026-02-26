@@ -16,12 +16,12 @@ import { useAuth } from '../auth/AuthContext';
 import { useSettings } from '../settings/SettingsContext';
 import { useXRay } from '../components/XRayOverlay';
 import {
-  fetchCurrentRecord,
   addRecord,
   upsertCurrentRecord,
   eventToPayload,
   type XanoCurrentRecord,
 } from '../xano/client';
+import { loadState, fetchCurrentRecordCached } from '../xano/stateCache';
 import { insIndexEntry, desContentMeta, desIndexEntry } from '../eo/events';
 import type { ContentType, ContentStatus, Visibility } from '../eo/types';
 
@@ -82,29 +82,15 @@ export default function ContentManager({ siteBase, onOpen }: Props) {
     async function load() {
       setLoading(true);
 
-      // 1. Try Xano current state for site:index
-      try {
-        const rec = await fetchCurrentRecord('site:index');
-        if (rec) {
-          indexRecordRef.current = rec;
-          const parsed = JSON.parse(rec.values) as { entries: IndexEntry[] };
-          setEntries(parsed.entries ?? []);
-          setLoading(false);
-          return;
-        }
-      } catch (err) {
-        console.warn('[ContentManager] Could not fetch Xano index:', err);
-      }
+      // Unified load: current state (cached) → static fallback
+      const result = await loadState<{ entries: IndexEntry[] }>(
+        'site:index',
+        siteBase,
+        '/generated/state/index.json',
+      );
 
-      // 2. Fall back to static index.json
-      try {
-        const resp = await fetch(`${siteBase}/generated/state/index.json`);
-        if (resp.ok) {
-          const data = await resp.json() as { entries?: IndexEntry[] };
-          setEntries(data.entries ?? []);
-        }
-      } catch { /* no static index */ }
-
+      if (result.record) indexRecordRef.current = result.record;
+      if (result.state) setEntries(result.state.entries ?? []);
       setLoading(false);
     }
 
@@ -233,7 +219,7 @@ export default function ContentManager({ siteBase, onOpen }: Props) {
       } as Partial<import('../eo/types').ContentMeta>, agent);
       await addRecord(eventToPayload(metaEvent));
       try {
-        const contentRec = await fetchCurrentRecord(contentId);
+        const contentRec = await fetchCurrentRecordCached(contentId);
         if (contentRec) {
           const contentState = JSON.parse(contentRec.values);
           contentState.meta = { ...contentState.meta, status: newStatus, updated_at: desEvent.ctx.ts };
@@ -289,7 +275,7 @@ export default function ContentManager({ siteBase, onOpen }: Props) {
         } as Partial<import('../eo/types').ContentMeta>, agent);
         await addRecord(eventToPayload(metaEvent));
         try {
-          const contentRec = await fetchCurrentRecord(contentId);
+          const contentRec = await fetchCurrentRecordCached(contentId);
           if (contentRec) {
             const contentState = JSON.parse(contentRec.values);
             contentState.meta = { ...contentState.meta, visibility: newVisibility, first_public_at: firstPublicTs };

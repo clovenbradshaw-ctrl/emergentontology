@@ -20,6 +20,16 @@
 
 import type { EOEvent, EORawEvent } from '../eo/types';
 
+// Late-bound cache hooks — set by stateCache.ts to avoid circular imports.
+// When a write to eowikicurrent succeeds, we update the cache in-place so
+// other editors immediately see the new data without waiting for a refetch.
+let _onRecordWritten: ((record: XanoCurrentRecord) => void) | null = null;
+
+/** Called by stateCache.ts to register its cache-update callback. */
+export function _registerCacheHook(hook: (record: XanoCurrentRecord) => void): void {
+  _onRecordWritten = hook;
+}
+
 const XANO_BASE = 'https://xvkq-pq7i-idtl.n7d.xano.io/api:GGzWIVAW';
 
 // SHA-256 of "Brethren0-Happiest6-Dynamite5-Hammock9-Sharply0"
@@ -193,17 +203,23 @@ export async function upsertCurrentRecord(
   const values = JSON.stringify(stateSnapshot);
   const lastModified = new Date().toISOString();
 
+  let result: XanoCurrentRecord;
   if (existing) {
-    return patchCurrentRecord(existing.id, { values, context: ctx, lastModified });
+    result = await patchCurrentRecord(existing.id, { values, context: ctx, lastModified });
+  } else {
+    result = await createCurrentRecord({
+      record_id: recordId,
+      displayName: recordId,
+      values,
+      context: ctx,
+      uuid: crypto.randomUUID(),
+      lastModified,
+    });
   }
-  return createCurrentRecord({
-    record_id: recordId,
-    displayName: recordId,
-    values,
-    context: ctx,
-    uuid: crypto.randomUUID(),
-    lastModified,
-  });
+
+  // Keep the in-memory cache in sync so other editors see this write immediately
+  _onRecordWritten?.(result);
+  return result;
 }
 
 // ── EOEvent → eowiki payload helper ───────────────────────────────────────────

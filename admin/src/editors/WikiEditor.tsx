@@ -13,12 +13,12 @@ import { useAuth } from '../auth/AuthContext';
 import { useSettings } from '../settings/SettingsContext';
 import { useXRay } from '../components/XRayOverlay';
 import {
-  fetchCurrentRecord,
   addRecord,
   upsertCurrentRecord,
   eventToPayload,
   type XanoCurrentRecord,
 } from '../xano/client';
+import { loadState, fetchCurrentRecordCached, applyFreshnessUpdate } from '../xano/stateCache';
 import { insRevision } from '../eo/events';
 import type { WikiRevision, ContentMeta } from '../eo/types';
 import RichTextEditor from './RichTextEditor';
@@ -66,43 +66,47 @@ export default function WikiEditor({ contentId, siteBase }: Props) {
       setLoading(true);
       setError(null);
 
-      let wikiState: WikiState | null = null;
-
-      // 1. Try eowikicurrent
-      try {
-        const rec = await fetchCurrentRecord(contentId);
-        if (rec) {
-          currentRecordRef.current = rec;
-          wikiState = JSON.parse(rec.values) as WikiState;
-        }
-      } catch (err) {
-        console.warn('[WikiEditor] Could not fetch Xano current record:', err);
-      }
-
-      // 2. Fall back to static snapshot
-      if (!wikiState) {
-        try {
-          const fileName = contentId.replace(':', '-') + '.json';
-          const resp = await fetch(`${siteBase}/generated/state/content/${fileName}`);
-          if (resp.ok) {
-            const snap = await resp.json() as { meta: ContentMeta; current_revision?: WikiRevision; revisions?: WikiRevision[] };
-            wikiState = {
-              meta: snap.meta ?? {},
-              current_revision: snap.current_revision ?? null,
-              revisions: snap.revisions ?? [],
-            };
-          }
-        } catch { /* no snapshot */ }
-      }
+      // 1. Primary: current state (cached) → static fallback
+      const result = await loadState<WikiState>(contentId, siteBase);
 
       if (cancelled) return;
+      if (result.record) currentRecordRef.current = result.record;
+
+      let wikiState = result.state;
+
+      // Normalize static snapshots that may have a different shape
+      if (wikiState && !wikiState.revisions) {
+        const snap = wikiState as unknown as { meta: ContentMeta; current_revision?: WikiRevision; revisions?: WikiRevision[] };
+        wikiState = {
+          meta: snap.meta ?? {},
+          current_revision: snap.current_revision ?? null,
+          revisions: snap.revisions ?? [],
+        };
+      }
+
       if (wikiState) {
         setState(wikiState);
         const rev = wikiState.current_revision;
         if (rev) {
-          // Convert old markdown content to simple HTML for the rich text editor
           const html = rev.format === 'markdown' ? simpleMarkdownToHtml(rev.content) : rev.content;
           setEditorContent(html);
+        }
+
+        // 2. Background freshness check: look for newer events in the log
+        if (result.record && wikiState.meta?.content_type) {
+          applyFreshnessUpdate(contentId, wikiState as unknown as import('../eo/types').ProjectedContent, result.record, {
+            persist: true,
+            agent: settings.displayName || 'editor',
+          }).then(({ updated, hadUpdates }) => {
+            if (cancelled || !hadUpdates) return;
+            const freshState = updated as unknown as WikiState;
+            setState(freshState);
+            const rev = freshState.current_revision;
+            if (rev) {
+              const html = rev.format === 'markdown' ? simpleMarkdownToHtml(rev.content) : rev.content;
+              setEditorContent(html);
+            }
+          }).catch(() => { /* best-effort freshness check */ });
         }
       }
       setLoading(false);
@@ -110,28 +114,20 @@ export default function WikiEditor({ contentId, siteBase }: Props) {
 
     load();
     return () => { cancelled = true; };
-  }, [contentId, siteBase]);
+  }, [contentId, siteBase, settings.displayName]);
 
   // ── Load content entries for internal link picker ──────────────────────────
 
   useEffect(() => {
     async function loadEntries() {
-      try {
-        const rec = await fetchCurrentRecord('site:index');
-        if (rec) {
-          const parsed = JSON.parse(rec.values) as { entries?: ContentEntry[] };
-          setContentEntries(parsed.entries ?? []);
-          return;
-        }
-      } catch { /* ignore */ }
-
-      try {
-        const resp = await fetch(`${siteBase}/generated/state/index.json`);
-        if (resp.ok) {
-          const data = await resp.json() as { entries?: ContentEntry[] };
-          setContentEntries(data.entries ?? []);
-        }
-      } catch { /* ignore */ }
+      const result = await loadState<{ entries?: ContentEntry[] }>(
+        'site:index',
+        siteBase,
+        '/generated/state/index.json',
+      );
+      if (result.state) {
+        setContentEntries(result.state.entries ?? []);
+      }
     }
 
     loadEntries();
