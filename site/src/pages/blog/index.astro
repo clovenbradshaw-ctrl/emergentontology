@@ -23,6 +23,7 @@ const base = import.meta.env.BASE_URL.replace(/\/$/, '');
               <div class="list-card-body">
                 <div class="list-card-title">{p.meta.title}</div>
                 <div class="list-card-meta">
+                  <code class="eo-op"><span class="eo-name">DES</span>(<span class="eo-target">{p.content_id}</span>)</code>
                   {(p.current_revision?.ts ?? p.meta.updated_at) && (
                     <time datetime={p.current_revision?.ts ?? p.meta.updated_at}>
                       {new Date(p.current_revision?.ts ?? p.meta.updated_at)

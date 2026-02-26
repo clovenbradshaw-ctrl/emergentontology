@@ -21,6 +21,7 @@ const base = import.meta.env.BASE_URL.replace(/\/$/, '');
         {experiments.map((e) => (
           <li>
             <a href={`${base}/exp/${e.meta.slug}/`}>{e.meta.title}</a>
+            <code class="eo-op"><span class="eo-name">DES</span>(<span class="eo-target">{e.content_id}</span>)</code>
             {e.meta.tags.length > 0 && (
               <span class="tags">
                 {e.meta.tags.map((t: string) => <span class="tag">{t}</span>)}
