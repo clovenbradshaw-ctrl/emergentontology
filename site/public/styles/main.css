@@ -776,7 +776,65 @@ main.home { max-width: 1100px; }
   margin-top: 1.5rem;
 }
 
-/* ── Nine Operators Bar (compact) ── */
+/* ── Home Two-Column Layout ── */
+.home-columns {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 2rem;
+  align-items: start;
+}
+.home-col-main { min-width: 0; }
+
+/* ── Rune Grid (3x3, right column) ── */
+.rune-grid-aside {
+  position: sticky;
+  top: 68px; /* below sticky header */
+  padding-top: 1rem;
+}
+.rune-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 3px;
+  width: 156px;
+}
+.rune-cell {
+  aspect-ratio: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 4px;
+  cursor: pointer;
+  transition: border-color .15s, background .15s, transform .1s;
+  text-decoration: none;
+  color: var(--text);
+}
+.rune-cell:hover {
+  border-color: var(--rune-color, var(--accent));
+  background: var(--bg3);
+  transform: scale(1.08);
+  text-decoration: none;
+  box-shadow: 0 0 12px color-mix(in srgb, var(--rune-color, var(--accent)) 25%, transparent);
+}
+.rune-sym {
+  font-size: 1.4rem;
+  line-height: 1;
+  color: var(--rune-color, var(--accent));
+  margin-bottom: 2px;
+}
+.rune-code {
+  font-family: var(--font-mono);
+  font-size: .55rem;
+  font-weight: 700;
+  letter-spacing: .1em;
+  color: var(--text-dim);
+  text-transform: uppercase;
+}
+
+/* ── Nine Operators Bar (compact, kept for fallback) ── */
 .ops-bar-section {
   margin-top: 2rem;
   padding-bottom: 1.5rem;
@@ -840,6 +898,9 @@ main.home { max-width: 1100px; }
   h1 { font-size: 1.6rem; }
   .hero-title { font-size: 1.8rem; }
   .content-grid { grid-template-columns: 1fr 1fr; }
+  .home-columns { grid-template-columns: 1fr; }
+  .rune-grid-aside { position: static; display: flex; justify-content: center; padding-top: 0; }
+  .rune-grid { width: 140px; }
 }
 @media (max-width: 480px) {
   .content-grid { grid-template-columns: 1fr; }
