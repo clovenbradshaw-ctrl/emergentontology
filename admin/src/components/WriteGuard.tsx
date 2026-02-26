@@ -16,7 +16,7 @@ export default function WriteGuard({ children }: Props) {
   if (!isAuthenticated) {
     return (
       <div className="access-denied">
-        <div className="access-icon">🔒</div>
+        <div className="access-icon"><i className="ph ph-lock"></i></div>
         <h3>Not signed in</h3>
         <p>Enter the editor password to edit content.</p>
       </div>
