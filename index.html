@@ -64,8 +64,24 @@
       top: 0;
       z-index: 100;
     }
-    .site-logo { font-weight: 700; font-size: 1.1rem; color: var(--text); }
+    .site-logo { font-weight: 700; font-size: 1.1rem; color: var(--text); display: flex; align-items: center; gap: .45rem; }
     .site-logo:hover { text-decoration: none; color: var(--accent); }
+    .logo-op {
+      display: inline-block;
+      font-size: 1.35rem;
+      line-height: 1;
+      width: 1.35rem;
+      text-align: center;
+      transition: opacity .45s ease, transform .45s ease, color .45s ease;
+    }
+    .logo-op.fade-out {
+      opacity: 0;
+      transform: scale(.6) rotate(-30deg);
+    }
+    .logo-op.fade-in {
+      opacity: 1;
+      transform: scale(1) rotate(0deg);
+    }
     .site-nav ul { display: flex; gap: 1.5rem; list-style: none; }
     .site-nav a { color: var(--text-dim); font-size: .9rem; }
     .site-nav a:hover { color: var(--text); text-decoration: none; }
@@ -262,7 +278,7 @@
 
   <!-- ── Header ───────────────────────────────────────────────────────────── -->
   <header class="site-header">
-    <a class="site-logo" href="./">Emergent Ontology</a>
+    <a class="site-logo" href="./"><span class="logo-op fade-in" id="logo-op" aria-hidden="true">∅</span>Emergent Ontology</a>
     <nav class="site-nav" aria-label="Main navigation">
       <ul id="nav-list">
         <!-- Populated from Matrix state, empty until data loads -->
@@ -500,6 +516,40 @@
         document.documentElement.setAttribute('data-theme', next);
         localStorage.setItem('eo-theme', next);
       });
+    })();
+
+    // Cycle logo icon through the nine operators
+    (function() {
+      var operators = [
+        { symbol: '\u2205', color: '#9ca3af' },  // ∅ NUL
+        { symbol: '\u22A1', color: '#60a5fa' },  // ⊡ DES
+        { symbol: '\u25B3', color: '#4ade80' },  // △ INS
+        { symbol: '\uFF5C', color: '#c084fc' },  // ｜ SEG
+        { symbol: '\u22C8', color: '#34d399' },  // ⋈ CON
+        { symbol: '\u223F', color: '#fbbf24' },  // ∿ ALT
+        { symbol: '\u2228', color: '#818cf8' },  // ∨ SYN
+        { symbol: '\u2225', color: '#f472b6' },  // ∥ SUP
+        { symbol: '\u27F3', color: '#fb923c' }   // ⟳ REC
+      ];
+      var el = document.getElementById('logo-op');
+      if (!el) return;
+      var idx = 0;
+      el.textContent = operators[0].symbol;
+      el.style.color = operators[0].color;
+
+      setInterval(function() {
+        // fade out
+        el.classList.remove('fade-in');
+        el.classList.add('fade-out');
+        setTimeout(function() {
+          idx = (idx + 1) % operators.length;
+          el.textContent = operators[idx].symbol;
+          el.style.color = operators[idx].color;
+          // fade in
+          el.classList.remove('fade-out');
+          el.classList.add('fade-in');
+        }, 450);
+      }, 3000);
     })();
   </script>
 </body>
