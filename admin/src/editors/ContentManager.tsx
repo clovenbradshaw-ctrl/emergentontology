@@ -42,10 +42,9 @@ interface Props {
   onOpen: (contentId: string, type: ContentType) => void;
 }
 
-const TYPE_LABELS: Record<ContentType, string> = {
-  page: 'Page',
-  blog: 'Blog Post',
+const TYPE_LABELS: Partial<Record<ContentType, string>> = {
   wiki: 'Wiki Page',
+  blog: 'Blog Post',
   experiment: 'Experiment',
 };
 
@@ -302,7 +301,7 @@ export default function ContentManager({ siteBase, onOpen }: Props) {
         <h2>New Content</h2>
         <div className="create-form">
           <select value={newType} onChange={(e) => setNewType(e.target.value as ContentType)}>
-            {(Object.entries(TYPE_LABELS) as Array<[ContentType, string]>).map(([k, v]) => <option key={k} value={k}>{v}</option>)}
+            {(Object.entries(TYPE_LABELS) as Array<[string, string]>).map(([k, v]) => <option key={k} value={k}>{v}</option>)}
           </select>
           <input value={newSlug} onChange={(e) => setNewSlug(e.target.value.toLowerCase().replace(/\s+/g, '-'))} placeholder="slug (e.g. getting-started)" />
           <input value={newTitle} onChange={(e) => setNewTitle(e.target.value)} placeholder="Title" />
