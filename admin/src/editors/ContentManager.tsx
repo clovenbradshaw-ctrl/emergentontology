@@ -35,6 +35,17 @@ interface IndexEntry {
   tags: string[];
   /** ISO timestamp when this content was first DES'd as public */
   first_public_at?: string;
+  /** Whether this page appears in site navigation (pages only) */
+  show_in_nav?: boolean;
+  /** Parent page content_id for nesting (pages only) */
+  parent_page?: string;
+}
+
+/** Build a full site:index payload with derived nav and slug_map. */
+function buildIndexPayload(entries: IndexEntry[]) {
+  const nav = entries.filter(e => e.status === 'published' && e.visibility === 'public');
+  const slug_map = Object.fromEntries(entries.map(e => [e.slug, e.content_id]));
+  return { entries, nav, slug_map, built_at: new Date().toISOString() };
 }
 
 interface Props {
@@ -43,6 +54,7 @@ interface Props {
 }
 
 const TYPE_LABELS: Partial<Record<ContentType, string>> = {
+  page: 'Page',
   wiki: 'Wiki Page',
   blog: 'Blog Post',
   experiment: 'Experiment',
@@ -152,7 +164,7 @@ export default function ContentManager({ siteBase, onOpen }: Props) {
       const updatedEntries = [...entries, newEntry];
       const updated = await upsertCurrentRecord(
         'site:index',
-        { entries: updatedEntries },
+        buildIndexPayload(updatedEntries),
         agent,
         indexRecordRef.current,
       );
@@ -207,7 +219,7 @@ export default function ContentManager({ siteBase, onOpen }: Props) {
       const updatedEntries = entries.map((e) => e.content_id === contentId ? { ...e, status: newStatus } : e);
       const updated = await upsertCurrentRecord(
         'site:index',
-        { entries: updatedEntries },
+        buildIndexPayload(updatedEntries),
         agent,
         indexRecordRef.current,
       );
@@ -261,7 +273,7 @@ export default function ContentManager({ siteBase, onOpen }: Props) {
       });
       const updated = await upsertCurrentRecord(
         'site:index',
-        { entries: updatedEntries },
+        buildIndexPayload(updatedEntries),
         agent,
         indexRecordRef.current,
       );
@@ -289,6 +301,52 @@ export default function ContentManager({ siteBase, onOpen }: Props) {
       setError(err instanceof Error ? err.message : String(err));
     }
   }
+
+  // ── Toggle show_in_nav (pages only) ──────────────────────────────────────
+
+  async function toggleNavVisibility(contentId: string, current: boolean) {
+    if (!isAuthenticated) return;
+    const agent = settings.displayName || 'editor';
+    try {
+      const updatedEntries = entries.map((e) =>
+        e.content_id === contentId ? { ...e, show_in_nav: !current } : e
+      );
+      const updated = await upsertCurrentRecord(
+        'site:index',
+        buildIndexPayload(updatedEntries),
+        agent,
+        indexRecordRef.current,
+      );
+      indexRecordRef.current = updated;
+      setEntries(updatedEntries);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : String(err));
+    }
+  }
+
+  // ── Set parent page ─────────────────────────────────────────────────────
+
+  async function setParentPage(contentId: string, parentId: string) {
+    if (!isAuthenticated) return;
+    const agent = settings.displayName || 'editor';
+    try {
+      const updatedEntries = entries.map((e) =>
+        e.content_id === contentId ? { ...e, parent_page: parentId || undefined } : e
+      );
+      const updated = await upsertCurrentRecord(
+        'site:index',
+        buildIndexPayload(updatedEntries),
+        agent,
+        indexRecordRef.current,
+      );
+      indexRecordRef.current = updated;
+      setEntries(updatedEntries);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : String(err));
+    }
+  }
+
+  const pageEntries = entries.filter(e => e.content_type === 'page');
 
   if (loading) return <div className="editor-loading">Loading content list…</div>;
 
@@ -333,7 +391,7 @@ export default function ContentManager({ siteBase, onOpen }: Props) {
                   <th>Slug</th>
                   <th>Status</th>
                   <th>Visibility</th>
-                  <th>Public since</th>
+                  <th>Nav</th>
                   <th>Actions</th>
                 </tr>
               </thead>
@@ -341,7 +399,10 @@ export default function ContentManager({ siteBase, onOpen }: Props) {
                 {entries.map((entry) => (
                   <tr key={entry.content_id}>
                     <td><span className={`type-badge type-${entry.content_type}`}>{entry.content_type}</span></td>
-                    <td>{entry.title}</td>
+                    <td>
+                      {entry.parent_page && <span style={{ color: 'var(--text-dim)', fontSize: '.75rem', marginRight: '.3rem' }}>↳</span>}
+                      {entry.title}
+                    </td>
                     <td className="slug-cell">{entry.slug}</td>
                     <td>
                       <button
@@ -363,11 +424,35 @@ export default function ContentManager({ siteBase, onOpen }: Props) {
                         {entry.visibility}
                       </button>
                     </td>
-                    <td className="public-since-cell">
-                      {entry.first_public_at
-                        ? <span title={entry.first_public_at}>{new Date(entry.first_public_at).toLocaleDateString()}</span>
-                        : <span style={{ color: 'var(--text-dim)', fontSize: '.8rem' }}>—</span>
-                      }
+                    <td>
+                      {entry.content_type === 'page' ? (
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '3px' }}>
+                          <button
+                            className={`status-toggle ${entry.show_in_nav ? 'status-published' : 'status-draft'}`}
+                            onClick={() => toggleNavVisibility(entry.content_id, !!entry.show_in_nav)}
+                            disabled={!isAuthenticated}
+                            title="Toggle show in navigation"
+                            style={{ fontSize: '.75rem' }}
+                          >
+                            {entry.show_in_nav ? 'in nav' : 'hidden'}
+                          </button>
+                          <select
+                            value={entry.parent_page ?? ''}
+                            onChange={(e) => setParentPage(entry.content_id, e.target.value)}
+                            disabled={!isAuthenticated}
+                            style={{ fontSize: '.72rem', padding: '1px 2px', background: 'var(--bg2)', color: 'var(--text)', border: '1px solid var(--border)', borderRadius: '3px' }}
+                            title="Parent page"
+                          >
+                            <option value="">(top level)</option>
+                            {pageEntries
+                              .filter(p => p.content_id !== entry.content_id)
+                              .map(p => <option key={p.content_id} value={p.content_id}>{p.title}</option>)
+                            }
+                          </select>
+                        </div>
+                      ) : (
+                        <span style={{ color: 'var(--text-dim)', fontSize: '.8rem' }}>—</span>
+                      )}
                     </td>
                     <td>
                       <button className="btn btn-sm" onClick={() => onOpen(entry.content_id, entry.content_type)}>

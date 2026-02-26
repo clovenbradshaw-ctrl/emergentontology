@@ -16,6 +16,7 @@ import {
   PointerSensor,
   useSensor,
   useSensors,
+  useDroppable,
   type DragEndEvent,
 } from '@dnd-kit/core';
 import {
@@ -39,6 +40,44 @@ import {
 } from '../xano/client';
 import { insBlock, altBlock, nulBlock } from '../eo/events';
 import type { Block } from '../eo/types';
+
+// ── Sub-block types for columns ──────────────────────────────────────────────
+
+interface SubBlock {
+  block_id: string;
+  block_type: Block['block_type'];
+  data: Record<string, unknown>;
+}
+
+interface ColumnData {
+  blocks: SubBlock[];
+  block_order: string[];
+}
+
+/** Migrate old columns format (string[]) to new format (ColumnData[]). */
+function migrateColumns(data: Record<string, unknown>): ColumnData[] {
+  const raw = data.columns;
+  if (!Array.isArray(raw)) return [{ blocks: [], block_order: [] }, { blocks: [], block_order: [] }];
+
+  // Already new format: array of objects with blocks
+  if (raw.length > 0 && typeof raw[0] === 'object' && raw[0] !== null && 'blocks' in (raw[0] as Record<string, unknown>)) {
+    return raw as ColumnData[];
+  }
+
+  // Old format: array of markdown strings → convert each to a text sub-block
+  return (raw as string[]).map((md) => {
+    if (!md) return { blocks: [], block_order: [] };
+    const id = `sb_${Date.now()}_${Math.random().toString(36).slice(2, 7)}`;
+    return {
+      blocks: [{ block_id: id, block_type: 'text' as const, data: { md } }],
+      block_order: [id],
+    };
+  });
+}
+
+function genSubBlockId(): string {
+  return `sb_${Date.now()}_${Math.random().toString(36).slice(2, 7)}`;
+}
 
 // ── Block palette definitions ─────────────────────────────────────────────────
 
@@ -64,6 +103,9 @@ const BLOCK_TYPES: Array<{ type: Block['block_type']; label: string; icon: strin
   { type: 'experiment-embed', label: 'Exp Embed', icon: '⊗', group: 'Advanced' },
   { type: 'html', label: 'HTML', icon: '<>', group: 'Advanced' },
 ];
+
+/** Block types allowed inside columns (everything except columns — no nesting). */
+const COLUMN_BLOCK_TYPES = BLOCK_TYPES.filter((bt) => bt.type !== 'columns');
 
 interface PageState {
   blocks: Block[];
@@ -152,6 +194,8 @@ export default function PageBuilder({ contentId, siteBase }: Props) {
     }
   }
 
+  const agent = settings.displayName || 'editor';
+
   // ── Add block ─────────────────────────────────────────────────────────────
 
   function addBlock(type: Block['block_type']) {
@@ -159,7 +203,7 @@ export default function PageBuilder({ contentId, siteBase }: Props) {
     const blockId = `b_${Date.now()}`;
     const lastId = state.block_order.at(-1) ?? null;
     const newBlock: Block = { block_id: blockId, block_type: type, data: defaultData(type), after: lastId, deleted: false };
-    const event = insBlock(contentId, newBlock, settings.displayName || 'editor');
+    const event = insBlock(contentId, newBlock, agent);
 
     const updatedState: PageState = {
       ...state,
@@ -179,7 +223,7 @@ export default function PageBuilder({ contentId, siteBase }: Props) {
     if (!original) return;
     const newId = `b_${Date.now()}`;
     const newBlock: Block = { block_id: newId, block_type: original.block_type, data: { ...original.data }, after: blockId, deleted: false };
-    const event = insBlock(contentId, newBlock, settings.displayName || 'editor');
+    const event = insBlock(contentId, newBlock, agent);
     const idx = state.block_order.indexOf(blockId);
     const newOrder = [...state.block_order];
     newOrder.splice(idx + 1, 0, newId);
@@ -203,7 +247,7 @@ export default function PageBuilder({ contentId, siteBase }: Props) {
     };
     setState(updatedState);
     const patch = Object.entries(newData).map(([k, v]) => ({ op: 'replace', path: `/data/${k}`, value: v }));
-    const event = altBlock(contentId, blockId, patch, settings.displayName || 'editor');
+    const event = altBlock(contentId, blockId, patch, agent);
     emit(event, updatedState);
   }
 
@@ -217,31 +261,222 @@ export default function PageBuilder({ contentId, siteBase }: Props) {
       block_order: state.block_order.filter((id) => id !== blockId),
     };
     setState(updatedState);
-    const event = nulBlock(contentId, blockId, settings.displayName || 'editor');
+    const event = nulBlock(contentId, blockId, agent);
     emit(event, updatedState);
     if (selectedBlockId === blockId) setSelectedBlockId(null);
+  }
+
+  // ── Column helper: update columns data on a columns block ─────────────────
+
+  function updateColumnsData(columnsBlockId: string, updater: (cols: ColumnData[]) => ColumnData[]) {
+    if (!state || !isAuthenticated) return;
+    const columnsBlock = state.blocks.find((b) => b.block_id === columnsBlockId);
+    if (!columnsBlock) return;
+
+    const cols = migrateColumns(columnsBlock.data);
+    const newCols = updater(cols);
+    const newData = { ...columnsBlock.data, columns: newCols };
+
+    const updatedState: PageState = {
+      ...state,
+      blocks: state.blocks.map((b) => b.block_id === columnsBlockId ? { ...b, data: newData } : b),
+    };
+    setState(updatedState);
+
+    const patch = [{ op: 'replace', path: '/data/columns', value: newCols }];
+    const event = altBlock(contentId, columnsBlockId, patch, agent);
+    emit(event, updatedState);
+  }
+
+  // ── Sub-block operations ──────────────────────────────────────────────────
+
+  function addSubBlock(columnsBlockId: string, colIndex: number, type: Block['block_type']) {
+    const id = genSubBlockId();
+    const sub: SubBlock = { block_id: id, block_type: type, data: defaultData(type) };
+    updateColumnsData(columnsBlockId, (cols) =>
+      cols.map((c, i) => i === colIndex
+        ? { blocks: [...c.blocks, sub], block_order: [...c.block_order, id] }
+        : c
+      )
+    );
+    setSelectedBlockId(id);
+  }
+
+  function deleteSubBlock(columnsBlockId: string, colIndex: number, subBlockId: string) {
+    updateColumnsData(columnsBlockId, (cols) =>
+      cols.map((c, i) => i === colIndex
+        ? { blocks: c.blocks.filter((b) => b.block_id !== subBlockId), block_order: c.block_order.filter((id) => id !== subBlockId) }
+        : c
+      )
+    );
+    if (selectedBlockId === subBlockId) setSelectedBlockId(null);
+  }
+
+  function updateSubBlock(columnsBlockId: string, colIndex: number, subBlockId: string, newData: Record<string, unknown>) {
+    updateColumnsData(columnsBlockId, (cols) =>
+      cols.map((c, i) => i === colIndex
+        ? { ...c, blocks: c.blocks.map((b) => b.block_id === subBlockId ? { ...b, data: newData } : b) }
+        : c
+      )
+    );
+  }
+
+  function moveSubBlock(columnsBlockId: string, colIndex: number, subBlockId: string, direction: -1 | 1) {
+    updateColumnsData(columnsBlockId, (cols) =>
+      cols.map((c, i) => {
+        if (i !== colIndex) return c;
+        const idx = c.block_order.indexOf(subBlockId);
+        const newIdx = idx + direction;
+        if (newIdx < 0 || newIdx >= c.block_order.length) return c;
+        const newOrder = [...c.block_order];
+        [newOrder[idx], newOrder[newIdx]] = [newOrder[newIdx], newOrder[idx]];
+        return { ...c, block_order: newOrder };
+      })
+    );
+  }
+
+  function moveSubBlockToCanvas(columnsBlockId: string, colIndex: number, subBlockId: string) {
+    if (!state || !isAuthenticated) return;
+    const columnsBlock = state.blocks.find((b) => b.block_id === columnsBlockId);
+    if (!columnsBlock) return;
+    const cols = migrateColumns(columnsBlock.data);
+    const col = cols[colIndex];
+    const sub = col.blocks.find((b) => b.block_id === subBlockId);
+    if (!sub) return;
+
+    // Create a new top-level block from the sub-block
+    const newBlockId = `b_${Date.now()}`;
+    const lastId = state.block_order.at(-1) ?? null;
+    const newBlock: Block = { block_id: newBlockId, block_type: sub.block_type, data: { ...sub.data }, after: lastId, deleted: false };
+
+    // Remove sub-block from column
+    const newCols = cols.map((c, i) => i === colIndex
+      ? { blocks: c.blocks.filter((b) => b.block_id !== subBlockId), block_order: c.block_order.filter((id) => id !== subBlockId) }
+      : c
+    );
+    const newColData = { ...columnsBlock.data, columns: newCols };
+
+    const updatedState: PageState = {
+      ...state,
+      blocks: [
+        ...state.blocks.map((b) => b.block_id === columnsBlockId ? { ...b, data: newColData } : b),
+        newBlock,
+      ],
+      block_order: [...state.block_order, newBlockId],
+    };
+    setState(updatedState);
+    setSelectedBlockId(newBlockId);
+
+    // Emit events: ALT on columns block + INS for new top-level block
+    const colPatch = [{ op: 'replace', path: '/data/columns', value: newCols }];
+    const altEvent = altBlock(contentId, columnsBlockId, colPatch, agent);
+    emit(altEvent, updatedState);
+    const insEvent = insBlock(contentId, newBlock, agent);
+    emit(insEvent, updatedState);
+  }
+
+  // ── Move top-level block into a column ─────────────────────────────────────
+
+  function moveBlockToColumn(blockId: string, columnsBlockId: string, colIndex: number) {
+    if (!state || !isAuthenticated) return;
+    const block = state.blocks.find((b) => b.block_id === blockId);
+    if (!block || block.block_type === 'columns') return; // prevent nesting
+
+    const columnsBlock = state.blocks.find((b) => b.block_id === columnsBlockId);
+    if (!columnsBlock) return;
+
+    // Create sub-block from top-level block
+    const subId = genSubBlockId();
+    const sub: SubBlock = { block_id: subId, block_type: block.block_type, data: { ...block.data } };
+
+    const cols = migrateColumns(columnsBlock.data);
+    const newCols = cols.map((c, i) => i === colIndex
+      ? { blocks: [...c.blocks, sub], block_order: [...c.block_order, subId] }
+      : c
+    );
+    const newColData = { ...columnsBlock.data, columns: newCols };
+
+    const updatedState: PageState = {
+      ...state,
+      blocks: state.blocks
+        .map((b) => b.block_id === blockId ? { ...b, deleted: true } : b)
+        .map((b) => b.block_id === columnsBlockId ? { ...b, data: newColData } : b),
+      block_order: state.block_order.filter((id) => id !== blockId),
+    };
+    setState(updatedState);
+    setSelectedBlockId(subId);
+
+    // Emit events
+    const nulEvent = nulBlock(contentId, blockId, agent);
+    emit(nulEvent, updatedState);
+    const colPatch = [{ op: 'replace', path: '/data/columns', value: newCols }];
+    const altEvent = altBlock(contentId, columnsBlockId, colPatch, agent);
+    emit(altEvent, updatedState);
+  }
+
+  // ── Find selected block info (top-level or sub-block) ─────────────────────
+
+  function findSelectedInfo(): { block: Block | SubBlock; isSubBlock: boolean; parentId?: string; colIndex?: number } | null {
+    if (!state || !selectedBlockId) return null;
+
+    // Check top-level
+    const topBlock = state.blocks.find((b) => b.block_id === selectedBlockId && !b.deleted);
+    if (topBlock) return { block: topBlock, isSubBlock: false };
+
+    // Check sub-blocks in columns
+    for (const b of state.blocks) {
+      if (b.block_type !== 'columns' || b.deleted) continue;
+      const cols = migrateColumns(b.data);
+      for (let i = 0; i < cols.length; i++) {
+        const sub = cols[i].blocks.find((sb) => sb.block_id === selectedBlockId);
+        if (sub) return { block: sub, isSubBlock: true, parentId: b.block_id, colIndex: i };
+      }
+    }
+    return null;
   }
 
   // ── Reorder (drag/drop) ───────────────────────────────────────────────────
 
   async function handleDragEnd(event: DragEndEvent) {
     const { active, over } = event;
-    if (!over || active.id === over.id || !state || !isAuthenticated) return;
+    if (!over || !state || !isAuthenticated) return;
 
-    const oldIndex = state.block_order.indexOf(String(active.id));
-    const newIndex = state.block_order.indexOf(String(over.id));
+    const activeId = String(active.id);
+    const overId = String(over.id);
+
+    // Check if dropped on a column drop zone
+    if (overId.startsWith('col:')) {
+      const parts = overId.split(':');
+      const columnsBlockId = parts[1];
+      const colIndex = parseInt(parts[2], 10);
+
+      // Only move top-level blocks into columns (not sub-blocks, not columns themselves)
+      if (!state.block_order.includes(activeId)) return;
+      const activeBlock = state.blocks.find((b) => b.block_id === activeId);
+      if (!activeBlock || activeBlock.block_type === 'columns') return;
+
+      moveBlockToColumn(activeId, columnsBlockId, colIndex);
+      return;
+    }
+
+    // Normal canvas reorder
+    if (activeId === overId) return;
+    if (!state.block_order.includes(activeId) || !state.block_order.includes(overId)) return;
+
+    const oldIndex = state.block_order.indexOf(activeId);
+    const newIndex = state.block_order.indexOf(overId);
     const newOrder = arrayMove(state.block_order, oldIndex, newIndex);
 
-    const movedIdx = newOrder.indexOf(String(active.id));
+    const movedIdx = newOrder.indexOf(activeId);
     const newAfter = movedIdx === 0 ? null : newOrder[movedIdx - 1];
 
     const updatedState: PageState = {
       ...state,
-      blocks: state.blocks.map((b) => b.block_id === String(active.id) ? { ...b, after: newAfter } : b),
+      blocks: state.blocks.map((b) => b.block_id === activeId ? { ...b, after: newAfter } : b),
       block_order: newOrder,
     };
     setState(updatedState);
-    const altEvent = altBlock(contentId, String(active.id), [], 'editor', newAfter);
+    const altEvent = altBlock(contentId, activeId, [], 'editor', newAfter);
     emit(altEvent, updatedState);
   }
 
@@ -250,7 +485,7 @@ export default function PageBuilder({ contentId, siteBase }: Props) {
   if (loading) return <div className="editor-loading">Loading page builder…</div>;
   if (!state) return <div className="editor-empty">Create this page first from the content list.</div>;
 
-  const selectedBlock = state.blocks.find((b) => b.block_id === selectedBlockId);
+  const selectedInfo = findSelectedInfo();
 
   // Group palette items
   const groups = BLOCK_TYPES.reduce<Record<string, typeof BLOCK_TYPES>>((acc, bt) => {
@@ -297,6 +532,26 @@ export default function PageBuilder({ contentId, siteBase }: Props) {
               {state.block_order.map((id) => {
                 const block = state.blocks.find((b) => b.block_id === id);
                 if (!block || block.deleted) return null;
+
+                if (block.block_type === 'columns') {
+                  return (
+                    <SortableColumnsBlock
+                      key={id}
+                      block={block}
+                      selected={selectedBlockId === id}
+                      selectedSubBlockId={selectedBlockId}
+                      onSelect={() => setSelectedBlockId(id)}
+                      onSelectSubBlock={(subId) => setSelectedBlockId(subId)}
+                      onDelete={() => deleteBlock(id)}
+                      onDuplicate={() => duplicateBlock(id)}
+                      onAddSubBlock={(colIdx, type) => addSubBlock(id, colIdx, type)}
+                      onDeleteSubBlock={(colIdx, subId) => deleteSubBlock(id, colIdx, subId)}
+                      onMoveSubBlock={(colIdx, subId, dir) => moveSubBlock(id, colIdx, subId, dir)}
+                      onMoveSubBlockToCanvas={(colIdx, subId) => moveSubBlockToCanvas(id, colIdx, subId)}
+                    />
+                  );
+                }
+
                 return (
                   <SortableBlock
                     key={id}
@@ -305,7 +560,6 @@ export default function PageBuilder({ contentId, siteBase }: Props) {
                     onSelect={() => setSelectedBlockId(id)}
                     onDelete={() => deleteBlock(id)}
                     onDuplicate={() => duplicateBlock(id)}
-                    onUpdate={(data) => updateBlock(id, data)}
                   />
                 );
               })}
@@ -318,8 +572,16 @@ export default function PageBuilder({ contentId, siteBase }: Props) {
 
         <aside className="block-inspector">
           <div className="inspector-title">Properties</div>
-          {selectedBlock
-            ? <BlockInspector block={selectedBlock} onUpdate={(data) => updateBlock(selectedBlock.block_id, data)} />
+          {selectedInfo
+            ? selectedInfo.isSubBlock
+              ? <BlockInspector
+                  block={selectedInfo.block as Block}
+                  onUpdate={(data) => updateSubBlock(selectedInfo.parentId!, selectedInfo.colIndex!, selectedInfo.block.block_id, data)}
+                />
+              : <BlockInspector
+                  block={selectedInfo.block as Block}
+                  onUpdate={(data) => updateBlock(selectedInfo.block.block_id, data)}
+                />
             : <div className="inspector-empty">Select a block to edit properties</div>
           }
         </aside>
@@ -371,6 +633,37 @@ function renderMd(md: string): string {
     .trimEnd() + '</p>';
 }
 
+/** Render a sub-block to HTML (reuses the same logic as top-level blocks). */
+function renderSubBlockHtml(sub: SubBlock): string {
+  const { block_type, data } = sub;
+  switch (block_type) {
+    case 'text': return renderMd(String(data.md ?? data.text ?? ''));
+    case 'heading': {
+      const text = String(data.text ?? '');
+      const level = Math.min(Math.max(Number(data.level ?? 2), 1), 6);
+      const slug = text.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
+      return `<h${level} id="${slug}">${escHtml(text)}</h${level}>`;
+    }
+    case 'callout': return `<aside class="block block-callout callout-${data.kind ?? 'info'}"><div>${renderMd(String(data.text ?? ''))}</div></aside>`;
+    case 'quote': return `<blockquote class="block block-quote"><p>${escHtml(String(data.text ?? ''))}</p>${data.attribution ? `<cite>— ${escHtml(String(data.attribution))}</cite>` : ''}</blockquote>`;
+    case 'divider': return '<hr class="block block-divider" />';
+    case 'spacer': return `<div class="block block-spacer" style="height:${escHtml(String(data.height ?? '2rem'))}"></div>`;
+    case 'image': return `<figure class="block block-image"><img src="${escHtml(String(data.src ?? ''))}" alt="${escHtml(String(data.alt ?? ''))}" loading="lazy" />${data.caption ? `<figcaption>${escHtml(String(data.caption))}</figcaption>` : ''}</figure>`;
+    case 'code': return `<div class="block block-code"><pre><code${data.lang ? ` class="language-${escHtml(String(data.lang))}"` : ''}>${escHtml(String(data.code ?? ''))}</code></pre></div>`;
+    case 'button': return `<div class="block block-button"><a class="btn btn-${escHtml(String(data.style ?? 'primary'))}" href="#">${escHtml(String(data.text ?? 'Click here'))}</a></div>`;
+    case 'embed': return `<figure class="block block-embed"><iframe src="${escHtml(String(data.src ?? ''))}" title="${escHtml(String(data.title ?? ''))}" loading="lazy" allowfullscreen frameborder="0"></iframe></figure>`;
+    case 'video': {
+      const src = String(data.src ?? '');
+      let embedSrc = src;
+      const ytMatch = src.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/)([a-zA-Z0-9_-]+)/);
+      if (ytMatch) embedSrc = `https://www.youtube.com/embed/${ytMatch[1]}`;
+      return `<figure class="block block-video"><iframe src="${escHtml(embedSrc)}" loading="lazy" allowfullscreen frameborder="0"></iframe></figure>`;
+    }
+    case 'html': return `<div class="block block-html">${String(data.html ?? '')}</div>`;
+    default: return `<div class="block">[${block_type}]</div>`;
+  }
+}
+
 function renderBlockHtml(block: Block, state: PageState): string {
   const { block_type, data } = block;
   switch (block_type) {
@@ -415,9 +708,16 @@ function renderBlockHtml(block: Block, state: PageState): string {
       return `<div class="block block-button"><a class="btn btn-${escHtml(style)}" href="#">${escHtml(text)}</a></div>`;
     }
     case 'columns': {
-      const cols = Array.isArray(data.columns) ? data.columns as string[] : [String(data.col1 ?? ''), String(data.col2 ?? '')];
+      const cols = migrateColumns(data);
       const layout = data.layout ? ` style="grid-template-columns:${escHtml(String(data.layout))}"` : '';
-      const rendered = cols.map((c: string) => `<div class="column">${renderMd(String(c))}</div>`).join('');
+      const rendered = cols.map((col) => {
+        const inner = col.block_order
+          .map((id) => col.blocks.find((b) => b.block_id === id))
+          .filter(Boolean)
+          .map((sub) => renderSubBlockHtml(sub!))
+          .join('\n');
+        return `<div class="column">${inner || '&nbsp;'}</div>`;
+      }).join('');
       return `<div class="block block-columns block-columns-${cols.length}"${layout}>${rendered}</div>`;
     }
     case 'toc': {
@@ -459,13 +759,12 @@ function renderBlockHtml(block: Block, state: PageState): string {
 
 // ── Sortable block wrapper ────────────────────────────────────────────────────
 
-function SortableBlock({ block, selected, onSelect, onDelete, onDuplicate, onUpdate }: {
+function SortableBlock({ block, selected, onSelect, onDelete, onDuplicate }: {
   block: Block;
   selected: boolean;
   onSelect: () => void;
   onDelete: () => void;
   onDuplicate: () => void;
-  onUpdate: (data: Record<string, unknown>) => void;
 }) {
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id: block.block_id });
 
@@ -488,6 +787,161 @@ function SortableBlock({ block, selected, onSelect, onDelete, onDuplicate, onUpd
   );
 }
 
+// ── Sortable columns block (expands to show column contents) ─────────────────
+
+function SortableColumnsBlock({ block, selected, selectedSubBlockId, onSelect, onSelectSubBlock, onDelete, onDuplicate, onAddSubBlock, onDeleteSubBlock, onMoveSubBlock, onMoveSubBlockToCanvas }: {
+  block: Block;
+  selected: boolean;
+  selectedSubBlockId: string | null;
+  onSelect: () => void;
+  onSelectSubBlock: (id: string) => void;
+  onDelete: () => void;
+  onDuplicate: () => void;
+  onAddSubBlock: (colIdx: number, type: Block['block_type']) => void;
+  onDeleteSubBlock: (colIdx: number, subId: string) => void;
+  onMoveSubBlock: (colIdx: number, subId: string, dir: -1 | 1) => void;
+  onMoveSubBlockToCanvas: (colIdx: number, subId: string) => void;
+}) {
+  const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id: block.block_id });
+  const cols = migrateColumns(block.data);
+  const layout = String(block.data.layout ?? `repeat(${cols.length}, 1fr)`);
+
+  return (
+    <div
+      ref={setNodeRef}
+      style={{ transform: CSS.Transform.toString(transform), transition, opacity: isDragging ? 0.5 : 1 }}
+      className={`builder-block builder-block-columns ${selected ? 'selected' : ''}`}
+      onClick={(e) => { if ((e.target as HTMLElement).closest('.col-drop-zone')) return; onSelect(); }}
+    >
+      <div className="block-drag-handle" {...attributes} {...listeners}>⠿</div>
+      <div className="block-content">
+        <div style={{ color: '#888', fontSize: '13px', marginBottom: '6px' }}>▥ {cols.length}-column layout</div>
+        <div style={{ display: 'grid', gridTemplateColumns: layout, gap: '6px' }}>
+          {cols.map((col, i) => (
+            <ColumnDropZone
+              key={i}
+              containerId={`col:${block.block_id}:${i}`}
+              column={col}
+              colIndex={i}
+              selectedSubBlockId={selectedSubBlockId}
+              onSelectSubBlock={onSelectSubBlock}
+              onAddSubBlock={(type) => onAddSubBlock(i, type)}
+              onDeleteSubBlock={(subId) => onDeleteSubBlock(i, subId)}
+              onMoveSubBlock={(subId, dir) => onMoveSubBlock(i, subId, dir)}
+              onMoveSubBlockToCanvas={(subId) => onMoveSubBlockToCanvas(i, subId)}
+            />
+          ))}
+        </div>
+      </div>
+      <div className="block-actions">
+        <button className="block-action-btn" onClick={(e) => { e.stopPropagation(); onDuplicate(); }} title="Duplicate block">⧉</button>
+        <button className="block-action-btn block-action-delete" onClick={(e) => { e.stopPropagation(); onDelete(); }} title="Delete block">×</button>
+      </div>
+    </div>
+  );
+}
+
+// ── Column drop zone ─────────────────────────────────────────────────────────
+
+function ColumnDropZone({ containerId, column, colIndex, selectedSubBlockId, onSelectSubBlock, onAddSubBlock, onDeleteSubBlock, onMoveSubBlock, onMoveSubBlockToCanvas }: {
+  containerId: string;
+  column: ColumnData;
+  colIndex: number;
+  selectedSubBlockId: string | null;
+  onSelectSubBlock: (id: string) => void;
+  onAddSubBlock: (type: Block['block_type']) => void;
+  onDeleteSubBlock: (subId: string) => void;
+  onMoveSubBlock: (subId: string, dir: -1 | 1) => void;
+  onMoveSubBlockToCanvas: (subId: string) => void;
+}) {
+  const { setNodeRef, isOver } = useDroppable({ id: containerId });
+  const [showAddMenu, setShowAddMenu] = useState(false);
+
+  return (
+    <div
+      ref={setNodeRef}
+      className={`col-drop-zone ${isOver ? 'col-drop-over' : ''}`}
+      onClick={(e) => e.stopPropagation()}
+    >
+      <div style={{ color: '#666', fontSize: '10px', marginBottom: '3px' }}>Col {colIndex + 1}</div>
+      {column.block_order.map((subId, idx) => {
+        const sub = column.blocks.find((b) => b.block_id === subId);
+        if (!sub) return null;
+        return (
+          <div
+            key={subId}
+            className={`col-sub-block ${selectedSubBlockId === subId ? 'selected' : ''}`}
+            onClick={(e) => { e.stopPropagation(); onSelectSubBlock(subId); }}
+          >
+            <div className="col-sub-preview">
+              <SubBlockPreview sub={sub} />
+            </div>
+            <div className="col-sub-actions">
+              {idx > 0 && <button onClick={(e) => { e.stopPropagation(); onMoveSubBlock(subId, -1); }} title="Move up">↑</button>}
+              {idx < column.block_order.length - 1 && <button onClick={(e) => { e.stopPropagation(); onMoveSubBlock(subId, 1); }} title="Move down">↓</button>}
+              <button onClick={(e) => { e.stopPropagation(); onMoveSubBlockToCanvas(subId); }} title="Move to canvas">↗</button>
+              <button onClick={(e) => { e.stopPropagation(); onDeleteSubBlock(subId); }} title="Delete" className="col-sub-delete">×</button>
+            </div>
+          </div>
+        );
+      })}
+      {column.block_order.length === 0 && !isOver && (
+        <div style={{ color: '#555', fontSize: '11px', textAlign: 'center', padding: '8px 0' }}>
+          Drop blocks here
+        </div>
+      )}
+      {isOver && (
+        <div style={{ color: 'var(--accent)', fontSize: '11px', textAlign: 'center', padding: '8px 0', borderTop: '2px solid var(--accent)' }}>
+          Drop here
+        </div>
+      )}
+      <div style={{ position: 'relative' }}>
+        <button
+          className="col-add-btn"
+          onClick={(e) => { e.stopPropagation(); setShowAddMenu(!showAddMenu); }}
+        >
+          + Add block
+        </button>
+        {showAddMenu && (
+          <div className="col-add-menu">
+            {COLUMN_BLOCK_TYPES.map((bt) => (
+              <button
+                key={bt.type}
+                onClick={(e) => { e.stopPropagation(); onAddSubBlock(bt.type); setShowAddMenu(false); }}
+              >
+                <span>{bt.icon}</span> {bt.label}
+              </button>
+            ))}
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
+// ── Sub-block preview ────────────────────────────────────────────────────────
+
+function SubBlockPreview({ sub }: { sub: SubBlock }) {
+  const { data, block_type } = sub;
+  switch (block_type) {
+    case 'text': return <span>{String(data.md ?? data.text ?? '').slice(0, 40) || 'Empty text'}</span>;
+    case 'heading': return <span style={{ fontWeight: 600 }}>{String(data.text ?? '').slice(0, 30) || 'Heading'}</span>;
+    case 'callout': return <span>! {String(data.text ?? '').slice(0, 30) || 'Callout'}</span>;
+    case 'quote': return <span>" {String(data.text ?? '').slice(0, 30) || 'Quote'}</span>;
+    case 'image': return <span>🖼 {String(data.src ?? 'Image')}</span>;
+    case 'video': return <span>▶ Video</span>;
+    case 'divider': return <span>— Divider</span>;
+    case 'spacer': return <span>↕ Spacer</span>;
+    case 'code': return <span>{'</>'} Code</span>;
+    case 'button': return <span>⊞ {String(data.text ?? 'Button')}</span>;
+    case 'embed': return <span>□ Embed</span>;
+    case 'html': return <span>{'<>'} HTML</span>;
+    default: return <span>[{block_type}]</span>;
+  }
+}
+
+// ── Block preview ────────────────────────────────────────────────────────────
+
 function BlockPreview({ block }: { block: Block }) {
   const { data, block_type } = block;
   switch (block_type) {
@@ -509,39 +963,12 @@ function BlockPreview({ block }: { block: Block }) {
     case 'experiment-embed': return <div style={{ color: '#888', fontSize: '13px' }}>⊗ Exp: {String(data.exp_id ?? '?')}</div>;
     case 'code': return <pre style={{ margin: 0, background: '#1a1a2e', color: '#a8ff78', fontSize: '12px', padding: '6px 8px', borderRadius: '4px', overflow: 'hidden', maxHeight: '60px' }}>{String(data.code ?? '').slice(0, 200) || <em style={{ color: '#555' }}>Empty code block</em>}</pre>;
     case 'button': return <div style={{ color: '#888', fontSize: '13px' }}>⊞ Button: "{String(data.text ?? 'Click here')}"</div>;
-    case 'columns': {
-      const cols = Array.isArray(data.columns) ? data.columns as string[] : [];
-      const colLayout = String(data.layout ?? `repeat(${cols.length || 2}, 1fr)`);
-      return (
-        <div>
-          <div style={{ color: '#888', fontSize: '13px', marginBottom: '4px' }}>▥ {cols.length || 2}-column layout</div>
-          <div style={{ display: 'grid', gridTemplateColumns: colLayout, gap: '4px' }}>
-            {(cols.length > 0 ? cols : ['', '']).map((c, i) => (
-              <div key={i} style={{
-                background: 'var(--bg2)',
-                border: '1px solid var(--border)',
-                borderRadius: '3px',
-                padding: '3px 6px',
-                fontSize: '11px',
-                color: '#666',
-                minHeight: '20px',
-                overflow: 'hidden',
-                whiteSpace: 'nowrap',
-                textOverflow: 'ellipsis',
-              }}>
-                {String(c).slice(0, 30) || `Col ${i + 1}`}
-              </div>
-            ))}
-          </div>
-        </div>
-      );
-    }
     case 'html': return <div style={{ color: '#888', fontSize: '13px' }}>{'<>'} HTML block ({String(data.html ?? '').length} chars)</div>;
     default: return <div style={{ color: '#888' }}>[{block_type}]</div>;
   }
 }
 
-function BlockInspector({ block, onUpdate }: { block: Block; onUpdate: (data: Record<string, unknown>) => void }) {
+function BlockInspector({ block, onUpdate }: { block: Block | SubBlock; onUpdate: (data: Record<string, unknown>) => void }) {
   const [local, setLocal] = useState(block.data);
 
   useEffect(() => { setLocal(block.data); }, [block.block_id]);
@@ -659,7 +1086,7 @@ function BlockInspector({ block, onUpdate }: { block: Block; onUpdate: (data: Re
   );
 }
 
-// ── Columns Inspector ─────────────────────────────────────────────────────────
+// ── Columns Inspector (layout controls only — content is managed in canvas) ──
 
 const COLUMN_LAYOUTS: Array<{ label: string; value: string; cols: number }> = [
   { label: '2 equal', value: '1fr 1fr', cols: 2 },
@@ -673,18 +1100,12 @@ const COLUMN_LAYOUTS: Array<{ label: string; value: string; cols: number }> = [
 ];
 
 function ColumnsInspector({ local, set }: { local: Record<string, unknown>; set: (k: string, v: unknown) => void }) {
-  const cols = Array.isArray(local.columns) ? local.columns as string[] : ['', ''];
+  const cols = migrateColumns(local);
   const layout = String(local.layout ?? '');
-
-  function updateCol(idx: number, value: string) {
-    const updated = [...cols];
-    updated[idx] = value;
-    set('columns', updated);
-  }
 
   function addCol() {
     if (cols.length >= 6) return;
-    set('columns', [...cols, '']);
+    set('columns', [...cols, { blocks: [], block_order: [] }]);
   }
 
   function removeCol() {
@@ -694,11 +1115,13 @@ function ColumnsInspector({ local, set }: { local: Record<string, unknown>; set:
 
   function applyLayout(preset: typeof COLUMN_LAYOUTS[number]) {
     const current = [...cols];
-    while (current.length < preset.cols) current.push('');
+    while (current.length < preset.cols) current.push({ blocks: [], block_order: [] });
     while (current.length > preset.cols) current.pop();
     set('columns', current);
     set('layout', preset.value);
   }
+
+  const totalBlocks = cols.reduce((sum, c) => sum + c.block_order.length, 0);
 
   return (
     <>
@@ -717,7 +1140,7 @@ function ColumnsInspector({ local, set }: { local: Record<string, unknown>; set:
         </select>
       </label>
       <div style={{ display: 'flex', gap: '.5rem', alignItems: 'center', marginBottom: '.5rem' }}>
-        <span style={{ fontSize: '.82rem', color: '#888' }}>{cols.length} columns</span>
+        <span style={{ fontSize: '.82rem', color: '#888' }}>{cols.length} columns · {totalBlocks} blocks</span>
         <button className="btn btn-xs" onClick={addCol} disabled={cols.length >= 6}>+</button>
         <button className="btn btn-xs" onClick={removeCol} disabled={cols.length <= 2}>−</button>
       </div>
@@ -728,7 +1151,7 @@ function ColumnsInspector({ local, set }: { local: Record<string, unknown>; set:
           gap: '4px',
           marginBottom: '.5rem',
         }}>
-          {cols.map((_, i) => (
+          {cols.map((col, i) => (
             <div key={i} style={{
               height: '8px',
               background: 'var(--accent)',
@@ -738,12 +1161,9 @@ function ColumnsInspector({ local, set }: { local: Record<string, unknown>; set:
           ))}
         </div>
       )}
-      {cols.map((c, i) => (
-        <label className="field" key={i}>
-          <span>Column {i + 1} (Markdown)</span>
-          <textarea value={c} onChange={(e) => updateCol(i, e.target.value)} rows={4} />
-        </label>
-      ))}
+      <div style={{ fontSize: '.82rem', color: '#888' }}>
+        Add or edit blocks directly in the column zones above.
+      </div>
     </>
   );
 }
@@ -758,7 +1178,7 @@ function defaultData(type: Block['block_type']): Record<string, unknown> {
     case 'video': return { src: '', caption: '' };
     case 'embed': return { src: '', title: '' };
     case 'button': return { text: 'Click here', url: '', style: 'primary' };
-    case 'columns': return { columns: ['', ''] };
+    case 'columns': return { columns: [{ blocks: [], block_order: [] }, { blocks: [], block_order: [] }], layout: '1fr 1fr' };
     case 'spacer': return { height: '2rem' };
     case 'wiki-embed': return { slug: '', title: '' };
     case 'experiment-embed': return { exp_id: '' };
