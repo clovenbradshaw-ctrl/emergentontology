@@ -23,6 +23,7 @@ import {
 } from '../xano/client';
 import { insExpEntry, nulExpEntry } from '../eo/events';
 import type { ExperimentEntry } from '../eo/types';
+import MetadataBar from '../components/MetadataBar';
 
 const KINDS: ExperimentEntry['kind'][] = ['note', 'dataset', 'result', 'chart', 'link', 'decision'];
 const KIND_ICONS: Record<string, string> = {
@@ -160,6 +161,7 @@ export default function ExperimentEditor({ contentId, siteBase }: Props) {
 
   return (
     <div className="exp-editor">
+      <MetadataBar contentId={contentId} />
       {error && <div className="error-banner">{error} <button onClick={() => setError(null)}>×</button></div>}
 
       <div className="exp-entry-form">

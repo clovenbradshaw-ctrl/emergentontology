@@ -42,11 +42,16 @@ export interface NavEntry {
   parent_page?: string;
 }
 
+export interface SiteSettings {
+  siteName?: string;
+}
+
 export interface SiteIndex {
   entries: NavEntry[];
   nav: NavEntry[];
   slug_map: Record<string, string>;
   built_at: string;
+  site_settings?: SiteSettings;
 }
 
 export interface ContentMeta {
@@ -172,4 +177,10 @@ export function loadPublishedContent(type?: ContentType): ProjectedContent[] {
 export function loadNav(): NavEntry[] {
   const index = loadSiteIndex();
   return getPublishedEntries(index);
+}
+
+/** Returns site settings from the index (site name, etc.). */
+export function loadSiteSettings(): SiteSettings {
+  const index = loadSiteIndex();
+  return index.site_settings ?? {};
 }

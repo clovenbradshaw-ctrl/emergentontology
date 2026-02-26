@@ -1,0 +1,232 @@
+/**
+ * MetadataBar — shared metadata panel for all editors.
+ * Displays and allows editing of: title, tags, status, visibility.
+ */
+
+import React, { useEffect, useRef, useState } from 'react';
+import { useAuth } from '../auth/AuthContext';
+import { useSettings } from '../settings/SettingsContext';
+import { useXRay } from './XRayOverlay';
+import {
+  fetchCurrentRecord,
+  addRecord,
+  upsertCurrentRecord,
+  eventToPayload,
+  type XanoCurrentRecord,
+} from '../xano/client';
+import { desIndexEntry, desContentMeta } from '../eo/events';
+import type { ContentStatus, Visibility } from '../eo/types';
+
+interface IndexEntry {
+  content_id: string;
+  slug: string;
+  title: string;
+  content_type: string;
+  status: ContentStatus;
+  visibility: Visibility;
+  tags: string[];
+}
+
+interface Props {
+  contentId: string;
+  onTitleChange?: (newTitle: string) => void;
+}
+
+export default function MetadataBar({ contentId, onTitleChange }: Props) {
+  const { isAuthenticated } = useAuth();
+  const { settings } = useSettings();
+  const { registerEvent } = useXRay();
+
+  const [entry, setEntry] = useState<IndexEntry | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [expanded, setExpanded] = useState(false);
+  const [editingTitle, setEditingTitle] = useState(false);
+  const [titleValue, setTitleValue] = useState('');
+  const [tagInput, setTagInput] = useState('');
+  const indexRecordRef = useRef<XanoCurrentRecord | null>(null);
+  const allEntriesRef = useRef<IndexEntry[]>([]);
+
+  useEffect(() => {
+    async function load() {
+      setLoading(true);
+      try {
+        const rec = await fetchCurrentRecord('site:index');
+        if (rec) {
+          indexRecordRef.current = rec;
+          const parsed = JSON.parse(rec.values) as { entries: IndexEntry[] };
+          allEntriesRef.current = parsed.entries ?? [];
+          const found = allEntriesRef.current.find(e => e.content_id === contentId);
+          if (found) {
+            setEntry(found);
+            setTitleValue(found.title);
+          }
+        }
+      } catch { /* index not available */ }
+      setLoading(false);
+    }
+    load();
+  }, [contentId]);
+
+  async function updateField(fields: Partial<{ title: string; tags: string[]; status: string; visibility: string }>) {
+    if (!isAuthenticated || !entry) return;
+    const agent = settings.displayName || 'editor';
+
+    try {
+      const desEvent = desIndexEntry(contentId, fields, agent);
+      const xid = `des-meta-${contentId}-${Date.now()}`;
+      registerEvent({ id: xid, op: desEvent.op, target: desEvent.target, operand: desEvent.operand, ts: desEvent.ctx.ts, agent: desEvent.ctx.agent, status: 'pending' });
+      await addRecord(eventToPayload(desEvent));
+      registerEvent({ id: xid, op: desEvent.op, target: desEvent.target, operand: desEvent.operand, ts: desEvent.ctx.ts, agent: desEvent.ctx.agent, status: 'sent' });
+
+      const updatedEntry = { ...entry, ...fields } as IndexEntry;
+      setEntry(updatedEntry);
+      allEntriesRef.current = allEntriesRef.current.map(e =>
+        e.content_id === contentId ? updatedEntry : e
+      );
+
+      function buildPayload(entries: IndexEntry[]) {
+        const nav = entries.filter(e => e.status === 'published' && e.visibility === 'public');
+        const slug_map = Object.fromEntries(entries.map(e => [e.slug, e.content_id]));
+        return { entries, nav, slug_map, built_at: new Date().toISOString() };
+      }
+
+      const updated = await upsertCurrentRecord(
+        'site:index',
+        buildPayload(allEntriesRef.current),
+        agent,
+        indexRecordRef.current,
+      );
+      indexRecordRef.current = updated;
+
+      // Best-effort update content's own meta
+      const metaEvent = desContentMeta(contentId, {
+        ...fields,
+        updated_at: desEvent.ctx.ts,
+      } as any, agent);
+      await addRecord(eventToPayload(metaEvent));
+      try {
+        const contentRec = await fetchCurrentRecord(contentId);
+        if (contentRec) {
+          const contentState = JSON.parse(contentRec.values);
+          contentState.meta = { ...contentState.meta, ...fields, updated_at: desEvent.ctx.ts };
+          await upsertCurrentRecord(contentId, contentState, agent, contentRec);
+        }
+      } catch { /* best-effort */ }
+
+      if (fields.title && onTitleChange) onTitleChange(fields.title);
+    } catch (err) {
+      console.error('[MetadataBar] Failed to update:', err);
+    }
+  }
+
+  function saveTitle() {
+    const trimmed = titleValue.trim();
+    if (trimmed && trimmed !== entry?.title) {
+      updateField({ title: trimmed });
+    }
+    setEditingTitle(false);
+  }
+
+  function addTag() {
+    const tag = tagInput.trim().toLowerCase();
+    if (!tag || !entry) return;
+    if (entry.tags.includes(tag)) { setTagInput(''); return; }
+    updateField({ tags: [...entry.tags, tag] });
+    setTagInput('');
+  }
+
+  function removeTag(tag: string) {
+    if (!entry) return;
+    updateField({ tags: entry.tags.filter(t => t !== tag) });
+  }
+
+  if (loading || !entry) return null;
+
+  return (
+    <div className="metadata-bar">
+      <div className="metadata-bar-main">
+        <div className="metadata-title-row">
+          {editingTitle ? (
+            <input
+              className="metadata-title-input"
+              value={titleValue}
+              onChange={(e) => setTitleValue(e.target.value)}
+              onBlur={saveTitle}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter') saveTitle();
+                if (e.key === 'Escape') { setTitleValue(entry.title); setEditingTitle(false); }
+              }}
+              autoFocus
+            />
+          ) : (
+            <h2
+              className="metadata-title"
+              onClick={() => { setEditingTitle(true); setTitleValue(entry.title); }}
+              title="Click to edit title"
+            >
+              {entry.title}
+            </h2>
+          )}
+          <span className="metadata-content-id">{contentId}</span>
+        </div>
+
+        <div className="metadata-quick-actions">
+          <button
+            className={`status-toggle status-${entry.status}`}
+            onClick={() => updateField({ status: entry.status === 'published' ? 'draft' : 'published' })}
+            disabled={!isAuthenticated}
+          >
+            {entry.status}
+          </button>
+          <button
+            className={`visibility-toggle vis-${entry.visibility}`}
+            onClick={() => updateField({ visibility: entry.visibility === 'public' ? 'private' : 'public' })}
+            disabled={!isAuthenticated}
+          >
+            {entry.visibility}
+          </button>
+          <button
+            className="metadata-details-toggle"
+            onClick={() => setExpanded(!expanded)}
+          >
+            {expanded ? 'Hide details' : 'Details'}
+          </button>
+        </div>
+      </div>
+
+      {expanded && (
+        <div className="metadata-details">
+          <div className="metadata-field">
+            <label>Slug</label>
+            <code className="metadata-slug">{entry.slug}</code>
+          </div>
+          <div className="metadata-field">
+            <label>Tags</label>
+            <div className="inline-tags">
+              {entry.tags.map((tag) => (
+                <span key={tag} className="tag-pill">
+                  {tag}
+                  <button
+                    className="tag-remove"
+                    onClick={() => removeTag(tag)}
+                    disabled={!isAuthenticated}
+                  >{'\u00D7'}</button>
+                </span>
+              ))}
+              <input
+                className="tag-add-input"
+                value={tagInput}
+                onChange={(e) => setTagInput(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' || e.key === ',') { e.preventDefault(); addTag(); }
+                }}
+                onBlur={() => { if (tagInput.trim()) addTag(); }}
+                placeholder="add tag\u2026"
+              />
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}

@@ -1,5 +1,5 @@
 ---
-import { loadNav } from '../lib/state';
+import { loadNav, loadSiteSettings } from '../lib/state';
 import type { NavEntry } from '../lib/state';
 
 interface Props {
@@ -11,6 +11,8 @@ interface Props {
 
 const { title, description, breadcrumbs, mainClass } = Astro.props;
 const nav = loadNav();
+const siteSettings = loadSiteSettings();
+const siteName = siteSettings.siteName || 'Emergent Ontology';
 
 const base = import.meta.env.BASE_URL.replace(/\/$/, '');
 
@@ -31,7 +33,7 @@ const childPages = (parentId: string) => pageNav.filter((e: NavEntry) => e.paren
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>{title} — Emergent Ontology</title>
+  <title>{title} — {siteName}</title>
   {description && <meta name="description" content={description} />}
   <link rel="stylesheet" href={`${base}/styles/main.css`} />
   <link rel="alternate" type="application/json" href={`${base}/generated/state/index.json`} />
@@ -50,7 +52,7 @@ const childPages = (parentId: string) => pageNav.filter((e: NavEntry) => e.paren
   <header class="site-header">
     <a class="site-logo" href={`${base}/`}>
       <span class="logo-mark" id="logo-mark" title="Click to cycle operator">⊡</span>
-      <span class="logo-text">Emergent Ontology</span>
+      <span class="logo-text">{siteName}</span>
     </a>
 
     <nav class="site-nav" aria-label="Main navigation">
@@ -175,7 +177,7 @@ const childPages = (parentId: string) => pageNav.filter((e: NavEntry) => e.paren
     <div class="footer-inner">
       <div class="footer-brand">
         <span class="logo-mark">⊡</span>
-        <span>Emergent Ontology</span>
+        <span>{siteName}</span>
       </div>
       <nav class="footer-nav" aria-label="Footer navigation">
         <a href={`${base}/wiki/`}>Wiki</a>
@@ -221,11 +223,13 @@ const childPages = (parentId: string) => pageNav.filter((e: NavEntry) => e.paren
       });
     })();
 
-    // Triple-ESC to reveal admin UI
+    // Reveal admin UI (auto if previously authenticated, or via triple-ESC)
     (function() {
       var escCount = 0;
       var escTimer = null;
       var revealed = sessionStorage.getItem('eo-admin-revealed') === 'true';
+      // Auto-reveal if user has previously authenticated (Issue 7)
+      var wasAuthenticated = localStorage.getItem('eo_xano_auth') === '1';
       function revealAdmin() {
         revealed = true;
         sessionStorage.setItem('eo-admin-revealed', 'true');
@@ -234,7 +238,7 @@ const childPages = (parentId: string) => pageNav.filter((e: NavEntry) => e.paren
         document.querySelectorAll('.admin-footer-link').forEach(function(el) { el.hidden = false; });
         document.querySelectorAll('.home-edit-link').forEach(function(el) { el.style.display = ''; });
       }
-      if (revealed) {
+      if (revealed || wasAuthenticated) {
         document.addEventListener('DOMContentLoaded', revealAdmin);
       } else {
         // Hide edit links by default

@@ -22,6 +22,8 @@ import WikiEditor from './editors/WikiEditor';
 import PageBuilder from './editors/PageBuilder';
 import ExperimentEditor from './editors/ExperimentEditor';
 import type { ContentType } from './eo/types';
+import { fetchCurrentRecord, upsertCurrentRecord } from './xano/client';
+import { SPECIAL_PAGES } from './eo/constants';
 import './styles/admin.css';
 
 function useTheme() {
@@ -131,12 +133,27 @@ function AdminShell() {
   const { settings } = useSettings();
   const [route, setRoute] = useState<Route>(() => parseHash(window.location.hash));
   const [currentHistory, setCurrentHistory] = useState<unknown[]>([]);
+  const [indexEntries, setIndexEntries] = useState<Array<{ content_id: string; title: string }>>([]);
 
   useEffect(() => {
     function onHashChange() { setRoute(parseHash(window.location.hash)); }
     window.addEventListener('hashchange', onHashChange);
     return () => window.removeEventListener('hashchange', onHashChange);
   }, []);
+
+  // Load index entries for breadcrumb title lookup (Issue 8)
+  useEffect(() => {
+    async function loadIndex() {
+      try {
+        const rec = await fetchCurrentRecord('site:index');
+        if (rec) {
+          const parsed = JSON.parse(rec.values) as { entries: Array<{ content_id: string; title: string }> };
+          setIndexEntries(parsed.entries ?? []);
+        }
+      } catch { /* breadcrumb will fall back to slug */ }
+    }
+    if (isAuthenticated) loadIndex();
+  }, [isAuthenticated]);
 
   function navigate(hash: string) {
     window.location.hash = hash;
@@ -151,7 +168,15 @@ function AdminShell() {
 
   const routeTitle = route.type === 'list' ? 'Content'
     : route.type === 'settings' ? 'Settings'
-    : `${route.type}: ${'slug' in route ? route.slug : ''}`;
+    : (() => {
+        const slug = 'slug' in route ? route.slug : '';
+        const cid = `${route.type}:${slug}`;
+        const fromIndex = indexEntries.find(e => e.content_id === cid)?.title;
+        if (fromIndex) return fromIndex;
+        const fromSpecial = SPECIAL_PAGES.find(sp => sp.content_id === cid)?.title;
+        if (fromSpecial) return fromSpecial;
+        return slug;
+      })();
 
   return (
     <div className="admin-app">
@@ -208,11 +233,33 @@ function AdminShell() {
 function SettingsPanel() {
   const { settings, updateSettings, resetSettings } = useSettings();
   const [saved, setSaved] = useState(false);
+  const [publishingSiteName, setPublishingSiteName] = useState(false);
 
   function handleChange(field: string, value: string) {
     updateSettings({ [field]: value });
     setSaved(true);
     setTimeout(() => setSaved(false), 1500);
+  }
+
+  // Publish site name to site:index so the public site picks it up (Issue 6)
+  async function publishSiteName() {
+    setPublishingSiteName(true);
+    try {
+      const rec = await fetchCurrentRecord('site:index');
+      if (rec) {
+        const data = JSON.parse(rec.values);
+        data.site_settings = { ...data.site_settings, siteName: settings.siteName || 'Emergent Ontology' };
+        data.built_at = new Date().toISOString();
+        const agent = settings.displayName || 'editor';
+        await upsertCurrentRecord('site:index', data, agent, rec);
+        setSaved(true);
+        setTimeout(() => setSaved(false), 1500);
+      }
+    } catch (err) {
+      console.error('[Settings] Failed to publish site name:', err);
+    } finally {
+      setPublishingSiteName(false);
+    }
   }
 
   return (
@@ -237,13 +284,24 @@ function SettingsPanel() {
         </label>
         <label className="field">
           <span>Site name</span>
-          <input
-            value={settings.siteName}
-            onChange={(e) => handleChange('siteName', e.target.value)}
-            placeholder="EO Admin"
-          />
+          <div style={{ display: 'flex', gap: '.5rem', alignItems: 'center' }}>
+            <input
+              value={settings.siteName}
+              onChange={(e) => handleChange('siteName', e.target.value)}
+              placeholder="Emergent Ontology"
+              style={{ flex: 1 }}
+            />
+            <button
+              className="btn btn-sm btn-primary"
+              onClick={publishSiteName}
+              disabled={publishingSiteName}
+              title="Publish site name to the public site"
+            >
+              {publishingSiteName ? 'Publishing\u2026' : 'Publish to site'}
+            </button>
+          </div>
           <span className="field-hint">
-            Displayed in the header and login screen.
+            Displayed in the admin header and public site. Click "Publish to site" to update the public site header/footer.
           </span>
         </label>
       </section>

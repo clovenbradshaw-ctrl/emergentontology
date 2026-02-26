@@ -24,6 +24,7 @@ import {
 } from '../xano/client';
 import { insIndexEntry, desContentMeta, desIndexEntry, nulIndexEntry } from '../eo/events';
 import type { ContentType, ContentStatus, Visibility } from '../eo/types';
+import { SPECIAL_PAGES } from '../eo/constants';
 
 interface IndexEntry {
   content_id: string;
@@ -42,10 +43,10 @@ interface IndexEntry {
 }
 
 /** Build a full site:index payload with derived nav and slug_map. */
-function buildIndexPayload(entries: IndexEntry[]) {
+function buildIndexPayload(entries: IndexEntry[], siteSettings?: Record<string, unknown>) {
   const nav = entries.filter(e => e.status === 'published' && e.visibility === 'public');
   const slug_map = Object.fromEntries(entries.map(e => [e.slug, e.content_id]));
-  return { entries, nav, slug_map, built_at: new Date().toISOString() };
+  return { entries, nav, slug_map, built_at: new Date().toISOString(), ...(siteSettings ? { site_settings: siteSettings } : {}) };
 }
 
 interface Props {
@@ -77,6 +78,21 @@ export default function ContentManager({ siteBase, onOpen }: Props) {
   const [newVisibility, setNewVisibility] = useState<Visibility>(settings.defaultVisibility);
   const [confirmArchive, setConfirmArchive] = useState<string | null>(null);
   const [showArchive, setShowArchive] = useState(false);
+
+  // Search, filter, sort (Issues 5 & 9)
+  const [searchTerm, setSearchTerm] = useState('');
+  const [typeFilter, setTypeFilter] = useState<ContentType | 'all'>('all');
+  const [sortField, setSortField] = useState<'title' | 'type' | 'status' | 'slug'>('title');
+  const [sortDir, setSortDir] = useState<'asc' | 'desc'>('asc');
+
+  // Inline editing (Issues 3 & 4)
+  const [editingTitle, setEditingTitle] = useState<string | null>(null);
+  const [editTitleValue, setEditTitleValue] = useState('');
+  const [editingTags, setEditingTags] = useState<string | null>(null);
+  const [tagInput, setTagInput] = useState('');
+
+  // Special page creation (Issues 1 & 2)
+  const [creatingSpecial, setCreatingSpecial] = useState<string | null>(null);
 
   // ── Load index ─────────────────────────────────────────────────────────────
 
@@ -446,15 +462,239 @@ export default function ContentManager({ siteBase, onOpen }: Props) {
     }
   }
 
+  // ── Update index entry fields (shared utility for title, tags, etc.) ─────
+
+  async function updateIndexField(contentId: string, fields: Partial<{ title: string; tags: string[] }>) {
+    if (!isAuthenticated) return;
+    const agent = settings.displayName || 'editor';
+
+    try {
+      // 1. Emit DES index event
+      const desEvent = desIndexEntry(contentId, fields, agent);
+      const xid = `des-field-${contentId}-${Date.now()}`;
+      registerEvent({ id: xid, op: desEvent.op, target: desEvent.target, operand: desEvent.operand, ts: desEvent.ctx.ts, agent: desEvent.ctx.agent, status: 'pending' });
+      await addRecord(eventToPayload(desEvent));
+      registerEvent({ id: xid, op: desEvent.op, target: desEvent.target, operand: desEvent.operand, ts: desEvent.ctx.ts, agent: desEvent.ctx.agent, status: 'sent' });
+
+      // 2. Update site:index current state
+      const updatedEntries = entries.map((e) =>
+        e.content_id === contentId ? { ...e, ...fields } : e
+      );
+      const updated = await upsertCurrentRecord(
+        'site:index',
+        buildIndexPayload(updatedEntries),
+        agent,
+        indexRecordRef.current,
+      );
+      indexRecordRef.current = updated;
+      setEntries(updatedEntries);
+
+      // 3. Best-effort update content's own meta
+      const metaEvent = desContentMeta(contentId, {
+        ...fields,
+        updated_at: desEvent.ctx.ts,
+      } as Partial<import('../eo/types').ContentMeta>, agent);
+      await addRecord(eventToPayload(metaEvent));
+      try {
+        const contentRec = await fetchCurrentRecord(contentId);
+        if (contentRec) {
+          const contentState = JSON.parse(contentRec.values);
+          contentState.meta = { ...contentState.meta, ...fields, updated_at: desEvent.ctx.ts };
+          await upsertCurrentRecord(contentId, contentState, agent, contentRec);
+        }
+      } catch { /* best-effort */ }
+    } catch (err) {
+      setError(err instanceof Error ? err.message : String(err));
+    }
+  }
+
+  // ── Create a special page (homepage or operator) ────────────────────────
+
+  async function createSpecialPage(sp: typeof SPECIAL_PAGES[number]) {
+    if (!isAuthenticated || entries.some(e => e.content_id === sp.content_id)) return;
+    setCreatingSpecial(sp.content_id);
+    setError(null);
+
+    const agent = settings.displayName || 'editor';
+    const ts = new Date().toISOString();
+
+    try {
+      const insEvent = insIndexEntry(sp.content_id, {
+        slug: sp.slug,
+        title: sp.title,
+        content_type: sp.content_type,
+        status: settings.defaultStatus,
+        visibility: 'public',
+        tags: [],
+      }, agent);
+      const xid = `ins-index-${sp.content_id}`;
+      registerEvent({ id: xid, op: insEvent.op, target: insEvent.target, operand: insEvent.operand, ts: insEvent.ctx.ts, agent: insEvent.ctx.agent, status: 'pending' });
+      await addRecord(eventToPayload(insEvent));
+      registerEvent({ id: xid, op: insEvent.op, target: insEvent.target, operand: insEvent.operand, ts: insEvent.ctx.ts, agent: insEvent.ctx.agent, status: 'sent' });
+
+      const desEvent = desContentMeta(sp.content_id, {
+        content_id: sp.content_id,
+        content_type: sp.content_type,
+        slug: sp.slug,
+        title: sp.title,
+        status: settings.defaultStatus,
+        visibility: 'public',
+        tags: [],
+        updated_at: ts,
+      }, agent);
+      await addRecord(eventToPayload(desEvent));
+
+      const newEntry: IndexEntry = {
+        content_id: sp.content_id,
+        slug: sp.slug,
+        title: sp.title,
+        content_type: sp.content_type,
+        status: settings.defaultStatus,
+        visibility: 'public',
+        tags: [],
+        first_public_at: ts,
+      };
+      const updatedEntries = [...entries, newEntry];
+      const updated = await upsertCurrentRecord(
+        'site:index',
+        buildIndexPayload(updatedEntries),
+        agent,
+        indexRecordRef.current,
+      );
+      indexRecordRef.current = updated;
+
+      await upsertCurrentRecord(sp.content_id, {
+        meta: {
+          content_id: sp.content_id,
+          content_type: sp.content_type,
+          slug: sp.slug,
+          title: sp.title,
+          status: settings.defaultStatus,
+          visibility: 'public',
+          tags: [],
+          updated_at: ts,
+        },
+        current_revision: null,
+        revisions: [],
+        blocks: [],
+        block_order: [],
+        entries: [],
+      }, agent, null);
+
+      setEntries(updatedEntries);
+      onOpen(sp.content_id, sp.content_type);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : String(err));
+    } finally {
+      setCreatingSpecial(null);
+    }
+  }
+
+  // ── Inline title save ──────────────────────────────────────────────────
+
+  function saveTitle(contentId: string) {
+    const trimmed = editTitleValue.trim();
+    if (trimmed && trimmed !== entries.find(e => e.content_id === contentId)?.title) {
+      updateIndexField(contentId, { title: trimmed });
+    }
+    setEditingTitle(null);
+  }
+
+  // ── Inline tag operations ──────────────────────────────────────────────
+
+  function addTag(contentId: string) {
+    const tag = tagInput.trim().toLowerCase();
+    if (!tag) return;
+    const entry = entries.find(e => e.content_id === contentId);
+    if (!entry || entry.tags.includes(tag)) { setTagInput(''); return; }
+    updateIndexField(contentId, { tags: [...entry.tags, tag] });
+    setTagInput('');
+  }
+
+  function removeTag(contentId: string, tag: string) {
+    const entry = entries.find(e => e.content_id === contentId);
+    if (!entry) return;
+    updateIndexField(contentId, { tags: entry.tags.filter(t => t !== tag) });
+  }
+
+  // ── Derived data ───────────────────────────────────────────────────────
+
   const activeEntries = entries.filter(e => e.status !== 'archived');
   const archivedEntries = entries.filter(e => e.status === 'archived');
   const pageEntries = activeEntries.filter(e => e.content_type === 'page');
+
+  // Apply search + type filter (Issue 5)
+  const filteredEntries = activeEntries.filter(e => {
+    if (typeFilter !== 'all' && e.content_type !== typeFilter) return false;
+    if (searchTerm) {
+      const q = searchTerm.toLowerCase();
+      return e.title.toLowerCase().includes(q) || e.slug.toLowerCase().includes(q);
+    }
+    return true;
+  });
+
+  // Apply sort (Issue 9)
+  const sortedEntries = [...filteredEntries].sort((a, b) => {
+    let cmp = 0;
+    switch (sortField) {
+      case 'title': cmp = a.title.localeCompare(b.title); break;
+      case 'type': cmp = a.content_type.localeCompare(b.content_type); break;
+      case 'status': cmp = a.status.localeCompare(b.status); break;
+      case 'slug': cmp = a.slug.localeCompare(b.slug); break;
+    }
+    return sortDir === 'asc' ? cmp : -cmp;
+  });
+
+  function handleSort(field: typeof sortField) {
+    if (sortField === field) {
+      setSortDir(d => d === 'asc' ? 'desc' : 'asc');
+    } else {
+      setSortField(field);
+      setSortDir('asc');
+    }
+  }
+
+  function sortIndicator(field: typeof sortField) {
+    if (sortField !== field) return '';
+    return sortDir === 'asc' ? ' \u25B2' : ' \u25BC';
+  }
 
   if (loading) return <div className="editor-loading">Loading content list…</div>;
 
   return (
     <div className="content-manager">
       {error && <div className="error-banner">{error} <button onClick={() => setError(null)}>×</button></div>}
+
+      {/* Special Pages (Issues 1 & 2) */}
+      <section className="special-pages-section">
+        <h2>Special Pages</h2>
+        <p className="section-hint">These pages always exist on the site. Create them to add content.</p>
+        <div className="special-pages-grid">
+          {SPECIAL_PAGES.map((sp) => {
+            const exists = entries.some(e => e.content_id === sp.content_id);
+            return (
+              <div key={sp.content_id} className={`special-page-card ${exists ? 'exists' : ''}`}>
+                <span className="special-page-symbol" style={{ color: sp.color }}>{sp.symbol}</span>
+                <span className="special-page-title">{sp.title}</span>
+                {sp.code && <span className="special-page-code">{sp.code}</span>}
+                {exists ? (
+                  <button className="btn btn-sm" onClick={() => onOpen(sp.content_id, sp.content_type)}>
+                    Edit
+                  </button>
+                ) : (
+                  <button
+                    className="btn btn-sm btn-primary"
+                    onClick={() => createSpecialPage(sp)}
+                    disabled={!isAuthenticated || creatingSpecial === sp.content_id}
+                  >
+                    {creatingSpecial === sp.content_id ? 'Creating\u2026' : 'Create & Edit'}
+                  </button>
+                )}
+              </div>
+            );
+          })}
+        </div>
+      </section>
 
       {/* Create new content */}
       <section className="create-section">
@@ -482,30 +722,110 @@ export default function ContentManager({ siteBase, onOpen }: Props) {
       {/* Content list */}
       <section className="content-list-section">
         <h2>All Content ({activeEntries.length})</h2>
-        {activeEntries.length === 0
-          ? <p className="empty-msg">No content yet. Create something above.</p>
+
+        {/* Search & filter bar (Issue 5) */}
+        <div className="content-filter-bar">
+          <input
+            className="content-search"
+            type="search"
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            placeholder="Search by title or slug\u2026"
+          />
+          <div className="content-type-filters">
+            {(['all', 'wiki', 'blog', 'page', 'experiment'] as const).map((t) => (
+              <button
+                key={t}
+                className={`type-filter-btn ${typeFilter === t ? 'active' : ''}`}
+                onClick={() => setTypeFilter(t)}
+              >
+                {t === 'all' ? 'All' : t.charAt(0).toUpperCase() + t.slice(1)}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {sortedEntries.length === 0
+          ? <p className="empty-msg">{activeEntries.length === 0 ? 'No content yet. Create something above.' : 'No matching content.'}</p>
           : (
             <table className="content-table">
               <thead>
                 <tr>
-                  <th>Type</th>
-                  <th>Title</th>
-                  <th>Slug</th>
-                  <th>Status</th>
+                  <th className="sortable-th" onClick={() => handleSort('type')}>Type{sortIndicator('type')}</th>
+                  <th className="sortable-th" onClick={() => handleSort('title')}>Title{sortIndicator('title')}</th>
+                  <th className="sortable-th" onClick={() => handleSort('slug')}>Slug{sortIndicator('slug')}</th>
+                  <th>Tags</th>
+                  <th className="sortable-th" onClick={() => handleSort('status')}>Status{sortIndicator('status')}</th>
                   <th>Visibility</th>
                   <th>Nav</th>
                   <th>Actions</th>
                 </tr>
               </thead>
               <tbody>
-                {activeEntries.map((entry) => (
+                {sortedEntries.map((entry) => (
                   <tr key={entry.content_id}>
                     <td><span className={`type-badge type-${entry.content_type}`}>{entry.content_type}</span></td>
                     <td>
-                      {entry.parent_page && <span style={{ color: 'var(--text-dim)', fontSize: '.75rem', marginRight: '.3rem' }}>↳</span>}
-                      {entry.title}
+                      {entry.parent_page && <span style={{ color: 'var(--text-dim)', fontSize: '.75rem', marginRight: '.3rem' }}>\u21B3</span>}
+                      {editingTitle === entry.content_id ? (
+                        <input
+                          className="inline-title-input"
+                          value={editTitleValue}
+                          onChange={(e) => setEditTitleValue(e.target.value)}
+                          onBlur={() => saveTitle(entry.content_id)}
+                          onKeyDown={(e) => {
+                            if (e.key === 'Enter') saveTitle(entry.content_id);
+                            if (e.key === 'Escape') setEditingTitle(null);
+                          }}
+                          autoFocus
+                        />
+                      ) : (
+                        <span
+                          className="editable-title"
+                          onClick={() => { setEditingTitle(entry.content_id); setEditTitleValue(entry.title); }}
+                          title="Click to edit title"
+                        >
+                          {entry.title}
+                        </span>
+                      )}
                     </td>
                     <td className="slug-cell">{entry.slug}</td>
+                    <td className="tags-cell">
+                      <div className="inline-tags">
+                        {entry.tags.map((tag) => (
+                          <span key={tag} className="tag-pill">
+                            {tag}
+                            <button
+                              className="tag-remove"
+                              onClick={() => removeTag(entry.content_id, tag)}
+                              disabled={!isAuthenticated}
+                              title="Remove tag"
+                            >\u00D7</button>
+                          </span>
+                        ))}
+                        {editingTags === entry.content_id ? (
+                          <input
+                            className="tag-add-input"
+                            value={tagInput}
+                            onChange={(e) => setTagInput(e.target.value)}
+                            onKeyDown={(e) => {
+                              if (e.key === 'Enter' || e.key === ',') { e.preventDefault(); addTag(entry.content_id); }
+                              if (e.key === 'Escape') { setEditingTags(null); setTagInput(''); }
+                            }}
+                            onBlur={() => { if (tagInput.trim()) addTag(entry.content_id); setEditingTags(null); setTagInput(''); }}
+                            placeholder="add tag\u2026"
+                            autoFocus
+                          />
+                        ) : (
+                          <button
+                            className="tag-add-btn"
+                            onClick={() => { setEditingTags(entry.content_id); setTagInput(''); }}
+                            disabled={!isAuthenticated}
+                            title="Add tag"
+                          >+</button>
+                        )}
+                      </div>
+                    </td>
                     <td>
                       <button
                         className={`status-toggle status-${entry.status}`}
@@ -547,7 +867,7 @@ export default function ContentManager({ siteBase, onOpen }: Props) {
                           />
                         </div>
                       ) : (
-                        <span style={{ color: 'var(--text-dim)', fontSize: '.8rem' }}>—</span>
+                        <span style={{ color: 'var(--text-dim)', fontSize: '.8rem' }}>\u2014</span>
                       )}
                     </td>
                     <td>
