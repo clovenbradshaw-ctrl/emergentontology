@@ -64,7 +64,7 @@ export default function ExperimentEditor({ contentId, siteBase }: Props) {
         const rec = await fetchCurrentRecord(contentId);
         if (rec) {
           currentRecordRef.current = rec;
-          expState = JSON.parse(rec.value) as ExpState;
+          expState = JSON.parse(rec.values) as ExpState;
         }
       } catch (err) {
         console.warn('[ExperimentEditor] Could not fetch Xano current record:', err);
@@ -119,7 +119,7 @@ export default function ExperimentEditor({ contentId, siteBase }: Props) {
         meta: state?.meta ?? {},
         entries: [...(state?.entries ?? []), newEntry],
       };
-      const updated = await upsertCurrentRecord(contentId, event.op, updatedState, 'editor', currentRecordRef.current);
+      const updated = await upsertCurrentRecord(contentId, updatedState, 'editor', currentRecordRef.current);
       currentRecordRef.current = updated;
       setState(updatedState);
       setText('');
@@ -146,7 +146,7 @@ export default function ExperimentEditor({ contentId, siteBase }: Props) {
         meta: state?.meta ?? {},
         entries: (state?.entries ?? []).filter((e) => e.entry_id !== entryId),
       };
-      const updated = await upsertCurrentRecord(contentId, event.op, updatedState, 'editor', currentRecordRef.current);
+      const updated = await upsertCurrentRecord(contentId, updatedState, 'editor', currentRecordRef.current);
       currentRecordRef.current = updated;
       setState(updatedState);
     } catch (err) {

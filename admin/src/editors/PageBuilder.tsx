@@ -104,7 +104,7 @@ export default function PageBuilder({ contentId, siteBase }: Props) {
         const rec = await fetchCurrentRecord(contentId);
         if (rec) {
           currentRecordRef.current = rec;
-          pageState = JSON.parse(rec.value) as PageState;
+          pageState = JSON.parse(rec.values) as PageState;
         }
       } catch (err) {
         console.warn('[PageBuilder] Could not fetch Xano current record:', err);
@@ -141,7 +141,7 @@ export default function PageBuilder({ contentId, siteBase }: Props) {
       await addRecord(eventToPayload(event));
       registerEvent({ id: xid, op: event.op, target: event.target, operand: event.operand, ts: event.ctx.ts, agent: event.ctx.agent, status: 'sent' });
 
-      const updated = await upsertCurrentRecord(contentId, event.op, updatedState, event.ctx.agent, currentRecordRef.current);
+      const updated = await upsertCurrentRecord(contentId, updatedState, event.ctx.agent, currentRecordRef.current);
       currentRecordRef.current = updated;
     } catch (err) {
       const msg = err instanceof Error ? err.message : String(err);

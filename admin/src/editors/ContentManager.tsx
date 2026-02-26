@@ -74,7 +74,7 @@ export default function ContentManager({ siteBase, onOpen }: Props) {
         const rec = await fetchCurrentRecord('site:index');
         if (rec) {
           indexRecordRef.current = rec;
-          const parsed = JSON.parse(rec.value) as { entries: IndexEntry[] };
+          const parsed = JSON.parse(rec.values) as { entries: IndexEntry[] };
           setEntries(parsed.entries ?? []);
           setLoading(false);
           return;
@@ -151,7 +151,6 @@ export default function ContentManager({ siteBase, onOpen }: Props) {
       const updatedEntries = [...entries, newEntry];
       const updated = await upsertCurrentRecord(
         'site:index',
-        insEvent.op,
         { entries: updatedEntries },
         agent,
         indexRecordRef.current,
@@ -159,7 +158,7 @@ export default function ContentManager({ siteBase, onOpen }: Props) {
       indexRecordRef.current = updated;
 
       // 4. Create initial current state for the new content
-      await upsertCurrentRecord(contentId, desEvent.op, {
+      await upsertCurrentRecord(contentId, {
         meta: {
           content_id: contentId,
           content_type: newType,
@@ -207,7 +206,6 @@ export default function ContentManager({ siteBase, onOpen }: Props) {
       const updatedEntries = entries.map((e) => e.content_id === contentId ? { ...e, status: newStatus } : e);
       const updated = await upsertCurrentRecord(
         'site:index',
-        desEvent.op,
         { entries: updatedEntries },
         agent,
         indexRecordRef.current,
@@ -247,7 +245,6 @@ export default function ContentManager({ siteBase, onOpen }: Props) {
       });
       const updated = await upsertCurrentRecord(
         'site:index',
-        desEvent.op,
         { entries: updatedEntries },
         agent,
         indexRecordRef.current,
@@ -266,9 +263,9 @@ export default function ContentManager({ siteBase, onOpen }: Props) {
         try {
           const contentRec = await fetchCurrentRecord(contentId);
           if (contentRec) {
-            const contentState = JSON.parse(contentRec.value);
+            const contentState = JSON.parse(contentRec.values);
             contentState.meta = { ...contentState.meta, visibility: newVisibility, first_public_at: firstPublicTs };
-            await upsertCurrentRecord(contentId, metaEvent.op, contentState, agent, contentRec);
+            await upsertCurrentRecord(contentId, contentState, agent, contentRec);
           }
         } catch { /* best-effort update */ }
       }

@@ -17,11 +17,11 @@ export interface XanoCurrentRecord {
   id: number;
   created_at: number;   // epoch ms
   record_id: string;    // e.g. "wiki:home", "site:index"
-  op: string;
-  subject: string;
-  predicate: string;
-  value: string;        // JSON-stringified state snapshot
-  context: unknown;
+  displayName: string;
+  values: string;       // JSON-stringified state snapshot
+  context: Record<string, unknown>;
+  uuid: string;
+  lastModified: number; // epoch ms
 }
 
 export async function fetchAllCurrentRecords(): Promise<XanoCurrentRecord[]> {
