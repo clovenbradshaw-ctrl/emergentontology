@@ -123,7 +123,7 @@ const operators = [
           <span class="section-icon">📖</span>
           Wiki
         </h2>
-        <a class="section-viewall" href={`${base}/wiki/`}>All articles →</a>
+        <a class="section-viewall" href={`${base}/wiki/`}>Wiki →</a>
       </div>
       <div class="content-grid">
         {wikiEntries.slice(0, 6).map((e: NavEntry) => {
@@ -147,7 +147,7 @@ const operators = [
       {wikiEntries.length > 6 && (
         <div class="section-footer">
           <a class="btn btn-outline" href={`${base}/wiki/`}>
-            View all {wikiEntries.length} articles
+            View all wiki entries
           </a>
         </div>
       )}

@@ -68,7 +68,7 @@ const childPages = (parentId: string) => pageNav.filter((e: NavEntry) => e.paren
                 <li><a href={`${base}/wiki/${e.slug}/`}>{e.title}</a></li>
               ))}
               {wikiNav.length > 8 && (
-                <li class="nav-more"><a href={`${base}/wiki/`}>All articles →</a></li>
+                <li class="nav-more"><a href={`${base}/wiki/`}>More →</a></li>
               )}
             </ul>
           )}
