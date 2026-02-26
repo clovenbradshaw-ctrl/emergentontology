@@ -837,6 +837,30 @@ main.home { max-width: 1100px; }
   align-items: center;
   gap: .5rem;
 }
+.rune-mode-toggle {
+  display: flex;
+  align-items: center;
+  gap: .35rem;
+  margin-bottom: .5rem;
+  padding: .25rem .6rem;
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  color: var(--text-dim);
+  font-size: .7rem;
+  font-family: var(--font-mono);
+  font-weight: 600;
+  letter-spacing: .05em;
+  cursor: pointer;
+  transition: border-color .15s, color .15s;
+  width: 100%;
+  justify-content: center;
+  max-width: 156px;
+}
+.rune-mode-toggle:hover {
+  border-color: var(--accent);
+  color: var(--text);
+}
 .rune-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
@@ -876,6 +900,8 @@ main.home { max-width: 1100px; }
   font-weight: 600;
   line-height: 1;
   text-align: center;
+  margin-bottom: 2px;
+  transition: opacity .2s ease, transform .2s ease;
 }
 .rune-display[data-version="symbol"] { font-size: 1.4rem; }
 .rune-display[data-version="code"] { font-family: var(--font-mono); font-size: .8rem; letter-spacing: .08em; }
@@ -914,6 +940,26 @@ main.home { max-width: 1100px; }
   gap: .75rem;
   justify-content: center;
 }
+
+/* ── Rune display mode toggling ── */
+.rune-sym--greek,
+.rune-sym--code { display: none; }
+.rune-sym--rune { display: block; }
+
+.rune-grid[data-mode="greek"] .rune-sym--rune { display: none; }
+.rune-grid[data-mode="greek"] .rune-sym--greek { display: block; font-style: italic; }
+.rune-grid[data-mode="greek"] .rune-sym--code { display: none; }
+
+.rune-grid[data-mode="code"] .rune-sym--rune { display: none; }
+.rune-grid[data-mode="code"] .rune-sym--greek { display: none; }
+.rune-grid[data-mode="code"] .rune-sym--code {
+  display: block;
+  font-family: var(--font-mono);
+  font-size: .85rem;
+  font-weight: 700;
+  letter-spacing: .08em;
+}
+.rune-grid[data-mode="code"] .rune-code { display: none; }
 
 /* ── Nine Operators Bar (compact, kept for fallback) ── */
 .ops-bar-section {
