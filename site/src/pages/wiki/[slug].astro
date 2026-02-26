@@ -65,11 +65,13 @@ function renderMarkdown(md: string): string {
 
     <section class="revision-history" id="history">
       <h2>Revision History</h2>
-      <ol class="rev-list" reversed>
-        {wiki.revisions.length > 0
-          ? wiki.revisions
+      {wiki.revisions.length > 0 ? (
+        <>
+          <ol class="rev-list" reversed>
+            {wiki.revisions
               .slice()
               .reverse()
+              .slice(0, 6)
               .map((r) => (
                 <li class="rev-entry" data-eo-op="INS" data-eo-target={`${wiki.content_id}/rev:${r.rev_id}`}>
                   <code class="eo-op eo-op-inline">
@@ -78,10 +80,34 @@ function renderMarkdown(md: string): string {
                   </code>
                   <time class="rev-ts">{new Date(r.ts).toLocaleDateString()}</time>
                 </li>
-              ))
-          : <li>No revisions yet.</li>
-        }
-      </ol>
+              ))}
+          </ol>
+          {wiki.revisions.length > 6 && (
+            <details class="rev-overflow">
+              <summary class="rev-expand-toggle">
+                Show {wiki.revisions.length - 6} older revision{wiki.revisions.length - 6 !== 1 ? 's' : ''}
+              </summary>
+              <ol class="rev-list rev-list-older">
+                {wiki.revisions
+                  .slice()
+                  .reverse()
+                  .slice(6)
+                  .map((r) => (
+                    <li class="rev-entry" data-eo-op="INS" data-eo-target={`${wiki.content_id}/rev:${r.rev_id}`}>
+                      <code class="eo-op eo-op-inline">
+                        <span class="eo-sym">△</span>
+                        <span class="eo-name">INS</span>(<span class="eo-target">{wiki.content_id}/rev:{r.rev_id}</span>, <span class="eo-operand">{`{summary: "${r.summary || '…'}"}`}</span>)
+                      </code>
+                      <time class="rev-ts">{new Date(r.ts).toLocaleDateString()}</time>
+                    </li>
+                  ))}
+              </ol>
+            </details>
+          )}
+        </>
+      ) : (
+        <ol class="rev-list"><li>No revisions yet.</li></ol>
+      )}
     </section>
 
     <div class="content-actions">

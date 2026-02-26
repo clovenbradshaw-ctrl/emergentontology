@@ -368,6 +368,18 @@ main { flex: 1; max-width: 860px; margin: 0 auto; padding: 2rem 1.5rem; width: 1
 .rev-list { list-style: none; display: flex; flex-direction: column; gap: .5rem; }
 .rev-entry { display: flex; gap: 1rem; font-size: .85rem; color: var(--text-dim); }
 .rev-id { font-family: var(--font-mono); }
+.rev-overflow { margin-top: .5rem; }
+.rev-expand-toggle {
+  cursor: pointer;
+  font-size: .8rem;
+  color: var(--accent);
+  padding: .35rem 0;
+  list-style: none;
+}
+.rev-expand-toggle::-webkit-details-marker { display: none; }
+.rev-expand-toggle::before { content: '▸ '; }
+details[open] > .rev-expand-toggle::before { content: '▾ '; }
+.rev-list-older { margin-top: .5rem; }
 
 /* Experiments */
 .exp-entries { list-style: none; display: flex; flex-direction: column; gap: 1rem; }
