@@ -3,7 +3,8 @@ dist/
 .env
 .env.local
 
-# Astro build output (deployed via Pages artifact, not committed)
+# Astro build cache and output (deployed via Pages artifact, not committed)
+site/.astro/
 site/dist/
 
 # Admin build output goes into site/public/admin/ — commit placeholder only
