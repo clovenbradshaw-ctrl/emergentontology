@@ -258,12 +258,20 @@ async function main() {
     built_at: new Date().toISOString(),
   };
 
+  const publicEntries = allEntries.filter((e) => e.visibility === 'public');
   console.log(
-    `[projector] Index: ${allEntries.length} total, ${nav.length} published+public`,
+    `[projector] Index: ${allEntries.length} total, ${publicEntries.length} public (${nav.length} published+public in nav)`,
   );
 
-  // ── 3. Build ProjectedContent for each published entry ────────────────────
-  const entriesToProcess = cfg.include_drafts ? allEntries : nav;
+  // ── 3. Build ProjectedContent for each entry ─────────────────────────────
+  // Always write content files for all public-visibility entries so that
+  // draft pages are accessible via URL (e.g. /wiki/home) even before
+  // publishing. Navigation (nav) already filters to published+public only,
+  // so drafts won't appear in the site header/index—just at their direct URL.
+  // INCLUDE_DRAFTS=true additionally includes private-visibility content.
+  const entriesToProcess = cfg.include_drafts
+    ? allEntries
+    : allEntries.filter((e) => e.visibility === 'public');
   const recordMap = new Map(records.map((r) => [r.record_id, r]));
   const projectedContents: ProjectedContent[] = [];
 
