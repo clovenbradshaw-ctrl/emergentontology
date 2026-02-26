@@ -72,15 +72,20 @@ function renderMarkdown(md: string): string {
               .slice()
               .reverse()
               .slice(0, 6)
-              .map((r) => (
-                <li class="rev-entry" data-eo-op="INS" data-eo-target={`${wiki.content_id}/rev:${r.rev_id}`}>
-                  <code class="eo-op eo-op-inline">
-                    <span class="eo-sym">△</span>
-                    <span class="eo-name">INS</span>(<span class="eo-target">{wiki.content_id}/rev:{r.rev_id}</span>, <span class="eo-operand">{`{summary: "${r.summary || '…'}"}`}</span>)
-                  </code>
-                  <time class="rev-ts">{new Date(r.ts).toLocaleDateString()}</time>
-                </li>
-              ))}
+              .map((r) => {
+                const isFirst = r.rev_id === wiki.revisions[0]?.rev_id;
+                const opName = isFirst ? 'INS' : 'ALT';
+                const opIcon = isFirst ? 'ph-plus-circle' : 'ph-pencil-simple';
+                return (
+                  <li class={`rev-entry rev-entry--${opName.toLowerCase()}`} data-eo-op={opName} data-eo-target={`${wiki.content_id}/rev:${r.rev_id}`}>
+                    <code class="eo-op eo-op-inline">
+                      <i class={`ph ${opIcon} eo-ph-icon`}></i>
+                      <span class="eo-name">{opName}</span>(<span class="eo-target">{wiki.content_id}/rev:{r.rev_id}</span>, <span class="eo-operand">{`{summary: "${r.summary || '…'}"}`}</span>)
+                    </code>
+                    <time class="rev-ts">{new Date(r.ts).toLocaleDateString()}</time>
+                  </li>
+                );
+              })}
           </ol>
           {wiki.revisions.length > 6 && (
             <details class="rev-overflow">
@@ -92,15 +97,20 @@ function renderMarkdown(md: string): string {
                   .slice()
                   .reverse()
                   .slice(6)
-                  .map((r) => (
-                    <li class="rev-entry" data-eo-op="INS" data-eo-target={`${wiki.content_id}/rev:${r.rev_id}`}>
-                      <code class="eo-op eo-op-inline">
-                        <span class="eo-sym">△</span>
-                        <span class="eo-name">INS</span>(<span class="eo-target">{wiki.content_id}/rev:{r.rev_id}</span>, <span class="eo-operand">{`{summary: "${r.summary || '…'}"}`}</span>)
-                      </code>
-                      <time class="rev-ts">{new Date(r.ts).toLocaleDateString()}</time>
-                    </li>
-                  ))}
+                  .map((r) => {
+                    const isFirst = r.rev_id === wiki.revisions[0]?.rev_id;
+                    const opName = isFirst ? 'INS' : 'ALT';
+                    const opIcon = isFirst ? 'ph-plus-circle' : 'ph-pencil-simple';
+                    return (
+                      <li class={`rev-entry rev-entry--${opName.toLowerCase()}`} data-eo-op={opName} data-eo-target={`${wiki.content_id}/rev:${r.rev_id}`}>
+                        <code class="eo-op eo-op-inline">
+                          <i class={`ph ${opIcon} eo-ph-icon`}></i>
+                          <span class="eo-name">{opName}</span>(<span class="eo-target">{wiki.content_id}/rev:{r.rev_id}</span>, <span class="eo-operand">{`{summary: "${r.summary || '…'}"}`}</span>)
+                        </code>
+                        <time class="rev-ts">{new Date(r.ts).toLocaleDateString()}</time>
+                      </li>
+                    );
+                  })}
               </ol>
             </details>
           )}

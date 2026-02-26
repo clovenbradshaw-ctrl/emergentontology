@@ -642,6 +642,20 @@ main.home { max-width: 1100px; }
   flex-shrink: 0;
 }
 
+/* Phosphor icon inside EO annotations */
+.eo-ph-icon {
+  color: var(--accent);
+  font-size: .85rem;
+  vertical-align: -1px;
+  margin-right: .2rem;
+}
+
+/* INS vs ALT revision styling */
+.rev-entry--ins .eo-name { color: var(--accent2); }
+.rev-entry--ins .eo-ph-icon { color: var(--accent2); }
+.rev-entry--alt .eo-name { color: var(--accent); }
+.rev-entry--alt .eo-ph-icon { color: var(--accent); }
+
 /* ── X-Ray (first-class UI element) ── */
 .xray-fab {
   position: fixed;
