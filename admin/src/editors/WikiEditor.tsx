@@ -203,20 +203,43 @@ export default function WikiEditor({ contentId, siteBase }: Props) {
       {state && state.revisions.length > 0 && (
         <section className="revision-list">
           <h3>Revisions ({state.revisions.length})</h3>
+          {!!(state.meta as Record<string, unknown>).first_public_at && (
+            <div className="public-since-banner">
+              Public since {new Date(String((state.meta as Record<string, unknown>).first_public_at)).toLocaleString()}
+              {' — '}revisions after this date are publicly visible
+            </div>
+          )}
           <ol reversed>
-            {state.revisions.slice().reverse().map((r) => (
-              <li key={r.rev_id} className="rev-item">
-                <span className="rev-id">{r.rev_id}</span>
-                <span className="rev-ts">{new Date(r.ts).toLocaleString()}</span>
-                <span className="rev-summary">{r.summary || '—'}</span>
-                <button
-                  className="btn btn-xs"
-                  onClick={() => { setEditorContent(r.content); setIsDirty(true); }}
-                >
-                  Restore
-                </button>
-              </li>
-            ))}
+            {state.revisions.slice().reverse().map((r, idx, arr) => {
+              const firstPublicAt = String((state.meta as Record<string, unknown>).first_public_at ?? '');
+              const isPublicBoundary = firstPublicAt && idx < arr.length - 1 &&
+                r.ts >= firstPublicAt && arr[idx + 1].ts < firstPublicAt;
+              return (
+                <React.Fragment key={r.rev_id}>
+                  <li className={`rev-item${firstPublicAt && r.ts >= firstPublicAt ? ' rev-public' : ''}`}>
+                    <span className="rev-id">{r.rev_id}</span>
+                    <span className="rev-ts">{new Date(r.ts).toLocaleString()}</span>
+                    <span className="rev-summary">{r.summary || '—'}</span>
+                    {firstPublicAt && r.ts >= firstPublicAt && (
+                      <span className="rev-public-badge" title="Created while content was public">pub</span>
+                    )}
+                    <button
+                      className="btn btn-xs"
+                      onClick={() => { setEditorContent(r.content); setIsDirty(true); }}
+                    >
+                      Restore
+                    </button>
+                  </li>
+                  {isPublicBoundary && (
+                    <li className="rev-public-divider">
+                      <span>↑ public</span>
+                      <hr />
+                      <span>pre-public ↓</span>
+                    </li>
+                  )}
+                </React.Fragment>
+              );
+            })}
           </ol>
         </section>
       )}
