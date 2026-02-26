@@ -13,7 +13,7 @@
  * Reads from Xano are public; writes require the password.
  */
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import { AuthProvider, useAuth } from './auth/AuthContext';
 import { SettingsProvider, useSettings } from './settings/SettingsContext';
 import { XRayProvider, XRayPanel, XRayToggleButton } from './components/XRayOverlay';
@@ -23,6 +23,35 @@ import PageBuilder from './editors/PageBuilder';
 import ExperimentEditor from './editors/ExperimentEditor';
 import type { ContentType } from './eo/types';
 import './styles/admin.css';
+
+function useTheme() {
+  const [theme, setTheme] = useState(() =>
+    document.documentElement.getAttribute('data-theme') || 'dark'
+  );
+
+  const toggle = useCallback(() => {
+    const next = theme === 'dark' ? 'light' : 'dark';
+    document.documentElement.setAttribute('data-theme', next);
+    localStorage.setItem('eo-theme', next);
+    setTheme(next);
+  }, [theme]);
+
+  return { theme, toggle };
+}
+
+function ThemeToggle() {
+  const { theme, toggle } = useTheme();
+  return (
+    <button
+      className="theme-toggle"
+      onClick={toggle}
+      aria-label="Toggle light/dark mode"
+      title="Toggle light/dark mode"
+    >
+      {theme === 'dark' ? '\u263C' : '\u263E'}
+    </button>
+  );
+}
 
 // Determine site base from Vite config base path (strips /admin/)
 const SITE_BASE = import.meta.env.BASE_URL.replace(/\/admin\/?$/, '') || '';
@@ -134,6 +163,7 @@ function AdminShell() {
           <button className={`nav-btn ${route.type === 'settings' ? 'active' : ''}`} onClick={() => navigate('settings')}>Settings</button>
         </nav>
         <div className="admin-header-right">
+          <ThemeToggle />
           <XRayToggleButton />
           <a className="btn btn-sm" href={`${SITE_BASE}/`} target="_blank" rel="noopener noreferrer">View site ↗</a>
           <button className="btn btn-sm" onClick={() => logout()}>Sign out</button>

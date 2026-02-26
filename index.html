@@ -5,6 +5,13 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Emergent Ontology</title>
   <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>∅</text></svg>" />
+  <script>
+    (function() {
+      var t = localStorage.getItem('eo-theme');
+      if (!t) t = window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark';
+      document.documentElement.setAttribute('data-theme', t);
+    })();
+  </script>
   <style>
     /* Design tokens */
     :root {
@@ -16,9 +23,21 @@
       --text-dim: #888;
       --accent:   #7c6fcd;
       --link:     #9b8fd4;
+      --shadow-color: rgba(0,0,0,.4);
       --font-sans: system-ui, -apple-system, 'Segoe UI', sans-serif;
       --font-mono: 'JetBrains Mono', 'Fira Code', monospace;
       --radius:   6px;
+    }
+    [data-theme="light"] {
+      --bg:       #ffffff;
+      --bg2:      #f5f5f7;
+      --bg3:      #e8e8ec;
+      --border:   #d1d1d6;
+      --text:     #1d1d1f;
+      --text-dim: #636366;
+      --accent:   #5b4dba;
+      --link:     #4a3fa0;
+      --shadow-color: rgba(0,0,0,.12);
     }
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     body {
@@ -59,6 +78,12 @@
       font-size: .85rem;
     }
     .admin-link:hover { background: var(--link); text-decoration: none; }
+    .theme-toggle { background: none; border: 1px solid var(--border); border-radius: var(--radius); color: var(--text-dim); padding: .35rem .55rem; cursor: pointer; font-size: 1rem; line-height: 1; transition: border-color .15s, color .15s; }
+    .theme-toggle:hover { border-color: var(--accent); color: var(--text); }
+    .theme-icon-dark { display: none; }
+    .theme-icon-light { display: inline; }
+    [data-theme="light"] .theme-icon-dark { display: inline; }
+    [data-theme="light"] .theme-icon-light { display: none; }
 
     /* Main */
     main { flex: 1; max-width: 860px; margin: 0 auto; padding: 2rem 1.5rem; width: 100%; }
@@ -146,7 +171,7 @@
       font-size: .9rem;
       cursor: pointer;
       z-index: 200;
-      box-shadow: 0 4px 20px rgba(0,0,0,.4);
+      box-shadow: 0 4px 20px var(--shadow-color);
     }
 
     /* Footer */
@@ -188,9 +213,9 @@
     }
     .ops-cell:hover {
       background: var(--bg3);
-      border-color: #4a4a6a;
+      border-color: var(--accent);
       transform: scale(1.03);
-      box-shadow: 0 0 24px rgba(120, 120, 255, 0.08);
+      box-shadow: 0 0 24px var(--shadow-color);
     }
     .ops-symbol {
       font-size: clamp(2rem, 6vw, 3.5rem);
@@ -202,7 +227,7 @@
       font-weight: 700;
       letter-spacing: 0.15em;
       text-transform: uppercase;
-      color: #8888bb;
+      color: var(--text-dim);
       margin-bottom: 4px;
       font-family: var(--font-mono);
     }
@@ -217,7 +242,7 @@
       top: 8px;
       left: 10px;
       font-size: 0.6rem;
-      color: #3a3a5a;
+      color: var(--border);
       font-weight: 600;
       font-family: var(--font-mono);
     }
@@ -241,6 +266,10 @@
         <!-- Populated from Matrix state, empty until data loads -->
       </ul>
     </nav>
+    <button class="theme-toggle" id="theme-toggle" aria-label="Toggle light/dark mode" title="Toggle light/dark mode">
+      <span class="theme-icon-light" aria-hidden="true">&#9788;</span>
+      <span class="theme-icon-dark" aria-hidden="true">&#9790;</span>
+    </button>
     <a class="admin-link" href="admin/">Login</a>
   </header>
 
@@ -456,6 +485,18 @@
         if (!input.contains(e.target) && !results.contains(e.target)) {
           results.hidden = true;
         }
+      });
+    })();
+
+    // Theme toggle
+    (function() {
+      var btn = document.getElementById('theme-toggle');
+      if (!btn) return;
+      btn.addEventListener('click', function() {
+        var current = document.documentElement.getAttribute('data-theme') || 'dark';
+        var next = current === 'dark' ? 'light' : 'dark';
+        document.documentElement.setAttribute('data-theme', next);
+        localStorage.setItem('eo-theme', next);
       });
     })();
   </script>
