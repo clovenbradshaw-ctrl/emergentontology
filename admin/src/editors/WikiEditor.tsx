@@ -1,5 +1,5 @@
 /**
- * WikiEditor — markdown editor for wiki pages and blog posts.
+ * WikiEditor — rich text editor for wiki pages and blog posts.
  *
  * Data flow:
  *   Load  →  GET /eowikicurrent (record_id = contentId) → current state
@@ -21,6 +21,7 @@ import {
 } from '../xano/client';
 import { insRevision } from '../eo/events';
 import type { WikiRevision, ContentMeta } from '../eo/types';
+import RichTextEditor from './RichTextEditor';
 
 interface WikiState {
   meta: Partial<ContentMeta>;
@@ -31,6 +32,13 @@ interface WikiState {
 interface Props {
   contentId: string;  // e.g. "wiki:operators" or "blog:intro"
   siteBase: string;
+}
+
+interface ContentEntry {
+  content_id: string;
+  slug: string;
+  title: string;
+  content_type: string;
 }
 
 export default function WikiEditor({ contentId, siteBase }: Props) {
@@ -47,6 +55,7 @@ export default function WikiEditor({ contentId, siteBase }: Props) {
   const [editorContent, setEditorContent] = useState('');
   const [summary, setSummary] = useState('');
   const [isDirty, setIsDirty] = useState(false);
+  const [contentEntries, setContentEntries] = useState<ContentEntry[]>([]);
 
   // ── Load current state from Xano (with static snapshot fallback) ──────────
 
@@ -89,7 +98,12 @@ export default function WikiEditor({ contentId, siteBase }: Props) {
       if (cancelled) return;
       if (wikiState) {
         setState(wikiState);
-        setEditorContent(wikiState.current_revision?.content ?? '');
+        const rev = wikiState.current_revision;
+        if (rev) {
+          // Convert old markdown content to simple HTML for the rich text editor
+          const html = rev.format === 'markdown' ? simpleMarkdownToHtml(rev.content) : rev.content;
+          setEditorContent(html);
+        }
       }
       setLoading(false);
     }
@@ -97,6 +111,31 @@ export default function WikiEditor({ contentId, siteBase }: Props) {
     load();
     return () => { cancelled = true; };
   }, [contentId, siteBase]);
+
+  // ── Load content entries for internal link picker ──────────────────────────
+
+  useEffect(() => {
+    async function loadEntries() {
+      try {
+        const rec = await fetchCurrentRecord('site:index');
+        if (rec) {
+          const parsed = JSON.parse(rec.values) as { entries?: ContentEntry[] };
+          setContentEntries(parsed.entries ?? []);
+          return;
+        }
+      } catch { /* ignore */ }
+
+      try {
+        const resp = await fetch(`${siteBase}/generated/state/index.json`);
+        if (resp.ok) {
+          const data = await resp.json() as { entries?: ContentEntry[] };
+          setContentEntries(data.entries ?? []);
+        }
+      } catch { /* ignore */ }
+    }
+
+    loadEntries();
+  }, [siteBase]);
 
   // ── Save revision ──────────────────────────────────────────────────────────
 
@@ -110,7 +149,7 @@ export default function WikiEditor({ contentId, siteBase }: Props) {
     const ts = new Date().toISOString();
     const event = insRevision(contentId, {
       rev_id: revId,
-      format: 'markdown',
+      format: 'html' as WikiRevision['format'],
       content: editorContent,
       summary: summary || 'Edit',
       ts,
@@ -125,7 +164,7 @@ export default function WikiEditor({ contentId, siteBase }: Props) {
       registerEvent({ id: xid, op: event.op, target: event.target, operand: event.operand, ts: event.ctx.ts, agent: event.ctx.agent, status: 'sent' });
 
       // 2. Build updated state
-      const newRev: WikiRevision = { rev_id: revId, format: 'markdown', content: editorContent, summary: summary || 'Edit', ts };
+      const newRev: WikiRevision = { rev_id: revId, format: 'html' as WikiRevision['format'], content: editorContent, summary: summary || 'Edit', ts };
       const updatedState: WikiState = {
         meta: state?.meta ?? {},
         revisions: [...(state?.revisions ?? []), newRev],
@@ -148,6 +187,21 @@ export default function WikiEditor({ contentId, siteBase }: Props) {
     }
   }
 
+  // ── Handle content change from RichTextEditor ──────────────────────────────
+
+  function handleContentChange(html: string) {
+    setEditorContent(html);
+    setIsDirty(true);
+  }
+
+  // ── Restore revision ───────────────────────────────────────────────────────
+
+  function restoreRevision(rev: WikiRevision) {
+    const html = rev.format === 'markdown' ? simpleMarkdownToHtml(rev.content) : rev.content;
+    setEditorContent(html);
+    setIsDirty(true);
+  }
+
   // ── Render ─────────────────────────────────────────────────────────────────
 
   if (loading) return <div className="editor-loading">Loading {contentId}…</div>;
@@ -163,43 +217,30 @@ export default function WikiEditor({ contentId, siteBase }: Props) {
         {isDirty && <span className="dirty-indicator">Unsaved changes</span>}
       </div>
 
-      {error && <div className="error-banner">{error} <button onClick={() => setError(null)}>×</button></div>}
+      {error && <div className="error-banner">{error} <button onClick={() => setError(null)}>&times;</button></div>}
 
-      <div className="editor-split">
-        <div className="editor-pane">
-          <MarkdownToolbar onInsert={(text) => { setEditorContent((c) => c + text); setIsDirty(true); }} />
-          <textarea
-            className="markdown-textarea"
-            value={editorContent}
-            onChange={(e) => { setEditorContent(e.target.value); setIsDirty(true); }}
-            placeholder="Write markdown…"
-            spellCheck
-          />
-          <div className="editor-footer-row">
-            <input
-              className="summary-input"
-              value={summary}
-              onChange={(e) => setSummary(e.target.value)}
-              placeholder="Revision summary (optional)"
-              maxLength={120}
-            />
-            <button
-              className="btn btn-primary"
-              onClick={save}
-              disabled={!isDirty || saving || !isAuthenticated}
-            >
-              {saving ? 'Saving…' : 'Save revision'}
-            </button>
-          </div>
-        </div>
+      <RichTextEditor
+        content={editorContent}
+        onChange={handleContentChange}
+        placeholder="Start writing…"
+        contentEntries={contentEntries}
+      />
 
-        <div className="preview-pane">
-          <div className="preview-label">Preview</div>
-          <div
-            className="preview-body"
-            dangerouslySetInnerHTML={{ __html: simpleMarkdown(editorContent) }}
-          />
-        </div>
+      <div className="editor-footer-row">
+        <input
+          className="summary-input"
+          value={summary}
+          onChange={(e) => setSummary(e.target.value)}
+          placeholder="Revision summary (optional)"
+          maxLength={120}
+        />
+        <button
+          className="btn btn-primary"
+          onClick={save}
+          disabled={!isDirty || saving || !isAuthenticated}
+        >
+          {saving ? 'Saving…' : 'Save revision'}
+        </button>
       </div>
 
       {state && state.revisions.length > 0 && (
@@ -216,7 +257,6 @@ export default function WikiEditor({ contentId, siteBase }: Props) {
               const firstPublicAt = String((state.meta as Record<string, unknown>).first_public_at ?? '');
               const isPublicBoundary = firstPublicAt && idx < arr.length - 1 &&
                 r.ts >= firstPublicAt && arr[idx + 1].ts < firstPublicAt;
-              // Find previous revision (arr is reversed, so previous is idx+1)
               const prevRev = idx < arr.length - 1 ? arr[idx + 1] : null;
               return (
                 <React.Fragment key={r.rev_id}>
@@ -224,13 +264,13 @@ export default function WikiEditor({ contentId, siteBase }: Props) {
                     rev={r}
                     prevRev={prevRev}
                     isPublic={!!(firstPublicAt && r.ts >= firstPublicAt)}
-                    onRestore={() => { setEditorContent(r.content); setIsDirty(true); }}
+                    onRestore={() => restoreRevision(r)}
                   />
                   {isPublicBoundary && (
                     <li className="rev-public-divider">
-                      <span>↑ public</span>
+                      <span>&uarr; public</span>
                       <hr />
-                      <span>pre-public ↓</span>
+                      <span>pre-public &darr;</span>
                     </li>
                   )}
                 </React.Fragment>
@@ -259,6 +299,7 @@ function RevisionItem({ rev, prevRev, isPublic, onRestore }: {
         <span className="rev-id">{rev.rev_id}</span>
         <span className="rev-ts">{new Date(rev.ts).toLocaleString()}</span>
         <span className="rev-summary">{rev.summary || '—'}</span>
+        <span className="rev-format-badge">{rev.format}</span>
         {isPublic && (
           <span className="rev-public-badge" title="Created while content was public">pub</span>
         )}
@@ -296,7 +337,6 @@ function RevisionDiff({ oldText, newText }: { oldText: string; newText: string }
         if (chunk.type === 'removed') {
           return <div key={i} className="diff-line diff-del"><del>{chunk.line}</del></div>;
         }
-        // added — check if there's a preceding 'removed' to show word-level diff
         if (chunk.type === 'added' && i > 0 && diff[i - 1].type === 'removed') {
           const words = wordDiff(diff[i - 1].line, chunk.line);
           return (
@@ -320,7 +360,6 @@ function computeLineDiff(oldText: string, newText: string): Array<{ type: 'equal
   const newLines = newText.split('\n');
   const result: Array<{ type: 'equal' | 'added' | 'removed'; line: string }> = [];
 
-  // Simple LCS-based diff
   const m = oldLines.length;
   const n = newLines.length;
   const dp: number[][] = Array.from({ length: m + 1 }, () => Array(n + 1).fill(0));
@@ -330,7 +369,6 @@ function computeLineDiff(oldText: string, newText: string): Array<{ type: 'equal
     }
   }
 
-  // Backtrack to build diff
   const items: Array<{ type: 'equal' | 'added' | 'removed'; line: string }> = [];
   let i = m, j = n;
   while (i > 0 || j > 0) {
@@ -347,7 +385,6 @@ function computeLineDiff(oldText: string, newText: string): Array<{ type: 'equal
   }
   items.reverse();
 
-  // Collapse context: show only 2 lines around changes
   let lastChange = -1;
   const changeIndices = new Set<number>();
   items.forEach((item, idx) => { if (item.type !== 'equal') changeIndices.add(idx); });
@@ -398,7 +435,6 @@ function wordDiff(oldLine: string, newLine: string): Array<{ type: 'equal' | 'ad
   }
   items.reverse();
 
-  // Merge consecutive same-type tokens
   for (const item of items) {
     if (result.length > 0 && result[result.length - 1].type === item.type) {
       result[result.length - 1].text += item.text;
@@ -410,34 +446,9 @@ function wordDiff(oldLine: string, newLine: string): Array<{ type: 'equal' | 'ad
   return result;
 }
 
-// ── Markdown toolbar ──────────────────────────────────────────────────────────
+// ── Markdown to HTML converter (for loading legacy markdown revisions) ───────
 
-const TOOLBAR_ACTIONS = [
-  { label: 'B', title: 'Bold', snippet: '**bold**' },
-  { label: 'I', title: 'Italic', snippet: '*italic*' },
-  { label: 'H2', title: 'Heading 2', snippet: '\n## Heading\n' },
-  { label: 'H3', title: 'Heading 3', snippet: '\n### Heading\n' },
-  { label: '<>', title: 'Inline code', snippet: '`code`' },
-  { label: '```', title: 'Code block', snippet: '\n```js\n// code here\n```\n' },
-  { label: '🔗', title: 'Link', snippet: '[link text](https://)' },
-  { label: '—', title: 'Divider', snippet: '\n---\n' },
-  { label: '• list', title: 'Unordered list', snippet: '\n- item 1\n- item 2\n- item 3\n' },
-  { label: '1. list', title: 'Ordered list', snippet: '\n1. item 1\n2. item 2\n3. item 3\n' },
-];
-
-function MarkdownToolbar({ onInsert }: { onInsert: (text: string) => void }) {
-  return (
-    <div className="md-toolbar">
-      {TOOLBAR_ACTIONS.map((a) => (
-        <button key={a.label} type="button" className="md-toolbar-btn" title={a.title} onClick={() => onInsert(a.snippet)}>
-          {a.label}
-        </button>
-      ))}
-    </div>
-  );
-}
-
-function simpleMarkdown(md: string): string {
+function simpleMarkdownToHtml(md: string): string {
   // 1. Fenced code blocks
   const codeBlocks: string[] = [];
   let s = md.replace(/```(\w*)\n?([\s\S]*?)```/g, (_m, lang, code) => {
@@ -471,7 +482,7 @@ function simpleMarkdown(md: string): string {
     .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
     .replace(/\*(.+?)\*/g, '<em>$1</em>')
     .replace(/`(.+?)`/g, '<code>$1</code>')
-    .replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" target="_blank" rel="noopener">$1</a>');
+    .replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2">$1</a>');
 
   s = s.replace(/\n\n+/g, '</p><p>');
   s = `<p>${s}</p>`;
