@@ -17,7 +17,14 @@ const base = import.meta.env.BASE_URL.replace(/\/$/, '');
 const wikiNav  = nav.filter((e: NavEntry) => e.content_type === 'wiki');
 const blogNav  = nav.filter((e: NavEntry) => e.content_type === 'blog');
 const expNav   = nav.filter((e: NavEntry) => e.content_type === 'experiment');
-const pageNav  = nav.filter((e: NavEntry) => e.content_type === 'page');
+// Pages: only show those with show_in_nav set (or default to showing all for backward compat)
+const allPageNav = nav.filter((e: NavEntry) => e.content_type === 'page');
+const pageNav  = allPageNav.some((e: NavEntry) => e.show_in_nav)
+  ? allPageNav.filter((e: NavEntry) => e.show_in_nav)
+  : allPageNav;
+// Top-level pages (no parent) and children
+const topPages = pageNav.filter((e: NavEntry) => !e.parent_page);
+const childPages = (parentId: string) => pageNav.filter((e: NavEntry) => e.parent_page === parentId);
 ---
 <!DOCTYPE html>
 <html lang="en">
@@ -95,12 +102,24 @@ const pageNav  = nav.filter((e: NavEntry) => e.content_type === 'page');
           </li>
         )}
 
-        <!-- Standalone pages -->
-        {pageNav.map((e: NavEntry) => (
-          <li class="nav-item">
-            <a href={`${base}/page/${e.slug}/`} class="nav-link">{e.title}</a>
-          </li>
-        ))}
+        <!-- Standalone pages (with optional nesting) -->
+        {topPages.map((e: NavEntry) => {
+          const children = childPages(e.content_id);
+          return children.length > 0 ? (
+            <li class="nav-item has-dropdown">
+              <a href={`${base}/page/${e.slug}/`} class="nav-link">{e.title}</a>
+              <ul class="nav-dropdown">
+                {children.map((c: NavEntry) => (
+                  <li><a href={`${base}/page/${c.slug}/`}>{c.title}</a></li>
+                ))}
+              </ul>
+            </li>
+          ) : (
+            <li class="nav-item">
+              <a href={`${base}/page/${e.slug}/`} class="nav-link">{e.title}</a>
+            </li>
+          );
+        })}
 
       </ul>
     </nav>

@@ -38,6 +38,8 @@ export interface NavEntry {
   status: ContentStatus;
   visibility: 'public' | 'private';
   tags: string[];
+  show_in_nav?: boolean;
+  parent_page?: string;
 }
 
 export interface SiteIndex {
@@ -148,16 +150,26 @@ export function loadAllContent(type?: ContentType): ProjectedContent[] {
     .filter((c): c is ProjectedContent => c !== null);
 }
 
+/** Derive published+public entries from the index (uses nav array, falls back to filtering entries). */
+function getPublishedEntries(index: SiteIndex, type?: ContentType): NavEntry[] {
+  // Prefer nav array (pre-filtered by projector)
+  let navEntries = type ? index.nav.filter((e) => e.content_type === type) : index.nav;
+  if (navEntries.length > 0) return navEntries;
+  // Fallback: derive from entries when nav is empty (e.g. before projector runs)
+  const all = type ? index.entries.filter((e) => e.content_type === type) : index.entries;
+  return all.filter(e => e.status === 'published' && e.visibility === 'public');
+}
+
 /** Returns projected content for published+public entries only. Use for public listing pages. */
 export function loadPublishedContent(type?: ContentType): ProjectedContent[] {
   const index = loadSiteIndex();
-  const entries = type ? index.nav.filter((e) => e.content_type === type) : index.nav;
-  return entries
+  return getPublishedEntries(index, type)
     .map((e) => loadContent(e.content_id))
     .filter((c): c is ProjectedContent => c !== null);
 }
 
 /** Returns all published+public nav entries, suitable for site navigation. */
 export function loadNav(): NavEntry[] {
-  return loadSiteIndex().nav;
+  const index = loadSiteIndex();
+  return getPublishedEntries(index);
 }
