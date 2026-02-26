@@ -22,7 +22,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  // Restore session from sessionStorage on mount
+  // Restore session from localStorage on mount
   useEffect(() => {
     if (loadSession()) setIsAuthenticated(true);
   }, []);

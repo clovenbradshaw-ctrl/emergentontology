@@ -1,9 +1,9 @@
 ---
 import Base from '../../layouts/Base.astro';
-import { loadAllContent } from '../../lib/state';
+import { loadPublishedContent } from '../../lib/state';
 import type { ProjectedWiki } from '../../lib/state';
 
-const wikis = loadAllContent('wiki') as ProjectedWiki[];
+const wikis = loadPublishedContent('wiki') as ProjectedWiki[];
 const base = import.meta.env.BASE_URL.replace(/\/$/, '');
 ---
 <Base

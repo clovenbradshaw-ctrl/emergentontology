@@ -148,6 +148,15 @@ export function loadAllContent(type?: ContentType): ProjectedContent[] {
     .filter((c): c is ProjectedContent => c !== null);
 }
 
+/** Returns projected content for published+public entries only. Use for public listing pages. */
+export function loadPublishedContent(type?: ContentType): ProjectedContent[] {
+  const index = loadSiteIndex();
+  const entries = type ? index.nav.filter((e) => e.content_type === type) : index.nav;
+  return entries
+    .map((e) => loadContent(e.content_id))
+    .filter((c): c is ProjectedContent => c !== null);
+}
+
 /** Returns all published+public nav entries, suitable for site navigation. */
 export function loadNav(): NavEntry[] {
   return loadSiteIndex().nav;
