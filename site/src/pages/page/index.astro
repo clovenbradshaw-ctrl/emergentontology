@@ -1,9 +1,9 @@
 ---
 import Base from '../../layouts/Base.astro';
-import { loadAllContent } from '../../lib/state';
+import { loadPublishedContent } from '../../lib/state';
 import type { ProjectedPage } from '../../lib/state';
 
-const pages = loadAllContent('page') as ProjectedPage[];
+const pages = loadPublishedContent('page') as ProjectedPage[];
 const base = import.meta.env.BASE_URL.replace(/\/$/, '');
 ---
 <Base

@@ -6,7 +6,7 @@
  *
  * Auth is password-only; the correct password is hashed client-side with
  * SHA-256 and compared against a hardcoded digest.  A simple session flag
- * is kept in sessionStorage (cleared when the browser tab closes).
+ * is kept in localStorage (persists across browser sessions).
  *
  * EOwiki record shape (mirrors the Xano table):
  *   id          – auto-generated integer
@@ -51,18 +51,18 @@ export async function verifyPassword(password: string): Promise<boolean> {
   return hash === PWD_HASH;
 }
 
-// ── Session (sessionStorage — clears on tab close) ────────────────────────────
+// ── Session (localStorage — persists across browser sessions) ─────────────────
 
 export function saveSession(): void {
-  sessionStorage.setItem(SESSION_KEY, '1');
+  localStorage.setItem(SESSION_KEY, '1');
 }
 
 export function loadSession(): boolean {
-  return sessionStorage.getItem(SESSION_KEY) === '1';
+  return localStorage.getItem(SESSION_KEY) === '1';
 }
 
 export function clearSession(): void {
-  sessionStorage.removeItem(SESSION_KEY);
+  localStorage.removeItem(SESSION_KEY);
 }
 
 // ── API calls ────────────────────────────────────────────────────────────────

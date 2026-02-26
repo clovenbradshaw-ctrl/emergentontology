@@ -65,7 +65,7 @@ function LoginForm() {
 
         <p className="login-note">
           Content is stored in the Xano EOwiki event log.
-          Session is kept in sessionStorage only (cleared on tab close).
+          Session persists across browser sessions.
         </p>
       </div>
     </div>
@@ -183,7 +183,7 @@ function SettingsPanel() {
       </div>
       <div className="settings-note">
         <strong>Auth:</strong> Write operations require the editor password (hashed SHA-256 client-side).
-        Reads are public. Sessions are stored in sessionStorage only and cleared on tab close.
+        Reads are public. Sessions persist across browser sessions via localStorage.
       </div>
     </div>
   );

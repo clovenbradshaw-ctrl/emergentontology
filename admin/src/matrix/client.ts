@@ -4,8 +4,8 @@
  * Uses the native fetch API (no matrix-js-sdk dependency at runtime for basic ops)
  * for simplicity.  The matrix-js-sdk is used for real-time /sync in live mode.
  *
- * Auth is via Matrix password login; tokens are stored in sessionStorage
- * (cleared when the browser tab closes).
+ * Auth is via Matrix password login; tokens are stored in localStorage
+ * (persists across browser sessions).
  *
  * Multiple editor support: each editor logs in separately; the room power level
  * controls who can write.  Writes are attributed to the Matrix user.
@@ -20,21 +20,21 @@ export interface MatrixCredentials {
 
 const STORAGE_KEY = 'eo_matrix_credentials';
 
-// ── Persistence (sessionStorage — clears on tab close) ───────────────────────
+// ── Persistence (localStorage — persists across browser sessions) ────────────
 
 export function saveCredentials(creds: MatrixCredentials): void {
-  sessionStorage.setItem(STORAGE_KEY, JSON.stringify(creds));
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(creds));
 }
 
 export function loadCredentials(): MatrixCredentials | null {
-  const raw = sessionStorage.getItem(STORAGE_KEY);
+  const raw = localStorage.getItem(STORAGE_KEY);
   if (!raw) return null;
   try { return JSON.parse(raw) as MatrixCredentials; }
   catch { return null; }
 }
 
 export function clearCredentials(): void {
-  sessionStorage.removeItem(STORAGE_KEY);
+  localStorage.removeItem(STORAGE_KEY);
 }
 
 // ── Auth ──────────────────────────────────────────────────────────────────────
