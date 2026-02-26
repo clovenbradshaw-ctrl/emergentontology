@@ -311,6 +311,35 @@ textarea { resize: vertical; }
 .vis-private { color: var(--text-dim); border-color: var(--text-dim); }
 .empty-msg { color: var(--text-dim); }
 
+/* Archive / soft-delete */
+.btn-danger { background: var(--danger); border-color: var(--danger); color: #fff; }
+.btn-danger:hover { background: color-mix(in srgb, var(--danger) 80%, #000); border-color: color-mix(in srgb, var(--danger) 80%, #000); color: #fff; }
+.btn-archive { color: var(--danger); border-color: var(--border); }
+.btn-archive:hover { border-color: var(--danger); background: color-mix(in srgb, var(--danger) 10%, transparent); }
+.btn-restore { color: var(--success); border-color: var(--success); }
+.btn-restore:hover { background: color-mix(in srgb, var(--success) 12%, transparent); }
+.archive-section { border-top: 1px solid var(--border); padding-top: 1rem; }
+.archive-toggle {
+  display: flex;
+  align-items: center;
+  gap: .5rem;
+  background: none;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  color: var(--text-dim);
+  padding: .4rem .85rem;
+  font-size: .88rem;
+  cursor: pointer;
+  transition: .15s;
+}
+.archive-toggle:hover { border-color: var(--accent); color: var(--text); }
+.archive-chevron { font-size: .7rem; transition: transform .2s; }
+.archive-chevron.open { transform: rotate(180deg); }
+.archive-table { margin-top: .75rem; }
+.archived-row { opacity: .7; }
+.archived-title { color: var(--text-dim); }
+.status-archived { color: var(--text-dim); border-color: var(--border); }
+
 /* Settings */
 .settings-panel { max-width: 560px; }
 .settings-panel h2 { margin-bottom: 1.25rem; }
