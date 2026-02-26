@@ -1,107 +1,326 @@
 /**
  * index.ts — Projector entry point
  *
- * Usage:
- *   node dist/index.js
+ * Reads current-state snapshots from Xano eowikicurrent table,
+ * builds projected JSON files consumed by the Astro static site.
  *
- * Environment variables (all optional — defaults to hyphae.social):
- *   MATRIX_HOMESERVER   default: https://hyphae.social
- *   MATRIX_ACCESS_TOKEN optional  include private/draft rooms in builds
- *   MATRIX_SERVER_NAME  optional  default: hyphae.social
- *   INCLUDE_DRAFTS      optional  "true" to include draft content (requires access token)
- *   OUT_DIR             optional  default: "../../site/public/generated"
- *   SITE_BASE_URL       optional  default: ""  (relative, works for any gh-pages path)
+ * Environment variables:
+ *   INCLUDE_DRAFTS   "true" to include draft/private content
+ *   OUT_DIR          default: "../../site/public/generated"
+ *   SITE_BASE_URL    default: "" (relative, works for any gh-pages path)
  */
 
 import { mkdirSync, writeFileSync } from 'fs';
 import { join } from 'path';
 
-import type { BuildConfig } from './types.js';
-import { fetchRoomEvents, fetchSiteIndex, discoverContentRooms } from './fetch_matrix.ts';
-import { replayRoom, replaySiteIndex } from './replay.js';
-import {
-  renderSearchIndex,
-  renderStateFiles,
-} from './render.js';
+import type {
+  BuildConfig,
+  ContentMeta,
+  ContentType,
+  ProjectedContent,
+  ProjectedWiki,
+  ProjectedBlog,
+  ProjectedPage,
+  ProjectedExperiment,
+  SiteIndex,
+  WikiRevision,
+  BlogRevision,
+  Block,
+  ExperimentEntry,
+} from './types.js';
+import { fetchAllCurrentRecords, type XanoCurrentRecord } from './fetch_xano.js';
+import { renderSearchIndex, renderStateFiles } from './render.js';
 
-const DEFAULT_HOMESERVER = 'https://hyphae.social';
-const DEFAULT_SERVER_NAME = 'hyphae.social';
+const OUT_DEFAULT = join(
+  import.meta.dirname,
+  '..', '..', '..', 'site', 'public', 'generated',
+);
+
+// ──────────────────────────────────────────────────────────────────────────────
+// Snapshot shapes stored in Xano eowikicurrent.value
+// ──────────────────────────────────────────────────────────────────────────────
+
+interface IndexSnapshot {
+  entries: Array<{
+    content_id: string;
+    slug: string;
+    title: string;
+    content_type: ContentType;
+    status: 'draft' | 'published' | 'archived';
+    visibility: 'public' | 'private';
+    tags: string[];
+  }>;
+}
+
+interface WikiSnapshot {
+  meta: Partial<ContentMeta>;
+  current_revision: Partial<WikiRevision> | null;
+  revisions: Array<Partial<WikiRevision>>;
+}
+
+interface BlogSnapshot {
+  meta: Partial<ContentMeta>;
+  current_revision: Partial<BlogRevision> | null;
+  revisions: Array<Partial<BlogRevision>>;
+}
+
+interface PageSnapshot {
+  meta: Partial<ContentMeta>;
+  blocks: Array<Partial<Block>>;
+  block_order: string[];
+}
+
+interface ExpSnapshot {
+  meta: Partial<ContentMeta>;
+  entries: Array<Partial<ExperimentEntry>>;
+}
+
+// ──────────────────────────────────────────────────────────────────────────────
+
+function parseJson<T>(value: string, fallback: T): T {
+  try {
+    return JSON.parse(value) as T;
+  } catch {
+    return fallback;
+  }
+}
+
+function buildMeta(
+  entry: IndexSnapshot['entries'][number],
+  snapshot: { meta?: Partial<ContentMeta> },
+): ContentMeta {
+  return {
+    content_id: entry.content_id,
+    content_type: entry.content_type,
+    slug: entry.slug,
+    title: entry.title,
+    status: entry.status,
+    visibility: entry.visibility,
+    tags: entry.tags ?? [],
+    updated_at: snapshot.meta?.updated_at ?? new Date().toISOString(),
+  };
+}
+
+function buildWiki(
+  entry: IndexSnapshot['entries'][number],
+  snap: WikiSnapshot,
+): ProjectedWiki {
+  const revisions: WikiRevision[] = (snap.revisions ?? []).map((r) => ({
+    rev_id: r.rev_id ?? '',
+    format: 'markdown',
+    content: r.content ?? '',
+    summary: r.summary ?? '',
+    ts: r.ts ?? '',
+    event_id: r.event_id ?? r.rev_id ?? '',
+  }));
+  const cur = snap.current_revision;
+  const current_revision: WikiRevision | null = cur
+    ? {
+        rev_id: cur.rev_id ?? '',
+        format: 'markdown',
+        content: cur.content ?? '',
+        summary: cur.summary ?? '',
+        ts: cur.ts ?? '',
+        event_id: cur.event_id ?? cur.rev_id ?? '',
+      }
+    : null;
+  return {
+    content_type: 'wiki',
+    content_id: entry.content_id,
+    meta: buildMeta(entry, snap),
+    current_revision,
+    revisions,
+    has_conflict: false,
+    conflict_candidates: [],
+    history: [],
+  };
+}
+
+function buildBlog(
+  entry: IndexSnapshot['entries'][number],
+  snap: BlogSnapshot,
+): ProjectedBlog {
+  const revisions: BlogRevision[] = (snap.revisions ?? []).map((r) => ({
+    rev_id: r.rev_id ?? '',
+    format: 'markdown',
+    content: r.content ?? '',
+    summary: r.summary ?? '',
+    ts: r.ts ?? '',
+    event_id: r.event_id ?? r.rev_id ?? '',
+  }));
+  return {
+    content_type: 'blog',
+    content_id: entry.content_id,
+    meta: buildMeta(entry, snap),
+    current_revision: revisions.at(-1) ?? null,
+    revisions,
+    has_conflict: false,
+    conflict_candidates: [],
+    history: [],
+  };
+}
+
+function buildPage(
+  entry: IndexSnapshot['entries'][number],
+  snap: PageSnapshot,
+): ProjectedPage {
+  const blocks: Block[] = (snap.blocks ?? []).map((b) => ({
+    block_id: b.block_id ?? '',
+    block_type: b.block_type ?? 'text',
+    data: b.data ?? {},
+    after: b.after ?? null,
+    deleted: b.deleted ?? false,
+    event_id: b.event_id ?? b.block_id ?? '',
+  }));
+  return {
+    content_type: 'page',
+    content_id: entry.content_id,
+    meta: buildMeta(entry, snap),
+    blocks,
+    block_order: snap.block_order ?? [],
+    history: [],
+  };
+}
+
+function buildExperiment(
+  entry: IndexSnapshot['entries'][number],
+  snap: ExpSnapshot,
+): ProjectedExperiment {
+  const expEntries: ExperimentEntry[] = (snap.entries ?? [])
+    .map((e) => ({
+      entry_id: e.entry_id ?? '',
+      kind: e.kind ?? 'note',
+      data: e.data ?? {},
+      ts: e.ts ?? '',
+      deleted: e.deleted ?? false,
+      event_id: e.event_id ?? e.entry_id ?? '',
+    }))
+    .filter((e) => !e.deleted);
+  return {
+    content_type: 'experiment',
+    content_id: entry.content_id,
+    meta: buildMeta(entry, snap),
+    entries: expEntries,
+    history: [],
+  };
+}
+
+// ──────────────────────────────────────────────────────────────────────────────
 
 async function main() {
-  const homeserver = process.env.MATRIX_HOMESERVER ?? DEFAULT_HOMESERVER;
-  const serverName = process.env.MATRIX_SERVER_NAME ?? DEFAULT_SERVER_NAME;
-
   const cfg: BuildConfig = {
-    homeserver,
-    access_token: process.env.MATRIX_ACCESS_TOKEN,
-    out_dir: process.env.OUT_DIR ?? join(import.meta.dirname, '..', '..', '..', 'site', 'public', 'generated'),
-    // Drafts only included when an access token is explicitly provided
-    include_drafts: process.env.INCLUDE_DRAFTS === 'true' && !!process.env.MATRIX_ACCESS_TOKEN,
+    homeserver: '',   // unused — reads from Xano, not Matrix
+    out_dir: process.env.OUT_DIR ?? OUT_DEFAULT,
+    include_drafts: process.env.INCLUDE_DRAFTS === 'true',
     site_base_url: process.env.SITE_BASE_URL ?? '',
   };
 
   mkdirSync(cfg.out_dir, { recursive: true });
+  console.log(`[projector] Source:  Xano eowikicurrent`);
+  console.log(`[projector] Output:  ${cfg.out_dir}`);
+  console.log(`[projector] Drafts:  ${cfg.include_drafts}`);
 
-  console.log(`[projector] Homeserver: ${cfg.homeserver}`);
-  console.log(`[projector] Output:     ${cfg.out_dir}`);
-  console.log(`[projector] Drafts:     ${cfg.include_drafts}`);
+  // ── 1. Fetch all current-state records from Xano ──────────────────────────
+  let records: XanoCurrentRecord[] = [];
+  try {
+    records = await fetchAllCurrentRecords();
+    console.log(`[projector] Fetched ${records.length} records from Xano`);
+  } catch (err) {
+    console.error('[projector] Xano fetch failed:', err);
+    console.warn('[projector] Writing empty state — site will show no content');
+  }
 
-  // ── 1. Fetch site:index room ────────────────────────────────────────────────
-  console.log('[projector] Fetching site:index…');
-  const indexEvents = await fetchSiteIndex(cfg, serverName);
-  const siteIndex = replaySiteIndex(indexEvents);
+  // ── 2. Parse site:index ───────────────────────────────────────────────────
+  const indexRecord = records.find((r) => r.record_id === 'site:index');
+  const indexSnap = indexRecord
+    ? parseJson<IndexSnapshot>(indexRecord.value, { entries: [] })
+    : { entries: [] };
 
-  // ── 2. Discover all content rooms ──────────────────────────────────────────
-  console.log('[projector] Discovering content rooms…');
-  const discovered = await discoverContentRooms(cfg);
+  const allEntries = (indexSnap.entries ?? []).map((e) => ({
+    content_id: e.content_id,
+    slug: e.slug,
+    title: e.title,
+    content_type: (e.content_type ?? 'wiki') as ContentType,
+    status: (e.status ?? 'draft') as 'draft' | 'published' | 'archived',
+    visibility: (e.visibility ?? 'private') as 'public' | 'private',
+    tags: e.tags ?? [],
+    event_id: '',
+  }));
 
-  // Merge with index entries (index is authoritative for slugs/titles)
-  const allContentIds = new Set([
-    ...siteIndex.entries.map((e) => e.content_id),
-    ...discovered.map((d) => d.content_id),
-  ]);
+  const nav = allEntries.filter(
+    (e) => e.status === 'published' && e.visibility === 'public',
+  );
 
-  // ── 3. Replay each room ────────────────────────────────────────────────────
-  console.log(`[projector] Replaying ${allContentIds.size} rooms…`);
-  const projectedContents = [];
+  const siteIndex: SiteIndex = {
+    entries: allEntries,
+    nav,
+    slug_map: Object.fromEntries(allEntries.map((e) => [e.slug, e.content_id])),
+    built_at: new Date().toISOString(),
+  };
 
-  for (const contentId of allContentIds) {
-    const roomInfo = discovered.find((d) => d.content_id === contentId);
-    if (!roomInfo) {
-      console.warn(`  [skip] ${contentId} — no room found`);
+  console.log(
+    `[projector] Index: ${allEntries.length} total, ${nav.length} published+public`,
+  );
+
+  // ── 3. Build ProjectedContent for each published entry ────────────────────
+  const entriesToProcess = cfg.include_drafts ? allEntries : nav;
+  const recordMap = new Map(records.map((r) => [r.record_id, r]));
+  const projectedContents: ProjectedContent[] = [];
+
+  for (const entry of entriesToProcess) {
+    const record = recordMap.get(entry.content_id);
+    if (!record) {
+      console.warn(`[projector] No snapshot for ${entry.content_id} — skipping`);
       continue;
     }
 
     try {
-      console.log(`  [replay] ${contentId}`);
-      const events = await fetchRoomEvents(roomInfo.room_id, cfg);
-      const projected = replayRoom(contentId, events, cfg.include_drafts);
-      if (projected) {
-        projectedContents.push(projected);
+      let proj: ProjectedContent | null = null;
+
+      if (entry.content_type === 'wiki') {
+        const snap = parseJson<WikiSnapshot>(record.value, { meta: {}, current_revision: null, revisions: [] });
+        proj = buildWiki(entry, snap);
+      } else if (entry.content_type === 'blog') {
+        const snap = parseJson<BlogSnapshot>(record.value, { meta: {}, current_revision: null, revisions: [] });
+        proj = buildBlog(entry, snap);
+      } else if (entry.content_type === 'page') {
+        const snap = parseJson<PageSnapshot>(record.value, { meta: {}, blocks: [], block_order: [] });
+        proj = buildPage(entry, snap);
+      } else if (entry.content_type === 'experiment') {
+        const snap = parseJson<ExpSnapshot>(record.value, { meta: {}, entries: [] });
+        proj = buildExperiment(entry, snap);
+      }
+
+      if (proj) {
+        projectedContents.push(proj);
+        console.log(`  [ok] ${entry.content_id}`);
       }
     } catch (err) {
-      console.error(`  [error] ${contentId}:`, err);
+      console.error(`[projector] Error building ${entry.content_id}:`, err);
     }
   }
 
-  // ── 4. Write JSON state (Astro reads these to generate the static site) ────
-  console.log('[projector] Writing state files…');
+  // ── 4. Write state files ──────────────────────────────────────────────────
+  console.log(`[projector] Writing ${projectedContents.length} content files…`);
   renderStateFiles(siteIndex, projectedContents, cfg);
   renderSearchIndex(projectedContents, cfg);
 
-  // Write build manifest
   writeFileSync(
     join(cfg.out_dir, 'build-manifest.json'),
-    JSON.stringify({
-      built_at: new Date().toISOString(),
-      content_count: projectedContents.length,
-      site_index_events: indexEvents.length,
-      include_drafts: cfg.include_drafts,
-    }, null, 2),
-    'utf-8'
+    JSON.stringify(
+      {
+        built_at: new Date().toISOString(),
+        source: 'xano',
+        content_count: projectedContents.length,
+        include_drafts: cfg.include_drafts,
+      },
+      null,
+      2,
+    ),
+    'utf-8',
   );
 
-  console.log(`[projector] Done — ${projectedContents.length} pages rendered`);
+  console.log(`[projector] Done — ${projectedContents.length} pages`);
 }
 
 main().catch((err) => {

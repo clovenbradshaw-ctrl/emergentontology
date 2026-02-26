@@ -5,11 +5,11 @@ on:
   workflow_dispatch:
     inputs:
       include_drafts:
-        description: "Include draft content (requires MATRIX_ACCESS_TOKEN secret)"
+        description: "Include draft/private content in build"
         type: boolean
         default: false
 
-  # Scheduled: rebuild every 5 minutes to pick up new Matrix events.
+  # Scheduled: rebuild every 5 minutes to pick up new Xano content.
   # Comment this out if you prefer manual / webhook-triggered builds only.
   schedule:
     - cron: '*/5 * * * *'
@@ -66,7 +66,7 @@ jobs:
             site/package.json
             admin/package.json
 
-      # ── Step 1: Run projector (fetch Matrix events → replay → write JSON snapshots) ──
+      # ── Step 1: Run projector (fetch Xano snapshots → write JSON state files) ──
       - name: Install projector dependencies
         working-directory: tools/projector
         run: npm install
@@ -74,11 +74,6 @@ jobs:
       - name: Run projector
         working-directory: tools/projector
         env:
-          # Homeserver is hardcoded — no secrets needed for the public build.
-          # MATRIX_ACCESS_TOKEN is optional: only needed to include draft/private rooms.
-          MATRIX_HOMESERVER: https://hyphae.social
-          MATRIX_SERVER_NAME: hyphae.social
-          MATRIX_ACCESS_TOKEN: ${{ secrets.MATRIX_ACCESS_TOKEN }}
           INCLUDE_DRAFTS: ${{ github.event.inputs.include_drafts || 'false' }}
           OUT_DIR: ${{ github.workspace }}/site/public/generated
           SITE_BASE_URL: ${{ steps.base.outputs.path }}

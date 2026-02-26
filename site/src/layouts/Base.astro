@@ -12,6 +12,11 @@ const { title, description, breadcrumbs } = Astro.props;
 const nav = loadNav();
 
 const base = import.meta.env.BASE_URL.replace(/\/$/, '');
+
+const wikiNav  = nav.filter((e: NavEntry) => e.content_type === 'wiki');
+const blogNav  = nav.filter((e: NavEntry) => e.content_type === 'blog');
+const expNav   = nav.filter((e: NavEntry) => e.content_type === 'experiment');
+const pageNav  = nav.filter((e: NavEntry) => e.content_type === 'page');
 ---
 <!DOCTYPE html>
 <html lang="en">
@@ -25,28 +30,102 @@ const base = import.meta.env.BASE_URL.replace(/\/$/, '');
 </head>
 <body>
   <header class="site-header">
-    <a class="site-logo" href={`${base}/`}>Emergent Ontology</a>
+    <a class="site-logo" href={`${base}/`}>
+      <span class="logo-mark">⊡</span>
+      <span class="logo-text">Emergent Ontology</span>
+    </a>
+
     <nav class="site-nav" aria-label="Main navigation">
-      <ul>
-        {nav.map((entry: NavEntry) => {
-          const typeDir = entry.content_type === 'page' ? 'page'
-            : entry.content_type === 'experiment' ? 'exp'
-            : entry.content_type;
-          return (
-            <li>
-              <a href={`${base}/${typeDir}/${entry.slug}/`}>{entry.title}</a>
-            </li>
-          );
-        })}
+      <ul class="nav-list">
+
+        <!-- Wiki section -->
+        <li class="nav-item has-dropdown">
+          <a href={`${base}/wiki/`} class="nav-link">
+            Wiki
+            {wikiNav.length > 0 && <span class="nav-count">{wikiNav.length}</span>}
+          </a>
+          {wikiNav.length > 0 && (
+            <ul class="nav-dropdown">
+              {wikiNav.slice(0, 8).map((e: NavEntry) => (
+                <li><a href={`${base}/wiki/${e.slug}/`}>{e.title}</a></li>
+              ))}
+              {wikiNav.length > 8 && (
+                <li class="nav-more"><a href={`${base}/wiki/`}>All articles →</a></li>
+              )}
+            </ul>
+          )}
+        </li>
+
+        <!-- Blog section -->
+        <li class="nav-item has-dropdown">
+          <a href={`${base}/blog/`} class="nav-link">
+            Blog
+            {blogNav.length > 0 && <span class="nav-count">{blogNav.length}</span>}
+          </a>
+          {blogNav.length > 0 && (
+            <ul class="nav-dropdown">
+              {blogNav.slice(0, 6).map((e: NavEntry) => (
+                <li><a href={`${base}/blog/${e.slug}/`}>{e.title}</a></li>
+              ))}
+              {blogNav.length > 6 && (
+                <li class="nav-more"><a href={`${base}/blog/`}>All posts →</a></li>
+              )}
+            </ul>
+          )}
+        </li>
+
+        <!-- Experiments section -->
+        {expNav.length > 0 && (
+          <li class="nav-item">
+            <a href={`${base}/exp/`} class="nav-link">
+              Experiments
+              <span class="nav-count">{expNav.length}</span>
+            </a>
+          </li>
+        )}
+
+        <!-- Standalone pages -->
+        {pageNav.map((e: NavEntry) => (
+          <li class="nav-item">
+            <a href={`${base}/page/${e.slug}/`} class="nav-link">{e.title}</a>
+          </li>
+        ))}
+
       </ul>
     </nav>
-    <a class="admin-link" href={`${base}/admin/`}>Admin</a>
+
+    <div class="header-actions">
+      <button class="search-toggle" id="search-toggle" aria-label="Search">
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+          <circle cx="6.5" cy="6.5" r="5" stroke="currentColor" stroke-width="1.5"/>
+          <path d="M10.5 10.5L14 14" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+        </svg>
+      </button>
+      <a class="admin-link" href={`${base}/admin/`}>Admin</a>
+    </div>
   </header>
+
+  <!-- Search overlay -->
+  <div class="search-overlay" id="search-overlay" hidden>
+    <div class="search-modal">
+      <input
+        id="search-input"
+        type="search"
+        placeholder="Search articles, posts, experiments…"
+        aria-label="Search site"
+        autocomplete="off"
+        autofocus
+      />
+      <div id="search-results" class="search-results" role="list"></div>
+      <button class="search-close" id="search-close" aria-label="Close search">Esc</button>
+    </div>
+  </div>
 
   <main>
     {breadcrumbs && breadcrumbs.length > 0 && (
       <nav class="breadcrumbs" aria-label="Breadcrumb">
         <ol>
+          <li><a href={`${base}/`}>Home</a></li>
           {breadcrumbs.map((crumb, i) =>
             i === breadcrumbs.length - 1
               ? <li aria-current="page">{crumb.label}</li>
@@ -59,14 +138,43 @@ const base = import.meta.env.BASE_URL.replace(/\/$/, '');
   </main>
 
   <footer class="site-footer">
-    <p>
-      Content stored as append-only events in Matrix.
-      <a href={`${base}/generated/state/index.json`}>Site index JSON</a>
-    </p>
+    <div class="footer-inner">
+      <div class="footer-brand">
+        <span class="logo-mark">⊡</span>
+        <span>Emergent Ontology</span>
+      </div>
+      <nav class="footer-nav" aria-label="Footer navigation">
+        <a href={`${base}/wiki/`}>Wiki</a>
+        <a href={`${base}/blog/`}>Blog</a>
+        {expNav.length > 0 && <a href={`${base}/exp/`}>Experiments</a>}
+        <a href={`${base}/admin/`}>Admin</a>
+        <a href={`${base}/generated/state/index.json`}>Site JSON</a>
+      </nav>
+    </div>
   </footer>
 
   <script src={`${base}/js/search.js`} defer></script>
   <script src={`${base}/js/xray.js`} defer></script>
-  <script src={`${base}/js/live-sync.js`} defer></script>
+  <script>
+    // Wire search toggle
+    const searchToggle = document.getElementById('search-toggle');
+    const overlay = document.getElementById('search-overlay');
+    const closeBtn = document.getElementById('search-close');
+    const searchInput = document.getElementById('search-input');
+    if (searchToggle && overlay) {
+      searchToggle.addEventListener('click', () => { overlay.hidden = false; searchInput?.focus(); });
+      closeBtn?.addEventListener('click', () => { overlay.hidden = true; });
+      overlay.addEventListener('click', (e) => { if (e.target === overlay) overlay.hidden = true; });
+      document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') overlay.hidden = true;
+        if ((e.metaKey || e.ctrlKey) && e.key === 'k') { e.preventDefault(); overlay.hidden = false; searchInput?.focus(); }
+      });
+    }
+    // Restyle xray button to use design system CSS class when it loads
+    document.addEventListener('DOMContentLoaded', () => {
+      const xrayBtn = document.getElementById('xray-toggle');
+      if (xrayBtn) { xrayBtn.removeAttribute('style'); xrayBtn.classList.add('xray-fab'); }
+    });
+  </script>
 </body>
 </html>

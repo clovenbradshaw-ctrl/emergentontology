@@ -1,85 +1,173 @@
 ---
 import Base from '../layouts/Base.astro';
-import { loadSiteIndex } from '../lib/state';
-import type { NavEntry } from '../lib/state';
+import { loadSiteIndex, loadContent } from '../lib/state';
+import type { NavEntry, ProjectedWiki, ProjectedBlog, ProjectedExperiment, ProjectedPage } from '../lib/state';
 
 const index = loadSiteIndex();
 const base = import.meta.env.BASE_URL.replace(/\/$/, '');
 
-function typeDir(entry: NavEntry) {
-  return entry.content_type === 'page' ? 'page'
-    : entry.content_type === 'experiment' ? 'exp'
-    : entry.content_type;
+// Pull only published+public nav entries
+const wikiEntries  = index.nav.filter((e: NavEntry) => e.content_type === 'wiki');
+const blogEntries  = index.nav.filter((e: NavEntry) => e.content_type === 'blog');
+const expEntries   = index.nav.filter((e: NavEntry) => e.content_type === 'experiment');
+const pageEntries  = index.nav.filter((e: NavEntry) => e.content_type === 'page');
+
+// Load full content for excerpts (wiki + blog)
+function wikiExcerpt(contentId: string): string {
+  const content = loadContent(contentId) as ProjectedWiki | null;
+  const text = content?.current_revision?.content ?? '';
+  if (!text) return '';
+  // Strip markdown syntax for plain excerpt
+  const plain = text.replace(/^#+\s+/gm, '').replace(/[*_`]/g, '').replace(/\[([^\]]+)\]\([^)]+\)/g, '$1');
+  return plain.slice(0, 140).trimEnd() + (plain.length > 140 ? '…' : '');
 }
 
-function byType(type: string) {
-  return index.nav.filter((e: NavEntry) => e.content_type === type);
+function blogExcerpt(contentId: string): string {
+  const content = loadContent(contentId) as ProjectedBlog | null;
+  const text = content?.current_revision?.content ?? '';
+  if (!text) return '';
+  const plain = text.replace(/^#+\s+/gm, '').replace(/[*_`]/g, '').replace(/\[([^\]]+)\]\([^)]+\)/g, '$1');
+  return plain.slice(0, 140).trimEnd() + (plain.length > 140 ? '…' : '');
 }
+
+// Collect all tags for tag cloud
+const allTags = Array.from(
+  new Set(index.nav.flatMap((e: NavEntry) => e.tags))
+).filter(Boolean).sort();
+
+const totalArticles = wikiEntries.length + blogEntries.length + expEntries.length + pageEntries.length;
+const hasContent = totalArticles > 0;
 ---
 <Base title="Home" description="A minimal, universal framework for data transformation.">
-  <section class="hero">
-    <h1>Emergent Ontology</h1>
-    <p class="hero-sub">A minimal, universal framework for data transformation — nine operators, infinite composability.</p>
-    <div class="search-box">
-      <input id="search-input" type="search" placeholder="Search…" aria-label="Search site" autocomplete="off" />
-      <div id="search-results" class="search-results" role="list" hidden></div>
-    </div>
+
+  <!-- ── Hero ── -->
+  <section class="home-hero">
+    <div class="hero-badge">Emergent Ontology</div>
+    <h1 class="hero-title">A framework for everything that changes</h1>
+    <p class="hero-sub">
+      Nine operators, infinite composability. A minimal, universal language for data transformation,
+      knowledge curation, and structured thought.
+    </p>
+    {hasContent && (
+      <p class="hero-stats">
+        {totalArticles} {totalArticles === 1 ? 'article' : 'articles'}
+        {wikiEntries.length > 0 && <> · {wikiEntries.length} wiki</>}
+        {blogEntries.length > 0 && <> · {blogEntries.length} blog</>}
+        {expEntries.length > 0 && <> · {expEntries.length} experiments</>}
+      </p>
+    )}
   </section>
 
-  {byType('wiki').length > 0 && (
-    <section class="home-section">
-      <h2>Wiki</h2>
-      <ul class="content-list">
-        {byType('wiki').map((e: NavEntry) => (
-          <li>
-            <a href={`${base}/wiki/${e.slug}/`}>{e.title}</a>
-            {e.tags.length > 0 && (
-              <span class="tags">
-                {e.tags.map((t: string) => <span class="tag">{t}</span>)}
-              </span>
-            )}
-          </li>
-        ))}
-      </ul>
+  {!hasContent && (
+    <section class="home-empty">
+      <div class="empty-card">
+        <div class="empty-icon">⊡</div>
+        <h2>Nothing published yet</h2>
+        <p>Create and publish content in the admin editor to see it here.</p>
+        <a class="btn btn-primary" href={`${base}/admin/`}>Open Admin Editor</a>
+      </div>
     </section>
   )}
 
-  {byType('blog').length > 0 && (
+  {/* ── Wiki section ── */}
+  {wikiEntries.length > 0 && (
     <section class="home-section">
-      <h2>Blog</h2>
-      <ul class="content-list">
-        {byType('blog').map((e: NavEntry) => (
-          <li>
-            <a href={`${base}/blog/${e.slug}/`}>{e.title}</a>
-            {e.tags.length > 0 && (
-              <span class="tags">
-                {e.tags.map((t: string) => <span class="tag">{t}</span>)}
-              </span>
-            )}
-          </li>
-        ))}
-      </ul>
+      <div class="section-header">
+        <h2 class="section-title">
+          <span class="section-icon">📖</span>
+          Wiki
+        </h2>
+        <a class="section-viewall" href={`${base}/wiki/`}>All articles →</a>
+      </div>
+      <div class="content-grid">
+        {wikiEntries.slice(0, 6).map((e: NavEntry) => {
+          const excerpt = wikiExcerpt(e.content_id);
+          return (
+            <a class="content-card" href={`${base}/wiki/${e.slug}/`}>
+              <div class="card-type">wiki</div>
+              <h3 class="card-title">{e.title}</h3>
+              {excerpt && <p class="card-excerpt">{excerpt}</p>}
+              {e.tags.length > 0 && (
+                <div class="card-tags">
+                  {e.tags.slice(0, 3).map((t: string) => (
+                    <span class="tag">{t}</span>
+                  ))}
+                </div>
+              )}
+            </a>
+          );
+        })}
+      </div>
+      {wikiEntries.length > 6 && (
+        <div class="section-footer">
+          <a class="btn btn-outline" href={`${base}/wiki/`}>
+            View all {wikiEntries.length} articles
+          </a>
+        </div>
+      )}
     </section>
   )}
 
-  {byType('experiment').length > 0 && (
+  {/* ── Blog section ── */}
+  {blogEntries.length > 0 && (
     <section class="home-section">
-      <h2>Experiments</h2>
-      <ul class="content-list">
-        {byType('experiment').map((e: NavEntry) => (
-          <li>
-            <a href={`${base}/exp/${e.slug}/`}>{e.title}</a>
-          </li>
-        ))}
-      </ul>
+      <div class="section-header">
+        <h2 class="section-title">
+          <span class="section-icon">✍️</span>
+          Blog
+        </h2>
+        <a class="section-viewall" href={`${base}/blog/`}>All posts →</a>
+      </div>
+      <div class="content-list-cards">
+        {blogEntries.slice(0, 5).map((e: NavEntry) => {
+          const excerpt = blogExcerpt(e.content_id);
+          return (
+            <a class="list-card" href={`${base}/blog/${e.slug}/`}>
+              <div class="list-card-body">
+                <div class="card-type">post</div>
+                <h3 class="list-card-title">{e.title}</h3>
+                {excerpt && <p class="card-excerpt">{excerpt}</p>}
+              </div>
+              <div class="list-card-arrow">→</div>
+            </a>
+          );
+        })}
+      </div>
     </section>
   )}
 
-  {byType('page').length > 0 && (
+  {/* ── Experiments section ── */}
+  {expEntries.length > 0 && (
     <section class="home-section">
-      <h2>Pages</h2>
+      <div class="section-header">
+        <h2 class="section-title">
+          <span class="section-icon">🔬</span>
+          Experiments
+        </h2>
+        <a class="section-viewall" href={`${base}/exp/`}>All experiments →</a>
+      </div>
+      <div class="content-grid content-grid--sm">
+        {expEntries.slice(0, 4).map((e: NavEntry) => (
+          <a class="content-card content-card--exp" href={`${base}/exp/${e.slug}/`}>
+            <div class="card-type">experiment</div>
+            <h3 class="card-title">{e.title}</h3>
+          </a>
+        ))}
+      </div>
+    </section>
+  )}
+
+  {/* ── Pages ── */}
+  {pageEntries.length > 0 && (
+    <section class="home-section">
+      <div class="section-header">
+        <h2 class="section-title">
+          <span class="section-icon">📄</span>
+          Pages
+        </h2>
+      </div>
       <ul class="content-list">
-        {byType('page').map((e: NavEntry) => (
+        {pageEntries.map((e: NavEntry) => (
           <li>
             <a href={`${base}/page/${e.slug}/`}>{e.title}</a>
           </li>
@@ -88,9 +176,19 @@ function byType(type: string) {
     </section>
   )}
 
-  {index.nav.length === 0 && (
-    <section class="home-section">
-      <p class="empty-page">No content published yet. <a href={`${base}/admin/`}>Open the admin editor</a> to get started.</p>
+  {/* ── Tags ── */}
+  {allTags.length > 0 && (
+    <section class="home-section home-section--tags">
+      <h2 class="section-title">
+        <span class="section-icon">🏷</span>
+        Topics
+      </h2>
+      <div class="tag-cloud">
+        {allTags.map((t: string) => (
+          <span class="tag tag-lg">{t}</span>
+        ))}
+      </div>
     </section>
   )}
+
 </Base>
