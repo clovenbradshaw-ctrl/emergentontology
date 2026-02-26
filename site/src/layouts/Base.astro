@@ -6,9 +6,10 @@ interface Props {
   title: string;
   description?: string;
   breadcrumbs?: Array<{ label: string; href: string }>;
+  mainClass?: string;
 }
 
-const { title, description, breadcrumbs } = Astro.props;
+const { title, description, breadcrumbs, mainClass } = Astro.props;
 const nav = loadNav();
 
 const base = import.meta.env.BASE_URL.replace(/\/$/, '');
@@ -121,7 +122,7 @@ const pageNav  = nav.filter((e: NavEntry) => e.content_type === 'page');
     </div>
   </div>
 
-  <main>
+  <main class={mainClass}>
     {breadcrumbs && breadcrumbs.length > 0 && (
       <nav class="breadcrumbs" aria-label="Breadcrumb">
         <ol>

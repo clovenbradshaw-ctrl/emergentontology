@@ -1,23 +1,31 @@
 ---
 import Base from '../layouts/Base.astro';
 import { loadSiteIndex, loadContent } from '../lib/state';
-import type { NavEntry, ProjectedWiki, ProjectedBlog, ProjectedExperiment, ProjectedPage } from '../lib/state';
+import type { NavEntry, ProjectedWiki, ProjectedBlog, ProjectedPage } from '../lib/state';
+import { renderBlock, escHtml } from '../lib/blocks';
+import type { Block, PageLike } from '../lib/blocks';
 
 const index = loadSiteIndex();
 const base = import.meta.env.BASE_URL.replace(/\/$/, '');
 
-// Pull only published+public nav entries
+// ── Load editable homepage content (page:home) ──
+const homePage = loadContent('page:home') as ProjectedPage | null;
+const hasHomeBlocks = homePage && homePage.block_order && homePage.block_order.length > 0;
+const homeBlockMap = hasHomeBlocks
+  ? new Map(homePage!.blocks.map((b: Block) => [b.block_id, b]))
+  : new Map();
+const homePageLike: PageLike = homePage ?? { content_id: 'page:home', blocks: [], block_order: [] };
+
+// ── Nav entries ──
 const wikiEntries  = index.nav.filter((e: NavEntry) => e.content_type === 'wiki');
 const blogEntries  = index.nav.filter((e: NavEntry) => e.content_type === 'blog');
 const expEntries   = index.nav.filter((e: NavEntry) => e.content_type === 'experiment');
 const pageEntries  = index.nav.filter((e: NavEntry) => e.content_type === 'page');
 
-// Load full content for excerpts (wiki + blog)
 function wikiExcerpt(contentId: string): string {
   const content = loadContent(contentId) as ProjectedWiki | null;
   const text = content?.current_revision?.content ?? '';
   if (!text) return '';
-  // Strip markdown syntax for plain excerpt
   const plain = text.replace(/^#+\s+/gm, '').replace(/[*_`]/g, '').replace(/\[([^\]]+)\]\([^)]+\)/g, '$1');
   return plain.slice(0, 140).trimEnd() + (plain.length > 140 ? '…' : '');
 }
@@ -30,51 +38,82 @@ function blogExcerpt(contentId: string): string {
   return plain.slice(0, 140).trimEnd() + (plain.length > 140 ? '…' : '');
 }
 
-// Collect all tags for tag cloud
 const allTags = Array.from(
   new Set(index.nav.flatMap((e: NavEntry) => e.tags))
 ).filter(Boolean).sort();
 
 const totalArticles = wikiEntries.length + blogEntries.length + expEntries.length + pageEntries.length;
 const hasContent = totalArticles > 0;
+
+// Nine operators data
+const operators = [
+  { num: 1, symbol: '∅', code: 'NUL', label: 'Absence & Nullity', color: '#9ca3af', slug: 'nul' },
+  { num: 2, symbol: '⊡', code: 'DES', label: 'Designation', color: '#60a5fa', slug: 'des' },
+  { num: 3, symbol: '△', code: 'INS', label: 'Instantiation', color: '#4ade80', slug: 'ins' },
+  { num: 4, symbol: '｜', code: 'SEG', label: 'Segmentation', color: '#c084fc', slug: 'seg' },
+  { num: 5, symbol: '⋈', code: 'CON', label: 'Connection', color: '#34d399', slug: 'con' },
+  { num: 6, symbol: '∿', code: 'ALT', label: 'Alternation', color: '#fbbf24', slug: 'alt' },
+  { num: 7, symbol: '∨', code: 'SYN', label: 'Synthesis', color: '#818cf8', slug: 'syn' },
+  { num: 8, symbol: '∥', code: 'SUP', label: 'Superposition', color: '#f472b6', slug: 'sup' },
+  { num: 9, symbol: '⟳', code: 'REC', label: 'Recursion', color: '#fb923c', slug: 'rec' },
+];
 ---
-<Base title="Home" description="A minimal, universal framework for data transformation.">
+<Base title="Home" description="A minimal, universal framework for data transformation." mainClass="home">
 
-  <!-- ── Hero ── -->
-  <section class="home-hero">
-    <div class="hero-badge">Emergent Ontology</div>
-    <h1 class="hero-title">A framework for everything that changes</h1>
-    <p class="hero-sub">
-      Nine operators, infinite composability. A minimal, universal language for data transformation,
-      knowledge curation, and structured thought.
-    </p>
-    {hasContent && (
-      <p class="hero-stats">
-        {totalArticles} {totalArticles === 1 ? 'article' : 'articles'}
-        {wikiEntries.length > 0 && <> · {wikiEntries.length} wiki</>}
-        {blogEntries.length > 0 && <> · {blogEntries.length} blog</>}
-        {expEntries.length > 0 && <> · {expEntries.length} experiments</>}
+  <!-- ── Editable Homepage Content ── -->
+  {hasHomeBlocks ? (
+    <section class="home-editable" data-eo-op="DES" data-eo-target="page:home">
+      <div class="blocks">
+        {homePage!.block_order.map((id: string) => {
+          const block = homeBlockMap.get(id);
+          if (!block || block.deleted) return null;
+          return (
+            <div class="block-eo-wrap" data-eo-op="INS" data-eo-target={`page:home/block:${block.block_id}`}>
+              <Fragment set:html={renderBlock(block, homePageLike, base)} />
+            </div>
+          );
+        })}
+      </div>
+      <div class="home-edit-link">
+        <a class="btn btn-edit" href={`${base}/admin/#page/home`}>Edit Homepage</a>
+      </div>
+    </section>
+  ) : (
+    <section class="home-hero">
+      <div class="hero-badge">Emergent Ontology</div>
+      <h1 class="hero-title">A framework for everything that changes</h1>
+      <p class="hero-sub">
+        Nine operators, infinite composability. A minimal, universal language for data transformation,
+        knowledge curation, and structured thought.
       </p>
-    )}
-  </section>
+      {hasContent && (
+        <p class="hero-stats">
+          {totalArticles} {totalArticles === 1 ? 'article' : 'articles'}
+          {wikiEntries.length > 0 && <> · {wikiEntries.length} wiki</>}
+          {blogEntries.length > 0 && <> · {blogEntries.length} blog</>}
+          {expEntries.length > 0 && <> · {expEntries.length} experiments</>}
+        </p>
+      )}
+      <div class="home-edit-link" style="margin-top: 1.5rem;">
+        <a class="btn btn-primary" href={`${base}/admin/#page/home`}>Set up Homepage</a>
+      </div>
+    </section>
+  )}
 
-  <!-- ── Nine Operators ── -->
-  <section class="ops-section" aria-label="Nine Operators">
-    <h2>Nine Operators</h2>
-    <div class="ops-grid">
-      <div class="ops-cell"><span class="ops-num">1</span><div class="ops-symbol" style="color:#9ca3af">∅</div><div class="ops-code">NUL</div><div class="ops-label">Absence &amp; Nullity</div></div>
-      <div class="ops-cell"><span class="ops-num">2</span><div class="ops-symbol" style="color:#60a5fa">⊡</div><div class="ops-code">DES</div><div class="ops-label">Designation &amp; Definition</div></div>
-      <div class="ops-cell"><span class="ops-num">3</span><div class="ops-symbol" style="color:#4ade80">△</div><div class="ops-code">INS</div><div class="ops-label">Instantiation</div></div>
-      <div class="ops-cell"><span class="ops-num">4</span><div class="ops-symbol" style="color:#c084fc">｜</div><div class="ops-code">SEG</div><div class="ops-label">Segmentation</div></div>
-      <div class="ops-cell"><span class="ops-num">5</span><div class="ops-symbol" style="color:#34d399">⋈</div><div class="ops-code">CON</div><div class="ops-label">Connection</div></div>
-      <div class="ops-cell"><span class="ops-num">6</span><div class="ops-symbol" style="color:#fbbf24">∿</div><div class="ops-code">ALT</div><div class="ops-label">Alternation</div></div>
-      <div class="ops-cell"><span class="ops-num">7</span><div class="ops-symbol" style="color:#818cf8">∨</div><div class="ops-code">SYN</div><div class="ops-label">Synthesis</div></div>
-      <div class="ops-cell"><span class="ops-num">8</span><div class="ops-symbol" style="color:#f472b6">∥</div><div class="ops-code">SUP</div><div class="ops-label">Superposition</div></div>
-      <div class="ops-cell"><span class="ops-num">9</span><div class="ops-symbol" style="color:#fb923c">⟳</div><div class="ops-code">REC</div><div class="ops-label">Recursion</div></div>
+  <!-- ── Nine Operators (compact bar) ── -->
+  <section class="ops-bar-section" aria-label="Nine Operators">
+    <h2 class="ops-bar-title">Nine Operators</h2>
+    <div class="ops-bar">
+      {operators.map((op) => (
+        <a class="ops-pill" href={`${base}/wiki/${op.slug}/`} title={op.label} style={`--op-color: ${op.color}`}>
+          <span class="ops-pill-sym">{op.symbol}</span>
+          <span class="ops-pill-code">{op.code}</span>
+        </a>
+      ))}
     </div>
   </section>
 
-  {!hasContent && (
+  {!hasContent && !hasHomeBlocks && (
     <section class="home-empty">
       <div class="empty-card">
         <div class="empty-icon">⊡</div>
