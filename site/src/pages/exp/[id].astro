@@ -1,10 +1,10 @@
 ---
 import Base from '../../layouts/Base.astro';
-import { loadAllContent } from '../../lib/state';
+import { loadPublishedContent } from '../../lib/state';
 import type { ProjectedExperiment, ExperimentEntry } from '../../lib/state';
 
 export async function getStaticPaths() {
-  const items = loadAllContent('experiment') as ProjectedExperiment[];
+  const items = loadPublishedContent('experiment') as ProjectedExperiment[];
   return items.map((e) => ({
     params: { id: e.meta.slug },
     props: { exp: e },

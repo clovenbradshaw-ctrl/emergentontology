@@ -1,12 +1,12 @@
 ---
 import Base from '../../layouts/Base.astro';
-import { loadAllContent } from '../../lib/state';
+import { loadPublishedContent } from '../../lib/state';
 import type { ProjectedPage } from '../../lib/state';
 import { renderBlock } from '../../lib/blocks';
 import type { Block, PageLike } from '../../lib/blocks';
 
 export async function getStaticPaths() {
-  const items = loadAllContent('page') as ProjectedPage[];
+  const items = loadPublishedContent('page') as ProjectedPage[];
   // Skip page:home — it renders at / via index.astro
   return items
     .filter((p) => p.content_id !== 'page:home')

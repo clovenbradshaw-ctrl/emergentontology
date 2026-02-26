@@ -1,6 +1,6 @@
 ---
 import Base from '../../layouts/Base.astro';
-import { loadAllContent, loadContent } from '../../lib/state';
+import { loadPublishedContent, loadContent } from '../../lib/state';
 import type { ProjectedWiki } from '../../lib/state';
 
 // Nine operators — defined inside getStaticPaths because Astro hoists
@@ -18,7 +18,7 @@ export async function getStaticPaths() {
     { slug: 'rec', code: 'REC', label: 'Recursion', symbol: '⟳', color: '#fb923c' },
   ];
 
-  const items = loadAllContent('wiki') as ProjectedWiki[];
+  const items = loadPublishedContent('wiki') as ProjectedWiki[];
 
   // Content-backed wiki pages
   const contentPaths = items.map((w) => ({
