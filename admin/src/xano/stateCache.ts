@@ -181,16 +181,17 @@ export async function applyFreshnessUpdate<T extends ProjectedContent>(
   // Apply the delta events on top of the current snapshot
   const updated = applyDelta(currentState, newerEvents) as T;
 
-  // Optionally persist the updated state back to eowikicurrent
+  // Optionally persist the updated state back to eowikicurrent.
+  // upsertCurrentRecord automatically syncs the cache via the hook,
+  // so no explicit updateCachedRecord call needed here.
   if (opts?.persist !== false && opts?.agent) {
     try {
-      const updatedRecord = await upsertCurrentRecord(
+      await upsertCurrentRecord(
         contentId,
         updated,
         opts.agent,
         snapshotRecord,
       );
-      updateCachedRecord(updatedRecord);
     } catch (err) {
       console.warn(`[stateCache] Could not persist freshness update for ${contentId}:`, err);
     }
