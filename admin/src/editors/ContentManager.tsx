@@ -7,8 +7,8 @@
  *   Create → POST /eowiki (INS index event)
  *            UPSERT /eowikicurrent record_id="site:index" with updated list
  *            POST /eowikicurrent record_id=<contentId> (empty initial state)
- *   Toggle → POST /eowiki (DES status event)
- *            PATCH /eowikicurrent record_id="site:index" with updated status
+ *   Toggle → POST /eowiki (DES status/visibility event)
+ *            PATCH /eowikicurrent record_id="site:index" with updated status/visibility
  */
 
 import React, { useEffect, useState, useRef } from 'react';
@@ -216,6 +216,37 @@ export default function ContentManager({ siteBase, onOpen }: Props) {
     }
   }
 
+  // ── Toggle visibility ──────────────────────────────────────────────────────
+
+  async function toggleVisibility(contentId: string, currentVisibility: Visibility) {
+    if (!isAuthenticated) return;
+    const newVisibility: Visibility = currentVisibility === 'public' ? 'private' : 'public';
+    const agent = 'editor';
+
+    try {
+      // 1. Emit DES index event
+      const desEvent = desIndexEntry(contentId, { visibility: newVisibility }, agent);
+      const xid = `des-visibility-${contentId}`;
+      registerEvent({ id: xid, op: desEvent.op, target: desEvent.target, operand: desEvent.operand, ts: desEvent.ctx.ts, agent: desEvent.ctx.agent, status: 'pending' });
+      await addRecord(eventToPayload(desEvent));
+      registerEvent({ id: xid, op: desEvent.op, target: desEvent.target, operand: desEvent.operand, ts: desEvent.ctx.ts, agent: desEvent.ctx.agent, status: 'sent' });
+
+      // 2. Update site:index current state
+      const updatedEntries = entries.map((e) => e.content_id === contentId ? { ...e, visibility: newVisibility } : e);
+      const updated = await upsertCurrentRecord(
+        'site:index',
+        desEvent.op,
+        { entries: updatedEntries },
+        agent,
+        indexRecordRef.current,
+      );
+      indexRecordRef.current = updated;
+      setEntries(updatedEntries);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : String(err));
+    }
+  }
+
   if (loading) return <div className="editor-loading">Loading content list…</div>;
 
   return (
@@ -278,7 +309,16 @@ export default function ContentManager({ siteBase, onOpen }: Props) {
                         {entry.status}
                       </button>
                     </td>
-                    <td><span className={`visibility-badge vis-${entry.visibility}`}>{entry.visibility}</span></td>
+                    <td>
+                      <button
+                        className={`visibility-toggle vis-${entry.visibility}`}
+                        onClick={() => toggleVisibility(entry.content_id, entry.visibility)}
+                        disabled={!isAuthenticated}
+                        title="Toggle public/private"
+                      >
+                        {entry.visibility}
+                      </button>
+                    </td>
                     <td>
                       <button className="btn btn-sm" onClick={() => onOpen(entry.content_id, entry.content_type)}>
                         Edit
