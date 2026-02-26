@@ -82,7 +82,7 @@ export interface ContentMeta {
 
 export interface Block {
   block_id: string;
-  block_type: 'text' | 'image' | 'embed' | 'callout' | 'quote' | 'divider' | 'toc' | 'wiki-embed' | 'experiment-embed';
+  block_type: 'text' | 'image' | 'embed' | 'callout' | 'quote' | 'divider' | 'toc' | 'wiki-embed' | 'experiment-embed' | 'code' | 'heading' | 'button' | 'columns' | 'spacer' | 'video' | 'html';
   data: Record<string, unknown>;
   /** null = at beginning; block_id = insert after this block */
   after: string | null;

@@ -36,7 +36,7 @@ export interface ContentMeta {
 
 export interface Block {
   block_id: string;
-  block_type: 'text' | 'image' | 'embed' | 'callout' | 'quote' | 'divider' | 'toc' | 'wiki-embed' | 'experiment-embed' | 'code';
+  block_type: 'text' | 'image' | 'embed' | 'callout' | 'quote' | 'divider' | 'toc' | 'wiki-embed' | 'experiment-embed' | 'code' | 'heading' | 'button' | 'columns' | 'spacer' | 'video' | 'html';
   data: Record<string, unknown>;
   after: string | null;
   deleted: boolean;
