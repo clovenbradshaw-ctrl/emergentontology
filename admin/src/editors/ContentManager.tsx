@@ -32,6 +32,8 @@ interface IndexEntry {
   status: ContentStatus;
   visibility: Visibility;
   tags: string[];
+  /** ISO timestamp when this content was first DES'd as public */
+  first_public_at?: string;
 }
 
 interface Props {
@@ -144,6 +146,7 @@ export default function ContentManager({ siteBase, onOpen }: Props) {
         status: 'draft',
         visibility: newVisibility,
         tags: [],
+        ...(newVisibility === 'public' ? { first_public_at: ts } : {}),
       };
       const updatedEntries = [...entries, newEntry];
       const updated = await upsertCurrentRecord(
@@ -231,8 +234,17 @@ export default function ContentManager({ siteBase, onOpen }: Props) {
       await addRecord(eventToPayload(desEvent));
       registerEvent({ id: xid, op: desEvent.op, target: desEvent.target, operand: desEvent.operand, ts: desEvent.ctx.ts, agent: desEvent.ctx.agent, status: 'sent' });
 
-      // 2. Update site:index current state
-      const updatedEntries = entries.map((e) => e.content_id === contentId ? { ...e, visibility: newVisibility } : e);
+      // 2. Update site:index current state — track first_public_at on initial DES as public
+      const entry = entries.find((e) => e.content_id === contentId);
+      const isFirstPublic = newVisibility === 'public' && entry && !entry.first_public_at;
+      const firstPublicTs = isFirstPublic ? desEvent.ctx.ts : undefined;
+
+      const updatedEntries = entries.map((e) => {
+        if (e.content_id !== contentId) return e;
+        const patch: Partial<IndexEntry> = { visibility: newVisibility };
+        if (firstPublicTs) patch.first_public_at = firstPublicTs;
+        return { ...e, ...patch };
+      });
       const updated = await upsertCurrentRecord(
         'site:index',
         desEvent.op,
@@ -242,6 +254,24 @@ export default function ContentManager({ siteBase, onOpen }: Props) {
       );
       indexRecordRef.current = updated;
       setEntries(updatedEntries);
+
+      // 3. Also update content's own meta with first_public_at so editors can see it
+      if (firstPublicTs) {
+        const metaEvent = desContentMeta(contentId, {
+          visibility: newVisibility,
+          first_public_at: firstPublicTs,
+          updated_at: desEvent.ctx.ts,
+        } as Partial<import('../eo/types').ContentMeta>, agent);
+        await addRecord(eventToPayload(metaEvent));
+        try {
+          const contentRec = await fetchCurrentRecord(contentId);
+          if (contentRec) {
+            const contentState = JSON.parse(contentRec.value);
+            contentState.meta = { ...contentState.meta, visibility: newVisibility, first_public_at: firstPublicTs };
+            await upsertCurrentRecord(contentId, metaEvent.op, contentState, agent, contentRec);
+          }
+        } catch { /* best-effort update */ }
+      }
     } catch (err) {
       setError(err instanceof Error ? err.message : String(err));
     }
@@ -290,6 +320,7 @@ export default function ContentManager({ siteBase, onOpen }: Props) {
                   <th>Slug</th>
                   <th>Status</th>
                   <th>Visibility</th>
+                  <th>Public since</th>
                   <th>Actions</th>
                 </tr>
               </thead>
@@ -318,6 +349,12 @@ export default function ContentManager({ siteBase, onOpen }: Props) {
                       >
                         {entry.visibility}
                       </button>
+                    </td>
+                    <td className="public-since-cell">
+                      {entry.first_public_at
+                        ? <span title={entry.first_public_at}>{new Date(entry.first_public_at).toLocaleDateString()}</span>
+                        : <span style={{ color: 'var(--text-dim)', fontSize: '.8rem' }}>—</span>
+                      }
                     </td>
                     <td>
                       <button className="btn btn-sm" onClick={() => onOpen(entry.content_id, entry.content_type)}>

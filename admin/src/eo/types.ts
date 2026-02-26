@@ -32,6 +32,8 @@ export interface ContentMeta {
   visibility: Visibility;
   tags: string[];
   updated_at: string;
+  /** ISO timestamp when this content was first DES'd as public (visibility='public') */
+  first_public_at?: string;
 }
 
 export interface Block {

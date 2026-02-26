@@ -61,7 +61,7 @@ const BLOCK_TYPES: Array<{ type: Block['block_type']; label: string; icon: strin
   { type: 'toc', label: 'TOC', icon: '≡', group: 'Advanced' },
   { type: 'wiki-embed', label: 'Wiki Embed', icon: '⊂', group: 'Advanced' },
   { type: 'experiment-embed', label: 'Exp Embed', icon: '⊗', group: 'Advanced' },
-  { type: 'html', label: 'HTML', icon: '&lt;&gt;', group: 'Advanced' },
+  { type: 'html', label: 'HTML', icon: '<>', group: 'Advanced' },
 ];
 
 interface PageState {
@@ -414,8 +414,9 @@ function renderBlockHtml(block: Block, state: PageState): string {
     }
     case 'columns': {
       const cols = Array.isArray(data.columns) ? data.columns as string[] : [String(data.col1 ?? ''), String(data.col2 ?? '')];
+      const layout = data.layout ? ` style="grid-template-columns:${escHtml(String(data.layout))}"` : '';
       const rendered = cols.map((c: string) => `<div class="column">${renderMd(String(c))}</div>`).join('');
-      return `<div class="block block-columns block-columns-${cols.length}">${rendered}</div>`;
+      return `<div class="block block-columns block-columns-${cols.length}"${layout}>${rendered}</div>`;
     }
     case 'toc': {
       const headings: string[] = [];
@@ -508,9 +509,32 @@ function BlockPreview({ block }: { block: Block }) {
     case 'button': return <div style={{ color: '#888', fontSize: '13px' }}>⊞ Button: "{String(data.text ?? 'Click here')}"</div>;
     case 'columns': {
       const cols = Array.isArray(data.columns) ? data.columns as string[] : [];
-      return <div style={{ color: '#888', fontSize: '13px' }}>▥ {cols.length || 2}-column layout</div>;
+      const colLayout = String(data.layout ?? `repeat(${cols.length || 2}, 1fr)`);
+      return (
+        <div>
+          <div style={{ color: '#888', fontSize: '13px', marginBottom: '4px' }}>▥ {cols.length || 2}-column layout</div>
+          <div style={{ display: 'grid', gridTemplateColumns: colLayout, gap: '4px' }}>
+            {(cols.length > 0 ? cols : ['', '']).map((c, i) => (
+              <div key={i} style={{
+                background: 'var(--bg2)',
+                border: '1px solid var(--border)',
+                borderRadius: '3px',
+                padding: '3px 6px',
+                fontSize: '11px',
+                color: '#666',
+                minHeight: '20px',
+                overflow: 'hidden',
+                whiteSpace: 'nowrap',
+                textOverflow: 'ellipsis',
+              }}>
+                {String(c).slice(0, 30) || `Col ${i + 1}`}
+              </div>
+            ))}
+          </div>
+        </div>
+      );
     }
-    case 'html': return <div style={{ color: '#888', fontSize: '13px' }}>&lt;&gt; HTML block ({String(data.html ?? '').length} chars)</div>;
+    case 'html': return <div style={{ color: '#888', fontSize: '13px' }}>{'<>'} HTML block ({String(data.html ?? '').length} chars)</div>;
     default: return <div style={{ color: '#888' }}>[{block_type}]</div>;
   }
 }
@@ -635,8 +659,20 @@ function BlockInspector({ block, onUpdate }: { block: Block; onUpdate: (data: Re
 
 // ── Columns Inspector ─────────────────────────────────────────────────────────
 
+const COLUMN_LAYOUTS: Array<{ label: string; value: string; cols: number }> = [
+  { label: '2 equal', value: '1fr 1fr', cols: 2 },
+  { label: '2 — wide left', value: '2fr 1fr', cols: 2 },
+  { label: '2 — wide right', value: '1fr 2fr', cols: 2 },
+  { label: '3 equal', value: '1fr 1fr 1fr', cols: 3 },
+  { label: '3 — wide center', value: '1fr 2fr 1fr', cols: 3 },
+  { label: '4 equal', value: '1fr 1fr 1fr 1fr', cols: 4 },
+  { label: '5 equal', value: 'repeat(5, 1fr)', cols: 5 },
+  { label: '6 equal', value: 'repeat(6, 1fr)', cols: 6 },
+];
+
 function ColumnsInspector({ local, set }: { local: Record<string, unknown>; set: (k: string, v: unknown) => void }) {
   const cols = Array.isArray(local.columns) ? local.columns as string[] : ['', ''];
+  const layout = String(local.layout ?? '');
 
   function updateCol(idx: number, value: string) {
     const updated = [...cols];
@@ -645,7 +681,7 @@ function ColumnsInspector({ local, set }: { local: Record<string, unknown>; set:
   }
 
   function addCol() {
-    if (cols.length >= 4) return;
+    if (cols.length >= 6) return;
     set('columns', [...cols, '']);
   }
 
@@ -654,13 +690,52 @@ function ColumnsInspector({ local, set }: { local: Record<string, unknown>; set:
     set('columns', cols.slice(0, -1));
   }
 
+  function applyLayout(preset: typeof COLUMN_LAYOUTS[number]) {
+    const current = [...cols];
+    while (current.length < preset.cols) current.push('');
+    while (current.length > preset.cols) current.pop();
+    set('columns', current);
+    set('layout', preset.value);
+  }
+
   return (
     <>
+      <label className="field">
+        <span>Layout preset</span>
+        <select
+          value={layout || `repeat(${cols.length}, 1fr)`}
+          onChange={(e) => {
+            const preset = COLUMN_LAYOUTS.find((l) => l.value === e.target.value);
+            if (preset) applyLayout(preset);
+          }}
+        >
+          {COLUMN_LAYOUTS.map((l) => (
+            <option key={l.value} value={l.value}>{l.label}</option>
+          ))}
+        </select>
+      </label>
       <div style={{ display: 'flex', gap: '.5rem', alignItems: 'center', marginBottom: '.5rem' }}>
         <span style={{ fontSize: '.82rem', color: '#888' }}>{cols.length} columns</span>
-        <button className="btn btn-xs" onClick={addCol} disabled={cols.length >= 4}>+</button>
-        <button className="btn btn-xs" onClick={removeCol} disabled={cols.length <= 2}>-</button>
+        <button className="btn btn-xs" onClick={addCol} disabled={cols.length >= 6}>+</button>
+        <button className="btn btn-xs" onClick={removeCol} disabled={cols.length <= 2}>−</button>
       </div>
+      {layout && (
+        <div style={{
+          display: 'grid',
+          gridTemplateColumns: layout,
+          gap: '4px',
+          marginBottom: '.5rem',
+        }}>
+          {cols.map((_, i) => (
+            <div key={i} style={{
+              height: '8px',
+              background: 'var(--accent)',
+              borderRadius: '2px',
+              opacity: 0.5,
+            }} />
+          ))}
+        </div>
+      )}
       {cols.map((c, i) => (
         <label className="field" key={i}>
           <span>Column {i + 1} (Markdown)</span>
