@@ -109,17 +109,17 @@ export async function addRecord(payload: {
  * values       – JSON-stringified current state snapshot
  * context      – JSON metadata  {agent, ts}
  * uuid         – client-generated UUID (v4) for deduplication
- * lastModified – epoch ms timestamp of most recent update
+ * lastModified – ISO timestamp of most recent update
  */
 export interface XanoCurrentRecord {
   id: number;
-  created_at: number;
+  created_at: string;     // ISO timestamp
   record_id: string;
   displayName: string;
-  values: string;   // JSON-stringified state snapshot
+  values: string;         // JSON-stringified state snapshot
   context: Record<string, unknown>;
   uuid: string;
-  lastModified: number;  // epoch ms
+  lastModified: string;   // ISO timestamp
 }
 
 /** Fetch all current-state records. */
@@ -144,7 +144,7 @@ export async function createCurrentRecord(payload: {
   values: string;
   context: Record<string, unknown>;
   uuid: string;
-  lastModified: number;
+  lastModified: string;
 }): Promise<XanoCurrentRecord> {
   const resp = await fetch(`${XANO_BASE}/eowikicurrent`, {
     method: 'POST',
@@ -163,7 +163,7 @@ export async function createCurrentRecord(payload: {
 export async function patchCurrentRecord(id: number, payload: {
   values: string;
   context: Record<string, unknown>;
-  lastModified: number;
+  lastModified: string;
 }): Promise<XanoCurrentRecord> {
   const resp = await fetch(`${XANO_BASE}/eowikicurrent/${id}`, {
     method: 'PATCH',
@@ -191,7 +191,7 @@ export async function upsertCurrentRecord(
 ): Promise<XanoCurrentRecord> {
   const ctx = { agent, ts: new Date().toISOString() };
   const values = JSON.stringify(stateSnapshot);
-  const lastModified = Date.now();
+  const lastModified = new Date().toISOString();
 
   if (existing) {
     return patchCurrentRecord(existing.id, { values, context: ctx, lastModified });
