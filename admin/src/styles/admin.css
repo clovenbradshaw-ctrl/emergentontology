@@ -284,12 +284,17 @@ textarea { resize: vertical; }
 /* Settings */
 .settings-panel { max-width: 560px; }
 .settings-panel h2 { margin-bottom: 1.25rem; }
-.settings-info { background: var(--bg2); border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; margin-bottom: 1.25rem; }
+.settings-section { margin-bottom: 1.5rem; }
+.settings-section h3 { font-size: .95rem; color: var(--text-dim); margin-bottom: .75rem; padding-bottom: .35rem; border-bottom: 1px solid var(--border); text-transform: uppercase; letter-spacing: .04em; font-weight: 500; }
+.settings-info { background: var(--bg2); border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; margin-bottom: .75rem; }
 .info-row { display: flex; gap: 1rem; padding: .6rem 1rem; border-bottom: 1px solid var(--border); align-items: center; font-size: .9rem; }
 .info-row:last-child { border-bottom: none; }
 .info-row span { color: var(--text-dim); min-width: 100px; }
 .settings-note { color: var(--text-dim); font-size: .88rem; background: var(--bg2); border: 1px solid var(--border); border-radius: var(--radius); padding: 1rem; }
 .settings-note strong { color: var(--text); }
+.settings-saved { background: color-mix(in srgb, var(--success) 15%, var(--bg2)); border: 1px solid var(--success); border-radius: var(--radius); padding: .4rem .75rem; margin-bottom: 1rem; font-size: .85rem; color: var(--success); }
+.settings-reset { margin-top: 1rem; padding-top: 1rem; border-top: 1px solid var(--border); }
+.field-hint { color: var(--text-dim); font-size: .78rem; margin-top: .15rem; }
 
 /* WriteGuard */
 .access-checking { color: var(--text-dim); padding: 3rem; text-align: center; }

@@ -13,6 +13,7 @@
 
 import React, { useEffect, useState, useRef } from 'react';
 import { useAuth } from '../auth/AuthContext';
+import { useSettings } from '../settings/SettingsContext';
 import { useXRay } from '../components/XRayOverlay';
 import {
   fetchCurrentRecord,
@@ -50,6 +51,7 @@ const TYPE_LABELS: Record<ContentType, string> = {
 
 export default function ContentManager({ siteBase, onOpen }: Props) {
   const { isAuthenticated } = useAuth();
+  const { settings } = useSettings();
   const { registerEvent } = useXRay();
 
   const [entries, setEntries] = useState<IndexEntry[]>([]);
@@ -61,7 +63,7 @@ export default function ContentManager({ siteBase, onOpen }: Props) {
   const [newType, setNewType] = useState<ContentType>('wiki');
   const [newSlug, setNewSlug] = useState('');
   const [newTitle, setNewTitle] = useState('');
-  const [newVisibility, setNewVisibility] = useState<Visibility>('public');
+  const [newVisibility, setNewVisibility] = useState<Visibility>(settings.defaultVisibility);
 
   // ── Load index ─────────────────────────────────────────────────────────────
 
@@ -106,7 +108,7 @@ export default function ContentManager({ siteBase, onOpen }: Props) {
     setError(null);
 
     const contentId = `${newType}:${newSlug.trim()}`;
-    const agent = 'editor';
+    const agent = settings.displayName || 'editor';
     const ts = new Date().toISOString();
 
     try {
@@ -115,7 +117,7 @@ export default function ContentManager({ siteBase, onOpen }: Props) {
         slug: newSlug.trim(),
         title: newTitle.trim(),
         content_type: newType,
-        status: 'draft',
+        status: settings.defaultStatus,
         visibility: newVisibility,
         tags: [],
       }, agent);
@@ -130,7 +132,7 @@ export default function ContentManager({ siteBase, onOpen }: Props) {
         content_type: newType,
         slug: newSlug.trim(),
         title: newTitle.trim(),
-        status: 'draft',
+        status: settings.defaultStatus,
         visibility: newVisibility,
         tags: [],
         updated_at: ts,
@@ -143,7 +145,7 @@ export default function ContentManager({ siteBase, onOpen }: Props) {
         slug: newSlug.trim(),
         title: newTitle.trim(),
         content_type: newType,
-        status: 'draft',
+        status: settings.defaultStatus,
         visibility: newVisibility,
         tags: [],
         ...(newVisibility === 'public' ? { first_public_at: ts } : {}),
@@ -164,7 +166,7 @@ export default function ContentManager({ siteBase, onOpen }: Props) {
           content_type: newType,
           slug: newSlug.trim(),
           title: newTitle.trim(),
-          status: 'draft',
+          status: settings.defaultStatus,
           visibility: newVisibility,
           tags: [],
           updated_at: ts,
@@ -192,7 +194,7 @@ export default function ContentManager({ siteBase, onOpen }: Props) {
   async function togglePublish(contentId: string, currentStatus: ContentStatus) {
     if (!isAuthenticated) return;
     const newStatus: ContentStatus = currentStatus === 'published' ? 'draft' : 'published';
-    const agent = 'editor';
+    const agent = settings.displayName || 'editor';
 
     try {
       // 1. Emit DES index event
@@ -237,7 +239,7 @@ export default function ContentManager({ siteBase, onOpen }: Props) {
   async function toggleVisibility(contentId: string, currentVisibility: Visibility) {
     if (!isAuthenticated) return;
     const newVisibility: Visibility = currentVisibility === 'public' ? 'private' : 'public';
-    const agent = 'editor';
+    const agent = settings.displayName || 'editor';
 
     try {
       // 1. Emit DES index event

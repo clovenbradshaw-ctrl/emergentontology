@@ -28,6 +28,7 @@ import {
 import { CSS } from '@dnd-kit/utilities';
 
 import { useAuth } from '../auth/AuthContext';
+import { useSettings } from '../settings/SettingsContext';
 import { useXRay } from '../components/XRayOverlay';
 import {
   fetchCurrentRecord,
@@ -77,6 +78,7 @@ interface Props {
 
 export default function PageBuilder({ contentId, siteBase }: Props) {
   const { isAuthenticated } = useAuth();
+  const { settings } = useSettings();
   const { registerEvent } = useXRay();
 
   const [state, setState] = useState<PageState | null>(null);
@@ -157,7 +159,7 @@ export default function PageBuilder({ contentId, siteBase }: Props) {
     const blockId = `b_${Date.now()}`;
     const lastId = state.block_order.at(-1) ?? null;
     const newBlock: Block = { block_id: blockId, block_type: type, data: defaultData(type), after: lastId, deleted: false };
-    const event = insBlock(contentId, newBlock, 'editor');
+    const event = insBlock(contentId, newBlock, settings.displayName || 'editor');
 
     const updatedState: PageState = {
       ...state,
@@ -177,7 +179,7 @@ export default function PageBuilder({ contentId, siteBase }: Props) {
     if (!original) return;
     const newId = `b_${Date.now()}`;
     const newBlock: Block = { block_id: newId, block_type: original.block_type, data: { ...original.data }, after: blockId, deleted: false };
-    const event = insBlock(contentId, newBlock, 'editor');
+    const event = insBlock(contentId, newBlock, settings.displayName || 'editor');
     const idx = state.block_order.indexOf(blockId);
     const newOrder = [...state.block_order];
     newOrder.splice(idx + 1, 0, newId);
@@ -201,7 +203,7 @@ export default function PageBuilder({ contentId, siteBase }: Props) {
     };
     setState(updatedState);
     const patch = Object.entries(newData).map(([k, v]) => ({ op: 'replace', path: `/data/${k}`, value: v }));
-    const event = altBlock(contentId, blockId, patch, 'editor');
+    const event = altBlock(contentId, blockId, patch, settings.displayName || 'editor');
     emit(event, updatedState);
   }
 
@@ -215,7 +217,7 @@ export default function PageBuilder({ contentId, siteBase }: Props) {
       block_order: state.block_order.filter((id) => id !== blockId),
     };
     setState(updatedState);
-    const event = nulBlock(contentId, blockId, 'editor');
+    const event = nulBlock(contentId, blockId, settings.displayName || 'editor');
     emit(event, updatedState);
     if (selectedBlockId === blockId) setSelectedBlockId(null);
   }
