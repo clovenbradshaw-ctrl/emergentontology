@@ -49,7 +49,7 @@ const childPages = (parentId: string) => pageNav.filter((e: NavEntry) => e.paren
 <body>
   <header class="site-header">
     <a class="site-logo" href={`${base}/`}>
-      <span class="logo-mark">⊡</span>
+      <span class="logo-mark" id="logo-mark" title="Click to cycle operator">⊡</span>
       <span class="logo-text">Emergent Ontology</span>
     </a>
 
@@ -135,7 +135,7 @@ const childPages = (parentId: string) => pageNav.filter((e: NavEntry) => e.paren
           <path d="M10.5 10.5L14 14" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
         </svg>
       </button>
-      <a class="admin-link" href={`${base}/admin/`}>Admin</a>
+      <a class="admin-link" href={`${base}/admin/`} hidden id="admin-link">Admin</a>
     </div>
   </header>
 
@@ -181,8 +181,7 @@ const childPages = (parentId: string) => pageNav.filter((e: NavEntry) => e.paren
         <a href={`${base}/wiki/`}>Wiki</a>
         <a href={`${base}/blog/`}>Blog</a>
         {expNav.length > 0 && <a href={`${base}/exp/`}>Experiments</a>}
-        <a href={`${base}/admin/`}>Admin</a>
-        <a href={`${base}/generated/state/index.json`}>Site JSON</a>
+        <a href={`${base}/admin/`} class="admin-footer-link" hidden>Admin</a>
       </nav>
     </div>
   </footer>
@@ -219,6 +218,59 @@ const childPages = (parentId: string) => pageNav.filter((e: NavEntry) => e.paren
         var next = current === 'dark' ? 'light' : 'dark';
         document.documentElement.setAttribute('data-theme', next);
         localStorage.setItem('eo-theme', next);
+      });
+    })();
+
+    // Triple-ESC to reveal admin UI
+    (function() {
+      var escCount = 0;
+      var escTimer = null;
+      var revealed = sessionStorage.getItem('eo-admin-revealed') === 'true';
+      function revealAdmin() {
+        revealed = true;
+        sessionStorage.setItem('eo-admin-revealed', 'true');
+        var adminLink = document.getElementById('admin-link');
+        if (adminLink) adminLink.hidden = false;
+        document.querySelectorAll('.admin-footer-link').forEach(function(el) { el.hidden = false; });
+        document.querySelectorAll('.home-edit-link').forEach(function(el) { el.style.display = ''; });
+      }
+      if (revealed) {
+        document.addEventListener('DOMContentLoaded', revealAdmin);
+      } else {
+        // Hide edit links by default
+        document.addEventListener('DOMContentLoaded', function() {
+          document.querySelectorAll('.home-edit-link').forEach(function(el) { el.style.display = 'none'; });
+        });
+      }
+      document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape') {
+          // Don't interfere with search overlay close
+          var overlay = document.getElementById('search-overlay');
+          if (overlay && !overlay.hidden) return;
+          escCount++;
+          clearTimeout(escTimer);
+          escTimer = setTimeout(function() { escCount = 0; }, 800);
+          if (escCount >= 3) {
+            escCount = 0;
+            revealAdmin();
+          }
+        }
+      });
+    })();
+
+    // Logo mark cycling through operator symbols
+    (function() {
+      var symbols = ['∅', '⊡', '△', '｜', '⋈', '∿', '∨', '∥', '⟳'];
+      var mark = document.getElementById('logo-mark');
+      if (!mark) return;
+      var idx = parseInt(localStorage.getItem('eo-logo-idx') || '1', 10);
+      mark.textContent = symbols[idx % symbols.length];
+      mark.addEventListener('click', function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        idx = (idx + 1) % symbols.length;
+        mark.textContent = symbols[idx];
+        localStorage.setItem('eo-logo-idx', String(idx));
       });
     })();
   </script>

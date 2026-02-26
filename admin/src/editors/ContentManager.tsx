@@ -436,19 +436,13 @@ export default function ContentManager({ siteBase, onOpen }: Props) {
                           >
                             {entry.show_in_nav ? 'in nav' : 'hidden'}
                           </button>
-                          <select
-                            value={entry.parent_page ?? ''}
-                            onChange={(e) => setParentPage(entry.content_id, e.target.value)}
+                          <ParentPagePicker
+                            currentId={entry.content_id}
+                            parentId={entry.parent_page ?? ''}
+                            pageEntries={pageEntries}
                             disabled={!isAuthenticated}
-                            style={{ fontSize: '.72rem', padding: '1px 2px', background: 'var(--bg2)', color: 'var(--text)', border: '1px solid var(--border)', borderRadius: '3px' }}
-                            title="Parent page"
-                          >
-                            <option value="">(top level)</option>
-                            {pageEntries
-                              .filter(p => p.content_id !== entry.content_id)
-                              .map(p => <option key={p.content_id} value={p.content_id}>{p.title}</option>)
-                            }
-                          </select>
+                            onChange={(val) => setParentPage(entry.content_id, val)}
+                          />
                         </div>
                       ) : (
                         <span style={{ color: 'var(--text-dim)', fontSize: '.8rem' }}>—</span>
@@ -466,6 +460,62 @@ export default function ContentManager({ siteBase, onOpen }: Props) {
           )
         }
       </section>
+    </div>
+  );
+}
+
+// ── Custom parent-page picker (replaces native <select>) ─────────────────────
+
+function ParentPagePicker({ currentId, parentId, pageEntries, disabled, onChange }: {
+  currentId: string;
+  parentId: string;
+  pageEntries: IndexEntry[];
+  disabled: boolean;
+  onChange: (value: string) => void;
+}) {
+  const [open, setOpen] = useState(false);
+  const ref = useRef<HTMLDivElement>(null);
+  const options = pageEntries.filter(p => p.content_id !== currentId);
+  const selected = options.find(p => p.content_id === parentId);
+
+  useEffect(() => {
+    function handleClick(e: MouseEvent) {
+      if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false);
+    }
+    document.addEventListener('mousedown', handleClick);
+    return () => document.removeEventListener('mousedown', handleClick);
+  }, []);
+
+  return (
+    <div ref={ref} className="custom-picker" style={{ position: 'relative' }}>
+      <button
+        className="custom-picker-trigger"
+        onClick={() => !disabled && setOpen(!open)}
+        disabled={disabled}
+        title="Parent page"
+      >
+        <span className="custom-picker-label">{selected ? selected.title : 'top level'}</span>
+        <span className="custom-picker-arrow">{open ? '▴' : '▾'}</span>
+      </button>
+      {open && (
+        <div className="custom-picker-dropdown">
+          <button
+            className={`custom-picker-option ${!parentId ? 'active' : ''}`}
+            onClick={() => { onChange(''); setOpen(false); }}
+          >
+            top level
+          </button>
+          {options.map(p => (
+            <button
+              key={p.content_id}
+              className={`custom-picker-option ${parentId === p.content_id ? 'active' : ''}`}
+              onClick={() => { onChange(p.content_id); setOpen(false); }}
+            >
+              {p.title}
+            </button>
+          ))}
+        </div>
+      )}
     </div>
   );
 }
