@@ -463,8 +463,8 @@ export function replayRoom(
 ): ProjectedContent | null {
   const meta = extractMeta(contentId, events);
 
-  // Access control: exclude private drafts from public build
-  if (!includeDrafts && (meta.status === 'draft' || meta.visibility === 'private')) {
+  // Access control: exclude private drafts and archived content from public build
+  if (!includeDrafts && (meta.status === 'draft' || meta.status === 'archived' || meta.visibility === 'private')) {
     return null;
   }
 

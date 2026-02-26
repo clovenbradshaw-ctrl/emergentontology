@@ -48,6 +48,15 @@ export function desIndexEntry(
   };
 }
 
+export function nulIndexEntry(contentId: string, agent: string): EOEvent {
+  return {
+    op: 'NUL',
+    target: `site:index/index:${contentId}`,
+    operand: { reason: 'user_archived' },
+    ctx: makeCtx(agent),
+  };
+}
+
 // ── Page blocks ───────────────────────────────────────────────────────────────
 
 export function insBlock(

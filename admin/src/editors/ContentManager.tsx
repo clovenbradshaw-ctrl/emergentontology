@@ -22,7 +22,7 @@ import {
   eventToPayload,
   type XanoCurrentRecord,
 } from '../xano/client';
-import { insIndexEntry, desContentMeta, desIndexEntry } from '../eo/events';
+import { insIndexEntry, desContentMeta, desIndexEntry, nulIndexEntry } from '../eo/events';
 import type { ContentType, ContentStatus, Visibility } from '../eo/types';
 
 interface IndexEntry {
@@ -75,6 +75,8 @@ export default function ContentManager({ siteBase, onOpen }: Props) {
   const [newSlug, setNewSlug] = useState('');
   const [newTitle, setNewTitle] = useState('');
   const [newVisibility, setNewVisibility] = useState<Visibility>(settings.defaultVisibility);
+  const [confirmArchive, setConfirmArchive] = useState<string | null>(null);
+  const [showArchive, setShowArchive] = useState(false);
 
   // ── Load index ─────────────────────────────────────────────────────────────
 
@@ -346,7 +348,107 @@ export default function ContentManager({ siteBase, onOpen }: Props) {
     }
   }
 
-  const pageEntries = entries.filter(e => e.content_type === 'page');
+  // ── Archive (soft-delete) ─────────────────────────────────────────────────
+
+  async function archiveContent(contentId: string) {
+    if (!isAuthenticated) return;
+    const agent = settings.displayName || 'editor';
+    const ts = new Date().toISOString();
+
+    try {
+      // 1. Emit NUL index event to the event log
+      const nulEvent = nulIndexEntry(contentId, agent);
+      const xid = `nul-index-${contentId}`;
+      registerEvent({ id: xid, op: nulEvent.op, target: nulEvent.target, operand: nulEvent.operand, ts: nulEvent.ctx.ts, agent: nulEvent.ctx.agent, status: 'pending' });
+      await addRecord(eventToPayload(nulEvent));
+      registerEvent({ id: xid, op: nulEvent.op, target: nulEvent.target, operand: nulEvent.operand, ts: nulEvent.ctx.ts, agent: nulEvent.ctx.agent, status: 'sent' });
+
+      // 2. Emit DES event to set content meta status to 'archived'
+      const metaEvent = desContentMeta(contentId, {
+        status: 'archived' as ContentStatus,
+        updated_at: ts,
+      } as Partial<import('../eo/types').ContentMeta>, agent);
+      await addRecord(eventToPayload(metaEvent));
+
+      // 3. Update site:index current state
+      const updatedEntries = entries.map((e) =>
+        e.content_id === contentId ? { ...e, status: 'archived' as ContentStatus } : e
+      );
+      const updated = await upsertCurrentRecord(
+        'site:index',
+        buildIndexPayload(updatedEntries),
+        agent,
+        indexRecordRef.current,
+      );
+      indexRecordRef.current = updated;
+      setEntries(updatedEntries);
+
+      // 4. Update content's own current state
+      try {
+        const contentRec = await fetchCurrentRecord(contentId);
+        if (contentRec) {
+          const contentState = JSON.parse(contentRec.values);
+          contentState.meta = { ...contentState.meta, status: 'archived', updated_at: ts };
+          await upsertCurrentRecord(contentId, contentState, agent, contentRec);
+        }
+      } catch { /* best-effort update */ }
+    } catch (err) {
+      setError(err instanceof Error ? err.message : String(err));
+    }
+  }
+
+  // ── Restore from archive ──────────────────────────────────────────────────
+
+  async function restoreContent(contentId: string) {
+    if (!isAuthenticated) return;
+    const agent = settings.displayName || 'editor';
+    const ts = new Date().toISOString();
+
+    try {
+      // 1. Emit DES index event to set status back to 'draft'
+      const desEvent = desIndexEntry(contentId, { status: 'draft' }, agent);
+      const xid = `des-restore-${contentId}`;
+      registerEvent({ id: xid, op: desEvent.op, target: desEvent.target, operand: desEvent.operand, ts: desEvent.ctx.ts, agent: desEvent.ctx.agent, status: 'pending' });
+      await addRecord(eventToPayload(desEvent));
+      registerEvent({ id: xid, op: desEvent.op, target: desEvent.target, operand: desEvent.operand, ts: desEvent.ctx.ts, agent: desEvent.ctx.agent, status: 'sent' });
+
+      // 2. Emit DES content meta event
+      const metaEvent = desContentMeta(contentId, {
+        status: 'draft' as ContentStatus,
+        updated_at: ts,
+      } as Partial<import('../eo/types').ContentMeta>, agent);
+      await addRecord(eventToPayload(metaEvent));
+
+      // 3. Update site:index current state
+      const updatedEntries = entries.map((e) =>
+        e.content_id === contentId ? { ...e, status: 'draft' as ContentStatus } : e
+      );
+      const updated = await upsertCurrentRecord(
+        'site:index',
+        buildIndexPayload(updatedEntries),
+        agent,
+        indexRecordRef.current,
+      );
+      indexRecordRef.current = updated;
+      setEntries(updatedEntries);
+
+      // 4. Update content's own current state
+      try {
+        const contentRec = await fetchCurrentRecord(contentId);
+        if (contentRec) {
+          const contentState = JSON.parse(contentRec.values);
+          contentState.meta = { ...contentState.meta, status: 'draft', updated_at: ts };
+          await upsertCurrentRecord(contentId, contentState, agent, contentRec);
+        }
+      } catch { /* best-effort update */ }
+    } catch (err) {
+      setError(err instanceof Error ? err.message : String(err));
+    }
+  }
+
+  const activeEntries = entries.filter(e => e.status !== 'archived');
+  const archivedEntries = entries.filter(e => e.status === 'archived');
+  const pageEntries = activeEntries.filter(e => e.content_type === 'page');
 
   if (loading) return <div className="editor-loading">Loading content list…</div>;
 
@@ -379,8 +481,8 @@ export default function ContentManager({ siteBase, onOpen }: Props) {
 
       {/* Content list */}
       <section className="content-list-section">
-        <h2>All Content ({entries.length})</h2>
-        {entries.length === 0
+        <h2>All Content ({activeEntries.length})</h2>
+        {activeEntries.length === 0
           ? <p className="empty-msg">No content yet. Create something above.</p>
           : (
             <table className="content-table">
@@ -396,7 +498,7 @@ export default function ContentManager({ siteBase, onOpen }: Props) {
                 </tr>
               </thead>
               <tbody>
-                {entries.map((entry) => (
+                {activeEntries.map((entry) => (
                   <tr key={entry.content_id}>
                     <td><span className={`type-badge type-${entry.content_type}`}>{entry.content_type}</span></td>
                     <td>
@@ -455,9 +557,36 @@ export default function ContentManager({ siteBase, onOpen }: Props) {
                       )}
                     </td>
                     <td>
-                      <button className="btn btn-sm" onClick={() => onOpen(entry.content_id, entry.content_type)}>
-                        Edit
-                      </button>
+                      <div style={{ display: 'flex', gap: '.35rem', alignItems: 'center' }}>
+                        <button className="btn btn-sm" onClick={() => onOpen(entry.content_id, entry.content_type)}>
+                          Edit
+                        </button>
+                        {confirmArchive === entry.content_id ? (
+                          <>
+                            <button
+                              className="btn btn-sm btn-danger"
+                              onClick={() => { archiveContent(entry.content_id); setConfirmArchive(null); }}
+                            >
+                              Confirm
+                            </button>
+                            <button
+                              className="btn btn-sm"
+                              onClick={() => setConfirmArchive(null)}
+                            >
+                              Cancel
+                            </button>
+                          </>
+                        ) : (
+                          <button
+                            className="btn btn-sm btn-archive"
+                            onClick={() => setConfirmArchive(entry.content_id)}
+                            disabled={!isAuthenticated}
+                            title="Archive (soft-delete)"
+                          >
+                            Delete
+                          </button>
+                        )}
+                      </div>
                     </td>
                   </tr>
                 ))}
@@ -465,6 +594,53 @@ export default function ContentManager({ siteBase, onOpen }: Props) {
             </table>
           )
         }
+      </section>
+
+      {/* Archive section */}
+      <section className="archive-section">
+        <button
+          className="archive-toggle"
+          onClick={() => setShowArchive(!showArchive)}
+        >
+          Archive ({archivedEntries.length})
+          <span className={`archive-chevron ${showArchive ? 'open' : ''}`}>&#9662;</span>
+        </button>
+
+        {showArchive && (
+          archivedEntries.length === 0
+            ? <p className="empty-msg" style={{ marginTop: '.75rem' }}>No archived content.</p>
+            : (
+              <table className="content-table archive-table">
+                <thead>
+                  <tr>
+                    <th>Type</th>
+                    <th>Title</th>
+                    <th>Slug</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {archivedEntries.map((entry) => (
+                    <tr key={entry.content_id} className="archived-row">
+                      <td><span className={`type-badge type-${entry.content_type}`}>{entry.content_type}</span></td>
+                      <td className="archived-title">{entry.title}</td>
+                      <td className="slug-cell">{entry.slug}</td>
+                      <td>
+                        <button
+                          className="btn btn-sm btn-restore"
+                          onClick={() => restoreContent(entry.content_id)}
+                          disabled={!isAuthenticated}
+                          title="Restore from archive"
+                        >
+                          Restore
+                        </button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            )
+        )}
       </section>
     </div>
   );
