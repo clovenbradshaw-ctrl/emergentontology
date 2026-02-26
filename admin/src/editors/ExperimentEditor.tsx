@@ -12,6 +12,7 @@
 
 import React, { useEffect, useRef, useState } from 'react';
 import { useAuth } from '../auth/AuthContext';
+import { useSettings } from '../settings/SettingsContext';
 import { useXRay } from '../components/XRayOverlay';
 import {
   fetchCurrentRecord,
@@ -40,6 +41,7 @@ interface Props {
 
 export default function ExperimentEditor({ contentId, siteBase }: Props) {
   const { isAuthenticated } = useAuth();
+  const { settings } = useSettings();
   const { registerEvent } = useXRay();
 
   const [state, setState] = useState<ExpState | null>(null);
@@ -106,7 +108,7 @@ export default function ExperimentEditor({ contentId, siteBase }: Props) {
       data: { text: text.trim() },
       ts,
     };
-    const event = insExpEntry(contentId, entry, 'editor');
+    const event = insExpEntry(contentId, entry, settings.displayName || 'editor');
     const xid = `ins-entry-${entryId}`;
     registerEvent({ id: xid, op: event.op, target: event.target, operand: event.operand, ts: event.ctx.ts, agent: event.ctx.agent, status: 'pending' });
 
@@ -136,7 +138,7 @@ export default function ExperimentEditor({ contentId, siteBase }: Props) {
 
   async function deleteEntry(entryId: string) {
     if (!isAuthenticated) return;
-    const event = nulExpEntry(contentId, entryId, 'editor');
+    const event = nulExpEntry(contentId, entryId, settings.displayName || 'editor');
     registerEvent({ id: `nul-${entryId}`, op: event.op, target: event.target, operand: event.operand, ts: event.ctx.ts, agent: event.ctx.agent, status: 'pending' });
     try {
       await addRecord(eventToPayload(event));

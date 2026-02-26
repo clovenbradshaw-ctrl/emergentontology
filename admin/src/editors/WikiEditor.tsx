@@ -10,6 +10,7 @@
 
 import React, { useEffect, useRef, useState } from 'react';
 import { useAuth } from '../auth/AuthContext';
+import { useSettings } from '../settings/SettingsContext';
 import { useXRay } from '../components/XRayOverlay';
 import {
   fetchCurrentRecord,
@@ -34,6 +35,7 @@ interface Props {
 
 export default function WikiEditor({ contentId, siteBase }: Props) {
   const { isAuthenticated } = useAuth();
+  const { settings } = useSettings();
   const { registerEvent } = useXRay();
 
   const [state, setState] = useState<WikiState | null>(null);
@@ -104,7 +106,7 @@ export default function WikiEditor({ contentId, siteBase }: Props) {
     setError(null);
 
     const revId = `r_${Date.now()}`;
-    const agent = 'editor';
+    const agent = settings.displayName || 'editor';
     const ts = new Date().toISOString();
     const event = insRevision(contentId, {
       rev_id: revId,

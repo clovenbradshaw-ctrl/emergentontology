@@ -15,6 +15,7 @@
 
 import React, { useEffect, useState } from 'react';
 import { AuthProvider, useAuth } from './auth/AuthContext';
+import { SettingsProvider, useSettings } from './settings/SettingsContext';
 import { XRayProvider, XRayPanel, XRayToggleButton } from './components/XRayOverlay';
 import ContentManager from './editors/ContentManager';
 import WikiEditor from './editors/WikiEditor';
@@ -30,6 +31,7 @@ const SITE_BASE = import.meta.env.BASE_URL.replace(/\/admin\/?$/, '') || '';
 
 function LoginForm() {
   const { login, loading, error } = useAuth();
+  const { settings } = useSettings();
   const [password, setPassword] = useState('');
 
   async function handleSubmit(e: React.FormEvent) {
@@ -41,7 +43,7 @@ function LoginForm() {
     <div className="login-screen">
       <div className="login-card">
         <div className="login-logo">⊡</div>
-        <h1>EO Admin</h1>
+        <h1>{settings.siteName || 'EO Admin'}</h1>
         <p className="login-sub">Enter the editor password to continue</p>
 
         {error && <div className="error-banner">{error}</div>}
@@ -97,6 +99,7 @@ function parseHash(hash: string): Route {
 
 function AdminShell() {
   const { isAuthenticated, logout } = useAuth();
+  const { settings } = useSettings();
   const [route, setRoute] = useState<Route>(() => parseHash(window.location.hash));
   const [currentHistory, setCurrentHistory] = useState<unknown[]>([]);
 
@@ -125,7 +128,7 @@ function AdminShell() {
     <div className="admin-app">
       {/* Header */}
       <header className="admin-header">
-        <button className="admin-logo" onClick={() => navigate('')}>⊡ EO Admin</button>
+        <button className="admin-logo" onClick={() => navigate('')}>⊡ {settings.siteName || 'EO Admin'}</button>
         <nav className="admin-nav">
           <button className={`nav-btn ${route.type === 'list' ? 'active' : ''}`} onClick={() => navigate('')}>Content</button>
           <button className={`nav-btn ${route.type === 'settings' ? 'active' : ''}`} onClick={() => navigate('settings')}>Settings</button>
@@ -173,17 +176,96 @@ function AdminShell() {
 }
 
 function SettingsPanel() {
+  const { settings, updateSettings, resetSettings } = useSettings();
+  const [saved, setSaved] = useState(false);
+
+  function handleChange(field: string, value: string) {
+    updateSettings({ [field]: value });
+    setSaved(true);
+    setTimeout(() => setSaved(false), 1500);
+  }
+
   return (
     <div className="settings-panel">
       <h2>Settings</h2>
-      <div className="settings-info">
-        <div className="info-row"><span>Backend</span><code>Xano EOwiki</code></div>
-        <div className="info-row"><span>Event log</span><code>/api:GGzWIVAW/eowiki</code></div>
-        <div className="info-row"><span>Current state</span><code>/api:GGzWIVAW/eowikicurrent</code></div>
-      </div>
-      <div className="settings-note">
-        <strong>Auth:</strong> Write operations require the editor password (hashed SHA-256 client-side).
-        Reads are public. Sessions persist across browser sessions via localStorage.
+
+      {saved && <div className="settings-saved">Settings saved</div>}
+
+      {/* ── Identity ─────────────────────────────────── */}
+      <section className="settings-section">
+        <h3>Identity</h3>
+        <label className="field">
+          <span>Display name</span>
+          <input
+            value={settings.displayName}
+            onChange={(e) => handleChange('displayName', e.target.value)}
+            placeholder="editor"
+          />
+          <span className="field-hint">
+            Shown as the agent on all events (visible in X-Ray and history).
+          </span>
+        </label>
+        <label className="field">
+          <span>Site name</span>
+          <input
+            value={settings.siteName}
+            onChange={(e) => handleChange('siteName', e.target.value)}
+            placeholder="EO Admin"
+          />
+          <span className="field-hint">
+            Displayed in the header and login screen.
+          </span>
+        </label>
+      </section>
+
+      {/* ── Defaults ─────────────────────────────────── */}
+      <section className="settings-section">
+        <h3>Content defaults</h3>
+        <label className="field">
+          <span>Default visibility</span>
+          <select
+            value={settings.defaultVisibility}
+            onChange={(e) => handleChange('defaultVisibility', e.target.value)}
+          >
+            <option value="public">Public</option>
+            <option value="private">Private</option>
+          </select>
+          <span className="field-hint">
+            Visibility applied to newly created content.
+          </span>
+        </label>
+        <label className="field">
+          <span>Default status</span>
+          <select
+            value={settings.defaultStatus}
+            onChange={(e) => handleChange('defaultStatus', e.target.value)}
+          >
+            <option value="draft">Draft</option>
+            <option value="published">Published</option>
+          </select>
+          <span className="field-hint">
+            Status applied to newly created content.
+          </span>
+        </label>
+      </section>
+
+      {/* ── Backend info (read-only) ─────────────────── */}
+      <section className="settings-section">
+        <h3>Backend</h3>
+        <div className="settings-info">
+          <div className="info-row"><span>Backend</span><code>Xano EOwiki</code></div>
+          <div className="info-row"><span>Event log</span><code>/api:GGzWIVAW/eowiki</code></div>
+          <div className="info-row"><span>Current state</span><code>/api:GGzWIVAW/eowikicurrent</code></div>
+        </div>
+        <div className="settings-note">
+          <strong>Auth:</strong> Write operations require the editor password (hashed SHA-256 client-side).
+          Reads are public. Sessions persist across browser sessions via localStorage.
+        </div>
+      </section>
+
+      {/* ── Reset ────────────────────────────────────── */}
+      <div className="settings-reset">
+        <button className="btn btn-sm" onClick={resetSettings}>Reset to defaults</button>
       </div>
     </div>
   );
@@ -193,10 +275,12 @@ function SettingsPanel() {
 
 export default function App() {
   return (
-    <AuthProvider>
-      <XRayProvider>
-        <AdminShell />
-      </XRayProvider>
-    </AuthProvider>
+    <SettingsProvider>
+      <AuthProvider>
+        <XRayProvider>
+          <AdminShell />
+        </XRayProvider>
+      </AuthProvider>
+    </SettingsProvider>
   );
 }
