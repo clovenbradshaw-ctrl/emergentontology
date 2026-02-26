@@ -100,18 +100,9 @@ const operators = [
     </section>
   )}
 
-  <!-- ── Nine Operators (compact bar) ── -->
-  <section class="ops-bar-section" aria-label="Nine Operators">
-    <h2 class="ops-bar-title">Nine Operators</h2>
-    <div class="ops-bar">
-      {operators.map((op) => (
-        <a class="ops-pill" href={`${base}/wiki/${op.slug}/`} title={op.label} style={`--op-color: ${op.color}`}>
-          <span class="ops-pill-sym">{op.symbol}</span>
-          <span class="ops-pill-code">{op.code}</span>
-        </a>
-      ))}
-    </div>
-  </section>
+  <!-- ── Two-column layout: content left, rune grid right ── -->
+  <div class="home-columns">
+    <div class="home-col-main">
 
   {!hasContent && !hasHomeBlocks && (
     <section class="home-empty">
@@ -246,5 +237,20 @@ const operators = [
       </div>
     </section>
   )}
+
+    </div>{/* end .home-col-main */}
+
+    <!-- ── Rune Grid (right column) ── -->
+    <aside class="rune-grid-aside" aria-label="Nine Operators">
+      <div class="rune-grid">
+        {operators.map((op) => (
+          <a class="rune-cell" href={`${base}/wiki/${op.slug}/`} title={`${op.code} — ${op.label}`} style={`--rune-color: ${op.color}`}>
+            <span class="rune-sym">{op.symbol}</span>
+            <span class="rune-code">{op.code}</span>
+          </a>
+        ))}
+      </div>
+    </aside>
+  </div>{/* end .home-columns */}
 
 </Base>
