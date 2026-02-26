@@ -15,13 +15,13 @@ const TIMEOUT_MS = 30_000;
 
 export interface XanoCurrentRecord {
   id: number;
-  created_at: number;   // epoch ms
-  record_id: string;    // e.g. "wiki:home", "site:index"
+  created_at: string;    // ISO timestamp
+  record_id: string;     // e.g. "wiki:home", "site:index"
   displayName: string;
-  values: string;       // JSON-stringified state snapshot
+  values: string;        // JSON-stringified state snapshot
   context: Record<string, unknown>;
   uuid: string;
-  lastModified: number; // epoch ms
+  lastModified: string;  // ISO timestamp
 }
 
 export async function fetchAllCurrentRecords(): Promise<XanoCurrentRecord[]> {

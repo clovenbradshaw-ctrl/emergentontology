@@ -222,9 +222,9 @@ export default function ContentManager({ siteBase, onOpen }: Props) {
       try {
         const contentRec = await fetchCurrentRecord(contentId);
         if (contentRec) {
-          const contentState = JSON.parse(contentRec.value);
+          const contentState = JSON.parse(contentRec.values);
           contentState.meta = { ...contentState.meta, status: newStatus, updated_at: desEvent.ctx.ts };
-          await upsertCurrentRecord(contentId, metaEvent.op, contentState, agent, contentRec);
+          await upsertCurrentRecord(contentId, contentState, agent, contentRec);
         }
       } catch { /* best-effort update */ }
     } catch (err) {
