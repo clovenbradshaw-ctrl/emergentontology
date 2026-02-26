@@ -85,7 +85,7 @@ function applyPageDelta(snap: ProjectedPage, events: EORawEvent[]): ProjectedPag
 
   for (const raw of events) {
     if (raw.type !== 'eo.op') continue;
-    const e = raw.content as EOEvent;
+    const e = raw.content as unknown as EOEvent;
     if (!isEOEvent(e)) continue;
     const { childType, childId } = parseTarget(e.target);
     if (childType !== 'block' || !childId) continue;
@@ -115,7 +115,7 @@ function applyWikiDelta(snap: ProjectedWiki, events: EORawEvent[]): ProjectedWik
 
   for (const raw of events) {
     if (raw.type !== 'eo.op') continue;
-    const e = raw.content as EOEvent;
+    const e = raw.content as unknown as EOEvent;
     if (!isEOEvent(e)) continue;
     const { childType, childId } = parseTarget(e.target);
     if (childType !== 'rev' || !childId) continue;
@@ -142,7 +142,7 @@ function applyExpDelta(snap: ProjectedExperiment, events: EORawEvent[]): Project
 
   for (const raw of events) {
     if (raw.type !== 'eo.op') continue;
-    const e = raw.content as EOEvent;
+    const e = raw.content as unknown as EOEvent;
     if (!isEOEvent(e)) continue;
     const { childType, childId } = parseTarget(e.target);
     if (childType !== 'entry' || !childId) continue;
