@@ -1,10 +1,10 @@
 ---
 import Base from '../../layouts/Base.astro';
-import { loadAllContent } from '../../lib/state';
+import { loadPublishedContent } from '../../lib/state';
 import type { ProjectedBlog } from '../../lib/state';
 
 export async function getStaticPaths() {
-  const items = loadAllContent('blog') as ProjectedBlog[];
+  const items = loadPublishedContent('blog') as ProjectedBlog[];
   const sorted = [...items].sort((a, b) => {
     const da = a.current_revision?.ts ?? a.meta.updated_at;
     const db = b.current_revision?.ts ?? b.meta.updated_at;

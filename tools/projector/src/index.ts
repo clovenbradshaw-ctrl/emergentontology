@@ -251,10 +251,13 @@ async function main() {
     (e) => e.status === 'published' && e.visibility === 'public',
   );
 
+  // Exclude archived entries from the public site index
+  const activeEntries = allEntries.filter((e) => e.status !== 'archived');
+
   const siteIndex: SiteIndex = {
-    entries: allEntries,
+    entries: activeEntries,
     nav,
-    slug_map: Object.fromEntries(allEntries.map((e) => [e.slug, e.content_id])),
+    slug_map: Object.fromEntries(activeEntries.map((e) => [e.slug, e.content_id])),
     built_at: new Date().toISOString(),
   };
 
@@ -270,8 +273,8 @@ async function main() {
   // so drafts won't appear in the site header/index—just at their direct URL.
   // INCLUDE_DRAFTS=true additionally includes private-visibility content.
   const entriesToProcess = cfg.include_drafts
-    ? allEntries
-    : allEntries.filter((e) => e.visibility === 'public');
+    ? allEntries.filter((e) => e.status !== 'archived')
+    : allEntries.filter((e) => e.visibility === 'public' && e.status !== 'archived');
   const recordMap = new Map(records.map((r) => [r.record_id, r]));
   const projectedContents: ProjectedContent[] = [];
 

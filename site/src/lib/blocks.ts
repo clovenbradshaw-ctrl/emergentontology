@@ -213,6 +213,12 @@ export function renderBlock(block: Block, page: PageLike, base: string): string 
       const html = String(data.html ?? '');
       return `<div class="block block-html">${html}</div>`;
     }
+    case 'content-feed':
+      // Rendered specially in index.astro with site data; placeholder for other pages
+      return `<div class="block block-content-feed">[${escHtml(String(data.content_type ?? 'wiki'))} feed]</div>`;
+    case 'operator-grid':
+      // Rendered specially in index.astro; placeholder for other pages
+      return `<div class="block block-operator-grid">[operator grid]</div>`;
     default:
       return `<div class="block block-${block_type}">[${block_type}]</div>`;
   }

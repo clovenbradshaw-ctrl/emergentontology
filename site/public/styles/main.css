@@ -830,8 +830,12 @@ main.home { max-width: 1100px; }
 /* ── Rune Grid (3x3, right column) ── */
 .rune-grid-aside {
   position: sticky;
-  top: 68px; /* below sticky header */
+  top: 68px;
   padding-top: 1rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: .5rem;
 }
 .rune-mode-toggle {
   display: flex;
@@ -863,10 +867,14 @@ main.home { max-width: 1100px; }
   gap: 3px;
   width: 156px;
 }
+.rune-grid--inline {
+  width: 100%;
+  max-width: 320px;
+  margin: 0 auto;
+}
 .rune-cell {
   aspect-ratio: 1;
   display: flex;
-  flex-direction: column;
   align-items: center;
   justify-content: center;
   background: var(--bg2);
@@ -885,20 +893,49 @@ main.home { max-width: 1100px; }
   text-decoration: none;
   box-shadow: 0 0 12px color-mix(in srgb, var(--rune-color, var(--accent)) 25%, transparent);
 }
-.rune-sym {
-  font-size: 1.4rem;
-  line-height: 1;
+.rune-display {
   color: var(--rune-color, var(--accent));
+  font-weight: 600;
+  line-height: 1;
+  text-align: center;
   margin-bottom: 2px;
   transition: opacity .2s ease, transform .2s ease;
 }
-.rune-code {
-  font-family: var(--font-mono);
-  font-size: .55rem;
-  font-weight: 700;
-  letter-spacing: .1em;
-  color: var(--text-dim);
-  text-transform: uppercase;
+.rune-display[data-version="symbol"] { font-size: 1.4rem; }
+.rune-display[data-version="code"] { font-family: var(--font-mono); font-size: .8rem; letter-spacing: .08em; }
+.rune-display[data-version="greek"] { font-size: 1.3rem; }
+.rune-display[hidden] { display: none; }
+
+/* ALT toggle button */
+.alt-toggle {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-radius: 50%;
+  color: #fbbf24;
+  font-size: .85rem;
+  cursor: pointer;
+  transition: border-color .15s, background .15s, transform .15s;
+  padding: 0;
+}
+.alt-toggle:hover {
+  border-color: #fbbf24;
+  background: var(--bg3);
+  transform: scale(1.15);
+  box-shadow: 0 0 8px rgba(251, 191, 36, .25);
+}
+.alt-toggle-icon { line-height: 1; }
+
+/* Operator grid container (inline block version) */
+.operator-grid-container {
+  display: flex;
+  align-items: flex-start;
+  gap: .75rem;
+  justify-content: center;
 }
 
 /* ── Rune display mode toggling ── */
@@ -986,7 +1023,7 @@ main.home { max-width: 1100px; }
   .hero-title { font-size: 1.8rem; }
   .content-grid { grid-template-columns: 1fr 1fr; }
   .home-columns { grid-template-columns: 1fr; }
-  .rune-grid-aside { position: static; display: flex; justify-content: center; padding-top: 0; }
+  .rune-grid-aside { position: static; flex-direction: row; justify-content: center; padding-top: 0; }
   .rune-grid { width: 140px; }
 }
 @media (max-width: 480px) {
