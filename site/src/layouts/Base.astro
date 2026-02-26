@@ -186,6 +186,16 @@ const childPages = (parentId: string) => pageNav.filter((e: NavEntry) => e.paren
     </div>
   </footer>
 
+  <!-- Admin preview drawer -->
+  <div class="admin-drawer-overlay" id="admin-drawer-overlay"></div>
+  <div class="admin-drawer" id="admin-drawer">
+    <div class="admin-drawer-header">
+      <span>Admin Editor</span>
+      <button class="admin-drawer-close" id="admin-drawer-close">Close</button>
+    </div>
+    <iframe id="admin-drawer-iframe" title="Admin Editor"></iframe>
+  </div>
+
   <script src={`${base}/js/search.js`} defer></script>
   <script src={`${base}/js/xray.js`} defer></script>
   <script>
@@ -218,6 +228,51 @@ const childPages = (parentId: string) => pageNav.filter((e: NavEntry) => e.paren
         var next = current === 'dark' ? 'light' : 'dark';
         document.documentElement.setAttribute('data-theme', next);
         localStorage.setItem('eo-theme', next);
+      });
+    })();
+
+    // Show edit buttons only when logged in (eo_xano_auth in localStorage)
+    (function() {
+      if (localStorage.getItem('eo_xano_auth')) {
+        document.documentElement.setAttribute('data-eo-auth', '');
+      }
+    })();
+
+    // Admin preview drawer
+    (function() {
+      var overlay = document.getElementById('admin-drawer-overlay');
+      var drawer = document.getElementById('admin-drawer');
+      var iframe = document.getElementById('admin-drawer-iframe');
+      var closeBtn = document.getElementById('admin-drawer-close');
+      if (!overlay || !drawer || !iframe || !closeBtn) return;
+
+      function openDrawer(href) {
+        iframe.src = href;
+        drawer.classList.add('open');
+        overlay.classList.add('open');
+        document.body.style.overflow = 'hidden';
+      }
+      function closeDrawer() {
+        drawer.classList.remove('open');
+        overlay.classList.remove('open');
+        document.body.style.overflow = '';
+        setTimeout(function() { iframe.src = ''; }, 300);
+      }
+      closeBtn.addEventListener('click', closeDrawer);
+      overlay.addEventListener('click', closeDrawer);
+      document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape' && drawer.classList.contains('open')) {
+          e.stopImmediatePropagation();
+          closeDrawer();
+        }
+      });
+
+      document.addEventListener('click', function(e) {
+        var link = e.target.closest('.btn-edit');
+        if (link && link.href) {
+          e.preventDefault();
+          openDrawer(link.href);
+        }
       });
     })();
 
