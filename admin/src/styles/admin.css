@@ -185,8 +185,9 @@ textarea { resize: vertical; }
 .status-toggle { background: none; border: 1px solid var(--border); border-radius: 999px; padding: .1rem .5rem; font-size: .78rem; cursor: pointer; transition: .15s; }
 .status-draft { color: var(--warn); border-color: var(--warn); }
 .status-published { color: var(--success); border-color: var(--success); }
-.visibility-badge { font-size: .78rem; color: var(--text-dim); }
-.vis-public { color: var(--link); }
+.visibility-toggle { background: none; border: 1px solid var(--border); border-radius: 999px; padding: .1rem .5rem; font-size: .78rem; cursor: pointer; transition: .15s; }
+.vis-public { color: var(--link); border-color: var(--link); }
+.vis-private { color: var(--text-dim); border-color: var(--text-dim); }
 .empty-msg { color: var(--text-dim); }
 
 /* Settings */
