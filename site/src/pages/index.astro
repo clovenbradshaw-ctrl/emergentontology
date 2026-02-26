@@ -22,17 +22,9 @@ const blogEntries  = index.nav.filter((e: NavEntry) => e.content_type === 'blog'
 const expEntries   = index.nav.filter((e: NavEntry) => e.content_type === 'experiment');
 const pageEntries  = index.nav.filter((e: NavEntry) => e.content_type === 'page');
 
-function wikiExcerpt(contentId: string): string {
-  const content = loadContent(contentId) as ProjectedWiki | null;
-  const text = content?.current_revision?.content ?? '';
-  if (!text) return '';
-  const plain = text.replace(/^#+\s+/gm, '').replace(/[*_`]/g, '').replace(/\[([^\]]+)\]\([^)]+\)/g, '$1');
-  return plain.slice(0, 140).trimEnd() + (plain.length > 140 ? '…' : '');
-}
-
-function blogExcerpt(contentId: string): string {
-  const content = loadContent(contentId) as ProjectedBlog | null;
-  const text = content?.current_revision?.content ?? '';
+function contentExcerpt(contentId: string): string {
+  const content = loadContent(contentId) as ProjectedWiki | ProjectedBlog | null;
+  const text = (content as any)?.current_revision?.content ?? '';
   if (!text) return '';
   const plain = text.replace(/^#+\s+/gm, '').replace(/[*_`]/g, '').replace(/\[([^\]]+)\]\([^)]+\)/g, '$1');
   return plain.slice(0, 140).trimEnd() + (plain.length > 140 ? '…' : '');
@@ -45,18 +37,62 @@ const allTags = Array.from(
 const totalArticles = wikiEntries.length + blogEntries.length + expEntries.length + pageEntries.length;
 const hasContent = totalArticles > 0;
 
-// Nine operators data
+// Nine operators data — multiple naming conventions
 const operators = [
-  { num: 1, symbol: '∅', code: 'NUL', label: 'Absence & Nullity', color: '#9ca3af', slug: 'nul' },
-  { num: 2, symbol: '⊡', code: 'DES', label: 'Designation', color: '#60a5fa', slug: 'des' },
-  { num: 3, symbol: '△', code: 'INS', label: 'Instantiation', color: '#4ade80', slug: 'ins' },
-  { num: 4, symbol: '｜', code: 'SEG', label: 'Segmentation', color: '#c084fc', slug: 'seg' },
-  { num: 5, symbol: '⋈', code: 'CON', label: 'Connection', color: '#34d399', slug: 'con' },
-  { num: 6, symbol: '∿', code: 'ALT', label: 'Alternation', color: '#fbbf24', slug: 'alt' },
-  { num: 7, symbol: '∨', code: 'SYN', label: 'Synthesis', color: '#818cf8', slug: 'syn' },
-  { num: 8, symbol: '∥', code: 'SUP', label: 'Superposition', color: '#f472b6', slug: 'sup' },
-  { num: 9, symbol: '⟳', code: 'REC', label: 'Recursion', color: '#fb923c', slug: 'rec' },
+  { num: 1, symbol: '∅', code: 'NUL', greek: 'ν', label: 'Nullity', color: '#9ca3af', slug: 'nul' },
+  { num: 2, symbol: '⊡', code: 'DES', greek: 'δ', label: 'Designation', color: '#60a5fa', slug: 'des' },
+  { num: 3, symbol: '△', code: 'INS', greek: 'ι', label: 'Instantiation', color: '#4ade80', slug: 'ins' },
+  { num: 4, symbol: '｜', code: 'SEG', greek: 'σ', label: 'Segmentation', color: '#c084fc', slug: 'seg' },
+  { num: 5, symbol: '⋈', code: 'CON', greek: 'κ', label: 'Connection', color: '#34d399', slug: 'con' },
+  { num: 6, symbol: '∿', code: 'ALT', greek: 'α', label: 'Alternation', color: '#fbbf24', slug: 'alt' },
+  { num: 7, symbol: '∨', code: 'SYN', greek: 'ψ', label: 'Synthesis', color: '#818cf8', slug: 'syn' },
+  { num: 8, symbol: '∥', code: 'SUP', greek: 'φ', label: 'Superposition', color: '#f472b6', slug: 'sup' },
+  { num: 9, symbol: '⟳', code: 'REC', greek: 'ρ', label: 'Recursion', color: '#fb923c', slug: 'rec' },
 ];
+
+// Check if homepage has content-feed or operator-grid blocks
+const hasContentFeedBlocks = hasHomeBlocks && homePage!.block_order.some((id: string) => {
+  const block = homeBlockMap.get(id);
+  return block && !block.deleted && (block.block_type === 'content-feed' || block.block_type === 'operator-grid');
+});
+
+// Helper: get entries by content type
+function getEntriesByType(type: string) {
+  switch (type) {
+    case 'wiki': return wikiEntries;
+    case 'blog': return blogEntries;
+    case 'experiment': return expEntries;
+    case 'page': return pageEntries;
+    default: return [];
+  }
+}
+function typeIcon(type: string) {
+  switch (type) {
+    case 'wiki': return 'ph-book-open-text';
+    case 'blog': return 'ph-pen-nib';
+    case 'experiment': return 'ph-flask';
+    case 'page': return 'ph-file-text';
+    default: return 'ph-file';
+  }
+}
+function typeUrl(type: string) {
+  switch (type) {
+    case 'wiki': return `${base}/wiki/`;
+    case 'blog': return `${base}/blog/`;
+    case 'experiment': return `${base}/exp/`;
+    case 'page': return `${base}/page/`;
+    default: return `${base}/`;
+  }
+}
+function itemUrl(type: string, slug: string) {
+  switch (type) {
+    case 'wiki': return `${base}/wiki/${slug}/`;
+    case 'blog': return `${base}/blog/${slug}/`;
+    case 'experiment': return `${base}/exp/${slug}/`;
+    case 'page': return `${base}/page/${slug}/`;
+    default: return `${base}/`;
+  }
+}
 ---
 <Base title="Home" description="A minimal, universal framework for data transformation." mainClass="home">
 
@@ -67,6 +103,94 @@ const operators = [
         {homePage!.block_order.map((id: string) => {
           const block = homeBlockMap.get(id);
           if (!block || block.deleted) return null;
+
+          // ── Content Feed block ──
+          if (block.block_type === 'content-feed') {
+            const feedType = String(block.data.content_type ?? 'wiki');
+            const maxItems = Number(block.data.max_items ?? 6);
+            const layout = String(block.data.layout ?? 'grid');
+            const entries = getEntriesByType(feedType);
+            if (entries.length === 0) return null;
+
+            return (
+              <section class="home-section" data-eo-op="INS" data-eo-target={`page:home/block:${block.block_id}`}>
+                <div class="section-header">
+                  <h2 class="section-title">
+                    <i class={`ph ${typeIcon(feedType)} section-icon`}></i>
+                    {feedType.charAt(0).toUpperCase() + feedType.slice(1)}{feedType === 'experiment' ? 's' : ''}
+                  </h2>
+                  <a class="section-viewall" href={typeUrl(feedType)}>View all →</a>
+                </div>
+                {layout === 'grid' ? (
+                  <div class={`content-grid ${feedType === 'experiment' ? 'content-grid--sm' : ''}`}>
+                    {entries.slice(0, maxItems).map((e: NavEntry) => {
+                      const excerpt = (feedType === 'wiki' || feedType === 'blog') ? contentExcerpt(e.content_id) : '';
+                      return (
+                        <a class={`content-card ${feedType === 'experiment' ? 'content-card--exp' : ''}`} href={itemUrl(feedType, e.slug)}>
+                          <h3 class="card-title">{e.title}</h3>
+                          {excerpt && <p class="card-excerpt">{excerpt}</p>}
+                          {e.tags.length > 0 && (
+                            <div class="card-tags">
+                              {e.tags.slice(0, 3).map((t: string) => <span class="tag">{t}</span>)}
+                            </div>
+                          )}
+                        </a>
+                      );
+                    })}
+                  </div>
+                ) : (
+                  <div class="content-list-cards">
+                    {entries.slice(0, maxItems).map((e: NavEntry) => {
+                      const excerpt = (feedType === 'wiki' || feedType === 'blog') ? contentExcerpt(e.content_id) : '';
+                      return (
+                        <a class="list-card" href={itemUrl(feedType, e.slug)}>
+                          <div class="list-card-body">
+                            <h3 class="list-card-title">{e.title}</h3>
+                            {excerpt && <p class="card-excerpt">{excerpt}</p>}
+                          </div>
+                          <div class="list-card-arrow">→</div>
+                        </a>
+                      );
+                    })}
+                  </div>
+                )}
+              </section>
+            );
+          }
+
+          // ── Operator Grid block ──
+          if (block.block_type === 'operator-grid') {
+            return (
+              <section class="home-section" data-eo-op="INS" data-eo-target={`page:home/block:${block.block_id}`}>
+                <div class="operator-grid-container" id="operator-grid">
+                  <div class="rune-grid rune-grid--inline">
+                    {operators.map((op) => (
+                      <a
+                        class="rune-cell"
+                        href={`${base}/wiki/${op.slug}/`}
+                        title={`${op.code} — ${op.label}`}
+                        style={`--rune-color: ${op.color}`}
+                        data-symbol={op.symbol}
+                        data-code={op.code}
+                        data-greek={op.greek}
+                        data-label={op.label}
+                      >
+                        <span class="rune-display" data-version="symbol">{op.symbol}</span>
+                        <span class="rune-display" data-version="code" hidden>{op.code}</span>
+                        <span class="rune-display" data-version="greek" hidden>{op.greek}</span>
+                        <span class="rune-display" data-version="label" hidden>{op.label}</span>
+                      </a>
+                    ))}
+                  </div>
+                  <button class="alt-toggle" id="alt-toggle" title="Switch naming version">
+                    <span class="alt-toggle-icon">∿</span>
+                  </button>
+                </div>
+              </section>
+            );
+          }
+
+          // ── Regular blocks ──
           return (
             <div class="block-eo-wrap" data-eo-op="INS" data-eo-target={`page:home/block:${block.block_id}`}>
               <Fragment set:html={renderBlock(block, homePageLike, base)} />
@@ -115,112 +239,86 @@ const operators = [
     </section>
   )}
 
-  {/* ── Wiki section ── */}
-  {wikiEntries.length > 0 && (
-    <section class="home-section">
-      <div class="section-header">
-        <h2 class="section-title">
-          <i class="ph ph-book-open-text section-icon"></i>
-          Wiki
-        </h2>
-        <a class="section-viewall" href={`${base}/wiki/`}>Wiki →</a>
-      </div>
-      <div class="content-grid">
-        {wikiEntries.slice(0, 6).map((e: NavEntry) => {
-          const excerpt = wikiExcerpt(e.content_id);
-          return (
-            <a class="content-card" href={`${base}/wiki/${e.slug}/`}>
-              <div class="card-type"><code class="eo-op"><span class="eo-name">DES</span>(<span class="eo-target">{e.content_id}</span>)</code></div>
-              <h3 class="card-title">{e.title}</h3>
-              {excerpt && <p class="card-excerpt">{excerpt}</p>}
-              {e.tags.length > 0 && (
-                <div class="card-tags">
-                  {e.tags.slice(0, 3).map((t: string) => (
-                    <span class="tag">{t}</span>
-                  ))}
-                </div>
-              )}
-            </a>
-          );
-        })}
-      </div>
-      {wikiEntries.length > 6 && (
-        <div class="section-footer">
-          <a class="btn btn-outline" href={`${base}/wiki/`}>
-            View all wiki entries
-          </a>
-        </div>
+  {/* ── Fallback sections: only show if homepage doesn't use content-feed blocks ── */}
+  {!hasContentFeedBlocks && (
+    <>
+      {wikiEntries.length > 0 && (
+        <section class="home-section">
+          <div class="section-header">
+            <h2 class="section-title"><i class="ph ph-book-open-text section-icon"></i> Wiki</h2>
+            <a class="section-viewall" href={`${base}/wiki/`}>View all →</a>
+          </div>
+          <div class="content-grid">
+            {wikiEntries.slice(0, 6).map((e: NavEntry) => {
+              const excerpt = contentExcerpt(e.content_id);
+              return (
+                <a class="content-card" href={`${base}/wiki/${e.slug}/`}>
+                  <h3 class="card-title">{e.title}</h3>
+                  {excerpt && <p class="card-excerpt">{excerpt}</p>}
+                  {e.tags.length > 0 && (
+                    <div class="card-tags">
+                      {e.tags.slice(0, 3).map((t: string) => <span class="tag">{t}</span>)}
+                    </div>
+                  )}
+                </a>
+              );
+            })}
+          </div>
+        </section>
       )}
-    </section>
-  )}
 
-  {/* ── Blog section ── */}
-  {blogEntries.length > 0 && (
-    <section class="home-section">
-      <div class="section-header">
-        <h2 class="section-title">
-          <i class="ph ph-pen-nib section-icon"></i>
-          Blog
-        </h2>
-        <a class="section-viewall" href={`${base}/blog/`}>All posts →</a>
-      </div>
-      <div class="content-list-cards">
-        {blogEntries.slice(0, 5).map((e: NavEntry) => {
-          const excerpt = blogExcerpt(e.content_id);
-          return (
-            <a class="list-card" href={`${base}/blog/${e.slug}/`}>
-              <div class="list-card-body">
-                <div class="card-type"><code class="eo-op"><span class="eo-name">DES</span>(<span class="eo-target">{e.content_id}</span>)</code></div>
-                <h3 class="list-card-title">{e.title}</h3>
-                {excerpt && <p class="card-excerpt">{excerpt}</p>}
-              </div>
-              <div class="list-card-arrow">→</div>
-            </a>
-          );
-        })}
-      </div>
-    </section>
-  )}
+      {blogEntries.length > 0 && (
+        <section class="home-section">
+          <div class="section-header">
+            <h2 class="section-title"><i class="ph ph-pen-nib section-icon"></i> Blog</h2>
+            <a class="section-viewall" href={`${base}/blog/`}>All posts →</a>
+          </div>
+          <div class="content-list-cards">
+            {blogEntries.slice(0, 5).map((e: NavEntry) => {
+              const excerpt = contentExcerpt(e.content_id);
+              return (
+                <a class="list-card" href={`${base}/blog/${e.slug}/`}>
+                  <div class="list-card-body">
+                    <h3 class="list-card-title">{e.title}</h3>
+                    {excerpt && <p class="card-excerpt">{excerpt}</p>}
+                  </div>
+                  <div class="list-card-arrow">→</div>
+                </a>
+              );
+            })}
+          </div>
+        </section>
+      )}
 
-  {/* ── Experiments section ── */}
-  {expEntries.length > 0 && (
-    <section class="home-section">
-      <div class="section-header">
-        <h2 class="section-title">
-          <i class="ph ph-flask section-icon"></i>
-          Experiments
-        </h2>
-        <a class="section-viewall" href={`${base}/exp/`}>All experiments →</a>
-      </div>
-      <div class="content-grid content-grid--sm">
-        {expEntries.slice(0, 4).map((e: NavEntry) => (
-          <a class="content-card content-card--exp" href={`${base}/exp/${e.slug}/`}>
-            <div class="card-type"><code class="eo-op"><span class="eo-name">DES</span>(<span class="eo-target">{e.content_id}</span>)</code></div>
-            <h3 class="card-title">{e.title}</h3>
-          </a>
-        ))}
-      </div>
-    </section>
-  )}
+      {expEntries.length > 0 && (
+        <section class="home-section">
+          <div class="section-header">
+            <h2 class="section-title"><i class="ph ph-flask section-icon"></i> Experiments</h2>
+            <a class="section-viewall" href={`${base}/exp/`}>All experiments →</a>
+          </div>
+          <div class="content-grid content-grid--sm">
+            {expEntries.slice(0, 4).map((e: NavEntry) => (
+              <a class="content-card content-card--exp" href={`${base}/exp/${e.slug}/`}>
+                <h3 class="card-title">{e.title}</h3>
+              </a>
+            ))}
+          </div>
+        </section>
+      )}
 
-  {/* ── Pages ── */}
-  {pageEntries.length > 0 && (
-    <section class="home-section">
-      <div class="section-header">
-        <h2 class="section-title">
-          <i class="ph ph-file-text section-icon"></i>
-          Pages
-        </h2>
-      </div>
-      <ul class="content-list">
-        {pageEntries.map((e: NavEntry) => (
-          <li>
-            <a href={`${base}/page/${e.slug}/`}>{e.title}</a>
-            <code class="eo-op"><span class="eo-name">DES</span>(<span class="eo-target">{e.content_id}</span>)</code>
-          </li>
-        ))}
-      </ul>
-    </section>
+      {pageEntries.length > 0 && (
+        <section class="home-section">
+          <div class="section-header">
+            <h2 class="section-title"><i class="ph ph-file-text section-icon"></i> Pages</h2>
+          </div>
+          <ul class="content-list">
+            {pageEntries.map((e: NavEntry) => (
+              <li><a href={`${base}/page/${e.slug}/`}>{e.title}</a></li>
+            ))}
+          </ul>
+        </section>
+      )}
+    </>
   )}
 
   {/* ── Tags ── */}
@@ -240,17 +338,84 @@ const operators = [
 
     </div>{/* end .home-col-main */}
 
-    <!-- ── Rune Grid (right column) ── -->
-    <aside class="rune-grid-aside" aria-label="Nine Operators">
+    <!-- ── Rune Grid (right column sidebar) ── -->
+    <aside class="rune-grid-aside" aria-label="Nine Operators" id="rune-sidebar">
       <div class="rune-grid">
         {operators.map((op) => (
-          <a class="rune-cell" href={`${base}/wiki/${op.slug}/`} title={`${op.code} — ${op.label}`} style={`--rune-color: ${op.color}`}>
-            <span class="rune-sym">{op.symbol}</span>
-            <span class="rune-code">{op.code}</span>
+          <a
+            class="rune-cell"
+            href={`${base}/wiki/${op.slug}/`}
+            title={`${op.code} — ${op.label}`}
+            style={`--rune-color: ${op.color}`}
+            data-symbol={op.symbol}
+            data-code={op.code}
+            data-greek={op.greek}
+            data-label={op.label}
+          >
+            <span class="rune-display" data-version="symbol">{op.symbol}</span>
+            <span class="rune-display" data-version="code" hidden>{op.code}</span>
+            <span class="rune-display" data-version="greek" hidden>{op.greek}</span>
+            <span class="rune-display" data-version="label" hidden>{op.label}</span>
           </a>
         ))}
       </div>
+      <button class="alt-toggle" id="sidebar-alt-toggle" title="Switch naming version">
+        <span class="alt-toggle-icon">∿</span>
+      </button>
     </aside>
   </div>{/* end .home-columns */}
+
+  <!-- ── Rune grid ALT cycling script ── -->
+  <script is:inline>
+  (function() {
+    var versions = ['symbol', 'code', 'greek', 'label'];
+    // ALT operator representations per version
+    var altIcons = { symbol: '∿', code: 'ALT', greek: 'α', label: 'Alternation' };
+    var current = 0;
+    var saved = localStorage.getItem('eo-rune-version');
+    if (saved) {
+      var idx = versions.indexOf(saved);
+      if (idx >= 0) current = idx;
+    }
+
+    function applyVersion(container) {
+      if (!container) return;
+      var cells = container.querySelectorAll('.rune-cell');
+      cells.forEach(function(cell) {
+        var displays = cell.querySelectorAll('.rune-display');
+        displays.forEach(function(d) {
+          d.hidden = d.getAttribute('data-version') !== versions[current];
+        });
+      });
+    }
+
+    function updateToggles() {
+      var icon = altIcons[versions[current]];
+      document.querySelectorAll('.alt-toggle-icon').forEach(function(el) {
+        el.textContent = icon;
+      });
+      // Update rune-cell class for label mode (wider cells)
+      document.querySelectorAll('.rune-grid').forEach(function(grid) {
+        grid.classList.toggle('rune-grid--labels', versions[current] === 'label');
+      });
+    }
+
+    function cycle() {
+      current = (current + 1) % versions.length;
+      localStorage.setItem('eo-rune-version', versions[current]);
+      document.querySelectorAll('.rune-grid').forEach(applyVersion);
+      updateToggles();
+    }
+
+    // Initialize on load
+    document.addEventListener('DOMContentLoaded', function() {
+      document.querySelectorAll('.rune-grid').forEach(applyVersion);
+      updateToggles();
+      document.querySelectorAll('.alt-toggle').forEach(function(btn) {
+        btn.addEventListener('click', function(e) { e.preventDefault(); cycle(); });
+      });
+    });
+  })();
+  </script>
 
 </Base>

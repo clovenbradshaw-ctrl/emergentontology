@@ -779,6 +779,43 @@ textarea { resize: vertical; }
 }
 .col-add-menu button:hover { background: var(--bg2); color: var(--text); }
 
+/* ── Custom picker (replaces native <select>) ── */
+.custom-picker { position: relative; }
+.custom-picker-trigger {
+  display: flex; align-items: center; justify-content: space-between; gap: 4px;
+  width: 100%; padding: 3px 6px; font-size: .72rem;
+  background: var(--bg2); color: var(--text); border: 1px solid var(--border);
+  border-radius: 4px; cursor: pointer; transition: border-color .15s;
+}
+.custom-picker-trigger:hover { border-color: var(--accent); }
+.custom-picker-trigger:disabled { opacity: .5; cursor: not-allowed; }
+.custom-picker-label { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.custom-picker-arrow { font-size: .6rem; color: var(--text-dim); flex-shrink: 0; }
+.custom-picker-dropdown {
+  position: absolute; top: 100%; left: 0; right: 0; z-index: 50;
+  background: var(--bg2); border: 1px solid var(--border); border-radius: 4px;
+  box-shadow: 0 4px 12px var(--shadow-color); max-height: 160px; overflow-y: auto;
+  margin-top: 2px;
+}
+.custom-picker-option {
+  display: block; width: 100%; padding: 5px 8px; font-size: .72rem;
+  background: none; border: none; color: var(--text-dim); text-align: left;
+  cursor: pointer; transition: background .1s, color .1s;
+}
+.custom-picker-option:hover { background: var(--bg3); color: var(--text); }
+.custom-picker-option.active { color: var(--accent); font-weight: 600; }
+
+/* ── Custom select group (segmented buttons) ── */
+.custom-select-group { display: flex; gap: 0; border: 1px solid var(--border); border-radius: 4px; overflow: hidden; }
+.custom-select-btn {
+  flex: 1; padding: 4px 8px; font-size: .78rem; background: var(--bg2);
+  border: none; border-right: 1px solid var(--border); color: var(--text-dim);
+  cursor: pointer; transition: background .1s, color .1s; text-transform: capitalize;
+}
+.custom-select-btn:last-child { border-right: none; }
+.custom-select-btn:hover { background: var(--bg3); color: var(--text); }
+.custom-select-btn.active { background: var(--accent); color: #fff; }
+
 /* Responsive */
 @media (max-width: 900px) {
   .builder-layout { grid-template-columns: 1fr; }

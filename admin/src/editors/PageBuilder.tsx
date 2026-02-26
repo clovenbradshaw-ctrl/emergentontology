@@ -97,6 +97,9 @@ const BLOCK_TYPES: Array<{ type: Block['block_type']; label: string; icon: strin
   { type: 'divider', label: 'Divider', icon: '—', group: 'Layout' },
   { type: 'spacer', label: 'Spacer', icon: '↕', group: 'Layout' },
   { type: 'button', label: 'Button', icon: '⊞', group: 'Layout' },
+  // Dynamic
+  { type: 'content-feed', label: 'Content Feed', icon: '▤', group: 'Dynamic' },
+  { type: 'operator-grid', label: 'Operator Grid', icon: '⊞', group: 'Dynamic' },
   // Advanced
   { type: 'toc', label: 'TOC', icon: '≡', group: 'Advanced' },
   { type: 'wiki-embed', label: 'Wiki Embed', icon: '⊂', group: 'Advanced' },
@@ -752,6 +755,10 @@ function renderBlockHtml(block: Block, state: PageState): string {
       return `<div class="block block-experiment-embed"><a class="exp-embed-link">Experiment: ${escHtml(String(data.exp_id ?? '?'))}</a></div>`;
     case 'html':
       return `<div class="block block-html">${String(data.html ?? '')}</div>`;
+    case 'content-feed':
+      return `<div class="block block-content-feed" style="border:1px dashed #555;padding:1rem;border-radius:6px;color:#888;text-align:center">▤ ${escHtml(String(data.content_type ?? 'wiki'))} feed — rendered at build time</div>`;
+    case 'operator-grid':
+      return `<div class="block block-operator-grid" style="border:1px dashed #555;padding:1rem;border-radius:6px;color:#888;text-align:center">⊞ 3×3 Operator Grid — rendered at build time</div>`;
     default:
       return `<div class="block">[${block_type}]</div>`;
   }
@@ -964,6 +971,8 @@ function BlockPreview({ block }: { block: Block }) {
     case 'code': return <pre style={{ margin: 0, background: '#1a1a2e', color: '#a8ff78', fontSize: '12px', padding: '6px 8px', borderRadius: '4px', overflow: 'hidden', maxHeight: '60px' }}>{String(data.code ?? '').slice(0, 200) || <em style={{ color: '#555' }}>Empty code block</em>}</pre>;
     case 'button': return <div style={{ color: '#888', fontSize: '13px' }}>⊞ Button: "{String(data.text ?? 'Click here')}"</div>;
     case 'html': return <div style={{ color: '#888', fontSize: '13px' }}>{'<>'} HTML block ({String(data.html ?? '').length} chars)</div>;
+    case 'content-feed': return <div style={{ color: '#888', fontSize: '13px' }}>▤ {String(data.content_type ?? 'wiki')} feed ({String(data.layout ?? 'grid')}, max {String(data.max_items ?? 6)})</div>;
+    case 'operator-grid': return <div style={{ color: '#888', fontSize: '13px' }}>⊞ Operator Grid (3x3 with ALT cycling)</div>;
     default: return <div style={{ color: '#888' }}>[{block_type}]</div>;
   }
 }
@@ -1082,6 +1091,43 @@ function BlockInspector({ block, onUpdate }: { block: Block | SubBlock; onUpdate
           <textarea value={String(local.html ?? '')} onChange={(e) => set('html', e.target.value)} rows={10} style={{ fontFamily: 'monospace', fontSize: '13px' }} placeholder="<div>Your HTML here</div>" />
         </label>
       )}
+      {block.block_type === 'content-feed' && (
+        <>
+          <label className="field">
+            <span>Content type</span>
+            <div className="custom-select-group">
+              {['wiki', 'blog', 'experiment', 'page'].map((t) => (
+                <button
+                  key={t}
+                  className={`custom-select-btn ${String(local.content_type ?? 'wiki') === t ? 'active' : ''}`}
+                  onClick={() => set('content_type', t)}
+                >{t}</button>
+              ))}
+            </div>
+          </label>
+          <label className="field">
+            <span>Max items</span>
+            <input type="number" min={1} max={20} value={String(local.max_items ?? 6)} onChange={(e) => set('max_items', Number(e.target.value))} />
+          </label>
+          <label className="field">
+            <span>Layout</span>
+            <div className="custom-select-group">
+              {['grid', 'list'].map((l) => (
+                <button
+                  key={l}
+                  className={`custom-select-btn ${String(local.layout ?? 'grid') === l ? 'active' : ''}`}
+                  onClick={() => set('layout', l)}
+                >{l}</button>
+              ))}
+            </div>
+          </label>
+        </>
+      )}
+      {block.block_type === 'operator-grid' && (
+        <div style={{ color: 'var(--text-dim)', fontSize: '.85rem', padding: '.5rem 0' }}>
+          The 3x3 operator grid with ALT cycling is automatically configured. No settings needed.
+        </div>
+      )}
     </div>
   );
 }
@@ -1184,6 +1230,8 @@ function defaultData(type: Block['block_type']): Record<string, unknown> {
     case 'experiment-embed': return { exp_id: '' };
     case 'code': return { lang: '', code: '' };
     case 'html': return { html: '' };
+    case 'content-feed': return { content_type: 'wiki', max_items: 6, layout: 'grid' };
+    case 'operator-grid': return {};
     default: return {};
   }
 }
