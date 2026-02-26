@@ -78,14 +78,7 @@
   });
 
   if (hasMeaningfulChange) {
-    // Show a non-intrusive "content updated" banner
-    const banner = document.createElement('div');
-    banner.style.cssText = 'position:fixed;bottom:1rem;right:1rem;background:#1a1a1a;border:1px solid #7c6fcd;border-radius:6px;padding:.6rem 1rem;font-size:.85rem;z-index:9999;cursor:pointer;color:#e8e8e8';
-    banner.textContent = '↻ Content updated — click to refresh';
-    banner.onclick = () => location.reload();
-    document.body.appendChild(banner);
-
-    // Auto-dismiss after 10s if not clicked
-    setTimeout(() => banner.remove(), 10_000);
+    // Auto-reload to show the latest content
+    location.reload();
   }
 })();

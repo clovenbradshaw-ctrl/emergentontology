@@ -48,7 +48,7 @@ function ThemeToggle() {
       aria-label="Toggle light/dark mode"
       title="Toggle light/dark mode"
     >
-      {theme === 'dark' ? '\u263C' : '\u263E'}
+      <i className={`ph ${theme === 'dark' ? 'ph-sun' : 'ph-moon'}`}></i>
     </button>
   );
 }

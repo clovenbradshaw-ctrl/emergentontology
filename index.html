@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Emergent Ontology</title>
   <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>∅</text></svg>" />
+  <script src="https://unpkg.com/@phosphor-icons/web@2.1.1" defer></script>
   <script>
     (function() {
       var t = localStorage.getItem('eo-theme');
@@ -173,23 +174,6 @@
       font-family: var(--font-mono);
     }
 
-    /* Delta banner */
-    #delta-banner {
-      display: none;
-      position: fixed;
-      bottom: 1.5rem;
-      left: 50%;
-      transform: translateX(-50%);
-      background: var(--accent);
-      color: #fff;
-      padding: .55rem 1.25rem;
-      border-radius: var(--radius);
-      font-size: .9rem;
-      cursor: pointer;
-      z-index: 200;
-      box-shadow: 0 4px 20px var(--shadow-color);
-    }
-
     /* Footer */
     .site-footer {
       text-align: center;
@@ -285,8 +269,8 @@
       </ul>
     </nav>
     <button class="theme-toggle" id="theme-toggle" aria-label="Toggle light/dark mode" title="Toggle light/dark mode">
-      <span class="theme-icon-light" aria-hidden="true">&#9788;</span>
-      <span class="theme-icon-dark" aria-hidden="true">&#9790;</span>
+      <i class="ph ph-sun theme-icon-light" aria-hidden="true"></i>
+      <i class="ph ph-moon theme-icon-dark" aria-hidden="true"></i>
     </button>
     <a class="admin-link" href="admin/">Login</a>
   </header>
@@ -349,9 +333,6 @@
       <ul class="content-list" id="list-page"></ul>
     </section>
   </main>
-
-  <!-- Delta reload banner -->
-  <div id="delta-banner" role="status">Content updated — click to reload</div>
 
   <!-- ── Footer ────────────────────────────────────────────────────────────── -->
   <footer class="site-footer">
