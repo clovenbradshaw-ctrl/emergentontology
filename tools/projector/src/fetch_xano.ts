@@ -25,7 +25,7 @@ export interface XanoCurrentRecord {
 }
 
 export async function fetchAllCurrentRecords(): Promise<XanoCurrentRecord[]> {
-  const resp = await fetch(`${XANO_BASE}/eowikicurrent`, {
+  const resp = await fetch(`${XANO_BASE}/get_eowiki_current`, {
     signal: AbortSignal.timeout(TIMEOUT_MS),
   });
   if (!resp.ok) {
