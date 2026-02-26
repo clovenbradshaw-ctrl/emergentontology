@@ -178,7 +178,6 @@ function itemUrl(type: string, slug: string) {
                         <span class="rune-display" data-version="symbol">{op.symbol}</span>
                         <span class="rune-display" data-version="code" hidden>{op.code}</span>
                         <span class="rune-display" data-version="greek" hidden>{op.greek}</span>
-                        <span class="rune-display" data-version="label" hidden>{op.label}</span>
                       </a>
                     ))}
                   </div>
@@ -355,7 +354,6 @@ function itemUrl(type: string, slug: string) {
             <span class="rune-display" data-version="symbol">{op.symbol}</span>
             <span class="rune-display" data-version="code" hidden>{op.code}</span>
             <span class="rune-display" data-version="greek" hidden>{op.greek}</span>
-            <span class="rune-display" data-version="label" hidden>{op.label}</span>
           </a>
         ))}
       </div>
@@ -368,9 +366,9 @@ function itemUrl(type: string, slug: string) {
   <!-- ── Rune grid ALT cycling script ── -->
   <script is:inline>
   (function() {
-    var versions = ['symbol', 'code', 'greek', 'label'];
+    var versions = ['symbol', 'code', 'greek'];
     // ALT operator representations per version
-    var altIcons = { symbol: '∿', code: 'ALT', greek: 'α', label: 'Alternation' };
+    var altIcons = { symbol: '∿', code: 'ALT', greek: 'α' };
     var current = 0;
     var saved = localStorage.getItem('eo-rune-version');
     if (saved) {
@@ -393,10 +391,6 @@ function itemUrl(type: string, slug: string) {
       var icon = altIcons[versions[current]];
       document.querySelectorAll('.alt-toggle-icon').forEach(function(el) {
         el.textContent = icon;
-      });
-      // Update rune-cell class for label mode (wider cells)
-      document.querySelectorAll('.rune-grid').forEach(function(grid) {
-        grid.classList.toggle('rune-grid--labels', versions[current] === 'label');
       });
     }
 
