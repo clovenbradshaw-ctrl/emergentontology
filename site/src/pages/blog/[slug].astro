@@ -5,13 +5,26 @@ import type { ProjectedBlog } from '../../lib/state';
 
 export async function getStaticPaths() {
   const items = loadAllContent('blog') as ProjectedBlog[];
-  return items.map((b) => ({
+  const sorted = [...items].sort((a, b) => {
+    const da = a.current_revision?.ts ?? a.meta.updated_at;
+    const db = b.current_revision?.ts ?? b.meta.updated_at;
+    return db.localeCompare(da); // newest first
+  });
+  return sorted.map((b, i) => ({
     params: { slug: b.meta.slug },
-    props: { post: b },
+    props: {
+      post: b,
+      prevPost: sorted[i + 1] ?? null,
+      nextPost: sorted[i - 1] ?? null,
+    },
   }));
 }
 
-const { post } = Astro.props as { post: ProjectedBlog };
+const { post, prevPost, nextPost } = Astro.props as {
+  post: ProjectedBlog;
+  prevPost: ProjectedBlog | null;
+  nextPost: ProjectedBlog | null;
+};
 const base = import.meta.env.BASE_URL.replace(/\/$/, '');
 
 function renderMarkdown(md: string): string {
@@ -32,7 +45,6 @@ function renderMarkdown(md: string): string {
 <Base
   title={post.meta.title}
   breadcrumbs={[
-    { label: 'Home', href: `${base}/` },
     { label: 'Blog', href: `${base}/blog/` },
     { label: post.meta.title, href: `${base}/blog/${post.meta.slug}/` },
   ]}
@@ -60,6 +72,27 @@ function renderMarkdown(md: string): string {
         : <p class="empty-page">No content yet.</p>
       }
     </div>
+
+    {(prevPost || nextPost) && (
+      <nav class="post-nav" aria-label="Post navigation">
+        <div class="post-nav-prev">
+          {prevPost && (
+            <a href={`${base}/blog/${prevPost.meta.slug}/`}>
+              <span class="post-nav-label">← Older</span>
+              <span class="post-nav-title">{prevPost.meta.title}</span>
+            </a>
+          )}
+        </div>
+        <div class="post-nav-next">
+          {nextPost && (
+            <a href={`${base}/blog/${nextPost.meta.slug}/`}>
+              <span class="post-nav-label">Newer →</span>
+              <span class="post-nav-title">{nextPost.meta.title}</span>
+            </a>
+          )}
+        </div>
+      </nav>
+    )}
 
     <div class="content-actions">
       <a class="btn btn-edit" href={`${base}/admin/#blog/${post.meta.slug}`}>Edit in Admin</a>

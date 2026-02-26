@@ -530,6 +530,30 @@ main.home { max-width: 1100px; }
 .xray-status-pending { color: var(--warn); }
 .xray-status-error { color: var(--danger); }
 
+/* ── Post prev/next navigation ── */
+.post-nav {
+  display: flex;
+  gap: 1rem;
+  margin-top: 2.5rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid var(--border);
+}
+.post-nav-prev { flex: 1; }
+.post-nav-next { flex: 1; text-align: right; }
+.post-nav a {
+  display: inline-flex;
+  flex-direction: column;
+  gap: .2rem;
+  max-width: 100%;
+}
+.post-nav a:hover { text-decoration: none; }
+.post-nav-label { font-size: .78rem; text-transform: uppercase; letter-spacing: .06em; color: var(--accent); }
+.post-nav-title { font-size: .92rem; font-weight: 500; color: var(--text); }
+.post-nav a:hover .post-nav-title { color: var(--link); }
+
+/* List card meta row */
+.list-card-meta { display: flex; align-items: center; gap: .75rem; font-size: .82rem; color: var(--text-dim); margin-top: .2rem; flex-wrap: wrap; }
+
 /* ── Footer ── */
 .site-footer {
   padding: 1.5rem 2rem;
