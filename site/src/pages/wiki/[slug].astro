@@ -3,21 +3,21 @@ import Base from '../../layouts/Base.astro';
 import { loadAllContent, loadContent } from '../../lib/state';
 import type { ProjectedWiki } from '../../lib/state';
 
-// Nine operators — always prebuild a page for each
-const operators = [
-  { slug: 'nul', code: 'NUL', label: 'Absence & Nullity', symbol: '∅', color: '#9ca3af' },
-  { slug: 'des', code: 'DES', label: 'Designation', symbol: '⊡', color: '#60a5fa' },
-  { slug: 'ins', code: 'INS', label: 'Instantiation', symbol: '△', color: '#4ade80' },
-  { slug: 'seg', code: 'SEG', label: 'Segmentation', symbol: '｜', color: '#c084fc' },
-  { slug: 'con', code: 'CON', label: 'Connection', symbol: '⋈', color: '#34d399' },
-  { slug: 'alt', code: 'ALT', label: 'Alternation', symbol: '∿', color: '#fbbf24' },
-  { slug: 'syn', code: 'SYN', label: 'Synthesis', symbol: '∨', color: '#818cf8' },
-  { slug: 'sup', code: 'SUP', label: 'Superposition', symbol: '∥', color: '#f472b6' },
-  { slug: 'rec', code: 'REC', label: 'Recursion', symbol: '⟳', color: '#fb923c' },
-];
-const operatorSlugs = new Set(operators.map((o) => o.slug));
-
+// Nine operators — defined inside getStaticPaths because Astro hoists
+// exported functions to module scope where frontmatter vars aren't available.
 export async function getStaticPaths() {
+  const operators = [
+    { slug: 'nul', code: 'NUL', label: 'Absence & Nullity', symbol: '∅', color: '#9ca3af' },
+    { slug: 'des', code: 'DES', label: 'Designation', symbol: '⊡', color: '#60a5fa' },
+    { slug: 'ins', code: 'INS', label: 'Instantiation', symbol: '△', color: '#4ade80' },
+    { slug: 'seg', code: 'SEG', label: 'Segmentation', symbol: '｜', color: '#c084fc' },
+    { slug: 'con', code: 'CON', label: 'Connection', symbol: '⋈', color: '#34d399' },
+    { slug: 'alt', code: 'ALT', label: 'Alternation', symbol: '∿', color: '#fbbf24' },
+    { slug: 'syn', code: 'SYN', label: 'Synthesis', symbol: '∨', color: '#818cf8' },
+    { slug: 'sup', code: 'SUP', label: 'Superposition', symbol: '∥', color: '#f472b6' },
+    { slug: 'rec', code: 'REC', label: 'Recursion', symbol: '⟳', color: '#fb923c' },
+  ];
+
   const items = loadAllContent('wiki') as ProjectedWiki[];
 
   // Content-backed wiki pages
