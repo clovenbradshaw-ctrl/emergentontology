@@ -102,23 +102,24 @@ export async function addRecord(payload: {
 /**
  * eowikicurrent keeps one row per content entity (identified by record_id).
  * It is the fast-read path: no event replay needed for the admin editor.
+ * Each record carries a client-generated UUID for deduplication.
  *
- * record_id  – content identifier  e.g. "wiki:operators", "site:index"
- * op         – last operation applied
- * subject    – same as record_id
- * predicate  – "eo.state" (marks this as a current-state record)
- * value      – JSON-stringified current state snapshot
- * context    – JSON metadata  {agent, ts}
+ * record_id    – content identifier  e.g. "wiki:operators", "site:index"
+ * displayName  – human-readable label for this record
+ * values       – JSON-stringified current state snapshot
+ * context      – JSON metadata  {agent, ts}
+ * uuid         – client-generated UUID (v4) for deduplication
+ * lastModified – epoch ms timestamp of most recent update
  */
 export interface XanoCurrentRecord {
   id: number;
   created_at: number;
   record_id: string;
-  op: string;
-  subject: string;
-  predicate: string;
-  value: string;   // JSON-stringified state snapshot
-  context: unknown;
+  displayName: string;
+  values: string;   // JSON-stringified state snapshot
+  context: Record<string, unknown>;
+  uuid: string;
+  lastModified: number;  // epoch ms
 }
 
 /** Fetch all current-state records. */
@@ -139,11 +140,11 @@ export async function fetchCurrentRecord(recordId: string): Promise<XanoCurrentR
 /** Create a new current-state record (first write for this record_id). */
 export async function createCurrentRecord(payload: {
   record_id: string;
-  op: string;
-  subject: string;
-  predicate: string;
-  value: string;
-  context: unknown;
+  displayName: string;
+  values: string;
+  context: Record<string, unknown>;
+  uuid: string;
+  lastModified: number;
 }): Promise<XanoCurrentRecord> {
   const resp = await fetch(`${XANO_BASE}/eowikicurrent`, {
     method: 'POST',
@@ -160,9 +161,9 @@ export async function createCurrentRecord(payload: {
 
 /** Update an existing current-state record by its Xano row id. */
 export async function patchCurrentRecord(id: number, payload: {
-  op: string;
-  value: string;
-  context: unknown;
+  values: string;
+  context: Record<string, unknown>;
+  lastModified: number;
 }): Promise<XanoCurrentRecord> {
   const resp = await fetch(`${XANO_BASE}/eowikicurrent/${id}`, {
     method: 'PATCH',
@@ -180,27 +181,28 @@ export async function patchCurrentRecord(id: number, payload: {
 /**
  * Upsert helper: creates or patches the current-state record for a record_id.
  * Pass `existing` (from a prior fetchCurrentRecord call) to avoid an extra GET.
+ * Generates a UUID (v4) on create for deduplication.
  */
 export async function upsertCurrentRecord(
   recordId: string,
-  op: string,
   stateSnapshot: unknown,
   agent: string,
   existing?: XanoCurrentRecord | null,
 ): Promise<XanoCurrentRecord> {
   const ctx = { agent, ts: new Date().toISOString() };
-  const value = JSON.stringify(stateSnapshot);
+  const values = JSON.stringify(stateSnapshot);
+  const lastModified = Date.now();
 
   if (existing) {
-    return patchCurrentRecord(existing.id, { op, value, context: ctx });
+    return patchCurrentRecord(existing.id, { values, context: ctx, lastModified });
   }
   return createCurrentRecord({
     record_id: recordId,
-    op,
-    subject: recordId,
-    predicate: 'eo.state',
-    value,
+    displayName: recordId,
+    values,
     context: ctx,
+    uuid: crypto.randomUUID(),
+    lastModified,
   });
 }
 

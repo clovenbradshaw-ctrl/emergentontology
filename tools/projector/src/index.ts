@@ -37,7 +37,7 @@ const OUT_DEFAULT = join(
 );
 
 // ──────────────────────────────────────────────────────────────────────────────
-// Snapshot shapes stored in Xano eowikicurrent.value
+// Snapshot shapes stored in Xano eowikicurrent.values
 // ──────────────────────────────────────────────────────────────────────────────
 
 interface IndexSnapshot {
@@ -233,7 +233,7 @@ async function main() {
   // ── 2. Parse site:index ───────────────────────────────────────────────────
   const indexRecord = records.find((r) => r.record_id === 'site:index');
   const indexSnap = indexRecord
-    ? parseJson<IndexSnapshot>(indexRecord.value, { entries: [] })
+    ? parseJson<IndexSnapshot>(indexRecord.values, { entries: [] })
     : { entries: [] };
 
   const allEntries = (indexSnap.entries ?? []).map((e) => ({
@@ -286,16 +286,16 @@ async function main() {
       let proj: ProjectedContent | null = null;
 
       if (entry.content_type === 'wiki') {
-        const snap = parseJson<WikiSnapshot>(record.value, { meta: {}, current_revision: null, revisions: [] });
+        const snap = parseJson<WikiSnapshot>(record.values, { meta: {}, current_revision: null, revisions: [] });
         proj = buildWiki(entry, snap);
       } else if (entry.content_type === 'blog') {
-        const snap = parseJson<BlogSnapshot>(record.value, { meta: {}, current_revision: null, revisions: [] });
+        const snap = parseJson<BlogSnapshot>(record.values, { meta: {}, current_revision: null, revisions: [] });
         proj = buildBlog(entry, snap);
       } else if (entry.content_type === 'page') {
-        const snap = parseJson<PageSnapshot>(record.value, { meta: {}, blocks: [], block_order: [] });
+        const snap = parseJson<PageSnapshot>(record.values, { meta: {}, blocks: [], block_order: [] });
         proj = buildPage(entry, snap);
       } else if (entry.content_type === 'experiment') {
-        const snap = parseJson<ExpSnapshot>(record.value, { meta: {}, entries: [] });
+        const snap = parseJson<ExpSnapshot>(record.values, { meta: {}, entries: [] });
         proj = buildExperiment(entry, snap);
       }
 

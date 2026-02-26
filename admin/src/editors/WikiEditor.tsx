@@ -62,7 +62,7 @@ export default function WikiEditor({ contentId, siteBase }: Props) {
         const rec = await fetchCurrentRecord(contentId);
         if (rec) {
           currentRecordRef.current = rec;
-          wikiState = JSON.parse(rec.value) as WikiState;
+          wikiState = JSON.parse(rec.values) as WikiState;
         }
       } catch (err) {
         console.warn('[WikiEditor] Could not fetch Xano current record:', err);
@@ -131,7 +131,7 @@ export default function WikiEditor({ contentId, siteBase }: Props) {
       };
 
       // 3. Upsert current-state record
-      const updated = await upsertCurrentRecord(contentId, event.op, updatedState, agent, currentRecordRef.current);
+      const updated = await upsertCurrentRecord(contentId, updatedState, agent, currentRecordRef.current);
       currentRecordRef.current = updated;
 
       setState(updatedState);
