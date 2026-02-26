@@ -42,12 +42,20 @@ export interface XanoRecord {
 // ── Password auth ─────────────────────────────────────────────────────────────
 
 async function sha256hex(text: string): Promise<string> {
-  const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(text));
-  return Array.from(new Uint8Array(buf)).map((b) => b.toString(16).padStart(2, '0')).join('');
+  const subtle = (globalThis.crypto ?? window.crypto)?.subtle;
+  if (!subtle) {
+    throw new Error(
+      'Web Crypto API not available. Admin must be opened over HTTPS or localhost.'
+    );
+  }
+  const buf = await subtle.digest('SHA-256', new TextEncoder().encode(text));
+  return Array.from(new Uint8Array(buf))
+    .map((b) => b.toString(16).padStart(2, '0'))
+    .join('');
 }
 
 export async function verifyPassword(password: string): Promise<boolean> {
-  const hash = await sha256hex(password);
+  const hash = await sha256hex(password.trim());
   return hash === PWD_HASH;
 }
 
