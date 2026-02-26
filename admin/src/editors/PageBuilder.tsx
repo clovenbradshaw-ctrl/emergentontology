@@ -1,5 +1,5 @@
 /**
- * PageBuilder — drag/drop block-based page editor.
+ * PageBuilder — drag/drop block-based page editor with live preview.
  *
  * Data flow:
  *   Load  →  GET /eowikicurrent (record_id = contentId) → current page state
@@ -8,7 +8,7 @@
  *            PATCH /eowikicurrent (update current state snapshot)
  */
 
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState, useMemo } from 'react';
 import {
   DndContext,
   closestCenter,
@@ -39,17 +39,29 @@ import {
 import { insBlock, altBlock, nulBlock } from '../eo/events';
 import type { Block } from '../eo/types';
 
-const BLOCK_TYPES: Array<{ type: Block['block_type']; label: string; icon: string }> = [
-  { type: 'text', label: 'Text', icon: '¶' },
-  { type: 'callout', label: 'Callout', icon: '!' },
-  { type: 'quote', label: 'Quote', icon: '"' },
-  { type: 'image', label: 'Image', icon: '🖼' },
-  { type: 'divider', label: 'Divider', icon: '—' },
-  { type: 'embed', label: 'Embed', icon: '□' },
-  { type: 'toc', label: 'TOC', icon: '≡' },
-  { type: 'wiki-embed', label: 'Wiki Embed', icon: '⊂' },
-  { type: 'experiment-embed', label: 'Exp Embed', icon: '⊗' },
-  { type: 'code', label: 'Code Block', icon: '</>' },
+// ── Block palette definitions ─────────────────────────────────────────────────
+
+const BLOCK_TYPES: Array<{ type: Block['block_type']; label: string; icon: string; group: string }> = [
+  // Content
+  { type: 'text', label: 'Text', icon: '¶', group: 'Content' },
+  { type: 'heading', label: 'Heading', icon: 'H', group: 'Content' },
+  { type: 'callout', label: 'Callout', icon: '!', group: 'Content' },
+  { type: 'quote', label: 'Quote', icon: '"', group: 'Content' },
+  { type: 'code', label: 'Code Block', icon: '</>', group: 'Content' },
+  // Media
+  { type: 'image', label: 'Image', icon: '🖼', group: 'Media' },
+  { type: 'video', label: 'Video', icon: '▶', group: 'Media' },
+  { type: 'embed', label: 'Embed', icon: '□', group: 'Media' },
+  // Layout
+  { type: 'columns', label: 'Columns', icon: '▥', group: 'Layout' },
+  { type: 'divider', label: 'Divider', icon: '—', group: 'Layout' },
+  { type: 'spacer', label: 'Spacer', icon: '↕', group: 'Layout' },
+  { type: 'button', label: 'Button', icon: '⊞', group: 'Layout' },
+  // Advanced
+  { type: 'toc', label: 'TOC', icon: '≡', group: 'Advanced' },
+  { type: 'wiki-embed', label: 'Wiki Embed', icon: '⊂', group: 'Advanced' },
+  { type: 'experiment-embed', label: 'Exp Embed', icon: '⊗', group: 'Advanced' },
+  { type: 'html', label: 'HTML', icon: '&lt;&gt;', group: 'Advanced' },
 ];
 
 interface PageState {
@@ -71,6 +83,7 @@ export default function PageBuilder({ contentId, siteBase }: Props) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [selectedBlockId, setSelectedBlockId] = useState<string | null>(null);
+  const [showPreview, setShowPreview] = useState(false);
   const currentRecordRef = useRef<XanoCurrentRecord | null>(null);
 
   const sensors = useSensors(
@@ -156,6 +169,28 @@ export default function PageBuilder({ contentId, siteBase }: Props) {
     setSelectedBlockId(blockId);
   }
 
+  // ── Duplicate block ───────────────────────────────────────────────────────
+
+  function duplicateBlock(blockId: string) {
+    if (!state || !isAuthenticated) return;
+    const original = state.blocks.find((b) => b.block_id === blockId);
+    if (!original) return;
+    const newId = `b_${Date.now()}`;
+    const newBlock: Block = { block_id: newId, block_type: original.block_type, data: { ...original.data }, after: blockId, deleted: false };
+    const event = insBlock(contentId, newBlock, 'editor');
+    const idx = state.block_order.indexOf(blockId);
+    const newOrder = [...state.block_order];
+    newOrder.splice(idx + 1, 0, newId);
+    const updatedState: PageState = {
+      ...state,
+      blocks: [...state.blocks, newBlock],
+      block_order: newOrder,
+    };
+    setState(updatedState);
+    emit(event, updatedState);
+    setSelectedBlockId(newId);
+  }
+
   // ── Update block ──────────────────────────────────────────────────────────
 
   function updateBlock(blockId: string, newData: Record<string, unknown>) {
@@ -215,18 +250,42 @@ export default function PageBuilder({ contentId, siteBase }: Props) {
 
   const selectedBlock = state.blocks.find((b) => b.block_id === selectedBlockId);
 
+  // Group palette items
+  const groups = BLOCK_TYPES.reduce<Record<string, typeof BLOCK_TYPES>>((acc, bt) => {
+    (acc[bt.group] ??= []).push(bt);
+    return acc;
+  }, {});
+
   return (
     <div className="page-builder">
       {error && <div className="error-banner">{error} <button onClick={() => setError(null)}>×</button></div>}
 
+      <div className="builder-toolbar">
+        <button
+          className={`btn btn-sm ${showPreview ? 'btn-primary' : ''}`}
+          onClick={() => setShowPreview(!showPreview)}
+        >
+          {showPreview ? 'Hide Preview' : 'Live Preview'}
+        </button>
+        <span className="builder-block-count">{state.block_order.length} blocks</span>
+      </div>
+
+      {showPreview && (
+        <LivePreview state={state} />
+      )}
+
       <div className="builder-layout">
         <aside className="block-palette">
-          <div className="palette-title">Blocks</div>
-          {BLOCK_TYPES.map((bt) => (
-            <button key={bt.type} className="palette-btn" onClick={() => addBlock(bt.type)}>
-              <span className="palette-icon">{bt.icon}</span>
-              <span>{bt.label}</span>
-            </button>
+          {Object.entries(groups).map(([group, items]) => (
+            <div key={group} className="palette-group">
+              <div className="palette-title">{group}</div>
+              {items.map((bt) => (
+                <button key={bt.type} className="palette-btn" onClick={() => addBlock(bt.type)}>
+                  <span className="palette-icon">{bt.icon}</span>
+                  <span>{bt.label}</span>
+                </button>
+              ))}
+            </div>
           ))}
         </aside>
 
@@ -243,6 +302,7 @@ export default function PageBuilder({ contentId, siteBase }: Props) {
                     selected={selectedBlockId === id}
                     onSelect={() => setSelectedBlockId(id)}
                     onDelete={() => deleteBlock(id)}
+                    onDuplicate={() => duplicateBlock(id)}
                     onUpdate={(data) => updateBlock(id, data)}
                   />
                 );
@@ -266,13 +326,142 @@ export default function PageBuilder({ contentId, siteBase }: Props) {
   );
 }
 
+// ── Live Preview ──────────────────────────────────────────────────────────────
+
+function LivePreview({ state }: { state: PageState }) {
+  const html = useMemo(() => {
+    const blockMap = new Map(state.blocks.map((b) => [b.block_id, b]));
+    const parts: string[] = [];
+    for (const id of state.block_order) {
+      const block = blockMap.get(id);
+      if (!block || block.deleted) continue;
+      parts.push(renderBlockHtml(block, state));
+    }
+    return parts.join('\n');
+  }, [state]);
+
+  return (
+    <div className="live-preview">
+      <div className="live-preview-header">
+        <span className="live-preview-label">Live Preview</span>
+      </div>
+      <div className="live-preview-body" dangerouslySetInnerHTML={{ __html: html }} />
+    </div>
+  );
+}
+
+function escHtml(s: string): string {
+  return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+}
+
+function renderMd(md: string): string {
+  return md
+    .replace(/^#{4}\s+(.+)$/gm, '<h4>$1</h4>')
+    .replace(/^#{3}\s+(.+)$/gm, '<h3>$1</h3>')
+    .replace(/^#{2}\s+(.+)$/gm, '<h2>$1</h2>')
+    .replace(/^#{1}\s+(.+)$/gm, '<h1>$1</h1>')
+    .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
+    .replace(/\*(.+?)\*/g, '<em>$1</em>')
+    .replace(/`(.+?)`/g, '<code>$1</code>')
+    .replace(/\[(.+?)\]\((.+?)\)/g, '<a href="$2">$1</a>')
+    .replace(/\n\n/g, '</p><p>')
+    .replace(/^(?!<)(.+)/m, '<p>$1')
+    .trimEnd() + '</p>';
+}
+
+function renderBlockHtml(block: Block, state: PageState): string {
+  const { block_type, data } = block;
+  switch (block_type) {
+    case 'text':
+      return renderMd(String(data.md ?? data.text ?? ''));
+    case 'heading': {
+      const text = String(data.text ?? '');
+      const level = Math.min(Math.max(Number(data.level ?? 2), 1), 6);
+      const slug = text.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
+      return `<h${level} id="${slug}" class="block block-heading">${escHtml(text)}</h${level}>`;
+    }
+    case 'callout':
+      return `<aside class="block block-callout callout-${data.kind ?? 'info'}"><div>${renderMd(String(data.text ?? ''))}</div></aside>`;
+    case 'quote':
+      return `<blockquote class="block block-quote"><p>${escHtml(String(data.text ?? ''))}</p>${data.attribution ? `<cite>— ${escHtml(String(data.attribution))}</cite>` : ''}</blockquote>`;
+    case 'divider':
+      return '<hr class="block block-divider" />';
+    case 'spacer':
+      return `<div class="block block-spacer" style="height:${escHtml(String(data.height ?? '2rem'))}"></div>`;
+    case 'image':
+      return `<figure class="block block-image"><img src="${escHtml(String(data.src ?? ''))}" alt="${escHtml(String(data.alt ?? ''))}" loading="lazy" />${data.caption ? `<figcaption>${escHtml(String(data.caption))}</figcaption>` : ''}</figure>`;
+    case 'video': {
+      const src = String(data.src ?? '');
+      let embedSrc = src;
+      const ytMatch = src.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/)([a-zA-Z0-9_-]+)/);
+      if (ytMatch) embedSrc = `https://www.youtube.com/embed/${ytMatch[1]}`;
+      const vimeoMatch = src.match(/vimeo\.com\/(\d+)/);
+      if (vimeoMatch) embedSrc = `https://player.vimeo.com/video/${vimeoMatch[1]}`;
+      const caption = String(data.caption ?? '');
+      return `<figure class="block block-video"><iframe src="${escHtml(embedSrc)}" title="${escHtml(caption || 'Video')}" loading="lazy" allowfullscreen frameborder="0"></iframe>${caption ? `<figcaption>${escHtml(caption)}</figcaption>` : ''}</figure>`;
+    }
+    case 'embed': {
+      const src = String(data.src ?? '');
+      const title = String(data.title ?? '');
+      return `<figure class="block block-embed"><iframe src="${escHtml(src)}" title="${escHtml(title)}" loading="lazy" allowfullscreen frameborder="0"></iframe>${title ? `<figcaption>${escHtml(title)}</figcaption>` : ''}</figure>`;
+    }
+    case 'code':
+      return `<div class="block block-code"><pre><code${data.lang ? ` class="language-${escHtml(String(data.lang))}"` : ''}>${escHtml(String(data.code ?? ''))}</code></pre></div>`;
+    case 'button': {
+      const text = String(data.text ?? 'Click here');
+      const style = String(data.style ?? 'primary');
+      return `<div class="block block-button"><a class="btn btn-${escHtml(style)}" href="#">${escHtml(text)}</a></div>`;
+    }
+    case 'columns': {
+      const cols = Array.isArray(data.columns) ? data.columns as string[] : [String(data.col1 ?? ''), String(data.col2 ?? '')];
+      const rendered = cols.map((c: string) => `<div class="column">${renderMd(String(c))}</div>`).join('');
+      return `<div class="block block-columns block-columns-${cols.length}">${rendered}</div>`;
+    }
+    case 'toc': {
+      const headings: string[] = [];
+      const blockMap = new Map(state.blocks.map((b) => [b.block_id, b]));
+      for (const id of state.block_order) {
+        const b = blockMap.get(id);
+        if (!b || b.deleted) continue;
+        if (b.block_type === 'text') {
+          const md = String(b.data.md ?? b.data.text ?? '');
+          for (const line of md.split('\n')) {
+            const m = line.match(/^(#{1,4})\s+(.+)$/);
+            if (m) {
+              const level = m[1].length;
+              const text = m[2];
+              headings.push(`<li class="toc-level-${level}"><a href="#">${escHtml(text)}</a></li>`);
+            }
+          }
+        }
+        if (b.block_type === 'heading') {
+          const text = String(b.data.text ?? '');
+          const level = Number(b.data.level ?? 2);
+          headings.push(`<li class="toc-level-${level}"><a href="#">${escHtml(text)}</a></li>`);
+        }
+      }
+      if (headings.length === 0) return '<nav class="block block-toc"><div class="toc-title">Contents</div><p style="color:#888;font-size:.85rem">No headings found</p></nav>';
+      return `<nav class="block block-toc"><div class="toc-title">Contents</div><ol>${headings.join('')}</ol></nav>`;
+    }
+    case 'wiki-embed':
+      return `<div class="block block-wiki-embed"><a class="wiki-embed-link">Wiki: ${escHtml(String(data.slug ?? data.wiki_id ?? '?'))}</a></div>`;
+    case 'experiment-embed':
+      return `<div class="block block-experiment-embed"><a class="exp-embed-link">Experiment: ${escHtml(String(data.exp_id ?? '?'))}</a></div>`;
+    case 'html':
+      return `<div class="block block-html">${String(data.html ?? '')}</div>`;
+    default:
+      return `<div class="block">[${block_type}]</div>`;
+  }
+}
+
 // ── Sortable block wrapper ────────────────────────────────────────────────────
 
-function SortableBlock({ block, selected, onSelect, onDelete, onUpdate }: {
+function SortableBlock({ block, selected, onSelect, onDelete, onDuplicate, onUpdate }: {
   block: Block;
   selected: boolean;
   onSelect: () => void;
   onDelete: () => void;
+  onDuplicate: () => void;
   onUpdate: (data: Record<string, unknown>) => void;
 }) {
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id: block.block_id });
@@ -288,7 +477,10 @@ function SortableBlock({ block, selected, onSelect, onDelete, onUpdate }: {
       <div className="block-content">
         <BlockPreview block={block} />
       </div>
-      <button className="block-delete" onClick={(e) => { e.stopPropagation(); onDelete(); }} title="Delete block">×</button>
+      <div className="block-actions">
+        <button className="block-action-btn" onClick={(e) => { e.stopPropagation(); onDuplicate(); }} title="Duplicate block">⧉</button>
+        <button className="block-action-btn block-action-delete" onClick={(e) => { e.stopPropagation(); onDelete(); }} title="Delete block">×</button>
+      </div>
     </div>
   );
 }
@@ -297,15 +489,28 @@ function BlockPreview({ block }: { block: Block }) {
   const { data, block_type } = block;
   switch (block_type) {
     case 'text': return <p style={{ margin: 0, color: '#ccc', fontSize: '14px' }}>{String(data.md ?? data.text ?? '').slice(0, 100) || <em>Empty text block</em>}</p>;
+    case 'heading': {
+      const level = Number(data.level ?? 2);
+      const text = String(data.text ?? '');
+      return <div style={{ margin: 0, color: '#ddd', fontSize: `${Math.max(20 - level * 2, 12)}px`, fontWeight: 600 }}>{text || <em style={{ color: '#555' }}>Empty heading</em>}</div>;
+    }
     case 'callout': return <div style={{ borderLeft: '3px solid #7c6fcd', paddingLeft: '8px', color: '#ccc', fontSize: '14px' }}>{String(data.text ?? '').slice(0, 80) || <em>Callout</em>}</div>;
     case 'quote': return <blockquote style={{ borderLeft: '3px solid #888', paddingLeft: '8px', fontStyle: 'italic', color: '#aaa', fontSize: '14px', margin: 0 }}>{String(data.text ?? '').slice(0, 80) || <em>Quote</em>}</blockquote>;
     case 'image': return <div style={{ color: '#888', fontSize: '13px' }}>🖼 {String(data.src ?? 'No src set')}</div>;
+    case 'video': return <div style={{ color: '#888', fontSize: '13px' }}>▶ {String(data.src ?? 'No URL set')}</div>;
     case 'divider': return <hr style={{ border: 'none', borderTop: '1px solid #444', margin: '4px 0' }} />;
+    case 'spacer': return <div style={{ color: '#888', fontSize: '13px' }}>↕ Spacer ({String(data.height ?? '2rem')})</div>;
     case 'embed': return <div style={{ color: '#888', fontSize: '13px' }}>□ {String(data.src ?? 'No src set')}</div>;
     case 'toc': return <div style={{ color: '#888', fontSize: '13px' }}>≡ Table of Contents</div>;
     case 'wiki-embed': return <div style={{ color: '#888', fontSize: '13px' }}>⊂ Wiki: {String(data.slug ?? data.wiki_id ?? '?')}</div>;
     case 'experiment-embed': return <div style={{ color: '#888', fontSize: '13px' }}>⊗ Exp: {String(data.exp_id ?? '?')}</div>;
     case 'code': return <pre style={{ margin: 0, background: '#1a1a2e', color: '#a8ff78', fontSize: '12px', padding: '6px 8px', borderRadius: '4px', overflow: 'hidden', maxHeight: '60px' }}>{String(data.code ?? '').slice(0, 200) || <em style={{ color: '#555' }}>Empty code block</em>}</pre>;
+    case 'button': return <div style={{ color: '#888', fontSize: '13px' }}>⊞ Button: "{String(data.text ?? 'Click here')}"</div>;
+    case 'columns': {
+      const cols = Array.isArray(data.columns) ? data.columns as string[] : [];
+      return <div style={{ color: '#888', fontSize: '13px' }}>▥ {cols.length || 2}-column layout</div>;
+    }
+    case 'html': return <div style={{ color: '#888', fontSize: '13px' }}>&lt;&gt; HTML block ({String(data.html ?? '').length} chars)</div>;
     default: return <div style={{ color: '#888' }}>[{block_type}]</div>;
   }
 }
@@ -329,6 +534,17 @@ function BlockInspector({ block, onUpdate }: { block: Block; onUpdate: (data: Re
           <span>Markdown</span>
           <textarea value={String(local.md ?? local.text ?? '')} onChange={(e) => set('md', e.target.value)} rows={8} />
         </label>
+      )}
+      {block.block_type === 'heading' && (
+        <>
+          <label className="field"><span>Text</span><input value={String(local.text ?? '')} onChange={(e) => set('text', e.target.value)} placeholder="Heading text" /></label>
+          <label className="field">
+            <span>Level</span>
+            <select value={String(local.level ?? '2')} onChange={(e) => set('level', Number(e.target.value))}>
+              {[1, 2, 3, 4, 5, 6].map((l) => <option key={l} value={l}>H{l}</option>)}
+            </select>
+          </label>
+        </>
       )}
       {block.block_type === 'callout' && (
         <>
@@ -354,11 +570,40 @@ function BlockInspector({ block, onUpdate }: { block: Block; onUpdate: (data: Re
           <label className="field"><span>Caption</span><input value={String(local.caption ?? '')} onChange={(e) => set('caption', e.target.value)} /></label>
         </>
       )}
+      {block.block_type === 'video' && (
+        <>
+          <label className="field"><span>Video URL</span><input value={String(local.src ?? '')} onChange={(e) => set('src', e.target.value)} placeholder="YouTube, Vimeo, or direct URL" /></label>
+          <label className="field"><span>Caption</span><input value={String(local.caption ?? '')} onChange={(e) => set('caption', e.target.value)} /></label>
+        </>
+      )}
       {block.block_type === 'embed' && (
         <>
           <label className="field"><span>URL</span><input value={String(local.src ?? '')} onChange={(e) => set('src', e.target.value)} /></label>
           <label className="field"><span>Title</span><input value={String(local.title ?? '')} onChange={(e) => set('title', e.target.value)} /></label>
         </>
+      )}
+      {block.block_type === 'button' && (
+        <>
+          <label className="field"><span>Text</span><input value={String(local.text ?? '')} onChange={(e) => set('text', e.target.value)} placeholder="Click here" /></label>
+          <label className="field"><span>URL</span><input value={String(local.url ?? '')} onChange={(e) => set('url', e.target.value)} placeholder="https://..." /></label>
+          <label className="field">
+            <span>Style</span>
+            <select value={String(local.style ?? 'primary')} onChange={(e) => set('style', e.target.value)}>
+              {['primary', 'outline', 'edit'].map((s) => <option key={s} value={s}>{s}</option>)}
+            </select>
+          </label>
+        </>
+      )}
+      {block.block_type === 'columns' && (
+        <ColumnsInspector local={local} set={set} />
+      )}
+      {block.block_type === 'spacer' && (
+        <label className="field">
+          <span>Height</span>
+          <select value={String(local.height ?? '2rem')} onChange={(e) => set('height', e.target.value)}>
+            {['1rem', '2rem', '3rem', '4rem', '6rem', '8rem'].map((h) => <option key={h} value={h}>{h}</option>)}
+          </select>
+        </label>
       )}
       {block.block_type === 'wiki-embed' && (
         <label className="field"><span>Wiki slug</span><input value={String(local.slug ?? local.wiki_id ?? '')} onChange={(e) => set('slug', e.target.value)} /></label>
@@ -378,20 +623,70 @@ function BlockInspector({ block, onUpdate }: { block: Block; onUpdate: (data: Re
           </label>
         </>
       )}
+      {block.block_type === 'html' && (
+        <label className="field">
+          <span>HTML</span>
+          <textarea value={String(local.html ?? '')} onChange={(e) => set('html', e.target.value)} rows={10} style={{ fontFamily: 'monospace', fontSize: '13px' }} placeholder="<div>Your HTML here</div>" />
+        </label>
+      )}
     </div>
+  );
+}
+
+// ── Columns Inspector ─────────────────────────────────────────────────────────
+
+function ColumnsInspector({ local, set }: { local: Record<string, unknown>; set: (k: string, v: unknown) => void }) {
+  const cols = Array.isArray(local.columns) ? local.columns as string[] : ['', ''];
+
+  function updateCol(idx: number, value: string) {
+    const updated = [...cols];
+    updated[idx] = value;
+    set('columns', updated);
+  }
+
+  function addCol() {
+    if (cols.length >= 4) return;
+    set('columns', [...cols, '']);
+  }
+
+  function removeCol() {
+    if (cols.length <= 2) return;
+    set('columns', cols.slice(0, -1));
+  }
+
+  return (
+    <>
+      <div style={{ display: 'flex', gap: '.5rem', alignItems: 'center', marginBottom: '.5rem' }}>
+        <span style={{ fontSize: '.82rem', color: '#888' }}>{cols.length} columns</span>
+        <button className="btn btn-xs" onClick={addCol} disabled={cols.length >= 4}>+</button>
+        <button className="btn btn-xs" onClick={removeCol} disabled={cols.length <= 2}>-</button>
+      </div>
+      {cols.map((c, i) => (
+        <label className="field" key={i}>
+          <span>Column {i + 1} (Markdown)</span>
+          <textarea value={c} onChange={(e) => updateCol(i, e.target.value)} rows={4} />
+        </label>
+      ))}
+    </>
   );
 }
 
 function defaultData(type: Block['block_type']): Record<string, unknown> {
   switch (type) {
     case 'text': return { md: '' };
+    case 'heading': return { text: '', level: 2 };
     case 'callout': return { text: '', kind: 'info' };
     case 'quote': return { text: '', attribution: '' };
     case 'image': return { src: '', alt: '', caption: '' };
+    case 'video': return { src: '', caption: '' };
     case 'embed': return { src: '', title: '' };
+    case 'button': return { text: 'Click here', url: '', style: 'primary' };
+    case 'columns': return { columns: ['', ''] };
+    case 'spacer': return { height: '2rem' };
     case 'wiki-embed': return { slug: '', title: '' };
     case 'experiment-embed': return { exp_id: '' };
     case 'code': return { lang: '', code: '' };
+    case 'html': return { html: '' };
     default: return {};
   }
 }

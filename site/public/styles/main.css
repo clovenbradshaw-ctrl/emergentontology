@@ -248,6 +248,107 @@ main { flex: 1; max-width: 860px; margin: 0 auto; padding: 2rem 1.5rem; width: 1
 .block-image figcaption { margin-top: .5rem; color: var(--text-dim); font-size: .85rem; text-align: center; }
 .block-divider { border: none; border-top: 1px solid var(--border); margin: 1rem 0; }
 
+/* Embed & video blocks */
+.block-embed, .block-video { margin: 1rem 0; }
+.block-embed iframe, .block-video iframe {
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  border-radius: var(--radius);
+  border: 1px solid var(--border);
+}
+.block-embed figcaption, .block-video figcaption {
+  margin-top: .5rem;
+  color: var(--text-dim);
+  font-size: .85rem;
+  text-align: center;
+}
+
+/* TOC block */
+.block-toc {
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 1rem 1.25rem;
+}
+.toc-title {
+  font-weight: 600;
+  font-size: .95rem;
+  margin-bottom: .75rem;
+  color: var(--accent);
+}
+.block-toc ol {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: .25rem;
+}
+.block-toc li a { font-size: .9rem; }
+.toc-level-1 { padding-left: 0; }
+.toc-level-2 { padding-left: 1rem; }
+.toc-level-3 { padding-left: 2rem; }
+.toc-level-4 { padding-left: 3rem; }
+
+/* Wiki/experiment embed links */
+.block-wiki-embed, .block-experiment-embed {
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: .75rem 1rem;
+}
+.wiki-embed-link, .exp-embed-link {
+  display: flex;
+  align-items: center;
+  gap: .5rem;
+  font-size: .95rem;
+}
+
+/* Code block */
+.block-code pre {
+  background: #1a1a2e;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 1rem;
+  overflow-x: auto;
+  font-family: var(--font-mono);
+  font-size: .88rem;
+  color: #a8ff78;
+  margin: 0;
+}
+.block-code code {
+  background: none;
+  padding: 0;
+  color: inherit;
+  font-size: inherit;
+}
+
+/* Heading block */
+.block-heading { margin: 1.25rem 0 .5rem; }
+
+/* Button block */
+.block-button {
+  margin: 1rem 0;
+}
+
+/* Columns block */
+.block-columns {
+  display: grid;
+  gap: 1.5rem;
+  margin: 1rem 0;
+}
+.block-columns-2 { grid-template-columns: 1fr 1fr; }
+.block-columns-3 { grid-template-columns: 1fr 1fr 1fr; }
+.block-columns-4 { grid-template-columns: repeat(4, 1fr); }
+.block-columns .column p { margin-bottom: .5rem; }
+@media (max-width: 600px) {
+  .block-columns-2, .block-columns-3, .block-columns-4 { grid-template-columns: 1fr; }
+}
+
+/* Spacer block */
+.block-spacer { width: 100%; }
+
+/* HTML block */
+.block-html { margin: 1rem 0; }
+
 /* Wiki */
 .wiki-body h1, .wiki-body h2, .wiki-body h3 { margin: 1.5rem 0 .5rem; }
 .wiki-body p { margin-bottom: .75rem; }
