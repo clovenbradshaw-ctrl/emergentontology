@@ -12,9 +12,33 @@
   --success: #4ade80;
   --danger: #f87171;
   --warn: #fbbf24;
+  --code-bg: #1a1a2e;
+  --code-text: #a8ff78;
+  --overlay-bg: rgba(0,0,0,.6);
+  --shadow-color: rgba(0,0,0,.4);
   --font-sans: system-ui, -apple-system, 'Segoe UI', sans-serif;
   --font-mono: 'JetBrains Mono', 'Fira Code', monospace;
   --radius: 6px;
+}
+
+/* Light theme */
+[data-theme="light"] {
+  --bg: #ffffff;
+  --bg2: #f5f5f7;
+  --bg3: #e8e8ec;
+  --bg4: #dddde1;
+  --border: #d1d1d6;
+  --text: #1d1d1f;
+  --text-dim: #636366;
+  --accent: #5b4dba;
+  --link: #4a3fa0;
+  --success: #1a7f37;
+  --danger: #d1242f;
+  --warn: #9a6700;
+  --code-bg: #f0f0f8;
+  --code-text: #2d6a1e;
+  --overlay-bg: rgba(0,0,0,.35);
+  --shadow-color: rgba(0,0,0,.12);
 }
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 body { background: var(--bg); color: var(--text); font-family: var(--font-sans); line-height: 1.5; min-height: 100vh; }
@@ -56,6 +80,12 @@ textarea { resize: vertical; }
 .nav-btn:hover, .nav-btn.active { color: var(--text); border-color: var(--border); background: var(--bg3); }
 .admin-header-right { display: flex; align-items: center; gap: .75rem; margin-left: auto; }
 .user-badge { color: var(--text-dim); font-size: .82rem; font-family: var(--font-mono); }
+.theme-toggle { background: none; border: 1px solid var(--border); border-radius: var(--radius); color: var(--text-dim); padding: .3rem .55rem; cursor: pointer; font-size: 1rem; line-height: 1; transition: border-color .15s, color .15s; }
+.theme-toggle:hover { border-color: var(--accent); color: var(--text); }
+.theme-icon-dark { display: none; }
+.theme-icon-light { display: inline; }
+[data-theme="light"] .theme-icon-dark { display: inline; }
+[data-theme="light"] .theme-icon-light { display: none; }
 
 /* Breadcrumb */
 .admin-breadcrumb { display: flex; align-items: center; gap: .5rem; padding: .5rem 1.5rem; font-size: .85rem; color: var(--text-dim); border-bottom: 1px solid var(--border); background: var(--bg2); }
@@ -211,7 +241,7 @@ textarea { resize: vertical; }
 .live-preview-body h1 { font-size: 2rem; font-weight: 700; }
 .live-preview-body h2 { font-size: 1.5rem; font-weight: 600; }
 .live-preview-body h3 { font-size: 1.2rem; font-weight: 600; }
-.live-preview-body pre { background: #1a1a2e; border: 1px solid var(--border); border-radius: var(--radius); padding: .75rem 1rem; overflow-x: auto; font-family: var(--font-mono); font-size: .88em; color: #a8ff78; margin: .75rem 0; }
+.live-preview-body pre { background: var(--code-bg); border: 1px solid var(--border); border-radius: var(--radius); padding: .75rem 1rem; overflow-x: auto; font-family: var(--font-mono); font-size: .88em; color: var(--code-text); margin: .75rem 0; }
 .live-preview-body pre code { background: none; padding: 0; color: inherit; font-size: inherit; }
 .live-preview-body hr { border: none; border-top: 1px solid var(--border); margin: 1rem 0; }
 .live-preview-body a { color: var(--link); }
@@ -349,14 +379,14 @@ textarea { resize: vertical; }
 
 /* Code blocks in preview */
 .preview-body pre {
-  background: #1a1a2e;
+  background: var(--code-bg);
   border: 1px solid var(--border);
   border-radius: var(--radius);
   padding: .75rem 1rem;
   overflow-x: auto;
   font-family: var(--font-mono);
   font-size: .88em;
-  color: #a8ff78;
+  color: var(--code-text);
   margin: .75rem 0;
 }
 .preview-body pre code { background: none; padding: 0; color: inherit; font-size: inherit; }
@@ -429,14 +459,14 @@ textarea { resize: vertical; }
 .rich-editor-content .tiptap s { text-decoration: line-through; }
 .rich-editor-content .tiptap code { background: var(--bg3); padding: 1px 4px; border-radius: 3px; font-family: var(--font-mono); font-size: .9em; }
 .rich-editor-content .tiptap pre {
-  background: #1a1a2e;
+  background: var(--code-bg);
   border: 1px solid var(--border);
   border-radius: var(--radius);
   padding: .75rem 1rem;
   overflow-x: auto;
   font-family: var(--font-mono);
   font-size: .88em;
-  color: #a8ff78;
+  color: var(--code-text);
   margin: .75rem 0;
 }
 .rich-editor-content .tiptap pre code { background: none; padding: 0; color: inherit; font-size: inherit; }
@@ -501,7 +531,7 @@ textarea { resize: vertical; }
   background: var(--bg3);
   border: 1px solid var(--border);
   border-radius: var(--radius);
-  box-shadow: 0 4px 16px rgba(0,0,0,.4);
+  box-shadow: 0 4px 16px var(--shadow-color);
 }
 .bubble-menu button {
   background: var(--bg2);
@@ -554,7 +584,7 @@ textarea { resize: vertical; }
 .link-picker-overlay {
   position: fixed;
   inset: 0;
-  background: rgba(0,0,0,.6);
+  background: var(--overlay-bg);
   display: flex;
   align-items: center;
   justify-content: center;
