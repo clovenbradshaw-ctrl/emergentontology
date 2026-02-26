@@ -37,9 +37,13 @@ function renderMarkdown(md: string): string {
     { label: wiki.meta.title, href: `${base}/wiki/${wiki.meta.slug}/` },
   ]}
 >
-  <article class="wiki-content">
+  <article class="wiki-content" data-eo-op="DES" data-eo-target={wiki.content_id}>
     <header class="content-header">
       <h1>{wiki.meta.title}</h1>
+      <code class="eo-op">
+        <span class="eo-sym">⊡</span>
+        <span class="eo-name">DES</span>(<span class="eo-target">{wiki.content_id}</span>, <span class="eo-operand">{`{title: "${wiki.meta.title}"}`}</span>)
+      </code>
       <div class="content-tags">
         {wiki.meta.tags.map((t: string) => <span class="tag">{t}</span>)}
       </div>
@@ -67,10 +71,12 @@ function renderMarkdown(md: string): string {
               .slice()
               .reverse()
               .map((r) => (
-                <li class="rev-entry">
-                  <span class="rev-id">{r.rev_id}</span>
+                <li class="rev-entry" data-eo-op="INS" data-eo-target={`${wiki.content_id}/rev:${r.rev_id}`}>
+                  <code class="eo-op eo-op-inline">
+                    <span class="eo-sym">△</span>
+                    <span class="eo-name">INS</span>(<span class="eo-target">{wiki.content_id}/rev:{r.rev_id}</span>, <span class="eo-operand">{`{summary: "${r.summary || '…'}"}`}</span>)
+                  </code>
                   <time class="rev-ts">{new Date(r.ts).toLocaleDateString()}</time>
-                  <span class="rev-summary">{r.summary || 'No summary'}</span>
                 </li>
               ))
           : <li>No revisions yet.</li>

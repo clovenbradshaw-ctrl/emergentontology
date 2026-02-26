@@ -147,16 +147,29 @@ function renderBlock(block: Block): string {
     { label: page.meta.title, href: `${base}/page/${page.meta.slug}/` },
   ]}
 >
-  <article class="page-content">
+  <article class="page-content" data-eo-op="DES" data-eo-target={page.content_id}>
     <header class="content-header">
       <h1>{page.meta.title}</h1>
+      <code class="eo-op">
+        <span class="eo-sym">⊡</span>
+        <span class="eo-name">DES</span>(<span class="eo-target">{page.content_id}</span>, <span class="eo-operand">{`{title: "${page.meta.title}"}`}</span>)
+      </code>
     </header>
 
     <div class="blocks">
       {page.block_order.length > 0
         ? page.block_order.map((id: string) => {
             const block = blockMap.get(id);
-            return block ? <Fragment set:html={renderBlock(block)} /> : null;
+            if (!block || block.deleted) return null;
+            return (
+              <div class="block-eo-wrap" data-eo-op="INS" data-eo-target={`${page.content_id}/block:${block.block_id}`}>
+                <code class="eo-op">
+                  <span class="eo-sym">△</span>
+                  <span class="eo-name">INS</span>(<span class="eo-target">{page.content_id}/block:{block.block_id}</span>, <span class="eo-operand">{`{type: "${block.block_type}"}`}</span>)
+                </code>
+                <Fragment set:html={renderBlock(block)} />
+              </div>
+            );
           })
         : <p class="empty-page">This page has no content yet.</p>
       }

@@ -49,9 +49,13 @@ function renderMarkdown(md: string): string {
     { label: post.meta.title, href: `${base}/blog/${post.meta.slug}/` },
   ]}
 >
-  <article class="blog-content">
+  <article class="blog-content" data-eo-op="DES" data-eo-target={post.content_id}>
     <header class="content-header">
       <h1>{post.meta.title}</h1>
+      <code class="eo-op">
+        <span class="eo-sym">⊡</span>
+        <span class="eo-name">DES</span>(<span class="eo-target">{post.content_id}</span>, <span class="eo-operand">{`{title: "${post.meta.title}"}`}</span>)
+      </code>
       <div class="post-meta">
         {post.current_revision && (
           <time datetime={post.current_revision.ts}>

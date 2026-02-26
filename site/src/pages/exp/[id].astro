@@ -42,9 +42,13 @@ function renderMarkdown(md: string): string {
     { label: exp.meta.title, href: `${base}/exp/${exp.meta.slug}/` },
   ]}
 >
-  <article class="exp-content">
+  <article class="exp-content" data-eo-op="DES" data-eo-target={exp.content_id}>
     <header class="content-header">
       <h1>{exp.meta.title}</h1>
+      <code class="eo-op">
+        <span class="eo-sym">⊡</span>
+        <span class="eo-name">DES</span>(<span class="eo-target">{exp.content_id}</span>, <span class="eo-operand">{`{title: "${exp.meta.title}"}`}</span>)
+      </code>
       <div class="content-tags">
         {exp.meta.tags.map((t: string) => <span class="tag">{t}</span>)}
       </div>
@@ -53,7 +57,7 @@ function renderMarkdown(md: string): string {
     <ol class="exp-entries">
       {exp.entries.length > 0
         ? exp.entries.map((entry: ExperimentEntry) => (
-            <li class={`exp-entry exp-entry-${entry.kind}`}>
+            <li class={`exp-entry exp-entry-${entry.kind}`} data-eo-op="INS" data-eo-target={`${exp.content_id}/entry:${entry.entry_id}`}>
               <span class="entry-kind" title={entry.kind}>
                 {KIND_ICONS[entry.kind] ?? '•'}
               </span>
@@ -67,7 +71,13 @@ function renderMarkdown(md: string): string {
                   </ul>
                 )}
               </div>
-              <time class="entry-ts">{new Date(entry.ts).toLocaleDateString()}</time>
+              <div class="entry-eo-meta">
+                <code class="eo-op eo-op-inline">
+                  <span class="eo-sym">△</span>
+                  <span class="eo-name">INS</span>(<span class="eo-target">{exp.content_id}/entry:{entry.entry_id}</span>, <span class="eo-operand">{`{kind: "${entry.kind}"}`}</span>)
+                </code>
+                <time class="entry-ts">{new Date(entry.ts).toLocaleDateString()}</time>
+              </div>
             </li>
           ))
         : <li class="empty-page">No entries yet.</li>

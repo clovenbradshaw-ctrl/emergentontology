@@ -21,6 +21,7 @@ const base = import.meta.env.BASE_URL.replace(/\/$/, '');
         {wikis.map((w) => (
           <li>
             <a href={`${base}/wiki/${w.meta.slug}/`}>{w.meta.title}</a>
+            <code class="eo-op"><span class="eo-name">DES</span>(<span class="eo-target">{w.content_id}</span>)</code>
             {w.meta.tags.length > 0 && (
               <span class="tags">
                 {w.meta.tags.map((t: string) => <span class="tag">{t}</span>)}

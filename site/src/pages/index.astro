@@ -84,7 +84,7 @@ const hasContent = totalArticles > 0;
           const excerpt = wikiExcerpt(e.content_id);
           return (
             <a class="content-card" href={`${base}/wiki/${e.slug}/`}>
-              <div class="card-type">wiki</div>
+              <div class="card-type"><code class="eo-op"><span class="eo-name">DES</span>(<span class="eo-target">{e.content_id}</span>)</code></div>
               <h3 class="card-title">{e.title}</h3>
               {excerpt && <p class="card-excerpt">{excerpt}</p>}
               {e.tags.length > 0 && (
@@ -124,7 +124,7 @@ const hasContent = totalArticles > 0;
           return (
             <a class="list-card" href={`${base}/blog/${e.slug}/`}>
               <div class="list-card-body">
-                <div class="card-type">post</div>
+                <div class="card-type"><code class="eo-op"><span class="eo-name">DES</span>(<span class="eo-target">{e.content_id}</span>)</code></div>
                 <h3 class="list-card-title">{e.title}</h3>
                 {excerpt && <p class="card-excerpt">{excerpt}</p>}
               </div>
@@ -149,7 +149,7 @@ const hasContent = totalArticles > 0;
       <div class="content-grid content-grid--sm">
         {expEntries.slice(0, 4).map((e: NavEntry) => (
           <a class="content-card content-card--exp" href={`${base}/exp/${e.slug}/`}>
-            <div class="card-type">experiment</div>
+            <div class="card-type"><code class="eo-op"><span class="eo-name">DES</span>(<span class="eo-target">{e.content_id}</span>)</code></div>
             <h3 class="card-title">{e.title}</h3>
           </a>
         ))}
@@ -170,6 +170,7 @@ const hasContent = totalArticles > 0;
         {pageEntries.map((e: NavEntry) => (
           <li>
             <a href={`${base}/page/${e.slug}/`}>{e.title}</a>
+            <code class="eo-op"><span class="eo-name">DES</span>(<span class="eo-target">{e.content_id}</span>)</code>
           </li>
         ))}
       </ul>

@@ -99,7 +99,7 @@
         pointerEvents: 'none',
         whiteSpace: 'nowrap',
       });
-      ann.textContent = `${sym} ${op}(${target.split('/').pop() ?? target})`;
+      ann.textContent = `${sym} ${op}(${target})`;
 
       // Make the parent position:relative so the annotation sits on it
       const parent = el;
@@ -197,19 +197,22 @@
       for (const entry of [...history].reverse()) {
         const color = OP_COLORS[entry.op] ?? '#888';
         const sym = OP_SYMBOLS[entry.op] ?? '?';
+        const target = entry.target ?? data.content_id ?? '';
+        const summary = entry.summary ? `, {${entry.summary}}` : '';
         const row = document.createElement('div');
         Object.assign(row.style, {
           padding: '5px 12px',
           borderBottom: '1px solid #1a1a1a',
           display: 'flex',
-          gap: '8px',
-          alignItems: 'center',
+          flexDirection: 'column',
+          gap: '2px',
         });
         row.innerHTML = `
-          <span style="color:${color};font-weight:700;width:20px;text-align:center;font-size:14px">${sym}</span>
-          <span style="color:${color};font-weight:700;width:28px">${entry.op}</span>
-          <span style="color:#aaa;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${entry.event_id ?? ''}</span>
-          <span style="color:#555;font-size:10px">${new Date(entry.ts).toLocaleTimeString()}</span>
+          <div style="display:flex;align-items:center;gap:6px">
+            <span style="color:${color};font-weight:700;font-size:14px">${sym}</span>
+            <span style="color:${color};font-weight:600">${entry.op}</span><span style="color:#aaa">(</span><span style="color:#888;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${target}${summary}</span><span style="color:#aaa">)</span>
+            <span style="color:#555;font-size:10px;margin-left:auto;flex-shrink:0">${new Date(entry.ts).toLocaleTimeString()}</span>
+          </div>
         `;
         body.appendChild(row);
       }
@@ -235,6 +238,7 @@
       outline: 1px dashed #7c6fcd66 !important;
       outline-offset: 2px;
     }
+    body.xray-enabled .block-eo-wrap,
     body.xray-enabled .block-text,
     body.xray-enabled .block-callout,
     body.xray-enabled .block-quote,
