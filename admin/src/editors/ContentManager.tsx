@@ -214,6 +214,21 @@ export default function ContentManager({ siteBase, onOpen }: Props) {
       );
       indexRecordRef.current = updated;
       setEntries(updatedEntries);
+
+      // 3. Also update content's own meta with new status
+      const metaEvent = desContentMeta(contentId, {
+        status: newStatus,
+        updated_at: desEvent.ctx.ts,
+      } as Partial<import('../eo/types').ContentMeta>, agent);
+      await addRecord(eventToPayload(metaEvent));
+      try {
+        const contentRec = await fetchCurrentRecord(contentId);
+        if (contentRec) {
+          const contentState = JSON.parse(contentRec.value);
+          contentState.meta = { ...contentState.meta, status: newStatus, updated_at: desEvent.ctx.ts };
+          await upsertCurrentRecord(contentId, metaEvent.op, contentState, agent, contentRec);
+        }
+      } catch { /* best-effort update */ }
     } catch (err) {
       setError(err instanceof Error ? err.message : String(err));
     }
