@@ -214,22 +214,16 @@ export default function WikiEditor({ contentId, siteBase }: Props) {
               const firstPublicAt = String((state.meta as Record<string, unknown>).first_public_at ?? '');
               const isPublicBoundary = firstPublicAt && idx < arr.length - 1 &&
                 r.ts >= firstPublicAt && arr[idx + 1].ts < firstPublicAt;
+              // Find previous revision (arr is reversed, so previous is idx+1)
+              const prevRev = idx < arr.length - 1 ? arr[idx + 1] : null;
               return (
                 <React.Fragment key={r.rev_id}>
-                  <li className={`rev-item${firstPublicAt && r.ts >= firstPublicAt ? ' rev-public' : ''}`}>
-                    <span className="rev-id">{r.rev_id}</span>
-                    <span className="rev-ts">{new Date(r.ts).toLocaleString()}</span>
-                    <span className="rev-summary">{r.summary || '—'}</span>
-                    {firstPublicAt && r.ts >= firstPublicAt && (
-                      <span className="rev-public-badge" title="Created while content was public">pub</span>
-                    )}
-                    <button
-                      className="btn btn-xs"
-                      onClick={() => { setEditorContent(r.content); setIsDirty(true); }}
-                    >
-                      Restore
-                    </button>
-                  </li>
+                  <RevisionItem
+                    rev={r}
+                    prevRev={prevRev}
+                    isPublic={!!(firstPublicAt && r.ts >= firstPublicAt)}
+                    onRestore={() => { setEditorContent(r.content); setIsDirty(true); }}
+                  />
                   {isPublicBoundary && (
                     <li className="rev-public-divider">
                       <span>↑ public</span>
@@ -245,6 +239,173 @@ export default function WikiEditor({ contentId, siteBase }: Props) {
       )}
     </div>
   );
+}
+
+// ── Revision item with inline diff ────────────────────────────────────────────
+
+function RevisionItem({ rev, prevRev, isPublic, onRestore }: {
+  rev: WikiRevision;
+  prevRev: WikiRevision | null;
+  isPublic: boolean;
+  onRestore: () => void;
+}) {
+  const [showDiff, setShowDiff] = useState(false);
+
+  return (
+    <li className={`rev-item rev-item-expandable${isPublic ? ' rev-public' : ''}`}>
+      <div className="rev-item-header">
+        <span className="rev-id">{rev.rev_id}</span>
+        <span className="rev-ts">{new Date(rev.ts).toLocaleString()}</span>
+        <span className="rev-summary">{rev.summary || '—'}</span>
+        {isPublic && (
+          <span className="rev-public-badge" title="Created while content was public">pub</span>
+        )}
+        {prevRev && (
+          <button
+            className="btn btn-xs"
+            onClick={(e) => { e.stopPropagation(); setShowDiff(!showDiff); }}
+          >
+            {showDiff ? 'Hide diff' : 'Diff'}
+          </button>
+        )}
+        {!prevRev && <span style={{ color: 'var(--text-dim)', fontSize: '.75rem' }}>initial</span>}
+        <button className="btn btn-xs" onClick={onRestore}>Restore</button>
+      </div>
+      {showDiff && prevRev && (
+        <div className="rev-diff">
+          <RevisionDiff oldText={prevRev.content} newText={rev.content} />
+        </div>
+      )}
+    </li>
+  );
+}
+
+/** Simple line-level diff with word-level highlighting for changed lines. */
+function RevisionDiff({ oldText, newText }: { oldText: string; newText: string }) {
+  const diff = computeLineDiff(oldText, newText);
+  if (diff.length === 0) return <div className="rev-diff-empty">No changes</div>;
+
+  return (
+    <div className="rev-diff-content">
+      {diff.map((chunk, i) => {
+        if (chunk.type === 'equal') {
+          return <div key={i} className="diff-line diff-ctx">{chunk.line}</div>;
+        }
+        if (chunk.type === 'removed') {
+          return <div key={i} className="diff-line diff-del"><del>{chunk.line}</del></div>;
+        }
+        // added — check if there's a preceding 'removed' to show word-level diff
+        if (chunk.type === 'added' && i > 0 && diff[i - 1].type === 'removed') {
+          const words = wordDiff(diff[i - 1].line, chunk.line);
+          return (
+            <div key={i} className="diff-line diff-add">
+              {words.map((w, j) =>
+                w.type === 'equal' ? <span key={j}>{w.text}</span>
+                : w.type === 'added' ? <ins key={j}>{w.text}</ins>
+                : null
+              )}
+            </div>
+          );
+        }
+        return <div key={i} className="diff-line diff-add"><ins>{chunk.line}</ins></div>;
+      })}
+    </div>
+  );
+}
+
+function computeLineDiff(oldText: string, newText: string): Array<{ type: 'equal' | 'added' | 'removed'; line: string }> {
+  const oldLines = oldText.split('\n');
+  const newLines = newText.split('\n');
+  const result: Array<{ type: 'equal' | 'added' | 'removed'; line: string }> = [];
+
+  // Simple LCS-based diff
+  const m = oldLines.length;
+  const n = newLines.length;
+  const dp: number[][] = Array.from({ length: m + 1 }, () => Array(n + 1).fill(0));
+  for (let i = 1; i <= m; i++) {
+    for (let j = 1; j <= n; j++) {
+      dp[i][j] = oldLines[i - 1] === newLines[j - 1] ? dp[i - 1][j - 1] + 1 : Math.max(dp[i - 1][j], dp[i][j - 1]);
+    }
+  }
+
+  // Backtrack to build diff
+  const items: Array<{ type: 'equal' | 'added' | 'removed'; line: string }> = [];
+  let i = m, j = n;
+  while (i > 0 || j > 0) {
+    if (i > 0 && j > 0 && oldLines[i - 1] === newLines[j - 1]) {
+      items.push({ type: 'equal', line: oldLines[i - 1] });
+      i--; j--;
+    } else if (j > 0 && (i === 0 || dp[i][j - 1] >= dp[i - 1][j])) {
+      items.push({ type: 'added', line: newLines[j - 1] });
+      j--;
+    } else {
+      items.push({ type: 'removed', line: oldLines[i - 1] });
+      i--;
+    }
+  }
+  items.reverse();
+
+  // Collapse context: show only 2 lines around changes
+  let lastChange = -1;
+  const changeIndices = new Set<number>();
+  items.forEach((item, idx) => { if (item.type !== 'equal') changeIndices.add(idx); });
+  items.forEach((item, idx) => {
+    if (item.type !== 'equal') {
+      lastChange = idx;
+      result.push(item);
+    } else {
+      const nearChange = changeIndices.has(idx - 1) || changeIndices.has(idx - 2) || changeIndices.has(idx + 1) || changeIndices.has(idx + 2);
+      if (nearChange) {
+        result.push(item);
+      } else if (lastChange >= 0 && result.length > 0 && result[result.length - 1].type !== 'equal') {
+        result.push({ type: 'equal', line: '···' });
+      }
+    }
+  });
+
+  return result;
+}
+
+function wordDiff(oldLine: string, newLine: string): Array<{ type: 'equal' | 'added' | 'removed'; text: string }> {
+  const oldWords = oldLine.split(/(\s+)/);
+  const newWords = newLine.split(/(\s+)/);
+  const result: Array<{ type: 'equal' | 'added' | 'removed'; text: string }> = [];
+
+  const m = oldWords.length;
+  const n = newWords.length;
+  const dp: number[][] = Array.from({ length: m + 1 }, () => Array(n + 1).fill(0));
+  for (let i = 1; i <= m; i++) {
+    for (let j = 1; j <= n; j++) {
+      dp[i][j] = oldWords[i - 1] === newWords[j - 1] ? dp[i - 1][j - 1] + 1 : Math.max(dp[i - 1][j], dp[i][j - 1]);
+    }
+  }
+
+  const items: Array<{ type: 'equal' | 'added' | 'removed'; text: string }> = [];
+  let i = m, j = n;
+  while (i > 0 || j > 0) {
+    if (i > 0 && j > 0 && oldWords[i - 1] === newWords[j - 1]) {
+      items.push({ type: 'equal', text: oldWords[i - 1] });
+      i--; j--;
+    } else if (j > 0 && (i === 0 || dp[i][j - 1] >= dp[i - 1][j])) {
+      items.push({ type: 'added', text: newWords[j - 1] });
+      j--;
+    } else {
+      items.push({ type: 'removed', text: oldWords[i - 1] });
+      i--;
+    }
+  }
+  items.reverse();
+
+  // Merge consecutive same-type tokens
+  for (const item of items) {
+    if (result.length > 0 && result[result.length - 1].type === item.type) {
+      result[result.length - 1].text += item.text;
+    } else {
+      result.push({ ...item });
+    }
+  }
+
+  return result;
 }
 
 // ── Markdown toolbar ──────────────────────────────────────────────────────────
