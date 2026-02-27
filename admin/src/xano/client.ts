@@ -20,6 +20,16 @@
 
 import type { EOEvent, EORawEvent } from '../eo/types';
 
+// Late-bound cache hooks — set by stateCache.ts to avoid circular imports.
+// When a write to eowikicurrent succeeds, we update the cache in-place so
+// other editors immediately see the new data without waiting for a refetch.
+let _onRecordWritten: ((record: XanoCurrentRecord) => void) | null = null;
+
+/** Called by stateCache.ts to register its cache-update callback. */
+export function _registerCacheHook(hook: (record: XanoCurrentRecord) => void): void {
+  _onRecordWritten = hook;
+}
+
 const XANO_BASE = 'https://xvkq-pq7i-idtl.n7d.xano.io/api:GGzWIVAW';
 
 // SHA-256 of "Brethren0-Happiest6-Dynamite5-Hammock9-Sharply0"
@@ -131,12 +141,6 @@ export async function fetchAllCurrentRecords(): Promise<XanoCurrentRecord[]> {
   return (await resp.json()) as XanoCurrentRecord[];
 }
 
-/** Fetch a single current-state record by record_id (filter client-side). */
-export async function fetchCurrentRecord(recordId: string): Promise<XanoCurrentRecord | null> {
-  const all = await fetchAllCurrentRecords();
-  return all.find((r) => r.record_id === recordId) ?? null;
-}
-
 /** Create a new current-state record (first write for this record_id). */
 export async function createCurrentRecord(payload: {
   record_id: string;
@@ -180,7 +184,7 @@ export async function patchCurrentRecord(id: number, payload: {
 
 /**
  * Upsert helper: creates or patches the current-state record for a record_id.
- * Pass `existing` (from a prior fetchCurrentRecord call) to avoid an extra GET.
+ * Pass `existing` (from a prior load) to avoid an extra GET.
  * Generates a UUID (v4) on create for deduplication.
  */
 export async function upsertCurrentRecord(
@@ -193,17 +197,23 @@ export async function upsertCurrentRecord(
   const values = JSON.stringify(stateSnapshot);
   const lastModified = new Date().toISOString();
 
+  let result: XanoCurrentRecord;
   if (existing) {
-    return patchCurrentRecord(existing.id, { values, context: ctx, lastModified });
+    result = await patchCurrentRecord(existing.id, { values, context: ctx, lastModified });
+  } else {
+    result = await createCurrentRecord({
+      record_id: recordId,
+      displayName: recordId,
+      values,
+      context: ctx,
+      uuid: crypto.randomUUID(),
+      lastModified,
+    });
   }
-  return createCurrentRecord({
-    record_id: recordId,
-    displayName: recordId,
-    values,
-    context: ctx,
-    uuid: crypto.randomUUID(),
-    lastModified,
-  });
+
+  // Keep the in-memory cache in sync so other editors see this write immediately
+  _onRecordWritten?.(result);
+  return result;
 }
 
 // ── EOEvent → eowiki payload helper ───────────────────────────────────────────

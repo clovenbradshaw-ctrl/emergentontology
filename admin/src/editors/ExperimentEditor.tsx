@@ -15,12 +15,12 @@ import { useAuth } from '../auth/AuthContext';
 import { useSettings } from '../settings/SettingsContext';
 import { useXRay } from '../components/XRayOverlay';
 import {
-  fetchCurrentRecord,
   addRecord,
   upsertCurrentRecord,
   eventToPayload,
   type XanoCurrentRecord,
 } from '../xano/client';
+import { loadState, applyFreshnessUpdate } from '../xano/stateCache';
 import { insExpEntry, nulExpEntry } from '../eo/events';
 import type { ExperimentEntry } from '../eo/types';
 
@@ -59,39 +59,38 @@ export default function ExperimentEditor({ contentId, siteBase }: Props) {
     let cancelled = false;
     async function load() {
       setLoading(true);
-      let expState: ExpState | null = null;
 
-      // 1. Try Xano current record
-      try {
-        const rec = await fetchCurrentRecord(contentId);
-        if (rec) {
-          currentRecordRef.current = rec;
-          expState = JSON.parse(rec.values) as ExpState;
-        }
-      } catch (err) {
-        console.warn('[ExperimentEditor] Could not fetch Xano current record:', err);
+      // 1. Primary: current state (cached) → static fallback
+      const result = await loadState<ExpState>(contentId, siteBase);
+
+      if (cancelled) return;
+      if (result.record) currentRecordRef.current = result.record;
+
+      let expState = result.state;
+
+      // Normalize: ensure entries/meta exist
+      if (expState) {
+        expState = { entries: expState.entries ?? [], meta: expState.meta ?? {} };
       }
 
-      // 2. Fall back to static snapshot
-      if (!expState) {
-        try {
-          const fileName = contentId.replace(':', '-') + '.json';
-          const resp = await fetch(`${siteBase}/generated/state/content/${fileName}`);
-          if (resp.ok) {
-            const snap = await resp.json() as { entries?: ExperimentEntry[]; meta?: Record<string, unknown> };
-            expState = { entries: snap.entries ?? [], meta: snap.meta ?? {} };
-          }
-        } catch { /* no snapshot */ }
-      }
+      setState(expState);
+      setLoading(false);
 
-      if (!cancelled) {
-        setState(expState);
-        setLoading(false);
+      // 2. Background freshness check: apply any newer events from the log
+      if (expState && result.record && (expState.meta as Record<string, unknown>)?.content_type) {
+        applyFreshnessUpdate(contentId, expState as unknown as import('../eo/types').ProjectedContent, result.record, {
+          persist: true,
+          agent: settings.displayName || 'editor',
+        }).then(({ updated, hadUpdates }) => {
+          if (cancelled || !hadUpdates) return;
+          const freshState = updated as unknown as ExpState;
+          setState({ entries: freshState.entries ?? [], meta: freshState.meta ?? {} });
+        }).catch(() => { /* best-effort freshness check */ });
       }
     }
     load();
     return () => { cancelled = true; };
-  }, [contentId, siteBase]);
+  }, [contentId, siteBase, settings.displayName]);
 
   // ── Add entry ─────────────────────────────────────────────────────────────
 

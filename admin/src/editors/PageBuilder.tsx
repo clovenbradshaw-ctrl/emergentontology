@@ -32,12 +32,12 @@ import { useAuth } from '../auth/AuthContext';
 import { useSettings } from '../settings/SettingsContext';
 import { useXRay } from '../components/XRayOverlay';
 import {
-  fetchCurrentRecord,
   addRecord,
   upsertCurrentRecord,
   eventToPayload,
   type XanoCurrentRecord,
 } from '../xano/client';
+import { loadState, applyFreshnessUpdate } from '../xano/stateCache';
 import { insBlock, altBlock, nulBlock } from '../eo/events';
 import type { Block } from '../eo/types';
 
@@ -144,39 +144,46 @@ export default function PageBuilder({ contentId, siteBase }: Props) {
     let cancelled = false;
     async function load() {
       setLoading(true);
-      let pageState: PageState | null = null;
 
-      // 1. Try Xano current record
-      try {
-        const rec = await fetchCurrentRecord(contentId);
-        if (rec) {
-          currentRecordRef.current = rec;
-          pageState = JSON.parse(rec.values) as PageState;
-        }
-      } catch (err) {
-        console.warn('[PageBuilder] Could not fetch Xano current record:', err);
+      // 1. Primary: current state (cached) → static fallback
+      const result = await loadState<PageState>(contentId, siteBase);
+
+      if (cancelled) return;
+      if (result.record) currentRecordRef.current = result.record;
+
+      let pageState = result.state;
+
+      // Normalize: ensure blocks/block_order/meta exist
+      if (pageState) {
+        pageState = {
+          blocks: pageState.blocks ?? [],
+          block_order: pageState.block_order ?? [],
+          meta: pageState.meta ?? {},
+        };
       }
 
-      // 2. Fall back to static snapshot
-      if (!pageState) {
-        try {
-          const fileName = contentId.replace(':', '-') + '.json';
-          const resp = await fetch(`${siteBase}/generated/state/content/${fileName}`);
-          if (resp.ok) {
-            const snap = await resp.json() as PageState;
-            pageState = { blocks: snap.blocks ?? [], block_order: snap.block_order ?? [], meta: snap.meta ?? {} };
-          }
-        } catch { /* no snapshot */ }
-      }
+      setState(pageState);
+      setLoading(false);
 
-      if (!cancelled) {
-        setState(pageState);
-        setLoading(false);
+      // 2. Background freshness check: apply any newer events from the log
+      if (pageState && result.record && (pageState.meta as Record<string, unknown>)?.content_type) {
+        applyFreshnessUpdate(contentId, pageState as unknown as import('../eo/types').ProjectedContent, result.record, {
+          persist: true,
+          agent: settings.displayName || 'editor',
+        }).then(({ updated, hadUpdates }) => {
+          if (cancelled || !hadUpdates) return;
+          const freshState = updated as unknown as PageState;
+          setState({
+            blocks: freshState.blocks ?? [],
+            block_order: freshState.block_order ?? [],
+            meta: freshState.meta ?? {},
+          });
+        }).catch(() => { /* best-effort freshness check */ });
       }
     }
     load();
     return () => { cancelled = true; };
-  }, [contentId, siteBase]);
+  }, [contentId, siteBase, settings.displayName]);
 
   // ── Emit helper ───────────────────────────────────────────────────────────
 
