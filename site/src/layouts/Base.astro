@@ -314,16 +314,28 @@ const childPages = (parentId: string) => pageNav.filter((e: NavEntry) => e.paren
 
     // Logo mark cycling through operator symbols
     (function() {
-      var symbols = ['∅', '⊡', '△', '｜', '⋈', '∿', '∨', '∥', '⟳'];
+      var operators = [
+        { symbol: '∅', color: '#9ca3af' },  // NUL
+        { symbol: '⊡', color: '#60a5fa' },  // DES
+        { symbol: '△', color: '#4ade80' },  // INS
+        { symbol: '｜', color: '#c084fc' },  // SEG
+        { symbol: '⋈', color: '#34d399' },  // CON
+        { symbol: '∨', color: '#818cf8' },  // SYN
+        { symbol: '∿', color: '#fbbf24' },  // ALT
+        { symbol: '∥', color: '#f472b6' },  // SUP
+        { symbol: '⟳', color: '#fb923c' }   // REC
+      ];
       var mark = document.getElementById('logo-mark');
       if (!mark) return;
-      var idx = parseInt(localStorage.getItem('eo-logo-idx') || '1', 10);
-      mark.textContent = symbols[idx % symbols.length];
+      var idx = parseInt(localStorage.getItem('eo-logo-idx') || '1', 10) % operators.length;
+      mark.textContent = operators[idx].symbol;
+      mark.style.color = operators[idx].color;
       mark.addEventListener('click', function(e) {
         e.preventDefault();
         e.stopPropagation();
-        idx = (idx + 1) % symbols.length;
-        mark.textContent = symbols[idx];
+        idx = (idx + 1) % operators.length;
+        mark.textContent = operators[idx].symbol;
+        mark.style.color = operators[idx].color;
         localStorage.setItem('eo-logo-idx', String(idx));
       });
     })();
