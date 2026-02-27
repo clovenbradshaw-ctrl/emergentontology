@@ -181,7 +181,8 @@
 
       const contentId = type === 'exp' ? `experiment:${slug}` : `${type}:${slug}`;
       const fileName = contentId.replace(':', '-') + '.json';
-      const base = document.querySelector('link[rel="alternate"]')?.getAttribute('href')?.replace('/generated/state/index.json', '') ?? '';
+      const baseEl = document.querySelector('base');
+      const base = baseEl ? baseEl.getAttribute('href').replace(/\/$/, '') : '';
 
       const resp = await fetch(`${base}/generated/state/content/${fileName}`);
       if (!resp.ok) throw new Error('No state file');

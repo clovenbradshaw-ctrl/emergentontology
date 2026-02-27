@@ -1,7 +1,6 @@
 name: Build & Deploy EO Site
 
 on:
-  # Manual trigger (run from GitHub UI or API)
   workflow_dispatch:
     inputs:
       include_drafts:
@@ -9,14 +8,9 @@ on:
         type: boolean
         default: false
 
-  # Scheduled: rebuild every 5 minutes to pick up new Xano content.
-  # Comment this out if you prefer manual / webhook-triggered builds only.
   schedule:
     - cron: '*/5 * * * *'
 
-  # Also rebuild on pushes to main/master (for site/admin code changes).
-  # No path filter here so that the very first push to either branch always
-  # triggers a deployment (avoids a 404 on first load before a scheduled run).
   push:
     branches: [main, master]
 
@@ -25,7 +19,6 @@ permissions:
   pages: write
   id-token: write
 
-# Allow only one deployment at a time; cancel in-progress runs on new push.
 concurrency:
   group: pages
   cancel-in-progress: false
@@ -38,10 +31,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      # Compute the site base path.
-      # If SITE_BASE_URL secret is set, use it.
-      # Otherwise auto-detect: user.github.io repos deploy at root (/),
-      # all other repos deploy at /{repo-name} on GitHub Pages.
+      # Compute base path for GitHub Pages.
       - name: Compute base path
         id: base
         run: |
@@ -63,10 +53,18 @@ jobs:
           cache: 'npm'
           cache-dependency-path: |
             tools/projector/package-lock.json
-            site/package-lock.json
             admin/package-lock.json
 
-      # ── Step 1: Run projector (fetch Xano snapshots → write JSON state files) ──
+      # ── Step 1: Inject base path into static HTML ──
+      - name: Set base path in HTML
+        run: |
+          BASE="${{ steps.base.outputs.path }}"
+          if [ -n "$BASE" ]; then
+            sed -i "s|<base href=\"/\">|<base href=\"${BASE}/\">|" site/index.html
+            cp site/index.html site/404.html
+          fi
+
+      # ── Step 2: Run projector (fetch Xano → write JSON state files) ──
       - name: Install projector dependencies
         working-directory: tools/projector
         run: npm install
@@ -75,12 +73,12 @@ jobs:
         working-directory: tools/projector
         env:
           INCLUDE_DRAFTS: ${{ github.event.inputs.include_drafts || 'false' }}
-          OUT_DIR: ${{ github.workspace }}/site/public/generated
+          OUT_DIR: ${{ github.workspace }}/site/generated
           SITE_BASE_URL: ${{ steps.base.outputs.path }}
           EO_PASSWORD: ${{ secrets.EO_PASSWORD }}
         run: npm run dev
 
-      # ── Step 2: Build admin SPA ────────────────────────────────────────────
+      # ── Step 3: Build admin SPA ──
       - name: Install admin dependencies
         working-directory: admin
         run: npm install
@@ -90,24 +88,9 @@ jobs:
         env:
           VITE_BASE_URL: ${{ steps.base.outputs.path }}
         run: npm run build
-        # Output lands in site/public/admin/ (configured in vite.config.ts)
+        # Output lands in site/admin/ (configured in vite.config.ts)
 
-      # ── Step 3: Build Astro public site ───────────────────────────────────
-      - name: Install site dependencies
-        working-directory: site
-        run: npm install
-
-      - name: Build Astro site
-        working-directory: site
-        env:
-          SITE_BASE: ${{ steps.base.outputs.path }}
-        run: npm run build
-        # Output: site/dist/
-
-      # ── Step 4: Upload artifact for Pages deployment ───────────────────────
-      # NOTE: GitHub Pages must be configured to deploy from "GitHub Actions"
-      # (Settings → Pages → Source → GitHub Actions). The enablement flag
-      # below attempts to do this automatically on the first run.
+      # ── Step 4: Deploy site/ directly (no Astro build needed) ──
       - name: Setup Pages
         uses: actions/configure-pages@v5
         with:
@@ -116,7 +99,7 @@ jobs:
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v4
         with:
-          path: site/dist
+          path: site
 
   deploy:
     name: Deploy to GitHub Pages

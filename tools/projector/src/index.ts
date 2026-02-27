@@ -2,11 +2,11 @@
  * index.ts — Projector entry point
  *
  * Reads current-state snapshots from Xano eowikicurrent table,
- * builds projected JSON files consumed by the Astro static site.
+ * builds projected JSON files consumed by the static site.
  *
  * Environment variables:
  *   INCLUDE_DRAFTS   "true" to include draft/private content
- *   OUT_DIR          default: "../../site/public/generated"
+ *   OUT_DIR          default: "../../site/generated"
  *   SITE_BASE_URL    default: "" (relative, works for any gh-pages path)
  */
 
@@ -33,7 +33,7 @@ import { renderSearchIndex, renderStateFiles } from './render.js';
 
 const OUT_DEFAULT = join(
   import.meta.dirname,
-  '..', '..', '..', 'site', 'public', 'generated',
+  '..', '..', '..', 'site', 'generated',
 );
 
 // ──────────────────────────────────────────────────────────────────────────────
