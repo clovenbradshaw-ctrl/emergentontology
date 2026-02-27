@@ -6,7 +6,7 @@ export default defineConfig({
   // Deploy under /admin/ on GitHub Pages
   base: process.env.VITE_BASE_URL ? `${process.env.VITE_BASE_URL}/admin/` : '/admin/',
   build: {
-    outDir: '../site/public/admin',
+    outDir: '../site/admin',
     emptyOutDir: true,
   },
   server: {

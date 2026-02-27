@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Emergent Ontology</title>
+  <base href="/">
+  <link rel="stylesheet" href="styles/main.css">
+  <link rel="alternate" type="application/json" href="generated/state/index.json">
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>∅</text></svg>">
+  <script src="https://unpkg.com/@phosphor-icons/web@2.1.1" defer></script>
+  <script>
+    (function() {
+      var t = localStorage.getItem('eo-theme');
+      if (!t) t = window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark';
+      document.documentElement.setAttribute('data-theme', t);
+    })();
+  </script>
+</head>
+<body>
+  <header class="site-header">
+    <a class="site-logo" href="./" id="site-logo-link">
+      <span class="logo-mark" id="logo-mark" title="Click to cycle operator">⊡</span>
+      <span class="logo-text" id="site-name-header">Emergent Ontology</span>
+    </a>
+
+    <nav class="site-nav" aria-label="Main navigation">
+      <ul class="nav-list" id="nav-list">
+        <li class="nav-item has-dropdown">
+          <a href="wiki/" class="nav-link">Wiki <span class="nav-count" id="nav-wiki-count" hidden>0</span></a>
+          <ul class="nav-dropdown" id="nav-wiki-dd"></ul>
+        </li>
+        <li class="nav-item has-dropdown">
+          <a href="blog/" class="nav-link">Blog <span class="nav-count" id="nav-blog-count" hidden>0</span></a>
+          <ul class="nav-dropdown" id="nav-blog-dd"></ul>
+        </li>
+        <li class="nav-item has-dropdown">
+          <a href="exp/" class="nav-link">Experiments <span class="nav-count" id="nav-exp-count" hidden>0</span></a>
+          <ul class="nav-dropdown" id="nav-exp-dd"></ul>
+        </li>
+      </ul>
+    </nav>
+
+    <div class="header-actions">
+      <button class="theme-toggle" id="theme-toggle" aria-label="Toggle light/dark mode" title="Toggle light/dark mode">
+        <i class="ph ph-sun theme-icon-light" aria-hidden="true"></i>
+        <i class="ph ph-moon theme-icon-dark" aria-hidden="true"></i>
+      </button>
+      <button class="search-toggle" id="search-toggle" aria-label="Search">
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+          <circle cx="6.5" cy="6.5" r="5" stroke="currentColor" stroke-width="1.5"/>
+          <path d="M10.5 10.5L14 14" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+        </svg>
+      </button>
+      <a class="admin-link" href="admin/" hidden id="admin-link">Admin</a>
+    </div>
+  </header>
+
+  <!-- Search overlay -->
+  <div class="search-overlay" id="search-overlay" hidden>
+    <div class="search-modal">
+      <input id="search-input" type="search" placeholder="Search articles, posts, experiments…" aria-label="Search site" autocomplete="off">
+      <div id="search-results" class="search-results" role="list"></div>
+      <button class="search-close" id="search-close" aria-label="Close search">Esc</button>
+    </div>
+  </div>
+
+  <!-- Breadcrumbs (populated by JS) -->
+  <nav class="breadcrumbs" id="breadcrumbs" aria-label="Breadcrumb" hidden style="max-width:860px;margin:0 auto;padding:1rem 1.5rem 0;width:100%"></nav>
+
+  <!-- Main content area (rendered by app.js) -->
+  <main id="content">
+    <div style="text-align:center;padding:3rem;color:var(--text-dim)">Loading…</div>
+  </main>
+
+  <footer class="site-footer">
+    <div class="footer-inner">
+      <div class="footer-brand">
+        <span class="logo-mark">⊡</span>
+        <span id="site-name-footer">Emergent Ontology</span>
+      </div>
+      <nav class="footer-nav" aria-label="Footer navigation">
+        <a href="wiki/">Wiki</a>
+        <a href="blog/">Blog</a>
+        <a href="exp/">Experiments</a>
+        <a class="admin-footer-link" href="admin/" hidden>Admin</a>
+      </nav>
+    </div>
+  </footer>
+
+  <!-- Admin preview drawer -->
+  <div class="admin-drawer-overlay" id="admin-drawer-overlay"></div>
+  <div class="admin-drawer" id="admin-drawer">
+    <div class="admin-drawer-header">
+      <span>Admin Editor</span>
+      <button class="admin-drawer-close" id="admin-drawer-close">Close</button>
+    </div>
+    <iframe id="admin-drawer-iframe" title="Admin Editor"></iframe>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/marked@14/marked.min.js" defer></script>
+  <script src="js/app.js" defer></script>
+  <script src="js/search.js" defer></script>
+  <script src="js/xray.js" defer></script>
+</body>
+</html>

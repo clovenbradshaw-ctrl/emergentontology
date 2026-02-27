@@ -5,7 +5,8 @@
   const resultsBox = document.getElementById('search-results');
   if (!input || !resultsBox) return;
 
-  const base = document.querySelector('link[rel="alternate"]')?.getAttribute('href')?.replace('/state/index.json', '') ?? '';
+  const baseEl = document.querySelector('base');
+  const base = baseEl ? baseEl.getAttribute('href').replace(/\/$/, '') : '';
   const XANO_BASE = 'https://xvkq-pq7i-idtl.n7d.xano.io/api:GGzWIVAW';
 
   var typeLabels = { wiki: 'Wiki', blog: 'Blog', experiment: 'Experiment', page: 'Page' };
@@ -38,7 +39,7 @@
     // Try static search index first
     let data = [];
     try {
-      const resp = await fetch(`${base}/search_index.json`);
+      const resp = await fetch(`${base}/generated/search_index.json`);
       if (resp.ok) data = await resp.json();
     } catch (e) { /* ignore */ }
 
