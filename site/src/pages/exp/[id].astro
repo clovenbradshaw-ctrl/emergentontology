@@ -37,7 +37,6 @@ function renderMarkdown(md: string): string {
 <Base
   title={exp.meta.title}
   breadcrumbs={[
-    { label: 'Home', href: `${base}/` },
     { label: 'Experiments', href: `${base}/exp/` },
     { label: exp.meta.title, href: `${base}/exp/${exp.meta.slug}/` },
   ]}
