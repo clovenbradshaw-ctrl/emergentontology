@@ -22,7 +22,8 @@ import WikiEditor from './editors/WikiEditor';
 import PageBuilder from './editors/PageBuilder';
 import ExperimentEditor from './editors/ExperimentEditor';
 import type { ContentType } from './eo/types';
-import { fetchCurrentRecord, upsertCurrentRecord } from './xano/client';
+import { upsertCurrentRecord } from './xano/client';
+import { fetchCurrentRecordCached } from './xano/stateCache';
 import { SPECIAL_PAGES } from './eo/constants';
 import './styles/admin.css';
 
@@ -145,7 +146,7 @@ function AdminShell() {
   useEffect(() => {
     async function loadIndex() {
       try {
-        const rec = await fetchCurrentRecord('site:index');
+        const rec = await fetchCurrentRecordCached('site:index');
         if (rec) {
           const parsed = JSON.parse(rec.values) as { entries: Array<{ content_id: string; title: string }> };
           setIndexEntries(parsed.entries ?? []);
@@ -245,7 +246,7 @@ function SettingsPanel() {
   async function publishSiteName() {
     setPublishingSiteName(true);
     try {
-      const rec = await fetchCurrentRecord('site:index');
+      const rec = await fetchCurrentRecordCached('site:index');
       if (rec) {
         const data = JSON.parse(rec.values);
         data.site_settings = { ...data.site_settings, siteName: settings.siteName || 'Emergent Ontology' };
