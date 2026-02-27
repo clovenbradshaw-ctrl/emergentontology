@@ -100,25 +100,39 @@
 
   function loadXanoRecords() {
     if (_xanoRecords) return Promise.resolve(_xanoRecords);
-    return fetch(XANO_CURRENT, { signal: AbortSignal.timeout(15000) })
-      .then(function (r) { return r.ok ? r.json() : null; })
-      .then(function (records) {
-        if (!Array.isArray(records)) return null;
-        _xanoRecords = dedup(records);
-        return _xanoRecords;
-      }).catch(function () { return null; });
+    try {
+      var controller = new AbortController();
+      var timer = setTimeout(function () { controller.abort(); }, 15000);
+      return fetch(XANO_CURRENT, { signal: controller.signal })
+        .then(function (r) { clearTimeout(timer); return r.ok ? r.json() : null; })
+        .then(function (records) {
+          if (!Array.isArray(records)) return null;
+          _xanoRecords = dedup(records);
+          return _xanoRecords;
+        }).catch(function (e) { clearTimeout(timer); console.warn('Xano fetch failed:', e); return null; });
+    } catch (e) {
+      console.warn('Xano fetch setup failed:', e);
+      return Promise.resolve(null);
+    }
   }
 
   function loadIndex() {
     if (siteIndex) return Promise.resolve(siteIndex);
 
+    // Try generated JSON first; fall back to Xano API
     return fetchJson(BASE + '/generated/state/index.json').then(function (data) {
       if (data) { siteIndex = data; return data; }
-      // Fallback: fetch from Xano eowikicurrent endpoint
       return loadXanoRecords().then(function (map) {
         if (!map || !map['site:index']) return emptyIndex();
         try {
-          siteIndex = JSON.parse(map['site:index'].values);
+          var raw = JSON.parse(map['site:index'].values);
+          // Ensure nav exists (synthesize from entries if missing)
+          if (!raw.nav && raw.entries) {
+            raw.nav = raw.entries.filter(function (e) {
+              return e.status === 'published' && e.visibility === 'public';
+            });
+          }
+          siteIndex = raw;
           return siteIndex;
         } catch (e) { return emptyIndex(); }
       });
@@ -134,13 +148,15 @@
     if (contentCache[contentId]) return Promise.resolve(contentCache[contentId]);
     var fileName = contentId.replace(':', '-') + '.json';
 
+    // Try generated JSON first; fall back to Xano API
     return fetchJson(BASE + '/generated/state/content/' + fileName).then(function (data) {
       if (data) { contentCache[contentId] = data; return data; }
-      // Fallback: Xano eowikicurrent API (reuses cached fetch)
       return loadXanoRecords().then(function (map) {
         if (!map || !map[contentId]) return null;
         try {
           var parsed = JSON.parse(map[contentId].values);
+          // Xano snapshots store content_id inside meta; inject at top level
+          if (!parsed.content_id) parsed.content_id = contentId;
           contentCache[contentId] = parsed;
           return parsed;
         } catch (e) { return null; }
@@ -845,6 +861,10 @@
       }
     }).then(function () {
       revealAdmin();
+    }).catch(function (err) {
+      console.error('Render failed:', err);
+      main.innerHTML = '<div style="text-align:center;padding:3rem;color:var(--text-dim)">' +
+        '<h2>Failed to load</h2><p>Could not fetch content. <a href="javascript:location.reload()">Retry</a></p></div>';
     });
   }
 
