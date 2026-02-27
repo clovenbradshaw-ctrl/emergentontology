@@ -89,6 +89,9 @@ export default function ContentManager({ siteBase, onOpen }: Props) {
   // Inline editing (Issues 3 & 4)
   const [editingTitle, setEditingTitle] = useState<string | null>(null);
   const [editTitleValue, setEditTitleValue] = useState('');
+  const [editingSlug, setEditingSlug] = useState<string | null>(null);
+  const [editSlugValue, setEditSlugValue] = useState('');
+  const [editSlugError, setEditSlugError] = useState('');
   const [editingTags, setEditingTags] = useState<string | null>(null);
   const [tagInput, setTagInput] = useState('');
 
@@ -451,7 +454,7 @@ export default function ContentManager({ siteBase, onOpen }: Props) {
 
   // ── Update index entry fields (shared utility for title, tags, etc.) ─────
 
-  async function updateIndexField(contentId: string, fields: Partial<{ title: string; tags: string[] }>) {
+  async function updateIndexField(contentId: string, fields: Partial<{ slug: string; title: string; tags: string[] }>) {
     if (!isAuthenticated) return;
     const agent = settings.displayName || 'editor';
 
@@ -585,6 +588,26 @@ export default function ContentManager({ siteBase, onOpen }: Props) {
       updateIndexField(contentId, { title: trimmed });
     }
     setEditingTitle(null);
+  }
+
+  // ── Inline slug save ───────────────────────────────────────────────
+
+  function saveSlug(contentId: string) {
+    const normalized = editSlugValue.trim().toLowerCase().replace(/[^a-z0-9-]+/g, '').replace(/^-|-$/g, '');
+    if (!normalized) {
+      setEditSlugError('Slug cannot be empty');
+      return;
+    }
+    const duplicate = entries.find(e => e.slug === normalized && e.content_id !== contentId);
+    if (duplicate) {
+      setEditSlugError(`Slug "${normalized}" already in use`);
+      return;
+    }
+    if (normalized !== entries.find(e => e.content_id === contentId)?.slug) {
+      updateIndexField(contentId, { slug: normalized });
+    }
+    setEditSlugError('');
+    setEditingSlug(null);
   }
 
   // ── Inline tag operations ──────────────────────────────────────────────
@@ -808,7 +831,35 @@ export default function ContentManager({ siteBase, onOpen }: Props) {
                         </span>
                       )}
                     </td>
-                    <td className="slug-cell">{entry.slug}</td>
+                    <td className="slug-cell">
+                      {editingSlug === entry.content_id ? (
+                        <div className="inline-slug-edit">
+                          <input
+                            className="inline-slug-input"
+                            value={editSlugValue}
+                            onChange={(e) => {
+                              setEditSlugValue(e.target.value.toLowerCase().replace(/[^a-z0-9-]+/g, ''));
+                              setEditSlugError('');
+                            }}
+                            onBlur={() => saveSlug(entry.content_id)}
+                            onKeyDown={(e) => {
+                              if (e.key === 'Enter') saveSlug(entry.content_id);
+                              if (e.key === 'Escape') { setEditSlugError(''); setEditingSlug(null); }
+                            }}
+                            autoFocus
+                          />
+                          {editSlugError && <span className="inline-slug-error">{editSlugError}</span>}
+                        </div>
+                      ) : (
+                        <span
+                          className="editable-slug"
+                          onClick={() => { setEditingSlug(entry.content_id); setEditSlugValue(entry.slug); setEditSlugError(''); }}
+                          title="Click to edit slug"
+                        >
+                          {entry.slug}
+                        </span>
+                      )}
+                    </td>
                     <td className="tags-cell">
                       <div className="inline-tags">
                         {entry.tags.map((tag) => (

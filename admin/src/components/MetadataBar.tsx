@@ -42,6 +42,9 @@ export default function MetadataBar({ contentId, onTitleChange }: Props) {
   const [expanded, setExpanded] = useState(false);
   const [editingTitle, setEditingTitle] = useState(false);
   const [titleValue, setTitleValue] = useState('');
+  const [editingSlug, setEditingSlug] = useState(false);
+  const [slugValue, setSlugValue] = useState('');
+  const [slugError, setSlugError] = useState('');
   const [tagInput, setTagInput] = useState('');
   const indexRecordRef = useRef<XanoCurrentRecord | null>(null);
   const allEntriesRef = useRef<IndexEntry[]>([]);
@@ -67,7 +70,7 @@ export default function MetadataBar({ contentId, onTitleChange }: Props) {
     load();
   }, [contentId]);
 
-  async function updateField(fields: Partial<{ title: string; tags: string[]; status: string; visibility: string }>) {
+  async function updateField(fields: Partial<{ slug: string; title: string; tags: string[]; status: string; visibility: string }>) {
     if (!isAuthenticated || !entry) return;
     const agent = settings.displayName || 'editor';
 
@@ -125,6 +128,25 @@ export default function MetadataBar({ contentId, onTitleChange }: Props) {
       updateField({ title: trimmed });
     }
     setEditingTitle(false);
+  }
+
+  function saveSlug() {
+    const normalized = slugValue.trim().toLowerCase().replace(/[^a-z0-9-]+/g, '').replace(/^-|-$/g, '');
+    if (!normalized) {
+      setSlugError('Slug cannot be empty');
+      return;
+    }
+    // Check for duplicate slugs
+    const duplicate = allEntriesRef.current.find(e => e.slug === normalized && e.content_id !== contentId);
+    if (duplicate) {
+      setSlugError(`Slug "${normalized}" is already used by ${duplicate.content_id}`);
+      return;
+    }
+    if (normalized !== entry?.slug) {
+      updateField({ slug: normalized });
+    }
+    setSlugError('');
+    setEditingSlug(false);
   }
 
   function addTag() {
@@ -198,7 +220,33 @@ export default function MetadataBar({ contentId, onTitleChange }: Props) {
         <div className="metadata-details">
           <div className="metadata-field">
             <label>Slug</label>
-            <code className="metadata-slug">{entry.slug}</code>
+            {editingSlug ? (
+              <div className="metadata-slug-edit">
+                <input
+                  className="metadata-slug-input"
+                  value={slugValue}
+                  onChange={(e) => {
+                    setSlugValue(e.target.value.toLowerCase().replace(/[^a-z0-9-]+/g, ''));
+                    setSlugError('');
+                  }}
+                  onBlur={saveSlug}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter') saveSlug();
+                    if (e.key === 'Escape') { setSlugValue(entry.slug); setSlugError(''); setEditingSlug(false); }
+                  }}
+                  autoFocus
+                />
+                {slugError && <span className="metadata-slug-error">{slugError}</span>}
+              </div>
+            ) : (
+              <code
+                className="metadata-slug editable"
+                onClick={() => { setEditingSlug(true); setSlugValue(entry.slug); setSlugError(''); }}
+                title="Click to edit slug"
+              >
+                {entry.slug}
+              </code>
+            )}
           </div>
           <div className="metadata-field">
             <label>Tags</label>
