@@ -18,6 +18,7 @@ import {
   xanoToRaw,
   upsertCurrentRecord,
   _registerCacheHook,
+  _registerCacheLookup,
 } from './client';
 import { applyDelta } from '../eo/replay';
 import type { ProjectedContent, EORawEvent } from '../eo/types';
@@ -49,12 +50,23 @@ export async function fetchAllCurrentRecordsCached(): Promise<XanoCurrentRecord[
   }
 }
 
-/** Fetch a single current-state record by record_id (cache-backed). */
+/** Fetch a single current-state record by record_id (cache-backed).
+ *  When duplicate record_ids exist, returns the most recently modified one. */
 export async function fetchCurrentRecordCached(
   recordId: string,
 ): Promise<XanoCurrentRecord | null> {
   const all = await fetchAllCurrentRecordsCached();
-  return all.find((r) => r.record_id === recordId) ?? null;
+  const matches = all.filter((r) => r.record_id === recordId);
+  if (matches.length === 0) return null;
+  if (matches.length === 1) return matches[0];
+  // Multiple rows for same record_id — pick the most recently modified
+  return matches.reduce((best, r) => {
+    const bestTime = typeof best.lastModified === 'string'
+      ? new Date(best.lastModified).getTime() : Number(best.lastModified);
+    const rTime = typeof r.lastModified === 'string'
+      ? new Date(r.lastModified).getTime() : Number(r.lastModified);
+    return rTime > bestTime ? r : best;
+  });
 }
 
 /** Invalidate the cache (call after any write to eowikicurrent). */
@@ -207,9 +219,23 @@ export async function applyFreshnessUpdate<T extends ProjectedContent>(
   return { updated, hadUpdates: true };
 }
 
-// ── Auto-register cache hook ────────────────────────────────────────────────
+// ── Auto-register cache hooks ───────────────────────────────────────────────
 // When client.ts writes a record, keep our cache in sync automatically.
 _registerCacheHook(updateCachedRecord);
+// Let client.ts look up existing records from cache before creating new rows.
+_registerCacheLookup((recordId: string) => {
+  if (!cachedRecords) return null;
+  const matches = cachedRecords.filter((r) => r.record_id === recordId);
+  if (matches.length === 0) return null;
+  if (matches.length === 1) return matches[0];
+  return matches.reduce((best, r) => {
+    const bestTime = typeof best.lastModified === 'string'
+      ? new Date(best.lastModified).getTime() : Number(best.lastModified);
+    const rTime = typeof r.lastModified === 'string'
+      ? new Date(r.lastModified).getTime() : Number(r.lastModified);
+    return rTime > bestTime ? r : best;
+  });
+});
 
 // ── Helpers ─────────────────────────────────────────────────────────────────
 
