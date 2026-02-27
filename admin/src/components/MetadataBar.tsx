@@ -8,12 +8,12 @@ import { useAuth } from '../auth/AuthContext';
 import { useSettings } from '../settings/SettingsContext';
 import { useXRay } from './XRayOverlay';
 import {
-  fetchCurrentRecord,
   addRecord,
   upsertCurrentRecord,
   eventToPayload,
   type XanoCurrentRecord,
 } from '../xano/client';
+import { fetchCurrentRecordCached } from '../xano/stateCache';
 import { desIndexEntry, desContentMeta } from '../eo/events';
 import type { ContentStatus, Visibility } from '../eo/types';
 
@@ -50,7 +50,7 @@ export default function MetadataBar({ contentId, onTitleChange }: Props) {
     async function load() {
       setLoading(true);
       try {
-        const rec = await fetchCurrentRecord('site:index');
+        const rec = await fetchCurrentRecordCached('site:index');
         if (rec) {
           indexRecordRef.current = rec;
           const parsed = JSON.parse(rec.values) as { entries: IndexEntry[] };
@@ -105,7 +105,7 @@ export default function MetadataBar({ contentId, onTitleChange }: Props) {
       } as any, agent);
       await addRecord(eventToPayload(metaEvent));
       try {
-        const contentRec = await fetchCurrentRecord(contentId);
+        const contentRec = await fetchCurrentRecordCached(contentId);
         if (contentRec) {
           const contentState = JSON.parse(contentRec.values);
           contentState.meta = { ...contentState.meta, ...fields, updated_at: desEvent.ctx.ts };

@@ -482,7 +482,7 @@ export default function ContentManager({ siteBase, onOpen }: Props) {
       } as Partial<import('../eo/types').ContentMeta>, agent);
       await addRecord(eventToPayload(metaEvent));
       try {
-        const contentRec = await fetchCurrentRecord(contentId);
+        const contentRec = await fetchCurrentRecordCached(contentId);
         if (contentRec) {
           const contentState = JSON.parse(contentRec.values);
           contentState.meta = { ...contentState.meta, ...fields, updated_at: desEvent.ctx.ts };
