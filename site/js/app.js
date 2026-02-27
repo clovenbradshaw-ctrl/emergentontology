@@ -100,27 +100,42 @@
 
   function loadXanoRecords() {
     if (_xanoRecords) return Promise.resolve(_xanoRecords);
+    console.log('[eo] Fetching from Xano:', XANO_CURRENT);
     return fetch(XANO_CURRENT, { signal: AbortSignal.timeout(15000) })
-      .then(function (r) { return r.ok ? r.json() : null; })
-      .then(function (records) {
-        if (!Array.isArray(records)) return null;
+      .then(function (r) {
+        console.log('[eo] Xano response status:', r.status);
+        return r.ok ? r.json() : null;
+      })
+      .then(function (data) {
+        if (!data) { console.warn('[eo] Xano returned no data'); return null; }
+        // Handle both flat array and Xano paginated { items: [...] } response
+        var records = Array.isArray(data) ? data : (data.items || data.result || null);
+        if (!Array.isArray(records)) {
+          console.warn('[eo] Unexpected Xano response shape:', Object.keys(data));
+          return null;
+        }
+        console.log('[eo] Got', records.length, 'records from Xano');
         _xanoRecords = dedup(records);
+        console.log('[eo] Deduped record IDs:', Object.keys(_xanoRecords));
         return _xanoRecords;
-      }).catch(function () { return null; });
+      }).catch(function (err) { console.error('[eo] Xano fetch failed:', err); return null; });
   }
 
   function loadIndex() {
     if (siteIndex) return Promise.resolve(siteIndex);
 
     return fetchJson(BASE + '/generated/state/index.json').then(function (data) {
-      if (data) { siteIndex = data; return data; }
+      if (data) { console.log('[eo] Loaded index from static file'); siteIndex = data; return data; }
+      console.log('[eo] Static index not found, falling back to Xano');
       // Fallback: fetch from Xano eowikicurrent endpoint
       return loadXanoRecords().then(function (map) {
-        if (!map || !map['site:index']) return emptyIndex();
+        if (!map) { console.warn('[eo] No Xano records available'); return emptyIndex(); }
+        if (!map['site:index']) { console.warn('[eo] No site:index record found. Available:', Object.keys(map)); return emptyIndex(); }
         try {
           siteIndex = JSON.parse(map['site:index'].values);
+          console.log('[eo] Loaded index from Xano:', siteIndex.entries ? siteIndex.entries.length + ' entries' : 'no entries');
           return siteIndex;
-        } catch (e) { return emptyIndex(); }
+        } catch (e) { console.error('[eo] Failed to parse site:index:', e); return emptyIndex(); }
       });
     });
   }
