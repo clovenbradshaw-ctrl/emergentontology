@@ -134,6 +134,16 @@ export default function WikiEditor({ contentId, siteBase }: Props) {
     loadEntries();
   }, [siteBase]);
 
+  // ── Warn on unload with unsaved changes ──────────────────────────────────
+
+  useEffect(() => {
+    function handler(e: BeforeUnloadEvent) {
+      if (isDirty) { e.preventDefault(); e.returnValue = ''; }
+    }
+    window.addEventListener('beforeunload', handler);
+    return () => window.removeEventListener('beforeunload', handler);
+  }, [isDirty]);
+
   // ── Save revision ──────────────────────────────────────────────────────────
 
   async function save() {

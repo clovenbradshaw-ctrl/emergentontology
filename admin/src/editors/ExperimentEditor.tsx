@@ -48,7 +48,9 @@ export default function ExperimentEditor({ contentId, siteBase }: Props) {
   const [state, setState] = useState<ExpState | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [isDirty, setIsDirty] = useState(false);
   const currentRecordRef = useRef<XanoCurrentRecord | null>(null);
+  const savedStateRef = useRef<ExpState | null>(null);
 
   const [kind, setKind] = useState<ExperimentEntry['kind']>('note');
   const [text, setText] = useState('');
@@ -75,6 +77,8 @@ export default function ExperimentEditor({ contentId, siteBase }: Props) {
       }
 
       setState(expState);
+      savedStateRef.current = expState;
+      setIsDirty(false);
       setLoading(false);
 
       // 2. Background freshness check: apply any newer events from the log
@@ -85,7 +89,9 @@ export default function ExperimentEditor({ contentId, siteBase }: Props) {
         }).then(({ updated, hadUpdates }) => {
           if (cancelled || !hadUpdates) return;
           const freshState = updated as unknown as ExpState;
-          setState({ entries: freshState.entries ?? [], meta: freshState.meta ?? {} });
+          const normalized = { entries: freshState.entries ?? [], meta: freshState.meta ?? {} };
+          setState(normalized);
+          savedStateRef.current = normalized;
         }).catch(() => { /* best-effort freshness check */ });
       }
     }
@@ -93,66 +99,94 @@ export default function ExperimentEditor({ contentId, siteBase }: Props) {
     return () => { cancelled = true; };
   }, [contentId, siteBase, settings.displayName]);
 
-  // ── Add entry ─────────────────────────────────────────────────────────────
+  // ── Warn on unload with unsaved changes ──────────────────────────────────
 
-  async function addEntry() {
+  useEffect(() => {
+    function handler(e: BeforeUnloadEvent) {
+      if (isDirty) { e.preventDefault(); e.returnValue = ''; }
+    }
+    window.addEventListener('beforeunload', handler);
+    return () => window.removeEventListener('beforeunload', handler);
+  }, [isDirty]);
+
+  // ── Add entry (local only — not saved until "Save") ─────────────────────
+
+  function addEntry() {
     if (!isAuthenticated || !text.trim()) return;
-    setSaving(true);
-    setError(null);
-
     const entryId = `e_${Date.now()}`;
     const ts = new Date().toISOString();
-    const entry: Omit<ExperimentEntry, 'deleted' | '_event_id'> = {
+    const newEntry: ExperimentEntry = {
       entry_id: entryId,
       kind,
       data: { text: text.trim() },
       ts,
+      deleted: false,
     };
-    const event = insExpEntry(contentId, entry, settings.displayName || 'editor');
-    const xid = `ins-entry-${entryId}`;
-    registerEvent({ id: xid, op: event.op, target: event.target, operand: event.operand, ts: event.ctx.ts, agent: event.ctx.agent, status: 'pending' });
-
-    try {
-      await addRecord(eventToPayload(event));
-      registerEvent({ id: xid, op: event.op, target: event.target, operand: event.operand, ts: event.ctx.ts, agent: event.ctx.agent, status: 'sent' });
-
-      const newEntry: ExperimentEntry = { ...entry, deleted: false };
-      const updatedState: ExpState = {
-        meta: state?.meta ?? {},
-        entries: [...(state?.entries ?? []), newEntry],
-      };
-      const updated = await upsertCurrentRecord(contentId, updatedState, 'editor', currentRecordRef.current);
-      currentRecordRef.current = updated;
-      setState(updatedState);
-      setText('');
-    } catch (err) {
-      const msg = err instanceof Error ? err.message : String(err);
-      registerEvent({ id: xid, op: event.op, target: event.target, operand: event.operand, ts: event.ctx.ts, agent: event.ctx.agent, status: 'error', error: msg });
-      setError(msg);
-    } finally {
-      setSaving(false);
-    }
+    const updatedState: ExpState = {
+      meta: state?.meta ?? {},
+      entries: [...(state?.entries ?? []), newEntry],
+    };
+    setState(updatedState);
+    setIsDirty(true);
+    setText('');
   }
 
-  // ── Delete entry ──────────────────────────────────────────────────────────
+  // ── Delete entry (local only — not saved until "Save") ──────────────────
 
-  async function deleteEntry(entryId: string) {
+  function deleteEntry(entryId: string) {
     if (!isAuthenticated) return;
-    const event = nulExpEntry(contentId, entryId, settings.displayName || 'editor');
-    registerEvent({ id: `nul-${entryId}`, op: event.op, target: event.target, operand: event.operand, ts: event.ctx.ts, agent: event.ctx.agent, status: 'pending' });
-    try {
-      await addRecord(eventToPayload(event));
-      registerEvent({ id: `nul-${entryId}`, op: event.op, target: event.target, operand: event.operand, ts: event.ctx.ts, agent: event.ctx.agent, status: 'sent' });
+    const updatedState: ExpState = {
+      meta: state?.meta ?? {},
+      entries: (state?.entries ?? []).filter((e) => e.entry_id !== entryId),
+    };
+    setState(updatedState);
+    setIsDirty(true);
+  }
 
-      const updatedState: ExpState = {
-        meta: state?.meta ?? {},
-        entries: (state?.entries ?? []).filter((e) => e.entry_id !== entryId),
-      };
-      const updated = await upsertCurrentRecord(contentId, updatedState, 'editor', currentRecordRef.current);
+  // ── Save — flush all pending changes to the append-only log ─────────────
+
+  async function save() {
+    if (!isAuthenticated || !isDirty || !state) return;
+    const saved = savedStateRef.current;
+    setSaving(true);
+    setError(null);
+
+    const agent = settings.displayName || 'editor';
+    const savedEntryIds = new Set((saved?.entries ?? []).map(e => e.entry_id));
+    const currentEntryIds = new Set(state.entries.map(e => e.entry_id));
+
+    try {
+      // Emit INS events for new entries
+      for (const entry of state.entries) {
+        if (savedEntryIds.has(entry.entry_id)) continue;
+        const event = insExpEntry(contentId, entry, agent);
+        const xid = `ins-entry-${entry.entry_id}`;
+        registerEvent({ id: xid, op: event.op, target: event.target, operand: event.operand, ts: event.ctx.ts, agent: event.ctx.agent, status: 'pending' });
+        await addRecord(eventToPayload(event));
+        registerEvent({ id: xid, op: event.op, target: event.target, operand: event.operand, ts: event.ctx.ts, agent: event.ctx.agent, status: 'sent' });
+      }
+
+      // Emit NUL events for deleted entries
+      for (const entry of (saved?.entries ?? [])) {
+        if (currentEntryIds.has(entry.entry_id)) continue;
+        const event = nulExpEntry(contentId, entry.entry_id, agent);
+        const xid = `nul-${entry.entry_id}`;
+        registerEvent({ id: xid, op: event.op, target: event.target, operand: event.operand, ts: event.ctx.ts, agent: event.ctx.agent, status: 'pending' });
+        await addRecord(eventToPayload(event));
+        registerEvent({ id: xid, op: event.op, target: event.target, operand: event.operand, ts: event.ctx.ts, agent: event.ctx.agent, status: 'sent' });
+      }
+
+      // Upsert current state snapshot
+      const updated = await upsertCurrentRecord(contentId, state, agent, currentRecordRef.current);
       currentRecordRef.current = updated;
-      setState(updatedState);
+
+      savedStateRef.current = state;
+      setIsDirty(false);
     } catch (err) {
-      setError(err instanceof Error ? err.message : String(err));
+      const msg = err instanceof Error ? err.message : String(err);
+      setError(`Save failed: ${msg}`);
+    } finally {
+      setSaving(false);
     }
   }
 
@@ -161,6 +195,16 @@ export default function ExperimentEditor({ contentId, siteBase }: Props) {
   return (
     <div className="exp-editor">
       <MetadataBar contentId={contentId} />
+      <div className="editor-toolbar">
+        {isDirty && <span className="dirty-indicator">Unsaved changes</span>}
+        <button
+          className="btn btn-primary btn-sm"
+          onClick={save}
+          disabled={!isDirty || saving || !isAuthenticated}
+        >
+          {saving ? 'Saving\u2026' : 'Save experiment'}
+        </button>
+      </div>
       {error && <div className="error-banner">{error} <button onClick={() => setError(null)}>×</button></div>}
 
       <div className="exp-entry-form">
@@ -175,11 +219,11 @@ export default function ExperimentEditor({ contentId, siteBase }: Props) {
           className="entry-textarea"
         />
         <button
-          className="btn btn-primary"
+          className="btn btn-sm"
           onClick={addEntry}
-          disabled={!text.trim() || saving || !isAuthenticated}
+          disabled={!text.trim() || !isAuthenticated}
         >
-          {saving ? 'Adding…' : '+ Add entry'}
+          + Add entry
         </button>
       </div>
 

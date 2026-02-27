@@ -135,6 +135,7 @@ function AdminShell() {
   const [route, setRoute] = useState<Route>(() => parseHash(window.location.hash));
   const [currentHistory, setCurrentHistory] = useState<unknown[]>([]);
   const [indexEntries, setIndexEntries] = useState<Array<{ content_id: string; title: string }>>([]);
+  const [showSitePreview, setShowSitePreview] = useState(false);
 
   useEffect(() => {
     function onHashChange() { setRoute(parseHash(window.location.hash)); }
@@ -167,6 +168,15 @@ function AdminShell() {
 
   if (!isAuthenticated) return <LoginForm />;
 
+  // Compute public site URL for the current route
+  function getPreviewUrl(): string {
+    if (route.type === 'wiki' || route.type === 'blog' || route.type === 'page' || route.type === 'exp') {
+      const slug = 'slug' in route ? route.slug : '';
+      return `${SITE_BASE}/${route.type}/${slug}`;
+    }
+    return `${SITE_BASE}/`;
+  }
+
   const routeTitle = route.type === 'list' ? 'Content'
     : route.type === 'settings' ? 'Settings'
     : (() => {
@@ -191,6 +201,7 @@ function AdminShell() {
         <div className="admin-header-right">
           <ThemeToggle />
           <XRayToggleButton />
+          <button className="btn btn-sm" onClick={() => setShowSitePreview(true)}>Preview site</button>
           <a className="btn btn-sm" href={`${SITE_BASE}/`} target="_blank" rel="noopener noreferrer">View site ↗</a>
           <button className="btn btn-sm" onClick={() => logout()}>Sign out</button>
         </div>
@@ -227,6 +238,25 @@ function AdminShell() {
 
       {/* X-Ray panel (fixed, bottom-right) */}
       <XRayPanel history={currentHistory as Parameters<typeof XRayPanel>[0]['history']} />
+
+      {/* Site preview overlay — shows public site as a visitor sees it */}
+      {showSitePreview && (
+        <div className="site-preview-overlay">
+          <div className="site-preview-toolbar">
+            <span className="site-preview-label">Site Preview (visitor view)</span>
+            <span className="site-preview-url">{getPreviewUrl()}</span>
+            <div className="site-preview-actions">
+              <a className="btn btn-sm" href={getPreviewUrl()} target="_blank" rel="noopener noreferrer">Open in tab ↗</a>
+              <button className="btn btn-sm" onClick={() => setShowSitePreview(false)}>Close</button>
+            </div>
+          </div>
+          <iframe
+            className="site-preview-iframe"
+            src={getPreviewUrl()}
+            title="Site Preview"
+          />
+        </div>
+      )}
     </div>
   );
 }
