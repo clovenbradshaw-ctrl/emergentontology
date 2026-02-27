@@ -266,9 +266,6 @@
     }
 
     html += '</div>'; // .blocks
-    html += '<div class="home-edit-link eo-admin-only" hidden>';
-    html += '<a class="btn btn-edit" href="' + base + '/admin/#page/home">Edit Homepage</a>';
-    html += '</div>';
     html += '</section>';
 
     heroSection.outerHTML = html;
@@ -330,10 +327,6 @@
       if (!grouped[ct]) grouped[ct] = [];
       grouped[ct].push(entry);
     }
-
-    // Hide the empty card
-    var emptyCard = mainCol.querySelector('.home-empty');
-    if (emptyCard) emptyCard.style.display = 'none';
 
     // Find insertion point (before tags section or at end)
     var insertBefore = mainCol.querySelector('.home-section--tags');
