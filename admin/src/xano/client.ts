@@ -1,21 +1,13 @@
 /**
- * xano/client.ts — Thin Xano API wrapper for the EOwiki event log.
+ * xano/client.ts — Thin Xano API wrapper for the EOwiki.
  *
- * Reads:  GET  /eowiki  → array of all EOwiki records (public, no auth)
- * Writes: POST /eowiki  → append one EO event record  (requires password)
+ * Two endpoints:
+ *   Public:  GET /get_public_eowiki    → public records (no auth)
+ *   Private: GET /<encrypted-path>     → all records (unlocked by password)
  *
- * Auth is password-only; the correct password is hashed client-side with
- * SHA-256 and compared against a hardcoded digest.  A simple session flag
- * is kept in localStorage (persists across browser sessions).
- *
- * EOwiki record shape (mirrors the Xano table):
- *   id          – auto-generated integer
- *   created_at  – epoch ms (set server-side to "now")
- *   op          – EO operation code (INS | DES | ALT | NUL | SYN …)
- *   subject     – EOEvent.target  (e.g. "wiki:operators/rev:r_123")
- *   predicate   – always "eo.op" (marks this as an EO event record)
- *   value       – JSON-stringified EOEvent.operand
- *   context     – JSON-stringified EOEvent.ctx  {agent, ts, txn?}
+ * The private endpoint path is AES-256-GCM encrypted in the source using the
+ * admin password as key.  On login the password decrypts the path; the
+ * decrypted value is cached in sessionStorage for the browser session.
  */
 
 import type { EOEvent, EORawEvent } from '../eo/types';
@@ -32,13 +24,25 @@ export function _registerCacheHook(hook: (record: XanoCurrentRecord) => void): v
 
 const XANO_BASE = 'https://xvkq-pq7i-idtl.n7d.xano.io/api:GGzWIVAW';
 
-// SHA-256 of "Brethren0-Happiest6-Dynamite5-Hammock9-Sharply0"
-const PWD_HASH = 'e89ade35085fc8736d6b4755af45e842c6eec0c5978d318156aff6351f0fa950';
+// Public endpoint — no authentication required.
+const PUBLIC_ENDPOINT = 'get_public_eowiki';
 
-// Plaintext password for server-side API filtering bypass (admin-only client)
-const EO_API_PASSWORD = 'Brethren0-Happiest6-Dynamite5-Hammock9-Sharply0';
+// Private endpoint path, encrypted with AES-256-GCM (key = SHA-256 of password).
+// The plaintext endpoint name never appears in the source, so it can't be found
+// by searching the codebase.  Decrypted at runtime when the user logs in.
+//
+// To regenerate after a password change:
+//   node -e "const c=require('crypto'),pw='NEW_PASSWORD',pt='ENDPOINT_NAME',
+//   k=c.createHash('sha256').update(pw).digest(),iv=c.randomBytes(12),
+//   ci=c.createCipheriv('aes-256-gcm',k,iv),e=Buffer.concat([ci.update(pt,'utf8'),
+//   ci.final()]),t=ci.getAuthTag();console.log(Buffer.concat([iv,e,t]).toString('base64'))"
+const ENCRYPTED_PRIVATE_ENDPOINT = 'T9q5Wmenm2sCBX3XD+vFxJdfU9aoZV/SxV47TfzR7rLu9SGrVFvOFBtBDzAJ';
 
 const SESSION_KEY = 'eo_xano_auth';
+const ENDPOINT_KEY = 'eo_xano_ep';
+
+// Module-level cache: decrypted private endpoint path (set on login).
+let _privateEndpoint: string | null = null;
 
 // ── Types ────────────────────────────────────────────────────────────────────
 
@@ -52,16 +56,60 @@ export interface XanoRecord {
   context: string;      // JSON-stringified ctx
 }
 
-// ── Password auth ─────────────────────────────────────────────────────────────
+// ── Password auth (decrypt-based) ─────────────────────────────────────────────
 
-async function sha256hex(text: string): Promise<string> {
-  const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(text));
-  return Array.from(new Uint8Array(buf)).map((b) => b.toString(16).padStart(2, '0')).join('');
+/** Derive an AES-256 key from a password via SHA-256. */
+async function deriveKey(password: string): Promise<CryptoKey> {
+  const raw = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(password));
+  return crypto.subtle.importKey('raw', raw, 'AES-GCM', false, ['decrypt']);
 }
 
+/** Base64 → Uint8Array. */
+function b64ToBytes(b64: string): Uint8Array {
+  const bin = atob(b64);
+  const bytes = new Uint8Array(bin.length);
+  for (let i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
+  return bytes;
+}
+
+/**
+ * Try to decrypt the private endpoint using the given password.
+ * Returns the plaintext endpoint path on success, or null on failure
+ * (wrong password → AES-GCM auth tag mismatch).
+ */
+async function decryptEndpoint(password: string): Promise<string | null> {
+  try {
+    const data = b64ToBytes(ENCRYPTED_PRIVATE_ENDPOINT);
+    const iv = data.slice(0, 12);
+    const ctAndTag = data.slice(12);
+    const key = await deriveKey(password);
+    const plain = await crypto.subtle.decrypt({ name: 'AES-GCM', iv }, key, ctAndTag);
+    return new TextDecoder().decode(plain);
+  } catch {
+    return null; // wrong password or corrupted blob
+  }
+}
+
+/**
+ * Verify a password by attempting to decrypt the private endpoint.
+ * On success the decrypted endpoint is cached in memory + sessionStorage
+ * so subsequent API calls can use it without re-entering the password.
+ */
 export async function verifyPassword(password: string): Promise<boolean> {
-  const hash = await sha256hex(password);
-  return hash === PWD_HASH;
+  const ep = await decryptEndpoint(password);
+  if (!ep) return false;
+  _privateEndpoint = ep;
+  try { sessionStorage.setItem(ENDPOINT_KEY, ep); } catch { /* SSR / test */ }
+  return true;
+}
+
+/** Restore the private endpoint from sessionStorage (called on page load). */
+export function restoreEndpoint(): boolean {
+  try {
+    const ep = sessionStorage.getItem(ENDPOINT_KEY);
+    if (ep) { _privateEndpoint = ep; return true; }
+  } catch { /* SSR / test */ }
+  return false;
 }
 
 // ── Session (localStorage — persists across browser sessions) ─────────────────
@@ -71,18 +119,28 @@ export function saveSession(): void {
 }
 
 export function loadSession(): boolean {
-  return localStorage.getItem(SESSION_KEY) === '1';
+  if (localStorage.getItem(SESSION_KEY) !== '1') return false;
+  // Try to restore the decrypted endpoint from sessionStorage.
+  // If sessionStorage was cleared (e.g. browser restart), force re-login
+  // so the user re-enters the password to unlock the private endpoint.
+  if (!restoreEndpoint()) {
+    localStorage.removeItem(SESSION_KEY);
+    return false;
+  }
+  return true;
 }
 
 export function clearSession(): void {
   localStorage.removeItem(SESSION_KEY);
+  _privateEndpoint = null;
+  try { sessionStorage.removeItem(ENDPOINT_KEY); } catch { /* SSR / test */ }
 }
 
 // ── API calls ────────────────────────────────────────────────────────────────
 
-/** Fetch all EOwiki records (no auth required). */
+/** Fetch all EOwiki records (public endpoint, no auth required). */
 export async function fetchAllRecords(): Promise<XanoRecord[]> {
-  const resp = await fetch(`${XANO_BASE}/eowiki`, {
+  const resp = await fetch(`${XANO_BASE}/${PUBLIC_ENDPOINT}`, {
     signal: AbortSignal.timeout(20_000),
   });
   if (!resp.ok) throw new Error(`Xano fetch failed: HTTP ${resp.status}`);
@@ -135,10 +193,12 @@ export interface XanoCurrentRecord {
   lastModified: string;   // ISO timestamp
 }
 
-/** Fetch all current-state records (passes password to bypass server filter). */
+/** Fetch all current-state records via the private (decrypted) endpoint. */
 export async function fetchAllCurrentRecords(): Promise<XanoCurrentRecord[]> {
-  const url = `${XANO_BASE}/get_eowiki_current?X_EO_Password=${encodeURIComponent(EO_API_PASSWORD)}`;
-  const resp = await fetch(url, {
+  if (!_privateEndpoint) {
+    throw new Error('Private endpoint not unlocked — please log in first.');
+  }
+  const resp = await fetch(`${XANO_BASE}/${_privateEndpoint}`, {
     signal: AbortSignal.timeout(20_000),
   });
   if (!resp.ok) {
