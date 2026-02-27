@@ -124,7 +124,7 @@ export interface XanoCurrentRecord {
 
 /** Fetch all current-state records. */
 export async function fetchAllCurrentRecords(): Promise<XanoCurrentRecord[]> {
-  const resp = await fetch(`${XANO_BASE}/eowikicurrent`, {
+  const resp = await fetch(`${XANO_BASE}/get_eowiki_current`, {
     signal: AbortSignal.timeout(20_000),
   });
   if (!resp.ok) throw new Error(`Xano current fetch failed: HTTP ${resp.status}`);
