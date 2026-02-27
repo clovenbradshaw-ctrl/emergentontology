@@ -141,7 +141,10 @@ export async function fetchAllCurrentRecords(): Promise<XanoCurrentRecord[]> {
   const resp = await fetch(url, {
     signal: AbortSignal.timeout(20_000),
   });
-  if (!resp.ok) throw new Error(`Xano current fetch failed: HTTP ${resp.status}`);
+  if (!resp.ok) {
+    const body = await resp.text().catch(() => '');
+    throw new Error(`Xano current fetch failed: HTTP ${resp.status} — ${body}`);
+  }
   return (await resp.json()) as XanoCurrentRecord[];
 }
 

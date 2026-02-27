@@ -37,9 +37,16 @@ export async function fetchAllCurrentRecordsCached(): Promise<XanoCurrentRecord[
   if (cachedRecords && now - cacheTimestamp < CACHE_TTL) {
     return cachedRecords;
   }
-  cachedRecords = await fetchAllCurrentRecords();
-  cacheTimestamp = now;
-  return cachedRecords;
+  try {
+    cachedRecords = await fetchAllCurrentRecords();
+    cacheTimestamp = now;
+    return cachedRecords;
+  } catch (err) {
+    console.error('[stateCache] Failed to fetch current records from Xano:', err);
+    // Return stale cache if available, otherwise return empty array so callers
+    // can fall back to static snapshots instead of crashing.
+    return cachedRecords ?? [];
+  }
 }
 
 /** Fetch a single current-state record by record_id (cache-backed). */
