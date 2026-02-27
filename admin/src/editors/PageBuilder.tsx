@@ -426,27 +426,6 @@ export default function PageBuilder({ contentId, siteBase }: Props) {
     emit(altEvent, updatedState);
   }
 
-  // ── Find selected block info (top-level or sub-block) ─────────────────────
-
-  function findSelectedInfo(): { block: Block | SubBlock; isSubBlock: boolean; parentId?: string; colIndex?: number } | null {
-    if (!state || !selectedBlockId) return null;
-
-    // Check top-level
-    const topBlock = state.blocks.find((b) => b.block_id === selectedBlockId && !b.deleted);
-    if (topBlock) return { block: topBlock, isSubBlock: false };
-
-    // Check sub-blocks in columns
-    for (const b of state.blocks) {
-      if (b.block_type !== 'columns' || b.deleted) continue;
-      const cols = migrateColumns(b.data);
-      for (let i = 0; i < cols.length; i++) {
-        const sub = cols[i].blocks.find((sb) => sb.block_id === selectedBlockId);
-        if (sub) return { block: sub, isSubBlock: true, parentId: b.block_id, colIndex: i };
-      }
-    }
-    return null;
-  }
-
   // ── Reorder (drag/drop) ───────────────────────────────────────────────────
 
   async function handleDragEnd(event: DragEndEvent) {
@@ -496,8 +475,6 @@ export default function PageBuilder({ contentId, siteBase }: Props) {
 
   if (loading) return <div className="editor-loading">Loading page builder…</div>;
   if (!state) return <div className="editor-empty">Create this page first from the content list.</div>;
-
-  const selectedInfo = findSelectedInfo();
 
   // Group palette items
   const groups = BLOCK_TYPES.reduce<Record<string, typeof BLOCK_TYPES>>((acc, bt) => {
@@ -551,7 +528,7 @@ export default function PageBuilder({ contentId, siteBase }: Props) {
                     <SortableColumnsBlock
                       key={id}
                       block={block}
-                      selected={selectedBlockId === id}
+                      selected={selectedBlockId === id || !!migrateColumns(block.data).some((col) => col.blocks.some((sb) => sb.block_id === selectedBlockId))}
                       selectedSubBlockId={selectedBlockId}
                       onSelect={() => setSelectedBlockId(id)}
                       onSelectSubBlock={(subId) => setSelectedBlockId(subId)}
@@ -561,6 +538,8 @@ export default function PageBuilder({ contentId, siteBase }: Props) {
                       onDeleteSubBlock={(colIdx, subId) => deleteSubBlock(id, colIdx, subId)}
                       onMoveSubBlock={(colIdx, subId, dir) => moveSubBlock(id, colIdx, subId, dir)}
                       onMoveSubBlockToCanvas={(colIdx, subId) => moveSubBlockToCanvas(id, colIdx, subId)}
+                      onUpdate={(data) => updateBlock(id, data)}
+                      onUpdateSubBlock={(colIdx, subId, data) => updateSubBlock(id, colIdx, subId, data)}
                     />
                   );
                 }
@@ -570,9 +549,10 @@ export default function PageBuilder({ contentId, siteBase }: Props) {
                     key={id}
                     block={block}
                     selected={selectedBlockId === id}
-                    onSelect={() => setSelectedBlockId(id)}
+                    onSelect={() => setSelectedBlockId(selectedBlockId === id ? null : id)}
                     onDelete={() => deleteBlock(id)}
                     onDuplicate={() => duplicateBlock(id)}
+                    onUpdate={(data) => updateBlock(id, data)}
                   />
                 );
               })}
@@ -582,22 +562,6 @@ export default function PageBuilder({ contentId, siteBase }: Props) {
             <div className="canvas-empty">← Add a block from the palette</div>
           )}
         </main>
-
-        <aside className="block-inspector">
-          <div className="inspector-title">Properties</div>
-          {selectedInfo
-            ? selectedInfo.isSubBlock
-              ? <BlockInspector
-                  block={selectedInfo.block as Block}
-                  onUpdate={(data) => updateSubBlock(selectedInfo.parentId!, selectedInfo.colIndex!, selectedInfo.block.block_id, data)}
-                />
-              : <BlockInspector
-                  block={selectedInfo.block as Block}
-                  onUpdate={(data) => updateBlock(selectedInfo.block.block_id, data)}
-                />
-            : <div className="inspector-empty">Select a block to edit properties</div>
-          }
-        </aside>
       </div>
     </div>
   );
@@ -776,12 +740,13 @@ function renderBlockHtml(block: Block, state: PageState): string {
 
 // ── Sortable block wrapper ────────────────────────────────────────────────────
 
-function SortableBlock({ block, selected, onSelect, onDelete, onDuplicate }: {
+function SortableBlock({ block, selected, onSelect, onDelete, onDuplicate, onUpdate }: {
   block: Block;
   selected: boolean;
   onSelect: () => void;
   onDelete: () => void;
   onDuplicate: () => void;
+  onUpdate: (data: Record<string, unknown>) => void;
 }) {
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id: block.block_id });
 
@@ -792,21 +757,28 @@ function SortableBlock({ block, selected, onSelect, onDelete, onDuplicate }: {
       className={`builder-block ${selected ? 'selected' : ''}`}
       onClick={onSelect}
     >
-      <div className="block-drag-handle" {...attributes} {...listeners}>⠿</div>
-      <div className="block-content">
-        <BlockPreview block={block} />
+      <div className="block-header-row">
+        <div className="block-drag-handle" {...attributes} {...listeners}>⠿</div>
+        <div className="block-content">
+          <BlockPreview block={block} />
+        </div>
+        <div className="block-actions">
+          <button className="block-action-btn" onClick={(e) => { e.stopPropagation(); onDuplicate(); }} title="Duplicate block">⧉</button>
+          <button className="block-action-btn block-action-delete" onClick={(e) => { e.stopPropagation(); onDelete(); }} title="Delete block">×</button>
+        </div>
       </div>
-      <div className="block-actions">
-        <button className="block-action-btn" onClick={(e) => { e.stopPropagation(); onDuplicate(); }} title="Duplicate block">⧉</button>
-        <button className="block-action-btn block-action-delete" onClick={(e) => { e.stopPropagation(); onDelete(); }} title="Delete block">×</button>
-      </div>
+      {selected && (
+        <div className="block-inline-editor" onClick={(e) => e.stopPropagation()}>
+          <BlockInspector block={block} onUpdate={onUpdate} />
+        </div>
+      )}
     </div>
   );
 }
 
 // ── Sortable columns block (expands to show column contents) ─────────────────
 
-function SortableColumnsBlock({ block, selected, selectedSubBlockId, onSelect, onSelectSubBlock, onDelete, onDuplicate, onAddSubBlock, onDeleteSubBlock, onMoveSubBlock, onMoveSubBlockToCanvas }: {
+function SortableColumnsBlock({ block, selected, selectedSubBlockId, onSelect, onSelectSubBlock, onDelete, onDuplicate, onAddSubBlock, onDeleteSubBlock, onMoveSubBlock, onMoveSubBlockToCanvas, onUpdate, onUpdateSubBlock }: {
   block: Block;
   selected: boolean;
   selectedSubBlockId: string | null;
@@ -818,10 +790,21 @@ function SortableColumnsBlock({ block, selected, selectedSubBlockId, onSelect, o
   onDeleteSubBlock: (colIdx: number, subId: string) => void;
   onMoveSubBlock: (colIdx: number, subId: string, dir: -1 | 1) => void;
   onMoveSubBlockToCanvas: (colIdx: number, subId: string) => void;
+  onUpdate: (data: Record<string, unknown>) => void;
+  onUpdateSubBlock: (colIdx: number, subId: string, data: Record<string, unknown>) => void;
 }) {
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id: block.block_id });
   const cols = migrateColumns(block.data);
   const layout = String(block.data.layout ?? `repeat(${cols.length}, 1fr)`);
+
+  // Find selected sub-block info
+  let selectedSub: { sub: SubBlock; colIndex: number } | null = null;
+  if (selectedSubBlockId) {
+    for (let i = 0; i < cols.length; i++) {
+      const sub = cols[i].blocks.find((b) => b.block_id === selectedSubBlockId);
+      if (sub) { selectedSub = { sub, colIndex: i }; break; }
+    }
+  }
 
   return (
     <div
@@ -830,30 +813,42 @@ function SortableColumnsBlock({ block, selected, selectedSubBlockId, onSelect, o
       className={`builder-block builder-block-columns ${selected ? 'selected' : ''}`}
       onClick={(e) => { if ((e.target as HTMLElement).closest('.col-drop-zone')) return; onSelect(); }}
     >
-      <div className="block-drag-handle" {...attributes} {...listeners}>⠿</div>
-      <div className="block-content">
-        <div style={{ color: '#888', fontSize: '13px', marginBottom: '6px' }}>▥ {cols.length}-column layout</div>
-        <div style={{ display: 'grid', gridTemplateColumns: layout, gap: '6px' }}>
-          {cols.map((col, i) => (
-            <ColumnDropZone
-              key={i}
-              containerId={`col:${block.block_id}:${i}`}
-              column={col}
-              colIndex={i}
-              selectedSubBlockId={selectedSubBlockId}
-              onSelectSubBlock={onSelectSubBlock}
-              onAddSubBlock={(type) => onAddSubBlock(i, type)}
-              onDeleteSubBlock={(subId) => onDeleteSubBlock(i, subId)}
-              onMoveSubBlock={(subId, dir) => onMoveSubBlock(i, subId, dir)}
-              onMoveSubBlockToCanvas={(subId) => onMoveSubBlockToCanvas(i, subId)}
-            />
-          ))}
+      <div className="block-header-row">
+        <div className="block-drag-handle" {...attributes} {...listeners}>⠿</div>
+        <div className="block-content">
+          <div style={{ color: '#888', fontSize: '13px', marginBottom: '6px' }}>▥ {cols.length}-column layout</div>
+          <div style={{ display: 'grid', gridTemplateColumns: layout, gap: '6px' }}>
+            {cols.map((col, i) => (
+              <ColumnDropZone
+                key={i}
+                containerId={`col:${block.block_id}:${i}`}
+                column={col}
+                colIndex={i}
+                selectedSubBlockId={selectedSubBlockId}
+                onSelectSubBlock={onSelectSubBlock}
+                onAddSubBlock={(type) => onAddSubBlock(i, type)}
+                onDeleteSubBlock={(subId) => onDeleteSubBlock(i, subId)}
+                onMoveSubBlock={(subId, dir) => onMoveSubBlock(i, subId, dir)}
+                onMoveSubBlockToCanvas={(subId) => onMoveSubBlockToCanvas(i, subId)}
+              />
+            ))}
+          </div>
+        </div>
+        <div className="block-actions">
+          <button className="block-action-btn" onClick={(e) => { e.stopPropagation(); onDuplicate(); }} title="Duplicate block">⧉</button>
+          <button className="block-action-btn block-action-delete" onClick={(e) => { e.stopPropagation(); onDelete(); }} title="Delete block">×</button>
         </div>
       </div>
-      <div className="block-actions">
-        <button className="block-action-btn" onClick={(e) => { e.stopPropagation(); onDuplicate(); }} title="Duplicate block">⧉</button>
-        <button className="block-action-btn block-action-delete" onClick={(e) => { e.stopPropagation(); onDelete(); }} title="Delete block">×</button>
-      </div>
+      {selected && !selectedSubBlockId && (
+        <div className="block-inline-editor" onClick={(e) => e.stopPropagation()}>
+          <BlockInspector block={block} onUpdate={onUpdate} />
+        </div>
+      )}
+      {selectedSub && (
+        <div className="block-inline-editor" onClick={(e) => e.stopPropagation()}>
+          <BlockInspector block={selectedSub.sub as Block} onUpdate={(data) => onUpdateSubBlock(selectedSub!.colIndex, selectedSub!.sub.block_id, data)} />
+        </div>
+      )}
     </div>
   );
 }
