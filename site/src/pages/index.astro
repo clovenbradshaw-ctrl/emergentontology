@@ -245,40 +245,48 @@ function itemUrl(type: string, slug: string) {
         </section>
       )}
 
-      {sectionConfig.blog.enabled && blogEntries.length > 0 && !coveredContentTypes.has('blog') && (
-        <section class="home-section">
+      {sectionConfig.blog.enabled && !coveredContentTypes.has('blog') && (
+        <section class="home-section" id="section-blog" data-type="blog">
           <div class="section-header">
             <h2 class="section-title"><i class="ph ph-pen-nib section-icon"></i> Blog</h2>
           </div>
-          <div class="content-list-cards">
-            {blogEntries.slice(0, sectionConfig.blog.max_items ?? 5).map((e: NavEntry) => {
-              const excerpt = contentExcerpt(e.content_id);
-              return (
-                <a class="list-card" href={`${base}/blog/${e.slug}/`}>
-                  <div class="list-card-body">
-                    <h3 class="list-card-title">{e.title}</h3>
-                    {excerpt && <p class="card-excerpt">{excerpt}</p>}
-                  </div>
-                  <div class="list-card-arrow">→</div>
-                </a>
-              );
-            })}
-          </div>
+          {blogEntries.length > 0 ? (
+            <div class="content-list-cards">
+              {blogEntries.slice(0, sectionConfig.blog.max_items ?? 5).map((e: NavEntry) => {
+                const excerpt = contentExcerpt(e.content_id);
+                return (
+                  <a class="list-card" href={`${base}/blog/${e.slug}/`}>
+                    <div class="list-card-body">
+                      <h3 class="list-card-title">{e.title}</h3>
+                      {excerpt && <p class="card-excerpt">{excerpt}</p>}
+                    </div>
+                    <div class="list-card-arrow">→</div>
+                  </a>
+                );
+              })}
+            </div>
+          ) : (
+            <p class="empty-note">No blog posts published yet.</p>
+          )}
         </section>
       )}
 
-      {sectionConfig.experiments.enabled && expEntries.length > 0 && !coveredContentTypes.has('experiment') && (
-        <section class="home-section">
+      {sectionConfig.experiments.enabled && !coveredContentTypes.has('experiment') && (
+        <section class="home-section" id="section-experiment" data-type="experiment">
           <div class="section-header">
             <h2 class="section-title"><i class="ph ph-flask section-icon"></i> Experiments</h2>
           </div>
-          <div class="content-grid content-grid--sm">
-            {expEntries.slice(0, sectionConfig.experiments.max_items ?? 4).map((e: NavEntry) => (
-              <a class="content-card content-card--exp" href={`${base}/exp/${e.slug}/`}>
-                <h3 class="card-title">{e.title}</h3>
-              </a>
-            ))}
-          </div>
+          {expEntries.length > 0 ? (
+            <div class="content-grid content-grid--sm">
+              {expEntries.slice(0, sectionConfig.experiments.max_items ?? 4).map((e: NavEntry) => (
+                <a class="content-card content-card--exp" href={`${base}/exp/${e.slug}/`}>
+                  <h3 class="card-title">{e.title}</h3>
+                </a>
+              ))}
+            </div>
+          ) : (
+            <p class="empty-note">No experiments published yet.</p>
+          )}
         </section>
       )}
 
