@@ -120,6 +120,7 @@ function itemUrl(type: string, slug: string) {
                     <i class={`ph ${typeIcon(feedType)} section-icon`}></i>
                     {feedType.charAt(0).toUpperCase() + feedType.slice(1)}{feedType === 'experiment' ? 's' : ''}
                   </h2>
+                  <a class="section-viewall" href={typeUrl(feedType)}>View all &rarr;</a>
                 </div>
                 {layout === 'grid' ? (
                   <div class={`content-grid ${feedType === 'experiment' ? 'content-grid--sm' : ''}`}>
@@ -225,6 +226,7 @@ function itemUrl(type: string, slug: string) {
         <section class="home-section">
           <div class="section-header">
             <h2 class="section-title"><i class="ph ph-book-open-text section-icon"></i> Wiki</h2>
+            <a class="section-viewall" href={`${base}/wiki/`}>View all &rarr;</a>
           </div>
           <div class="content-grid">
             {wikiEntries.slice(0, sectionConfig.wiki.max_items ?? 6).map((e: NavEntry) => {
@@ -249,6 +251,7 @@ function itemUrl(type: string, slug: string) {
         <section class="home-section">
           <div class="section-header">
             <h2 class="section-title"><i class="ph ph-pen-nib section-icon"></i> Blog</h2>
+            <a class="section-viewall" href={`${base}/blog/`}>View all &rarr;</a>
           </div>
           <div class="content-list-cards">
             {blogEntries.slice(0, sectionConfig.blog.max_items ?? 5).map((e: NavEntry) => {
@@ -271,6 +274,7 @@ function itemUrl(type: string, slug: string) {
         <section class="home-section">
           <div class="section-header">
             <h2 class="section-title"><i class="ph ph-flask section-icon"></i> Experiments</h2>
+            <a class="section-viewall" href={`${base}/exp/`}>View all &rarr;</a>
           </div>
           <div class="content-grid content-grid--sm">
             {expEntries.slice(0, sectionConfig.experiments.max_items ?? 4).map((e: NavEntry) => (
@@ -286,6 +290,7 @@ function itemUrl(type: string, slug: string) {
         <section class="home-section">
           <div class="section-header">
             <h2 class="section-title"><i class="ph ph-file-text section-icon"></i> Pages</h2>
+            <a class="section-viewall" href={`${base}/page/`}>View all &rarr;</a>
           </div>
           <ul class="content-list">
             {pageEntries.map((e: NavEntry) => (
