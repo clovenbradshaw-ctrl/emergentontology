@@ -35,6 +35,9 @@ const XANO_BASE = 'https://xvkq-pq7i-idtl.n7d.xano.io/api:GGzWIVAW';
 // SHA-256 of "Brethren0-Happiest6-Dynamite5-Hammock9-Sharply0"
 const PWD_HASH = 'e89ade35085fc8736d6b4755af45e842c6eec0c5978d318156aff6351f0fa950';
 
+// Plaintext password for server-side API filtering bypass (admin-only client)
+const EO_API_PASSWORD = 'Brethren0-Happiest6-Dynamite5-Hammock9-Sharply0';
+
 const SESSION_KEY = 'eo_xano_auth';
 
 // ── Types ────────────────────────────────────────────────────────────────────
@@ -132,9 +135,10 @@ export interface XanoCurrentRecord {
   lastModified: string;   // ISO timestamp
 }
 
-/** Fetch all current-state records. */
+/** Fetch all current-state records (passes password to bypass server filter). */
 export async function fetchAllCurrentRecords(): Promise<XanoCurrentRecord[]> {
-  const resp = await fetch(`${XANO_BASE}/get_eowiki_current`, {
+  const url = `${XANO_BASE}/get_eowiki_current?X_EO_Password=${encodeURIComponent(EO_API_PASSWORD)}`;
+  const resp = await fetch(url, {
     signal: AbortSignal.timeout(20_000),
   });
   if (!resp.ok) throw new Error(`Xano current fetch failed: HTTP ${resp.status}`);
@@ -193,7 +197,21 @@ export async function upsertCurrentRecord(
   agent: string,
   existing?: XanoCurrentRecord | null,
 ): Promise<XanoCurrentRecord> {
-  const ctx = { agent, ts: new Date().toISOString() };
+  // Extract metadata from snapshot so Xano server-side filter can work
+  const snap = stateSnapshot as Record<string, unknown> | null;
+  const meta = (snap?.meta ?? {}) as Record<string, unknown>;
+  const isIndex = recordId === 'site:index';
+
+  const ctx: Record<string, unknown> = {
+    agent,
+    ts: new Date().toISOString(),
+    object_type: isIndex || meta.visibility === 'public' ? 'public' : 'private',
+    meta: {
+      status: isIndex ? 'published' : (meta.status ?? 'draft'),
+      visibility: isIndex || meta.visibility === 'public' ? 'public' : 'private',
+    },
+  };
+
   const values = JSON.stringify(stateSnapshot);
   const lastModified = new Date().toISOString();
 

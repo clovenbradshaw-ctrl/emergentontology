@@ -13,6 +13,9 @@
 const XANO_BASE = 'https://xvkq-pq7i-idtl.n7d.xano.io/api:GGzWIVAW';
 const TIMEOUT_MS = 30_000;
 
+// Password for server-side API filtering bypass (build tool — needs all records)
+const EO_API_PASSWORD = 'Brethren0-Happiest6-Dynamite5-Hammock9-Sharply0';
+
 export interface XanoCurrentRecord {
   id: number;
   created_at: string;    // ISO timestamp
@@ -25,7 +28,8 @@ export interface XanoCurrentRecord {
 }
 
 export async function fetchAllCurrentRecords(): Promise<XanoCurrentRecord[]> {
-  const resp = await fetch(`${XANO_BASE}/get_eowiki_current`, {
+  const url = `${XANO_BASE}/get_eowiki_current?X_EO_Password=${encodeURIComponent(EO_API_PASSWORD)}`;
+  const resp = await fetch(url, {
     signal: AbortSignal.timeout(TIMEOUT_MS),
   });
   if (!resp.ok) {
