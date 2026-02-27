@@ -16,10 +16,18 @@ import type { EOEvent, EORawEvent } from '../eo/types';
 // When a write to eowikicurrent succeeds, we update the cache in-place so
 // other editors immediately see the new data without waiting for a refetch.
 let _onRecordWritten: ((record: XanoCurrentRecord) => void) | null = null;
+// Look up an existing record by record_id from the cache (used by upsert to
+// prevent creating duplicate rows when the caller doesn't pass `existing`).
+let _findCachedRecord: ((recordId: string) => XanoCurrentRecord | null) | null = null;
 
 /** Called by stateCache.ts to register its cache-update callback. */
 export function _registerCacheHook(hook: (record: XanoCurrentRecord) => void): void {
   _onRecordWritten = hook;
+}
+
+/** Called by stateCache.ts to register its cache-lookup callback. */
+export function _registerCacheLookup(hook: (recordId: string) => XanoCurrentRecord | null): void {
+  _findCachedRecord = hook;
 }
 
 const XANO_BASE = 'https://xvkq-pq7i-idtl.n7d.xano.io/api:GGzWIVAW';
@@ -249,6 +257,8 @@ export async function patchCurrentRecord(id: number, payload: {
 /**
  * Upsert helper: creates or patches the current-state record for a record_id.
  * Pass `existing` (from a prior load) to avoid an extra GET.
+ * If `existing` is null/undefined, we look up the record from the cache before
+ * creating — this prevents duplicate rows for the same record_id.
  * Generates a UUID (v4) on create for deduplication.
  */
 export async function upsertCurrentRecord(
@@ -275,9 +285,16 @@ export async function upsertCurrentRecord(
   const values = JSON.stringify(stateSnapshot);
   const lastModified = new Date().toISOString();
 
+  // If caller didn't pass an existing record, try to find one in the cache
+  // to avoid creating duplicate rows for the same record_id.
+  let target = existing ?? null;
+  if (!target && _findCachedRecord) {
+    target = _findCachedRecord(recordId);
+  }
+
   let result: XanoCurrentRecord;
-  if (existing) {
-    result = await patchCurrentRecord(existing.id, { values, context: ctx, lastModified });
+  if (target) {
+    result = await patchCurrentRecord(target.id, { values, context: ctx, lastModified });
   } else {
     result = await createCurrentRecord({
       record_id: recordId,
