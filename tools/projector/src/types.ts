@@ -92,7 +92,7 @@ export interface Block {
 
 export interface WikiRevision {
   rev_id: string;
-  format: 'markdown';
+  format: 'markdown' | 'html';
   content: string;
   summary: string;
   ts: string;
@@ -101,7 +101,7 @@ export interface WikiRevision {
 
 export interface BlogRevision {
   rev_id: string;
-  format: 'markdown';
+  format: 'markdown' | 'html';
   content: string;
   summary: string;
   ts: string;

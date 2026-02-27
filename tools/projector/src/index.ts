@@ -107,7 +107,7 @@ function buildWiki(
 ): ProjectedWiki {
   const revisions: WikiRevision[] = (snap.revisions ?? []).map((r) => ({
     rev_id: r.rev_id ?? '',
-    format: 'markdown',
+    format: r.format ?? 'markdown',
     content: r.content ?? '',
     summary: r.summary ?? '',
     ts: r.ts ?? '',
@@ -117,7 +117,7 @@ function buildWiki(
   const current_revision: WikiRevision | null = cur
     ? {
         rev_id: cur.rev_id ?? '',
-        format: 'markdown',
+        format: cur.format ?? 'markdown',
         content: cur.content ?? '',
         summary: cur.summary ?? '',
         ts: cur.ts ?? '',
@@ -142,7 +142,7 @@ function buildBlog(
 ): ProjectedBlog {
   const revisions: BlogRevision[] = (snap.revisions ?? []).map((r) => ({
     rev_id: r.rev_id ?? '',
-    format: 'markdown',
+    format: r.format ?? 'markdown',
     content: r.content ?? '',
     summary: r.summary ?? '',
     ts: r.ts ?? '',
