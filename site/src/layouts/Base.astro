@@ -95,14 +95,22 @@ const childPages = (parentId: string) => pageNav.filter((e: NavEntry) => e.paren
         </li>
 
         <!-- Experiments section -->
-        {expNav.length > 0 && (
-          <li class="nav-item">
-            <a href={`${base}/exp/`} class="nav-link">
-              Experiments
-              <span class="nav-count">{expNav.length}</span>
-            </a>
-          </li>
-        )}
+        <li class="nav-item has-dropdown">
+          <a href={`${base}/exp/`} class="nav-link">
+            Experiments
+            {expNav.length > 0 && <span class="nav-count">{expNav.length}</span>}
+          </a>
+          {expNav.length > 0 && (
+            <ul class="nav-dropdown">
+              {expNav.slice(0, 6).map((e: NavEntry) => (
+                <li><a href={`${base}/exp/${e.slug}/`}>{e.title}</a></li>
+              ))}
+              {expNav.length > 6 && (
+                <li class="nav-more"><a href={`${base}/exp/`}>All experiments →</a></li>
+              )}
+            </ul>
+          )}
+        </li>
 
         <!-- Standalone pages (with optional nesting) -->
         {topPages.map((e: NavEntry) => {
@@ -182,7 +190,7 @@ const childPages = (parentId: string) => pageNav.filter((e: NavEntry) => e.paren
       <nav class="footer-nav" aria-label="Footer navigation">
         <a href={`${base}/wiki/`}>Wiki</a>
         <a href={`${base}/blog/`}>Blog</a>
-        {expNav.length > 0 && <a href={`${base}/exp/`}>Experiments</a>}
+        <a href={`${base}/exp/`}>Experiments</a>
         <a href={`${base}/admin/`} class="admin-footer-link" hidden>Admin</a>
       </nav>
     </div>
