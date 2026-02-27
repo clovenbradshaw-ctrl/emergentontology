@@ -230,7 +230,7 @@ function itemUrl(type: string, slug: string) {
   )}
 
   <!-- ── Two-column layout: content left, rune grid right ── -->
-  <div class="home-columns">
+  <div class="home-columns" data-base={base}>
     <div class="home-col-main">
 
   {!hasContent && !hasHomeBlocks && (
@@ -428,5 +428,8 @@ function itemUrl(type: string, slug: string) {
     } catch(e) {}
   })();
   </script>
+
+  <!-- Dynamic content loader: fetches from public Xano API when static build is empty -->
+  <script src={`${base}/js/dynamic-home.js`} defer></script>
 
 </Base>
