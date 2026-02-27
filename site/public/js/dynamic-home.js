@@ -309,9 +309,9 @@
       });
     });
 
-    // Reveal admin-only elements if logged in
+    // Reveal admin-only elements if logged in (but not in iframe/preview)
     try {
-      if (localStorage.getItem('eo_xano_auth') === '1') {
+      if (window.self === window.top && localStorage.getItem('eo_xano_auth') === '1') {
         document.querySelectorAll('.eo-admin-only').forEach(function (el) {
           el.removeAttribute('hidden');
         });

@@ -106,7 +106,7 @@ function renderMarkdown(md: string): string {
   <script is:inline>
   (function() {
     try {
-      if (localStorage.getItem('eo_xano_auth') === '1') {
+      if (window.self === window.top && localStorage.getItem('eo_xano_auth') === '1') {
         document.querySelectorAll('.eo-admin-only').forEach(function(el) {
           el.removeAttribute('hidden');
         });

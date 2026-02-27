@@ -234,8 +234,9 @@ const childPages = (parentId: string) => pageNav.filter((e: NavEntry) => e.paren
     })();
 
     // Show edit buttons only when logged in (eo_xano_auth in localStorage)
+    // Hide when inside an iframe (e.g. admin "Preview site") to show true visitor view
     (function() {
-      if (localStorage.getItem('eo_xano_auth')) {
+      if (window.self === window.top && localStorage.getItem('eo_xano_auth')) {
         document.documentElement.setAttribute('data-eo-auth', '');
       }
     })();
@@ -284,7 +285,9 @@ const childPages = (parentId: string) => pageNav.filter((e: NavEntry) => e.paren
       var escTimer = null;
       var revealed = sessionStorage.getItem('eo-admin-revealed') === 'true';
       // Auto-reveal if user has previously authenticated (Issue 7)
-      var wasAuthenticated = localStorage.getItem('eo_xano_auth') === '1';
+      // But not when inside an iframe (admin preview = visitor view)
+      var inIframe = window.self !== window.top;
+      var wasAuthenticated = !inIframe && localStorage.getItem('eo_xano_auth') === '1';
       function revealAdmin() {
         revealed = true;
         sessionStorage.setItem('eo-admin-revealed', 'true');
@@ -293,23 +296,25 @@ const childPages = (parentId: string) => pageNav.filter((e: NavEntry) => e.paren
         document.querySelectorAll('.admin-footer-link').forEach(function(el) { el.hidden = false; });
         document.querySelectorAll('.eo-admin-only').forEach(function(el) { el.removeAttribute('hidden'); });
       }
-      if (revealed || wasAuthenticated) {
+      if (!inIframe && (revealed || wasAuthenticated)) {
         document.addEventListener('DOMContentLoaded', revealAdmin);
       }
-      document.addEventListener('keydown', function(e) {
-        if (e.key === 'Escape') {
-          // Don't interfere with search overlay close
-          var overlay = document.getElementById('search-overlay');
-          if (overlay && !overlay.hidden) return;
-          escCount++;
-          clearTimeout(escTimer);
-          escTimer = setTimeout(function() { escCount = 0; }, 800);
-          if (escCount >= 3) {
-            escCount = 0;
-            revealAdmin();
+      if (!inIframe) {
+        document.addEventListener('keydown', function(e) {
+          if (e.key === 'Escape') {
+            // Don't interfere with search overlay close
+            var overlay = document.getElementById('search-overlay');
+            if (overlay && !overlay.hidden) return;
+            escCount++;
+            clearTimeout(escTimer);
+            escTimer = setTimeout(function() { escCount = 0; }, 800);
+            if (escCount >= 3) {
+              escCount = 0;
+              revealAdmin();
+            }
           }
-        }
-      });
+        });
+      }
     })();
 
     // Logo mark cycling through operator symbols
