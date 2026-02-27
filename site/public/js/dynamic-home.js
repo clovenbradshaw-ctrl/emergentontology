@@ -131,6 +131,13 @@
           return e.status === 'published' && e.visibility === 'public';
         });
 
+    // Sort by most recent (first_public_at or updated_at, newest first)
+    navEntries.sort(function (a, b) {
+      var ta = a.first_public_at || a.updated_at || '';
+      var tb = b.first_public_at || b.updated_at || '';
+      return tb < ta ? -1 : tb > ta ? 1 : 0;
+    });
+
   } else {
     // ── Handle XanoRecord[] format (event log) ─────────────────────────────
     // Extract the most recent DES event for site:index to get the entries list
@@ -146,6 +153,13 @@
       siteIndex = indexOperand;
       navEntries = (siteIndex.nav || siteIndex.entries || []).filter(function (e) {
         return e.status === 'published' && e.visibility === 'public';
+      });
+
+      // Sort by most recent (first_public_at or updated_at, newest first)
+      navEntries.sort(function (a, b) {
+        var ta = a.first_public_at || a.updated_at || '';
+        var tb = b.first_public_at || b.updated_at || '';
+        return tb < ta ? -1 : tb > ta ? 1 : 0;
       });
     } catch (e) {
       return;
@@ -241,7 +255,12 @@
         var feedType = String(block.data.content_type || 'wiki');
         var maxItems = Number(block.data.max_items || 6);
         coveredTypes[feedType] = true;
-        var feedEntries = navEntries.filter(function (e) { return e.content_type === feedType; });
+        var feedEntries = navEntries.filter(function (e) { return e.content_type === feedType; })
+          .sort(function (a, b) {
+            var ta = a.first_public_at || a.updated_at || '';
+            var tb = b.first_public_at || b.updated_at || '';
+            return tb < ta ? -1 : tb > ta ? 1 : 0;
+          });
         if (feedEntries.length > 0) {
           html += '<section class="home-section">';
           html += '<div class="section-header"><h2 class="section-title"><i class="ph ' + typeIcon(feedType) + ' section-icon"></i> ' + esc(typeLabels[feedType] || feedType) + '</h2>';
@@ -337,6 +356,12 @@
       if (coveredTypes && coveredTypes[type]) continue;
       var entries = grouped[type];
       if (!entries || entries.length === 0) continue;
+      // Sort within each section by most recent
+      entries.sort(function (a, b) {
+        var ta = a.first_public_at || a.updated_at || '';
+        var tb = b.first_public_at || b.updated_at || '';
+        return tb < ta ? -1 : tb > ta ? 1 : 0;
+      });
 
       var section = document.createElement('section');
       section.className = 'home-section';

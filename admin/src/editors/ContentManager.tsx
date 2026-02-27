@@ -785,7 +785,7 @@ export default function ContentManager({ siteBase, onOpen }: Props) {
                   <tr key={entry.content_id}>
                     <td><span className={`type-badge type-${entry.content_type}`}>{entry.content_type}</span></td>
                     <td>
-                      {entry.parent_page && <span style={{ color: 'var(--text-dim)', fontSize: '.75rem', marginRight: '.3rem' }}>\u21B3</span>}
+                      {entry.parent_page && <span style={{ color: 'var(--text-dim)', fontSize: '.75rem', marginRight: '.3rem' }}>{'\u21B3'}</span>}
                       {editingTitle === entry.content_id ? (
                         <input
                           className="inline-title-input"
@@ -819,7 +819,7 @@ export default function ContentManager({ siteBase, onOpen }: Props) {
                               onClick={() => removeTag(entry.content_id, tag)}
                               disabled={!isAuthenticated}
                               title="Remove tag"
-                            >\u00D7</button>
+                            >{'\u00D7'}</button>
                           </span>
                         ))}
                         {editingTags === entry.content_id ? (
@@ -886,7 +886,7 @@ export default function ContentManager({ siteBase, onOpen }: Props) {
                           />
                         </div>
                       ) : (
-                        <span style={{ color: 'var(--text-dim)', fontSize: '.8rem' }}>\u2014</span>
+                        <span style={{ color: 'var(--text-dim)', fontSize: '.8rem' }}>{'\u2014'}</span>
                       )}
                     </td>
                     <td>

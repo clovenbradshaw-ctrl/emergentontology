@@ -450,6 +450,24 @@ details[open] > .rev-expand-toggle::before { content: '▾ '; }
 }
 .search-result-item:last-child { border-bottom: none; }
 .search-result-item:hover { background: var(--bg3); text-decoration: none; }
+.search-result-type {
+  display: inline-block;
+  font-size: .7rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: .04em;
+  padding: .15em .5em;
+  border-radius: 3px;
+  background: var(--bg3);
+  color: var(--text-dim);
+  margin-right: .5rem;
+  vertical-align: middle;
+}
+.search-no-results {
+  padding: .8rem 1rem;
+  color: var(--text-dim);
+  font-style: italic;
+}
 
 /* ── Home page ── */
 main.home { max-width: 1100px; }
