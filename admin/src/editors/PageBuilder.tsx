@@ -130,10 +130,13 @@ export default function PageBuilder({ contentId, siteBase }: Props) {
 
   const [state, setState] = useState<PageState | null>(null);
   const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [selectedBlockId, setSelectedBlockId] = useState<string | null>(null);
   const [showPreview, setShowPreview] = useState(false);
+  const [isDirty, setIsDirty] = useState(false);
   const currentRecordRef = useRef<XanoCurrentRecord | null>(null);
+  const savedStateRef = useRef<PageState | null>(null);
 
   const sensors = useSensors(
     useSensor(PointerSensor),
@@ -165,6 +168,8 @@ export default function PageBuilder({ contentId, siteBase }: Props) {
       }
 
       setState(pageState);
+      savedStateRef.current = pageState;
+      setIsDirty(false);
       setLoading(false);
 
       // 2. Background freshness check: apply any newer events from the log
@@ -175,11 +180,13 @@ export default function PageBuilder({ contentId, siteBase }: Props) {
         }).then(({ updated, hadUpdates }) => {
           if (cancelled || !hadUpdates) return;
           const freshState = updated as unknown as PageState;
-          setState({
+          const normalized = {
             blocks: freshState.blocks ?? [],
             block_order: freshState.block_order ?? [],
             meta: freshState.meta ?? {},
-          });
+          };
+          setState(normalized);
+          savedStateRef.current = normalized;
         }).catch(() => { /* best-effort freshness check */ });
       }
     }
@@ -187,26 +194,98 @@ export default function PageBuilder({ contentId, siteBase }: Props) {
     return () => { cancelled = true; };
   }, [contentId, siteBase, settings.displayName]);
 
-  // ── Emit helper ───────────────────────────────────────────────────────────
+  // ── Warn on unload with unsaved changes ──────────────────────────────────
 
-  async function emit(event: ReturnType<typeof insBlock>, updatedState: PageState) {
-    if (!isAuthenticated) return;
-    const xid = `${event.op}-${Date.now()}`;
-    registerEvent({ id: xid, op: event.op, target: event.target, operand: event.operand, ts: event.ctx.ts, agent: event.ctx.agent, status: 'pending' });
-    try {
-      await addRecord(eventToPayload(event));
-      registerEvent({ id: xid, op: event.op, target: event.target, operand: event.operand, ts: event.ctx.ts, agent: event.ctx.agent, status: 'sent' });
-
-      const updated = await upsertCurrentRecord(contentId, updatedState, event.ctx.agent, currentRecordRef.current);
-      currentRecordRef.current = updated;
-    } catch (err) {
-      const msg = err instanceof Error ? err.message : String(err);
-      registerEvent({ id: xid, op: event.op, target: event.target, operand: event.operand, ts: event.ctx.ts, agent: event.ctx.agent, status: 'error', error: msg });
-      setError(msg);
+  useEffect(() => {
+    function handler(e: BeforeUnloadEvent) {
+      if (isDirty) { e.preventDefault(); e.returnValue = ''; }
     }
-  }
+    window.addEventListener('beforeunload', handler);
+    return () => window.removeEventListener('beforeunload', handler);
+  }, [isDirty]);
 
   const agent = settings.displayName || 'editor';
+
+  // ── Save — flush all pending changes to the append-only log ─────────────
+
+  async function save() {
+    if (!isAuthenticated || !isDirty || !state) return;
+    const saved = savedStateRef.current;
+    setSaving(true);
+    setError(null);
+
+    try {
+      const savedBlockIds = new Set(saved ? saved.block_order : []);
+      const currentBlockIds = new Set(state.block_order);
+      const currentBlockMap = new Map(state.blocks.map(b => [b.block_id, b]));
+      const savedBlockMap = saved ? new Map(saved.blocks.map(b => [b.block_id, b])) : new Map<string, Block>();
+
+      // New blocks
+      const newBlockIds = state.block_order.filter(id => !savedBlockIds.has(id));
+      // Deleted blocks
+      const deletedBlockIds = (saved ? saved.block_order : []).filter(id => !currentBlockIds.has(id));
+
+      // Emit INS events for new blocks
+      for (const blockId of newBlockIds) {
+        const block = currentBlockMap.get(blockId);
+        if (!block) continue;
+        const idx = state.block_order.indexOf(blockId);
+        const afterId = idx === 0 ? null : state.block_order[idx - 1];
+        const event = insBlock(contentId, { ...block, after: afterId }, agent);
+        const xid = `ins-${blockId}`;
+        registerEvent({ id: xid, op: event.op, target: event.target, operand: event.operand, ts: event.ctx.ts, agent: event.ctx.agent, status: 'pending' });
+        await addRecord(eventToPayload(event));
+        registerEvent({ id: xid, op: event.op, target: event.target, operand: event.operand, ts: event.ctx.ts, agent: event.ctx.agent, status: 'sent' });
+      }
+
+      // Emit NUL events for deleted blocks
+      for (const blockId of deletedBlockIds) {
+        const event = nulBlock(contentId, blockId, agent);
+        const xid = `nul-${blockId}`;
+        registerEvent({ id: xid, op: event.op, target: event.target, operand: event.operand, ts: event.ctx.ts, agent: event.ctx.agent, status: 'pending' });
+        await addRecord(eventToPayload(event));
+        registerEvent({ id: xid, op: event.op, target: event.target, operand: event.operand, ts: event.ctx.ts, agent: event.ctx.agent, status: 'sent' });
+      }
+
+      // Emit ALT events for modified or reordered existing blocks
+      for (const blockId of state.block_order) {
+        if (newBlockIds.includes(blockId)) continue;
+        const cb = currentBlockMap.get(blockId);
+        const sb = savedBlockMap.get(blockId);
+        if (!cb || !sb) continue;
+
+        const dataChanged = JSON.stringify(cb.data) !== JSON.stringify(sb.data);
+        const currentIdx = state.block_order.indexOf(blockId);
+        const savedIdx = saved!.block_order.indexOf(blockId);
+        const currentAfter = currentIdx === 0 ? null : state.block_order[currentIdx - 1];
+        const savedAfter = savedIdx <= 0 ? null : saved!.block_order[savedIdx - 1];
+        const positionChanged = currentAfter !== savedAfter;
+
+        if (dataChanged || positionChanged) {
+          const patch = dataChanged
+            ? Object.entries(cb.data).map(([k, v]) => ({ op: 'replace' as const, path: `/data/${k}`, value: v }))
+            : [];
+          const event = altBlock(contentId, blockId, patch, agent, positionChanged ? currentAfter : undefined);
+          const xid = `alt-${blockId}-${Date.now()}`;
+          registerEvent({ id: xid, op: event.op, target: event.target, operand: event.operand, ts: event.ctx.ts, agent: event.ctx.agent, status: 'pending' });
+          await addRecord(eventToPayload(event));
+          registerEvent({ id: xid, op: event.op, target: event.target, operand: event.operand, ts: event.ctx.ts, agent: event.ctx.agent, status: 'sent' });
+        }
+      }
+
+      // Upsert current state snapshot
+      const updated = await upsertCurrentRecord(contentId, state, agent, currentRecordRef.current);
+      currentRecordRef.current = updated;
+
+      savedStateRef.current = state;
+      setIsDirty(false);
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : String(err);
+      setError(`Save failed: ${msg}`);
+    } finally {
+      setSaving(false);
+    }
+  }
 
   // ── Add block ─────────────────────────────────────────────────────────────
 
@@ -215,7 +294,6 @@ export default function PageBuilder({ contentId, siteBase }: Props) {
     const blockId = `b_${Date.now()}`;
     const lastId = state.block_order.at(-1) ?? null;
     const newBlock: Block = { block_id: blockId, block_type: type, data: defaultData(type), after: lastId, deleted: false };
-    const event = insBlock(contentId, newBlock, agent);
 
     const updatedState: PageState = {
       ...state,
@@ -223,7 +301,7 @@ export default function PageBuilder({ contentId, siteBase }: Props) {
       block_order: [...state.block_order, blockId],
     };
     setState(updatedState);
-    emit(event, updatedState);
+    setIsDirty(true);
     setSelectedBlockId(blockId);
   }
 
@@ -235,7 +313,6 @@ export default function PageBuilder({ contentId, siteBase }: Props) {
     if (!original) return;
     const newId = `b_${Date.now()}`;
     const newBlock: Block = { block_id: newId, block_type: original.block_type, data: { ...original.data }, after: blockId, deleted: false };
-    const event = insBlock(contentId, newBlock, agent);
     const idx = state.block_order.indexOf(blockId);
     const newOrder = [...state.block_order];
     newOrder.splice(idx + 1, 0, newId);
@@ -245,7 +322,7 @@ export default function PageBuilder({ contentId, siteBase }: Props) {
       block_order: newOrder,
     };
     setState(updatedState);
-    emit(event, updatedState);
+    setIsDirty(true);
     setSelectedBlockId(newId);
   }
 
@@ -258,9 +335,7 @@ export default function PageBuilder({ contentId, siteBase }: Props) {
       blocks: state.blocks.map((b) => b.block_id === blockId ? { ...b, data: newData } : b),
     };
     setState(updatedState);
-    const patch = Object.entries(newData).map(([k, v]) => ({ op: 'replace', path: `/data/${k}`, value: v }));
-    const event = altBlock(contentId, blockId, patch, agent);
-    emit(event, updatedState);
+    setIsDirty(true);
   }
 
   // ── Delete block ──────────────────────────────────────────────────────────
@@ -273,8 +348,7 @@ export default function PageBuilder({ contentId, siteBase }: Props) {
       block_order: state.block_order.filter((id) => id !== blockId),
     };
     setState(updatedState);
-    const event = nulBlock(contentId, blockId, agent);
-    emit(event, updatedState);
+    setIsDirty(true);
     if (selectedBlockId === blockId) setSelectedBlockId(null);
   }
 
@@ -294,10 +368,7 @@ export default function PageBuilder({ contentId, siteBase }: Props) {
       blocks: state.blocks.map((b) => b.block_id === columnsBlockId ? { ...b, data: newData } : b),
     };
     setState(updatedState);
-
-    const patch = [{ op: 'replace', path: '/data/columns', value: newCols }];
-    const event = altBlock(contentId, columnsBlockId, patch, agent);
-    emit(event, updatedState);
+    setIsDirty(true);
   }
 
   // ── Sub-block operations ──────────────────────────────────────────────────
@@ -377,14 +448,8 @@ export default function PageBuilder({ contentId, siteBase }: Props) {
       block_order: [...state.block_order, newBlockId],
     };
     setState(updatedState);
+    setIsDirty(true);
     setSelectedBlockId(newBlockId);
-
-    // Emit events: ALT on columns block + INS for new top-level block
-    const colPatch = [{ op: 'replace', path: '/data/columns', value: newCols }];
-    const altEvent = altBlock(contentId, columnsBlockId, colPatch, agent);
-    emit(altEvent, updatedState);
-    const insEvent = insBlock(contentId, newBlock, agent);
-    emit(insEvent, updatedState);
   }
 
   // ── Move top-level block into a column ─────────────────────────────────────
@@ -416,14 +481,8 @@ export default function PageBuilder({ contentId, siteBase }: Props) {
       block_order: state.block_order.filter((id) => id !== blockId),
     };
     setState(updatedState);
+    setIsDirty(true);
     setSelectedBlockId(subId);
-
-    // Emit events
-    const nulEvent = nulBlock(contentId, blockId, agent);
-    emit(nulEvent, updatedState);
-    const colPatch = [{ op: 'replace', path: '/data/columns', value: newCols }];
-    const altEvent = altBlock(contentId, columnsBlockId, colPatch, agent);
-    emit(altEvent, updatedState);
   }
 
   // ── Reorder (drag/drop) ───────────────────────────────────────────────────
@@ -467,8 +526,7 @@ export default function PageBuilder({ contentId, siteBase }: Props) {
       block_order: newOrder,
     };
     setState(updatedState);
-    const altEvent = altBlock(contentId, activeId, [], 'editor', newAfter);
-    emit(altEvent, updatedState);
+    setIsDirty(true);
   }
 
   // ── Render ────────────────────────────────────────────────────────────────
@@ -488,6 +546,14 @@ export default function PageBuilder({ contentId, siteBase }: Props) {
       {error && <div className="error-banner">{error} <button onClick={() => setError(null)}>×</button></div>}
 
       <div className="builder-toolbar">
+        {isDirty && <span className="dirty-indicator">Unsaved changes</span>}
+        <button
+          className="btn btn-primary btn-sm"
+          onClick={save}
+          disabled={!isDirty || saving || !isAuthenticated}
+        >
+          {saving ? 'Saving\u2026' : 'Save page'}
+        </button>
         <button
           className={`btn btn-sm ${showPreview ? 'btn-primary' : ''}`}
           onClick={() => setShowPreview(!showPreview)}
