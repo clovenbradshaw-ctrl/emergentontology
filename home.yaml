@@ -12,12 +12,10 @@
 # Shown when no CMS-managed homepage blocks exist (page:home).
 
 hero:
-  badge: "Emergent Ontology"
+  badge: "Emergent Ontology (EO)"
   title: "A framework for everything that changes"
   subtitle: >
-    Nine operators, infinite composability. A minimal, universal
-    language for data transformation, knowledge curation, and
-    structured thought.
+    Nine operators. Everything else follows. Languages, databases, and experience describe change the same way. Here's the structure underneath.
 
 
 # ── Nine Operators ───────────────────────────────────────────────────
