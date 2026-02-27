@@ -37,7 +37,7 @@ export function insIndexEntry(
 
 export function desIndexEntry(
   contentId: string,
-  fields: Partial<{ title: string; status: string; visibility: string; tags: string[] }>,
+  fields: Partial<{ slug: string; title: string; status: string; visibility: string; tags: string[] }>,
   agent: string
 ): EOEvent {
   return {
