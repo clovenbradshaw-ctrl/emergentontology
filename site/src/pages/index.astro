@@ -202,8 +202,8 @@ function itemUrl(type: string, slug: string) {
   ) : (
     <section class="home-hero">
       <div class="hero-badge">{config.hero.badge}</div>
-      <h1 class="hero-title">{config.hero.title}</h1>
-      <p class="hero-sub">{config.hero.subtitle}</p>
+      <h1 class="hero-title" set:html={escHtml(config.hero.title.trim()).replace(/\n/g, '<br>')} />
+      <p class="hero-sub" set:html={escHtml(config.hero.subtitle.trim()).replace(/\n/g, '<br>')} />
       {hasContent && (
         <p class="hero-stats">
           {totalArticles} {totalArticles === 1 ? 'article' : 'articles'}
