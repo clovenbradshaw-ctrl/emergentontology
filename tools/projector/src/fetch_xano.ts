@@ -7,14 +7,29 @@
  *   record_id = "blog:post-1" → BlogState snapshot
  *   etc.
  *
- * GET /eowikicurrent — public endpoint, no auth required.
+ * The private endpoint path is AES-256-GCM encrypted in source.
+ * At build time the EO_PASSWORD env var decrypts it.
  */
+
+import { createHash, createDecipheriv } from 'crypto';
 
 const XANO_BASE = 'https://xvkq-pq7i-idtl.n7d.xano.io/api:GGzWIVAW';
 const TIMEOUT_MS = 30_000;
 
-// Password for server-side API filtering bypass (build tool — needs all records)
-const EO_API_PASSWORD = 'Brethren0-Happiest6-Dynamite5-Hammock9-Sharply0';
+// Same encrypted blob as admin/src/xano/client.ts — see that file for
+// regeneration instructions.
+const ENCRYPTED_PRIVATE_ENDPOINT = 'T9q5Wmenm2sCBX3XD+vFxJdfU9aoZV/SxV47TfzR7rLu9SGrVFvOFBtBDzAJ';
+
+function decryptEndpoint(password: string): string {
+  const key = createHash('sha256').update(password).digest();
+  const data = Buffer.from(ENCRYPTED_PRIVATE_ENDPOINT, 'base64');
+  const iv = data.subarray(0, 12);
+  const tag = data.subarray(data.length - 16);
+  const ct = data.subarray(12, data.length - 16);
+  const decipher = createDecipheriv('aes-256-gcm', key, iv);
+  decipher.setAuthTag(tag);
+  return decipher.update(ct, undefined, 'utf8') + decipher.final('utf8');
+}
 
 export interface XanoCurrentRecord {
   id: number;
@@ -28,7 +43,12 @@ export interface XanoCurrentRecord {
 }
 
 export async function fetchAllCurrentRecords(): Promise<XanoCurrentRecord[]> {
-  const url = `${XANO_BASE}/get_eowiki_current?X_EO_Password=${encodeURIComponent(EO_API_PASSWORD)}`;
+  const password = process.env.EO_PASSWORD;
+  if (!password) {
+    throw new Error('EO_PASSWORD environment variable is required to decrypt the private endpoint.');
+  }
+  const endpoint = decryptEndpoint(password);
+  const url = `${XANO_BASE}/${endpoint}`;
   const resp = await fetch(url, {
     signal: AbortSignal.timeout(TIMEOUT_MS),
   });
