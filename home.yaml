@@ -1,0 +1,134 @@
+# ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+#  Emergent Ontology — Homepage Configuration
+# ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+#
+#  Edit this file to change the homepage content and layout.
+#  Changes take effect on the next site build.
+#
+# ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+
+# ── Hero Section ─────────────────────────────────────────────────────
+# Shown when no CMS-managed homepage blocks exist (page:home).
+
+hero:
+  badge: "Emergent Ontology"
+  title: "A framework for everything that changes"
+  subtitle: >
+    Nine operators, infinite composability. A minimal, universal
+    language for data transformation, knowledge curation, and
+    structured thought.
+
+
+# ── Nine Operators ───────────────────────────────────────────────────
+# The core operator definitions displayed in the rune grid.
+# Each operator has a numeric index, unicode symbol, three-letter
+# code, Greek letter, human-readable label, display color, and
+# URL slug (links to /wiki/<slug>/).
+
+operators:
+  - num: 1
+    symbol: "∅"
+    code: NUL
+    greek: "ν"
+    label: "Absence & Nullity"
+    color: "#9ca3af"
+    slug: nul
+
+  - num: 2
+    symbol: "⊡"
+    code: DES
+    greek: "δ"
+    label: "Designation"
+    color: "#60a5fa"
+    slug: des
+
+  - num: 3
+    symbol: "△"
+    code: INS
+    greek: "ι"
+    label: "Instantiation"
+    color: "#4ade80"
+    slug: ins
+
+  - num: 4
+    symbol: "｜"
+    code: SEG
+    greek: "σ"
+    label: "Segmentation"
+    color: "#c084fc"
+    slug: seg
+
+  - num: 5
+    symbol: "⋈"
+    code: CON
+    greek: "κ"
+    label: "Connection"
+    color: "#34d399"
+    slug: con
+
+  - num: 6
+    symbol: "∨"
+    code: SYN
+    greek: "ψ"
+    label: "Synthesis"
+    color: "#818cf8"
+    slug: syn
+
+  - num: 7
+    symbol: "∿"
+    code: ALT
+    greek: "δ"
+    label: "Alternation"
+    color: "#fbbf24"
+    slug: alt
+
+  - num: 8
+    symbol: "∥"
+    code: SUP
+    greek: "φ"
+    label: "Superposition"
+    color: "#f472b6"
+    slug: sup
+
+  - num: 9
+    symbol: "⟳"
+    code: REC
+    greek: "ρ"
+    label: "Recursion"
+    color: "#fb923c"
+    slug: rec
+
+
+# ── Content Sections ─────────────────────────────────────────────────
+# Configure which content sections appear on the homepage and how.
+# These are the fallback sections shown when no CMS content-feed
+# blocks override them.
+#
+# Options per section:
+#   enabled    – show this section (true/false)
+#   max_items  – how many items to display
+#   layout     – "grid" or "list"
+
+sections:
+  wiki:
+    enabled: true
+    max_items: 6
+    layout: grid
+
+  blog:
+    enabled: true
+    max_items: 5
+    layout: list
+
+  experiments:
+    enabled: true
+    max_items: 4
+    layout: grid
+
+  pages:
+    enabled: true
+    layout: list
+
+  tags:
+    enabled: true

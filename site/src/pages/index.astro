@@ -4,7 +4,9 @@ import { loadSiteIndex, loadContent } from '../lib/state';
 import type { NavEntry, ProjectedWiki, ProjectedBlog, ProjectedPage } from '../lib/state';
 import { renderBlock, escHtml } from '../lib/blocks';
 import type { Block, PageLike } from '../lib/blocks';
+import { loadHomeConfig } from '../lib/home-config';
 
+const config = loadHomeConfig();
 const index = loadSiteIndex();
 const base = import.meta.env.BASE_URL.replace(/\/$/, '');
 
@@ -37,18 +39,11 @@ const allTags = Array.from(
 const totalArticles = wikiEntries.length + blogEntries.length + expEntries.length + pageEntries.length;
 const hasContent = totalArticles > 0;
 
-// Nine operators data — multiple naming conventions
-const operators = [
-  { num: 1, symbol: '∅', code: 'NUL', greek: 'ν', label: 'Absence & Nullity', color: '#9ca3af', slug: 'nul' },
-  { num: 2, symbol: '⊡', code: 'DES', greek: 'δ', label: 'Designation', color: '#60a5fa', slug: 'des' },
-  { num: 3, symbol: '△', code: 'INS', greek: 'ι', label: 'Instantiation', color: '#4ade80', slug: 'ins' },
-  { num: 4, symbol: '｜', code: 'SEG', greek: 'σ', label: 'Segmentation', color: '#c084fc', slug: 'seg' },
-  { num: 5, symbol: '⋈', code: 'CON', greek: 'κ', label: 'Connection', color: '#34d399', slug: 'con' },
-  { num: 6, symbol: '∨', code: 'SYN', greek: 'ψ', label: 'Synthesis', color: '#818cf8', slug: 'syn' },
-  { num: 7, symbol: '∿', code: 'ALT', greek: 'δ', label: 'Alternation', color: '#fbbf24', slug: 'alt' },
-  { num: 8, symbol: '∥', code: 'SUP', greek: 'φ', label: 'Superposition', color: '#f472b6', slug: 'sup' },
-  { num: 9, symbol: '⟳', code: 'REC', greek: 'ρ', label: 'Recursion', color: '#fb923c', slug: 'rec' },
-];
+// Nine operators — loaded from home.yaml
+const operators = config.operators;
+
+// Section config — loaded from home.yaml
+const sectionConfig = config.sections;
 
 // Track which content types are explicitly covered by content-feed blocks
 const coveredContentTypes = new Set<string>();
@@ -209,12 +204,9 @@ function itemUrl(type: string, slug: string) {
     </section>
   ) : (
     <section class="home-hero">
-      <div class="hero-badge">Emergent Ontology</div>
-      <h1 class="hero-title">A framework for everything that changes</h1>
-      <p class="hero-sub">
-        Nine operators, infinite composability. A minimal, universal language for data transformation,
-        knowledge curation, and structured thought.
-      </p>
+      <div class="hero-badge">{config.hero.badge}</div>
+      <h1 class="hero-title">{config.hero.title}</h1>
+      <p class="hero-sub">{config.hero.subtitle}</p>
       {hasContent && (
         <p class="hero-stats">
           {totalArticles} {totalArticles === 1 ? 'article' : 'articles'}
@@ -246,14 +238,14 @@ function itemUrl(type: string, slug: string) {
 
   {/* ── Fallback sections: show content types not covered by explicit content-feed blocks ── */}
   <>
-      {wikiEntries.length > 0 && !coveredContentTypes.has('wiki') && (
+      {sectionConfig.wiki.enabled && wikiEntries.length > 0 && !coveredContentTypes.has('wiki') && (
         <section class="home-section">
           <div class="section-header">
             <h2 class="section-title"><i class="ph ph-book-open-text section-icon"></i> Wiki</h2>
             <a class="section-viewall" href={`${base}/wiki/`}>View all →</a>
           </div>
           <div class="content-grid">
-            {wikiEntries.slice(0, 6).map((e: NavEntry) => {
+            {wikiEntries.slice(0, sectionConfig.wiki.max_items ?? 6).map((e: NavEntry) => {
               const excerpt = contentExcerpt(e.content_id);
               return (
                 <a class="content-card" href={`${base}/wiki/${e.slug}/`}>
@@ -271,14 +263,14 @@ function itemUrl(type: string, slug: string) {
         </section>
       )}
 
-      {blogEntries.length > 0 && !coveredContentTypes.has('blog') && (
+      {sectionConfig.blog.enabled && blogEntries.length > 0 && !coveredContentTypes.has('blog') && (
         <section class="home-section">
           <div class="section-header">
             <h2 class="section-title"><i class="ph ph-pen-nib section-icon"></i> Blog</h2>
             <a class="section-viewall" href={`${base}/blog/`}>All posts →</a>
           </div>
           <div class="content-list-cards">
-            {blogEntries.slice(0, 5).map((e: NavEntry) => {
+            {blogEntries.slice(0, sectionConfig.blog.max_items ?? 5).map((e: NavEntry) => {
               const excerpt = contentExcerpt(e.content_id);
               return (
                 <a class="list-card" href={`${base}/blog/${e.slug}/`}>
@@ -294,14 +286,14 @@ function itemUrl(type: string, slug: string) {
         </section>
       )}
 
-      {expEntries.length > 0 && !coveredContentTypes.has('experiment') && (
+      {sectionConfig.experiments.enabled && expEntries.length > 0 && !coveredContentTypes.has('experiment') && (
         <section class="home-section">
           <div class="section-header">
             <h2 class="section-title"><i class="ph ph-flask section-icon"></i> Experiments</h2>
             <a class="section-viewall" href={`${base}/exp/`}>All experiments →</a>
           </div>
           <div class="content-grid content-grid--sm">
-            {expEntries.slice(0, 4).map((e: NavEntry) => (
+            {expEntries.slice(0, sectionConfig.experiments.max_items ?? 4).map((e: NavEntry) => (
               <a class="content-card content-card--exp" href={`${base}/exp/${e.slug}/`}>
                 <h3 class="card-title">{e.title}</h3>
               </a>
@@ -310,7 +302,7 @@ function itemUrl(type: string, slug: string) {
         </section>
       )}
 
-      {pageEntries.length > 0 && !coveredContentTypes.has('page') && (
+      {sectionConfig.pages.enabled && pageEntries.length > 0 && !coveredContentTypes.has('page') && (
         <section class="home-section">
           <div class="section-header">
             <h2 class="section-title"><i class="ph ph-file-text section-icon"></i> Pages</h2>
@@ -325,7 +317,7 @@ function itemUrl(type: string, slug: string) {
     </>
 
   {/* ── Tags ── */}
-  {allTags.length > 0 && (
+  {sectionConfig.tags.enabled && allTags.length > 0 && (
     <section class="home-section home-section--tags">
       <h2 class="section-title">
         <i class="ph ph-tag section-icon"></i>
