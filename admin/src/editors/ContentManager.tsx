@@ -75,6 +75,7 @@ export default function ContentManager({ siteBase, onOpen }: Props) {
   const [newType, setNewType] = useState<ContentType>('wiki');
   const [newSlug, setNewSlug] = useState('');
   const [newTitle, setNewTitle] = useState('');
+  const [slugManuallyEdited, setSlugManuallyEdited] = useState(false);
   const [newVisibility, setNewVisibility] = useState<Visibility>(settings.defaultVisibility);
   const [confirmArchive, setConfirmArchive] = useState<string | null>(null);
   const [showArchive, setShowArchive] = useState(false);
@@ -651,34 +652,49 @@ export default function ContentManager({ siteBase, onOpen }: Props) {
     <div className="content-manager">
       {error && <div className="error-banner">{error} <button onClick={() => setError(null)}>×</button></div>}
 
-      {/* Special Pages (Issues 1 & 2) */}
+      {/* Special Pages — Homepage + Operator Grid */}
       <section className="special-pages-section">
-        <h2>Special Pages</h2>
-        <p className="section-hint">These pages always exist on the site. Create them to add content.</p>
-        <div className="special-pages-grid">
-          {SPECIAL_PAGES.map((sp) => {
-            const exists = entries.some(e => e.content_id === sp.content_id);
+        <div className="special-pages-layout">
+          {/* Homepage card */}
+          {(() => {
+            const homeSp = SPECIAL_PAGES.find(sp => sp.content_id === 'page:home')!;
+            const homeExists = entries.some(e => e.content_id === 'page:home');
             return (
-              <div key={sp.content_id} className={`special-page-card ${exists ? 'exists' : ''}`}>
-                <span className="special-page-symbol" style={{ color: sp.color }}>{sp.symbol}</span>
-                <span className="special-page-title">{sp.title}</span>
-                {sp.code && <span className="special-page-code">{sp.code}</span>}
-                {exists ? (
-                  <button className="btn btn-sm" onClick={() => onOpen(sp.content_id, sp.content_type)}>
-                    Edit
-                  </button>
-                ) : (
-                  <button
-                    className="btn btn-sm btn-primary"
-                    onClick={() => createSpecialPage(sp)}
-                    disabled={!isAuthenticated || creatingSpecial === sp.content_id}
-                  >
-                    {creatingSpecial === sp.content_id ? 'Creating\u2026' : 'Create & Edit'}
-                  </button>
-                )}
-              </div>
+              <button
+                className={`special-home-card ${homeExists ? 'exists' : ''}`}
+                onClick={() => homeExists ? onOpen('page:home', 'page') : createSpecialPage(homeSp)}
+                disabled={!isAuthenticated && !homeExists}
+                title={homeExists ? 'Edit homepage' : 'Create homepage'}
+              >
+                <span className="special-home-symbol" style={{ color: homeSp.color }}>{homeSp.symbol}</span>
+                <span className="special-home-label">Homepage</span>
+                <span className="special-home-status">{homeExists ? 'Edit' : '+ Create'}</span>
+              </button>
             );
-          })}
+          })()}
+
+          {/* 3×3 Operator grid */}
+          <div className="special-ops-grid">
+            <div className="special-ops-label">Operators</div>
+            <div className="special-ops-cells">
+              {SPECIAL_PAGES.filter(sp => sp.code).map((sp) => {
+                const exists = entries.some(e => e.content_id === sp.content_id);
+                return (
+                  <button
+                    key={sp.content_id}
+                    className={`special-op-cell ${exists ? 'exists' : ''}`}
+                    style={{ '--op-color': sp.color } as React.CSSProperties}
+                    onClick={() => exists ? onOpen(sp.content_id, sp.content_type) : createSpecialPage(sp)}
+                    disabled={(!isAuthenticated && !exists) || creatingSpecial === sp.content_id}
+                    title={`${sp.code} — ${sp.title}${exists ? '' : ' (click to create)'}`}
+                  >
+                    <span className="special-op-symbol">{sp.symbol}</span>
+                    <span className="special-op-code">{sp.code}</span>
+                  </button>
+                );
+              })}
+            </div>
+          </div>
         </div>
       </section>
 
@@ -689,15 +705,32 @@ export default function ContentManager({ siteBase, onOpen }: Props) {
           <select value={newType} onChange={(e) => setNewType(e.target.value as ContentType)}>
             {(Object.entries(TYPE_LABELS) as Array<[string, string]>).map(([k, v]) => <option key={k} value={k}>{v}</option>)}
           </select>
-          <input value={newSlug} onChange={(e) => setNewSlug(e.target.value.toLowerCase().replace(/\s+/g, '-'))} placeholder="slug (e.g. getting-started)" />
-          <input value={newTitle} onChange={(e) => setNewTitle(e.target.value)} placeholder="Title" />
+          <input
+            value={newTitle}
+            onChange={(e) => {
+              setNewTitle(e.target.value);
+              if (!slugManuallyEdited) {
+                setNewSlug(e.target.value.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, ''));
+              }
+            }}
+            placeholder="Title"
+          />
+          <input
+            value={newSlug}
+            onChange={(e) => {
+              setNewSlug(e.target.value.toLowerCase().replace(/[^a-z0-9-]+/g, ''));
+              setSlugManuallyEdited(true);
+            }}
+            placeholder="slug (auto-generated)"
+            style={{ color: slugManuallyEdited ? 'var(--text)' : 'var(--text-dim)' }}
+          />
           <select value={newVisibility} onChange={(e) => setNewVisibility(e.target.value as Visibility)}>
             <option value="public">Public</option>
-            <option value="private">Private (login required)</option>
+            <option value="private">Private</option>
           </select>
           <button
             className="btn btn-primary"
-            onClick={create}
+            onClick={() => { create(); setSlugManuallyEdited(false); }}
             disabled={creating || !isAuthenticated || !newSlug || !newTitle}
           >
             {creating ? 'Creating…' : 'Create'}

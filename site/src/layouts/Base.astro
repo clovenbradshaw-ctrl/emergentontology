@@ -291,15 +291,10 @@ const childPages = (parentId: string) => pageNav.filter((e: NavEntry) => e.paren
         var adminLink = document.getElementById('admin-link');
         if (adminLink) adminLink.hidden = false;
         document.querySelectorAll('.admin-footer-link').forEach(function(el) { el.hidden = false; });
-        document.querySelectorAll('.home-edit-link').forEach(function(el) { el.style.display = ''; });
+        document.querySelectorAll('.eo-admin-only').forEach(function(el) { el.removeAttribute('hidden'); });
       }
       if (revealed || wasAuthenticated) {
         document.addEventListener('DOMContentLoaded', revealAdmin);
-      } else {
-        // Hide edit links by default
-        document.addEventListener('DOMContentLoaded', function() {
-          document.querySelectorAll('.home-edit-link').forEach(function(el) { el.style.display = 'none'; });
-        });
       }
       document.addEventListener('keydown', function(e) {
         if (e.key === 'Escape') {

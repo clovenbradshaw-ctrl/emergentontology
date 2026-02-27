@@ -92,27 +92,27 @@ async function decryptEndpoint(password: string): Promise<string | null> {
 
 /**
  * Verify a password by attempting to decrypt the private endpoint.
- * On success the decrypted endpoint is cached in memory + sessionStorage
- * so subsequent API calls can use it without re-entering the password.
+ * On success the decrypted endpoint is cached in memory + localStorage
+ * so the session persists across browser restarts.
  */
 export async function verifyPassword(password: string): Promise<boolean> {
   const ep = await decryptEndpoint(password);
   if (!ep) return false;
   _privateEndpoint = ep;
-  try { sessionStorage.setItem(ENDPOINT_KEY, ep); } catch { /* SSR / test */ }
+  try { localStorage.setItem(ENDPOINT_KEY, ep); } catch { /* SSR / test */ }
   return true;
 }
 
-/** Restore the private endpoint from sessionStorage (called on page load). */
+/** Restore the private endpoint from localStorage (called on page load). */
 export function restoreEndpoint(): boolean {
   try {
-    const ep = sessionStorage.getItem(ENDPOINT_KEY);
+    const ep = localStorage.getItem(ENDPOINT_KEY);
     if (ep) { _privateEndpoint = ep; return true; }
   } catch { /* SSR / test */ }
   return false;
 }
 
-// ── Session (localStorage — persists across browser sessions) ─────────────────
+// ── Session (localStorage — persists across browser restarts) ─────────────────
 
 export function saveSession(): void {
   localStorage.setItem(SESSION_KEY, '1');
@@ -120,9 +120,6 @@ export function saveSession(): void {
 
 export function loadSession(): boolean {
   if (localStorage.getItem(SESSION_KEY) !== '1') return false;
-  // Try to restore the decrypted endpoint from sessionStorage.
-  // If sessionStorage was cleared (e.g. browser restart), force re-login
-  // so the user re-enters the password to unlock the private endpoint.
   if (!restoreEndpoint()) {
     localStorage.removeItem(SESSION_KEY);
     return false;
@@ -132,8 +129,8 @@ export function loadSession(): boolean {
 
 export function clearSession(): void {
   localStorage.removeItem(SESSION_KEY);
+  localStorage.removeItem(ENDPOINT_KEY);
   _privateEndpoint = null;
-  try { sessionStorage.removeItem(ENDPOINT_KEY); } catch { /* SSR / test */ }
 }
 
 // ── API calls ────────────────────────────────────────────────────────────────
