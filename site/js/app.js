@@ -20,6 +20,7 @@
   var baseEl = document.querySelector('base');
   var BASE = baseEl ? baseEl.getAttribute('href').replace(/\/$/, '') : '';
   var XANO_PUBLIC = 'https://xvkq-pq7i-idtl.n7d.xano.io/api:GGzWIVAW';
+  var XANO_CURRENT = XANO_PUBLIC + '/get_eowikicurrent';
 
   var OPERATORS = [
     { num: 1, symbol: '\u2205', code: 'NUL', greek: '\u03BD', label: 'Absence & Nullity', color: '#9ca3af', slug: 'nul' },
@@ -84,21 +85,43 @@
   // Data Loading — two sources: generated JSON (current state) + Xano API
   // ═══════════════════════════════════════════════════════════════════════
 
+  /** Pick the most recently modified record when duplicates exist for a record_id. */
+  function dedup(records) {
+    var map = {};
+    records.forEach(function (r) {
+      var prev = map[r.record_id];
+      if (!prev || r.lastModified > prev.lastModified) map[r.record_id] = r;
+    });
+    return map;
+  }
+
+  // Cache the deduped Xano records so loadContent can reuse the same fetch
+  var _xanoRecords = null;
+
+  function loadXanoRecords() {
+    if (_xanoRecords) return Promise.resolve(_xanoRecords);
+    return fetch(XANO_CURRENT, { signal: AbortSignal.timeout(15000) })
+      .then(function (r) { return r.ok ? r.json() : null; })
+      .then(function (records) {
+        if (!Array.isArray(records)) return null;
+        _xanoRecords = dedup(records);
+        return _xanoRecords;
+      }).catch(function () { return null; });
+  }
+
   function loadIndex() {
     if (siteIndex) return Promise.resolve(siteIndex);
 
     return fetchJson(BASE + '/generated/state/index.json').then(function (data) {
       if (data) { siteIndex = data; return data; }
-      // Fallback: fetch from Xano public endpoint
-      return fetch(XANO_PUBLIC + '/get_public_eowiki', { signal: AbortSignal.timeout(10000) })
-        .then(function (r) { return r.ok ? r.json() : null; })
-        .then(function (records) {
-          if (!Array.isArray(records)) return emptyIndex();
-          var rec = records.find(function (r) { return r.record_id === 'site:index'; });
-          if (!rec) return emptyIndex();
-          siteIndex = JSON.parse(rec.values);
+      // Fallback: fetch from Xano eowikicurrent endpoint
+      return loadXanoRecords().then(function (map) {
+        if (!map || !map['site:index']) return emptyIndex();
+        try {
+          siteIndex = JSON.parse(map['site:index'].values);
           return siteIndex;
-        }).catch(function () { return emptyIndex(); });
+        } catch (e) { return emptyIndex(); }
+      });
     });
   }
 
@@ -113,17 +136,15 @@
 
     return fetchJson(BASE + '/generated/state/content/' + fileName).then(function (data) {
       if (data) { contentCache[contentId] = data; return data; }
-      // Fallback: Xano public API
-      return fetch(XANO_PUBLIC + '/get_public_eowiki', { signal: AbortSignal.timeout(10000) })
-        .then(function (r) { return r.ok ? r.json() : null; })
-        .then(function (records) {
-          if (!Array.isArray(records)) return null;
-          var rec = records.find(function (r) { return r.record_id === contentId; });
-          if (!rec) return null;
-          var parsed = JSON.parse(rec.values);
+      // Fallback: Xano eowikicurrent API (reuses cached fetch)
+      return loadXanoRecords().then(function (map) {
+        if (!map || !map[contentId]) return null;
+        try {
+          var parsed = JSON.parse(map[contentId].values);
           contentCache[contentId] = parsed;
           return parsed;
-        }).catch(function () { return null; });
+        } catch (e) { return null; }
+      });
     });
   }
 
@@ -326,16 +347,19 @@
     setBreadcrumbs([]);
     el.className = 'home';
 
-    var nav = siteIndex.nav || [];
-    var wikis = nav.filter(function (e) { return e.content_type === 'wiki'; });
-    var blogs = nav.filter(function (e) { return e.content_type === 'blog'; });
-    var exps  = nav.filter(function (e) { return e.content_type === 'experiment'; });
-    var pages = nav.filter(function (e) { return e.content_type === 'page'; });
+    // Show all public, non-archived entries (including drafts) — not just nav (published-only)
+    var publicEntries = (siteIndex.entries || []).filter(function (e) {
+      return e.visibility === 'public' && e.status !== 'archived';
+    });
+    var wikis = publicEntries.filter(function (e) { return e.content_type === 'wiki'; });
+    var blogs = publicEntries.filter(function (e) { return e.content_type === 'blog'; });
+    var exps  = publicEntries.filter(function (e) { return e.content_type === 'experiment'; });
+    var pages = publicEntries.filter(function (e) { return e.content_type === 'page'; });
     var total = wikis.length + blogs.length + exps.length + pages.length;
 
     var allTags = [];
     var tagSet = {};
-    nav.forEach(function (e) { (e.tags || []).forEach(function (t) { if (t && !tagSet[t]) { tagSet[t] = true; allTags.push(t); } }); });
+    publicEntries.forEach(function (e) { (e.tags || []).forEach(function (t) { if (t && !tagSet[t]) { tagSet[t] = true; allTags.push(t); } }); });
     allTags.sort();
 
     var h = '';
@@ -468,7 +492,9 @@
     setBreadcrumbs([{ label: 'Wiki', href: BASE + '/wiki/' }]);
     el.className = '';
 
-    var wikis = (siteIndex.nav || []).filter(function (e) { return e.content_type === 'wiki'; });
+    var wikis = (siteIndex.entries || []).filter(function (e) {
+      return e.content_type === 'wiki' && e.visibility === 'public' && e.status !== 'archived';
+    });
 
     var h = '<section class="home-section"><h1>Wiki</h1>';
     if (wikis.length > 0) {
@@ -484,7 +510,7 @@
       });
       h += '</ul>';
     } else {
-      h += '<p class="empty-page">No wiki entries published yet.</p>';
+      h += '<p class="empty-page">No wiki entries yet.</p>';
     }
     h += '</section>';
     el.innerHTML = h;
@@ -519,7 +545,8 @@
 
         h += '<div class="wiki-body">';
         if (content.current_revision && content.current_revision.content) {
-          h += md(content.current_revision.content);
+          var fmt = content.current_revision.format || 'markdown';
+          h += fmt === 'html' ? content.current_revision.content : md(content.current_revision.content);
         } else {
           h += '<p class="empty-page">No content yet.</p>';
         }
@@ -588,7 +615,9 @@
     setBreadcrumbs([{ label: 'Blog', href: BASE + '/blog/' }]);
     el.className = '';
 
-    var blogs = (siteIndex.nav || []).filter(function (e) { return e.content_type === 'blog'; });
+    var blogs = (siteIndex.entries || []).filter(function (e) {
+      return e.content_type === 'blog' && e.visibility === 'public' && e.status !== 'archived';
+    });
 
     var h = '<section class="home-section"><h1>Blog</h1>';
     if (blogs.length > 0) {
@@ -600,7 +629,7 @@
       });
       h += '</div>';
     } else {
-      h += '<p class="empty-page">No blog posts published yet.</p>';
+      h += '<p class="empty-page">No blog posts yet.</p>';
     }
     h += '</section>';
     el.innerHTML = h;
@@ -632,7 +661,8 @@
 
       h += '<div class="wiki-body">';
       if (content.current_revision && content.current_revision.content) {
-        h += md(content.current_revision.content);
+        var fmt = content.current_revision.format || 'markdown';
+        h += fmt === 'html' ? content.current_revision.content : md(content.current_revision.content);
       } else {
         h += '<p class="empty-page">No content yet.</p>';
       }
@@ -655,7 +685,9 @@
     setBreadcrumbs([{ label: 'Experiments', href: BASE + '/exp/' }]);
     el.className = '';
 
-    var exps = (siteIndex.nav || []).filter(function (e) { return e.content_type === 'experiment'; });
+    var exps = (siteIndex.entries || []).filter(function (e) {
+      return e.content_type === 'experiment' && e.visibility === 'public' && e.status !== 'archived';
+    });
 
     var h = '<section class="home-section"><h1>Experiments</h1>';
     if (exps.length > 0) {
@@ -666,7 +698,7 @@
       });
       h += '</div>';
     } else {
-      h += '<p class="empty-page">No experiments published yet.</p>';
+      h += '<p class="empty-page">No experiments yet.</p>';
     }
     h += '</section>';
     el.innerHTML = h;
