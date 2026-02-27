@@ -62,9 +62,9 @@ jobs:
           node-version: '20'
           cache: 'npm'
           cache-dependency-path: |
-            tools/projector/package.json
-            site/package.json
-            admin/package.json
+            tools/projector/package-lock.json
+            site/package-lock.json
+            admin/package-lock.json
 
       # ── Step 1: Run projector (fetch Xano snapshots → write JSON state files) ──
       - name: Install projector dependencies
@@ -105,13 +105,16 @@ jobs:
         # Output: site/dist/
 
       # ── Step 4: Upload artifact for Pages deployment ───────────────────────
+      # NOTE: GitHub Pages must be configured to deploy from "GitHub Actions"
+      # (Settings → Pages → Source → GitHub Actions). The enablement flag
+      # below attempts to do this automatically on the first run.
       - name: Setup Pages
-        uses: actions/configure-pages@v4
+        uses: actions/configure-pages@v5
         with:
           enablement: true
 
       - name: Upload Pages artifact
-        uses: actions/upload-pages-artifact@v3
+        uses: actions/upload-pages-artifact@v4
         with:
           path: site/dist
 
