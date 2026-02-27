@@ -21,12 +21,13 @@
   var homeColumns = document.querySelector('.home-columns');
   var base = (homeColumns && homeColumns.getAttribute('data-base')) || '';
 
-  // Check if static content exists
+  // Check if static content exists (actual content items, not just empty section wrappers)
   var mainCol = document.querySelector('.home-col-main');
   var heroSection = document.querySelector('.home-hero');
   var editableSection = document.querySelector('.home-editable');
-  var staticSections = mainCol ? mainCol.querySelectorAll('.home-section').length : 0;
-  var hasStaticContent = staticSections > 0 || !!editableSection;
+  // Look for real content items, not empty sections that just show "No ... published yet"
+  var contentItems = mainCol ? mainCol.querySelectorAll('.content-card, .list-card, .content-list li').length : 0;
+  var hasStaticContent = contentItems > 0 || !!editableSection;
 
   // Only fetch dynamically if static build is empty
   if (hasStaticContent) return;
@@ -338,6 +339,15 @@
   // ── Render fallback content sections for types not covered by home blocks ──
 
   if (mainCol && navEntries.length > 0) {
+    // Remove statically-rendered empty sections (they just show "No ... published yet")
+    var emptySections = mainCol.querySelectorAll('.home-section');
+    for (var es = 0; es < emptySections.length; es++) {
+      var sec = emptySections[es];
+      if (sec.querySelector('.empty-note, .empty-page') && !sec.querySelector('.content-card, .list-card')) {
+        sec.remove();
+      }
+    }
+
     // Group entries by type
     var grouped = {};
     for (var k = 0; k < navEntries.length; k++) {
