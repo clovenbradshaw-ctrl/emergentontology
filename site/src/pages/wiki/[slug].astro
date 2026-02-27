@@ -154,7 +154,7 @@ function renderMarkdown(md: string): string {
         )}
       </section>
 
-      <div class="content-actions">
+      <div class="content-actions eo-admin-only" hidden>
         <a class="btn btn-edit" href={`${base}/admin/#wiki/${wiki.meta.slug}`}>Edit in Admin</a>
       </div>
     </article>
@@ -168,9 +168,21 @@ function renderMarkdown(md: string): string {
       </header>
       <div class="wiki-body">
       </div>
-      <div class="content-actions">
+      <div class="content-actions eo-admin-only" hidden>
         <a class="btn btn-edit" href={`${base}/admin/#wiki/${operator.slug}`}>Edit in Admin</a>
       </div>
     </article>
   ) : null}
+
+  <script is:inline>
+  (function() {
+    try {
+      if (localStorage.getItem('eo_xano_auth') === '1') {
+        document.querySelectorAll('.eo-admin-only').forEach(function(el) {
+          el.removeAttribute('hidden');
+        });
+      }
+    } catch(e) {}
+  })();
+  </script>
 </Base>

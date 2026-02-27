@@ -41,6 +41,7 @@ import { loadState, applyFreshnessUpdate } from '../xano/stateCache';
 import { insBlock, altBlock, nulBlock } from '../eo/events';
 import type { Block } from '../eo/types';
 import MetadataBar from '../components/MetadataBar';
+import RichTextEditor from '../components/RichTextEditor';
 
 // ── Sub-block types for columns ──────────────────────────────────────────────
 
@@ -1001,10 +1002,14 @@ function BlockInspector({ block, onUpdate }: { block: Block | SubBlock; onUpdate
     <div className="inspector-form">
       <div className="inspector-type">{block.block_type}</div>
       {block.block_type === 'text' && (
-        <label className="field">
-          <span>Markdown</span>
-          <textarea value={String(local.md ?? local.text ?? '')} onChange={(e) => set('md', e.target.value)} rows={8} />
-        </label>
+        <div className="field">
+          <span>Content</span>
+          <RichTextEditor
+            value={String(local.md ?? local.text ?? '')}
+            onChange={(md) => set('md', md)}
+            placeholder="Start typing..."
+          />
+        </div>
       )}
       {block.block_type === 'heading' && (
         <>
@@ -1019,7 +1024,10 @@ function BlockInspector({ block, onUpdate }: { block: Block | SubBlock; onUpdate
       )}
       {block.block_type === 'callout' && (
         <>
-          <label className="field"><span>Text</span><textarea value={String(local.text ?? '')} onChange={(e) => set('text', e.target.value)} rows={4} /></label>
+          <div className="field">
+            <span>Text</span>
+            <RichTextEditor value={String(local.text ?? '')} onChange={(md) => set('text', md)} placeholder="Callout text..." minHeight="80px" />
+          </div>
           <label className="field">
             <span>Kind</span>
             <select value={String(local.kind ?? 'info')} onChange={(e) => set('kind', e.target.value)}>
@@ -1030,7 +1038,10 @@ function BlockInspector({ block, onUpdate }: { block: Block | SubBlock; onUpdate
       )}
       {block.block_type === 'quote' && (
         <>
-          <label className="field"><span>Text</span><textarea value={String(local.text ?? '')} onChange={(e) => set('text', e.target.value)} rows={4} /></label>
+          <div className="field">
+            <span>Text</span>
+            <RichTextEditor value={String(local.text ?? '')} onChange={(md) => set('text', md)} placeholder="Quote text..." minHeight="80px" />
+          </div>
           <label className="field"><span>Attribution</span><input value={String(local.attribution ?? '')} onChange={(e) => set('attribution', e.target.value)} /></label>
         </>
       )}

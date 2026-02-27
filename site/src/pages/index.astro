@@ -50,11 +50,17 @@ const operators = [
   { num: 9, symbol: '⟳', code: 'REC', greek: 'ρ', label: 'Recursion', color: '#fb923c', slug: 'rec' },
 ];
 
-// Check if homepage has content-feed or operator-grid blocks
-const hasContentFeedBlocks = hasHomeBlocks && homePage!.block_order.some((id: string) => {
-  const block = homeBlockMap.get(id);
-  return block && !block.deleted && (block.block_type === 'content-feed' || block.block_type === 'operator-grid');
-});
+// Track which content types are explicitly covered by content-feed blocks
+const coveredContentTypes = new Set<string>();
+if (hasHomeBlocks) {
+  homePage!.block_order.forEach((id: string) => {
+    const block = homeBlockMap.get(id);
+    if (block && !block.deleted && block.block_type === 'content-feed') {
+      coveredContentTypes.add(String(block.data.content_type ?? 'wiki'));
+    }
+  });
+}
+const hasContentFeedBlocks = coveredContentTypes.size > 0;
 
 // Helper: get entries by content type
 function getEntriesByType(type: string) {
@@ -197,7 +203,7 @@ function itemUrl(type: string, slug: string) {
           );
         })}
       </div>
-      <div class="home-edit-link">
+      <div class="home-edit-link eo-admin-only" hidden>
         <a class="btn btn-edit" href={`${base}/admin/#page/home`}>Edit Homepage</a>
       </div>
     </section>
@@ -217,7 +223,7 @@ function itemUrl(type: string, slug: string) {
           {expEntries.length > 0 && <> · {expEntries.length} experiments</>}
         </p>
       )}
-      <div class="home-edit-link" style="margin-top: 1.5rem;">
+      <div class="home-edit-link eo-admin-only" style="margin-top: 1.5rem;" hidden>
         <a class="btn btn-primary" href={`${base}/admin/#page/home`}>Set up Homepage</a>
       </div>
     </section>
@@ -228,7 +234,7 @@ function itemUrl(type: string, slug: string) {
     <div class="home-col-main">
 
   {!hasContent && !hasHomeBlocks && (
-    <section class="home-empty">
+    <section class="home-empty eo-admin-only" hidden>
       <div class="empty-card">
         <div class="empty-icon">⊡</div>
         <h2>Nothing published yet</h2>
@@ -238,10 +244,9 @@ function itemUrl(type: string, slug: string) {
     </section>
   )}
 
-  {/* ── Fallback sections: only show if homepage doesn't use content-feed blocks ── */}
-  {!hasContentFeedBlocks && (
-    <>
-      {wikiEntries.length > 0 && (
+  {/* ── Fallback sections: show content types not covered by explicit content-feed blocks ── */}
+  <>
+      {wikiEntries.length > 0 && !coveredContentTypes.has('wiki') && (
         <section class="home-section">
           <div class="section-header">
             <h2 class="section-title"><i class="ph ph-book-open-text section-icon"></i> Wiki</h2>
@@ -266,7 +271,7 @@ function itemUrl(type: string, slug: string) {
         </section>
       )}
 
-      {blogEntries.length > 0 && (
+      {blogEntries.length > 0 && !coveredContentTypes.has('blog') && (
         <section class="home-section">
           <div class="section-header">
             <h2 class="section-title"><i class="ph ph-pen-nib section-icon"></i> Blog</h2>
@@ -289,7 +294,7 @@ function itemUrl(type: string, slug: string) {
         </section>
       )}
 
-      {expEntries.length > 0 && (
+      {expEntries.length > 0 && !coveredContentTypes.has('experiment') && (
         <section class="home-section">
           <div class="section-header">
             <h2 class="section-title"><i class="ph ph-flask section-icon"></i> Experiments</h2>
@@ -305,7 +310,7 @@ function itemUrl(type: string, slug: string) {
         </section>
       )}
 
-      {pageEntries.length > 0 && (
+      {pageEntries.length > 0 && !coveredContentTypes.has('page') && (
         <section class="home-section">
           <div class="section-header">
             <h2 class="section-title"><i class="ph ph-file-text section-icon"></i> Pages</h2>
@@ -318,7 +323,6 @@ function itemUrl(type: string, slug: string) {
         </section>
       )}
     </>
-  )}
 
   {/* ── Tags ── */}
   {allTags.length > 0 && (
@@ -409,6 +413,19 @@ function itemUrl(type: string, slug: string) {
         btn.addEventListener('click', function(e) { e.preventDefault(); cycle(); });
       });
     });
+  })();
+  </script>
+
+  <!-- Show admin-only elements when logged in -->
+  <script is:inline>
+  (function() {
+    try {
+      if (localStorage.getItem('eo_xano_auth') === '1') {
+        document.querySelectorAll('.eo-admin-only').forEach(function(el) {
+          el.removeAttribute('hidden');
+        });
+      }
+    } catch(e) {}
   })();
   </script>
 
