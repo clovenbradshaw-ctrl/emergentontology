@@ -20,7 +20,8 @@
   var baseEl = document.querySelector('base');
   var BASE = baseEl ? baseEl.getAttribute('href').replace(/\/$/, '') : '';
   var XANO_PUBLIC = 'https://xvkq-pq7i-idtl.n7d.xano.io/api:GGzWIVAW';
-  var XANO_CURRENT = XANO_PUBLIC + '/get_eowikicurrent';
+  var N8N_CURRENT = 'https://n8n.intelechia.com/webhook/81ca952a-3387-4837-8bcd-d18e3d28e758';
+  var XANO_CURRENT = N8N_CURRENT;
 
   var OPERATORS = [
     { num: 1, symbol: '\u2205', code: 'NUL', greek: '\u03BD', label: 'Absence & Nullity', color: '#9ca3af', slug: 'nul' },
@@ -180,6 +181,7 @@
     if (parts[0] === 'blog')  return parts[1] ? { page: 'blog', slug: parts[1] } : { page: 'blog-list' };
     if (parts[0] === 'exp')   return parts[1] ? { page: 'exp',  slug: parts[1] } : { page: 'exp-list' };
     if (parts[0] === 'page' && parts[1]) return { page: 'page', slug: parts[1] };
+    if (parts[0] === 'all') return { page: 'all' };
     if (parts[0] === 'admin') return { page: 'admin' };
 
     return { page: '404' };
@@ -809,6 +811,108 @@
     });
   }
 
+  // ── All Content (printable) ──
+
+  function renderAll(el) {
+    setTitle('All Content');
+    setBreadcrumbs([{ label: 'All Content', href: BASE + '/all/' }]);
+    el.className = 'all-content';
+
+    var entries = (siteIndex.entries || []).filter(function (e) {
+      return e.visibility === 'public' && e.status !== 'archived';
+    });
+
+    var wikis = entries.filter(function (e) { return e.content_type === 'wiki'; });
+    var blogs = entries.filter(function (e) { return e.content_type === 'blog'; });
+    var pages = entries.filter(function (e) { return e.content_type === 'page'; });
+
+    // Load all content in parallel
+    var allEntries = wikis.concat(blogs).concat(pages);
+    var loads = allEntries.map(function (e) {
+      return loadContent(e.content_id).then(function (content) {
+        return { entry: e, content: content };
+      });
+    });
+
+    el.innerHTML = '<div class="all-loading"><p>Loading all content\u2026</p></div>';
+
+    return Promise.all(loads).then(function (results) {
+      var h = '<div class="all-header">';
+      h += '<h1>All Content</h1>';
+      h += '<p class="all-stats">' + results.length + ' article' + (results.length !== 1 ? 's' : '') + '</p>';
+      h += '<button class="btn btn-primary all-print-btn" onclick="window.print()">Print / Save PDF</button>';
+      h += '</div>';
+
+      // Group by type
+      var groups = [
+        { label: 'Wiki', items: results.filter(function (r) { return r.entry.content_type === 'wiki'; }) },
+        { label: 'Blog', items: results.filter(function (r) { return r.entry.content_type === 'blog'; }) },
+        { label: 'Pages', items: results.filter(function (r) { return r.entry.content_type === 'page'; }) }
+      ];
+
+      // Table of contents
+      h += '<nav class="all-toc"><h2>Table of Contents</h2><ol>';
+      groups.forEach(function (g) {
+        if (g.items.length === 0) return;
+        h += '<li><strong>' + g.label + '</strong><ol>';
+        g.items.forEach(function (r) {
+          var anchor = (r.entry.content_id || '').replace(/[^a-z0-9]+/gi, '-');
+          h += '<li><a href="#all-' + anchor + '">' + esc(r.entry.title) + '</a></li>';
+        });
+        h += '</ol></li>';
+      });
+      h += '</ol></nav>';
+
+      // Render each article
+      groups.forEach(function (g) {
+        if (g.items.length === 0) return;
+        h += '<section class="all-section"><h2 class="all-section-title">' + esc(g.label) + '</h2>';
+
+        g.items.forEach(function (r) {
+          var anchor = (r.entry.content_id || '').replace(/[^a-z0-9]+/gi, '-');
+          h += '<article class="all-article" id="all-' + anchor + '">';
+          h += '<header class="all-article-header"><h3>' + esc(r.entry.title) + '</h3>';
+          h += '<a class="all-article-link" href="' + contentUrl(r.entry.content_type, r.entry.slug) + '">' + esc(r.entry.content_type) + '/' + esc(r.entry.slug) + '</a>';
+          if (r.entry.tags && r.entry.tags.length) {
+            h += '<div class="all-article-tags">';
+            r.entry.tags.forEach(function (t) { h += '<span class="tag">' + esc(t) + '</span>'; });
+            h += '</div>';
+          }
+          h += '</header>';
+          h += '<div class="all-article-body">';
+
+          if (r.content) {
+            if (r.entry.content_type === 'wiki' || r.entry.content_type === 'blog') {
+              var rev = r.content.current_revision;
+              if (rev && rev.content) {
+                h += (rev.format === 'html') ? rev.content : md(rev.content);
+              } else {
+                h += '<p class="empty-page">No content yet.</p>';
+              }
+            } else if (r.entry.content_type === 'page') {
+              var blocks = r.content.blocks || [];
+              var order = r.content.block_order || [];
+              var blockMap = {};
+              blocks.forEach(function (b) { blockMap[b.block_id] = b; });
+              order.forEach(function (id) {
+                var block = blockMap[id];
+                if (block && !block.deleted) h += renderBlock(block, r.content);
+              });
+            }
+          } else {
+            h += '<p class="empty-page">Content not available.</p>';
+          }
+
+          h += '</div></article>';
+        });
+
+        h += '</section>';
+      });
+
+      el.innerHTML = h;
+    });
+  }
+
   // ── 404 ──
 
   function render404(el) {
@@ -857,6 +961,7 @@
         case 'exp-list':  return renderExpList(main);
         case 'exp':       return renderExp(main, route.slug);
         case 'page':      return renderPage(main, route.slug);
+        case 'all':       return renderAll(main);
         default:          render404(main); return Promise.resolve();
       }
     }).then(function () {
