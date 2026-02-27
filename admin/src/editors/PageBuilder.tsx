@@ -40,6 +40,7 @@ import {
 import { loadState, applyFreshnessUpdate } from '../xano/stateCache';
 import { insBlock, altBlock, nulBlock } from '../eo/events';
 import type { Block } from '../eo/types';
+import MetadataBar from '../components/MetadataBar';
 
 // ── Sub-block types for columns ──────────────────────────────────────────────
 
@@ -505,6 +506,7 @@ export default function PageBuilder({ contentId, siteBase }: Props) {
 
   return (
     <div className="page-builder">
+      <MetadataBar contentId={contentId} />
       {error && <div className="error-banner">{error} <button onClick={() => setError(null)}>×</button></div>}
 
       <div className="builder-toolbar">

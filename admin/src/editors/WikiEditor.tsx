@@ -22,6 +22,7 @@ import { loadState, fetchCurrentRecordCached, applyFreshnessUpdate } from '../xa
 import { insRevision } from '../eo/events';
 import type { WikiRevision, ContentMeta } from '../eo/types';
 import RichTextEditor from './RichTextEditor';
+import MetadataBar from '../components/MetadataBar';
 
 interface WikiState {
   meta: Partial<ContentMeta>;
@@ -204,12 +205,8 @@ export default function WikiEditor({ contentId, siteBase }: Props) {
 
   return (
     <div className="wiki-editor">
+      <MetadataBar contentId={contentId} />
       <div className="editor-toolbar">
-        <span className="editor-title">{state?.meta.title ?? contentId}</span>
-        <div className="editor-status-badges">
-          <span className={`badge badge-${state?.meta.status ?? 'draft'}`}>{state?.meta.status ?? 'draft'}</span>
-          <span className={`badge badge-${state?.meta.visibility ?? 'private'}`}>{state?.meta.visibility ?? 'private'}</span>
-        </div>
         {isDirty && <span className="dirty-indicator">Unsaved changes</span>}
       </div>
 
