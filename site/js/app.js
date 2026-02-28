@@ -107,35 +107,100 @@
       return fetch(XANO_CURRENT, { signal: controller.signal })
         .then(function (r) { clearTimeout(timer); return r.ok ? r.json() : null; })
         .then(function (records) {
-          if (!Array.isArray(records)) return null;
+          if (!Array.isArray(records)) {
+            console.warn('[eo] API response is not an array:', typeof records);
+            return null;
+          }
           _xanoRecords = dedup(records);
+          console.log('[eo] API returned', records.length, 'records, deduped to', Object.keys(_xanoRecords).length, ':', Object.keys(_xanoRecords).join(', '));
           return _xanoRecords;
-        }).catch(function (e) { clearTimeout(timer); console.warn('Xano fetch failed:', e); return null; });
+        }).catch(function (e) { clearTimeout(timer); console.warn('[eo] API fetch failed:', e); return null; });
     } catch (e) {
       console.warn('Xano fetch setup failed:', e);
       return Promise.resolve(null);
     }
   }
 
+  /** Build an index dynamically from content records (no site:index needed). */
+  function synthesizeIndex(map) {
+    var CONTENT_TYPES = { wiki: true, blog: true, page: true, experiment: true };
+    var entries = [];
+
+    Object.keys(map).forEach(function (recordId) {
+      var parts = recordId.split(':');
+      if (parts.length !== 2 || !CONTENT_TYPES[parts[0]]) return;
+
+      var contentType = parts[0];
+      var slug = parts[1];
+      var meta = null;
+      try {
+        var parsed = JSON.parse(map[recordId].values);
+        meta = parsed.meta || null;
+      } catch (e) { /* skip unparseable */ }
+
+      entries.push({
+        content_id: recordId,
+        slug: (meta && meta.slug) || slug,
+        title: (meta && meta.title) || slug.replace(/-/g, ' ').replace(/\b\w/g, function (c) { return c.toUpperCase(); }),
+        content_type: contentType,
+        status: (meta && meta.status) || 'published',
+        visibility: (meta && meta.visibility) || 'public',
+        tags: (meta && meta.tags) || []
+      });
+    });
+
+    var nav = entries.filter(function (e) {
+      return e.status === 'published' && e.visibility === 'public';
+    });
+    var slug_map = {};
+    entries.forEach(function (e) { slug_map[e.slug] = e.content_id; });
+
+    return { entries: entries, nav: nav, slug_map: slug_map, built_at: new Date().toISOString() };
+  }
+
   function loadIndex() {
     if (siteIndex) return Promise.resolve(siteIndex);
 
-    // Try generated JSON first; fall back to Xano API
+    // Try generated JSON first; fall back to API
     return fetchJson(BASE + '/generated/state/index.json').then(function (data) {
-      if (data) { siteIndex = data; return data; }
+      if (data && data.entries && data.entries.length > 0) {
+        console.log('[eo] Index from generated JSON:', data.entries.length, 'entries');
+        siteIndex = data;
+        return data;
+      }
       return loadXanoRecords().then(function (map) {
-        if (!map || !map['site:index']) return emptyIndex();
-        try {
-          var raw = JSON.parse(map['site:index'].values);
-          // Ensure nav exists (synthesize from entries if missing)
-          if (!raw.nav && raw.entries) {
-            raw.nav = raw.entries.filter(function (e) {
-              return e.status === 'published' && e.visibility === 'public';
-            });
-          }
-          siteIndex = raw;
+        if (!map) {
+          console.warn('[eo] API returned no data');
+          return emptyIndex();
+        }
+
+        // Try site:index record first (curated ordering)
+        if (map['site:index']) {
+          try {
+            var raw = JSON.parse(map['site:index'].values);
+            if (raw.entries && raw.entries.length > 0) {
+              if (!raw.nav) {
+                raw.nav = raw.entries.filter(function (e) {
+                  return e.status === 'published' && e.visibility === 'public';
+                });
+              }
+              console.log('[eo] Index from site:index record:', raw.entries.length, 'entries');
+              siteIndex = raw;
+              return siteIndex;
+            }
+          } catch (e) { /* fall through to synthesis */ }
+        }
+
+        // Synthesize index from content records
+        var synth = synthesizeIndex(map);
+        if (synth.entries.length > 0) {
+          console.log('[eo] Index synthesized from', synth.entries.length, 'content records');
+          siteIndex = synth;
           return siteIndex;
-        } catch (e) { return emptyIndex(); }
+        }
+
+        console.warn('[eo] No content records found in API response');
+        return emptyIndex();
       });
     });
   }
