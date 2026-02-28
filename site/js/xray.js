@@ -24,6 +24,24 @@
     CON: '⋈', SYN: '∨', SUP: '⊕', REC: '⟳', NUL: '∅',
   };
 
+  // ── Relative timestamp ──────────────────────────────────────────────────────
+  function timeAgo(ts) {
+    if (!ts) return '';
+    var seconds = Math.floor((Date.now() - new Date(ts).getTime()) / 1000);
+    if (seconds < 60) return 'just now';
+    var minutes = Math.floor(seconds / 60);
+    if (minutes < 60) return minutes + 'm ago';
+    var hours = Math.floor(minutes / 60);
+    if (hours < 24) return hours + 'h ago';
+    var days = Math.floor(hours / 24);
+    if (days < 7) return days + 'd ago';
+    var weeks = Math.floor(days / 7);
+    if (weeks < 5) return weeks + 'w ago';
+    var months = Math.floor(days / 30);
+    if (months < 12) return months + 'mo ago';
+    return Math.floor(days / 365) + 'y ago';
+  }
+
   // ── Create toggle button ────────────────────────────────────────────────────
   const btn = document.createElement('button');
   btn.id = 'xray-toggle';
@@ -212,7 +230,7 @@
           <div style="display:flex;align-items:center;gap:6px">
             <span style="color:${color};font-weight:700;font-size:14px">${sym}</span>
             <span style="color:${color};font-weight:600">${entry.op}</span><span style="color:#aaa">(</span><span style="color:#888;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${target}${summary}</span><span style="color:#aaa">)</span>
-            <span style="color:#555;font-size:10px;margin-left:auto;flex-shrink:0">${new Date(entry.ts).toLocaleTimeString()}</span>
+            <span style="color:#555;font-size:10px;margin-left:auto;flex-shrink:0">${timeAgo(entry.ts)}</span>
           </div>
         `;
         body.appendChild(row);
@@ -224,7 +242,7 @@
       topo.innerHTML = `
         <strong style="color:#7c6fcd">${data.content_id ?? ''}</strong>
         &nbsp;·&nbsp; ${data.content_type ?? ''} &nbsp;·&nbsp; ${history.length} events
-        &nbsp;·&nbsp; built <span style="color:#aaa">${data.meta?.updated_at ? new Date(data.meta.updated_at).toLocaleDateString() : 'unknown'}</span>
+        &nbsp;·&nbsp; built <span style="color:#aaa">${data.meta?.updated_at ? timeAgo(data.meta.updated_at) : 'unknown'}</span>
       `;
       body.insertBefore(topo, body.firstChild);
     } catch {

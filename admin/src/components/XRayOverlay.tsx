@@ -73,6 +73,24 @@ export function useXRay() {
   return useContext(XRayContext);
 }
 
+// ── Relative timestamp ───────────────────────────────────────────────────────
+
+function timeAgo(ts: string): string {
+  const seconds = Math.floor((Date.now() - new Date(ts).getTime()) / 1000);
+  if (seconds < 60) return 'just now';
+  const minutes = Math.floor(seconds / 60);
+  if (minutes < 60) return minutes + 'm ago';
+  const hours = Math.floor(minutes / 60);
+  if (hours < 24) return hours + 'h ago';
+  const days = Math.floor(hours / 24);
+  if (days < 7) return days + 'd ago';
+  const weeks = Math.floor(days / 7);
+  if (weeks < 5) return weeks + 'w ago';
+  const months = Math.floor(days / 30);
+  if (months < 12) return months + 'mo ago';
+  return Math.floor(days / 365) + 'y ago';
+}
+
 // ── Panel UI ──────────────────────────────────────────────────────────────────
 
 const OP_COLORS: Record<EOOp | string, string> = {
@@ -205,7 +223,7 @@ function EventRow({ event }: { event: XRayEvent }) {
             {JSON.stringify(event.operand, null, 2)}
           </pre>
           <div style={{ color: '#555', marginTop: '4px', fontSize: '10px' }}>
-            {event.ts} · {event.agent}
+            {timeAgo(event.ts)} · {event.agent}
           </div>
           {event.error && <div style={{ color: '#f87171', marginTop: '4px' }}>Error: {event.error}</div>}
         </div>
@@ -230,7 +248,7 @@ function HistoryRow({ entry }: { entry: HistoryEntry }) {
         <span style={{ color: '#aaa', flex: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
           {entry.target ?? entry.event_id}
         </span>
-        <span style={{ color: '#555', fontSize: '10px' }}>{new Date(entry.ts).toLocaleTimeString()}</span>
+        <span style={{ color: '#555', fontSize: '10px' }}>{timeAgo(entry.ts)}</span>
       </div>
       {open && (
         <div style={{ marginTop: '4px', color: '#888', fontSize: '11px' }}>
