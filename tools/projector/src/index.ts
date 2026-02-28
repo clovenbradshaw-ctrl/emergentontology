@@ -10,8 +10,9 @@
  *   SITE_BASE_URL    default: "" (relative, works for any gh-pages path)
  */
 
-import { mkdirSync, writeFileSync } from 'fs';
+import { mkdirSync, readFileSync, writeFileSync } from 'fs';
 import { join } from 'path';
+import yaml from 'js-yaml';
 
 import type {
   BuildConfig,
@@ -350,6 +351,20 @@ async function main() {
   console.log(`[projector] Writing ${projectedContents.length} content files…`);
   renderStateFiles(siteIndex, projectedContents, cfg);
   renderSearchIndex(projectedContents, cfg);
+
+  // ── 5. Write home config from home.yaml ────────────────────────────────
+  try {
+    const homeYamlPath = join(import.meta.dirname, '..', '..', '..', 'home.yaml');
+    const homeConfig = yaml.load(readFileSync(homeYamlPath, 'utf-8'));
+    writeFileSync(
+      join(cfg.out_dir, 'home.json'),
+      JSON.stringify(homeConfig, null, 2),
+      'utf-8',
+    );
+    console.log(`[projector] Wrote home.json from home.yaml`);
+  } catch (err) {
+    console.warn('[projector] Could not read home.yaml:', err);
+  }
 
   writeFileSync(
     join(cfg.out_dir, 'build-manifest.json'),
