@@ -57,6 +57,7 @@ export default function WikiEditor({ contentId, siteBase }: Props) {
   const [editorContent, setEditorContent] = useState('');
   const [summary, setSummary] = useState('');
   const [isDirty, setIsDirty] = useState(false);
+  const savedContentRef = useRef(''); // tracks last-saved editor HTML for dirty detection
   const [contentEntries, setContentEntries] = useState<ContentEntry[]>([]);
 
   // ── Load current state from Xano (with static snapshot fallback) ──────────
@@ -92,6 +93,7 @@ export default function WikiEditor({ contentId, siteBase }: Props) {
         if (rev) {
           const html = rev.format === 'markdown' ? mdToHtml(rev.content) : rev.content;
           setEditorContent(html);
+          savedContentRef.current = html;
         }
 
         // 2. Background freshness check: look for newer events in the log
@@ -107,6 +109,7 @@ export default function WikiEditor({ contentId, siteBase }: Props) {
             if (rev) {
               const html = rev.format === 'markdown' ? mdToHtml(rev.content) : rev.content;
               setEditorContent(html);
+              savedContentRef.current = html;
             }
           }).catch(() => { /* best-effort freshness check */ });
         }
@@ -149,6 +152,13 @@ export default function WikiEditor({ contentId, siteBase }: Props) {
 
   async function save() {
     if (!isAuthenticated || !isDirty) return;
+
+    // Don't create a revision if content hasn't actually changed
+    if (editorContent === savedContentRef.current) {
+      setIsDirty(false);
+      return;
+    }
+
     setSaving(true);
     setError(null);
 
@@ -184,6 +194,7 @@ export default function WikiEditor({ contentId, siteBase }: Props) {
       currentRecordRef.current = updated;
 
       setState(updatedState);
+      savedContentRef.current = editorContent;
       setIsDirty(false);
       setSummary('');
     } catch (err) {
@@ -199,7 +210,7 @@ export default function WikiEditor({ contentId, siteBase }: Props) {
 
   function handleContentChange(html: string) {
     setEditorContent(html);
-    setIsDirty(true);
+    setIsDirty(html !== savedContentRef.current);
   }
 
   // ── Restore revision ───────────────────────────────────────────────────────
