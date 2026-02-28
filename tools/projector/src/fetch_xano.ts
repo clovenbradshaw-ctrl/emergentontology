@@ -75,8 +75,17 @@ export async function fetchCurrentRecordByRecordId(
     throw new Error(`Xano single-record fetch failed: HTTP ${resp.status} — ${body}`);
   }
   const data = await resp.json();
-  const records: XanoCurrentRecord[] = Array.isArray(data) ? data : [data];
-  return records[0] ?? null;
+  const records: XanoCurrentRecord[] = Array.isArray(data) ? data : data ? [data] : [];
+  // Filter to only records matching the requested record_id — in case
+  // the server-side filter is ignored and all records are returned.
+  const matching = records.filter((r) => r && r.record_id === recordId);
+  if (matching.length === 0) return null;
+  if (matching.length === 1) return matching[0];
+  return matching.reduce((best, r) => {
+    const bestTime = new Date(best.lastModified).getTime() || 0;
+    const rTime = new Date(r.lastModified).getTime() || 0;
+    return rTime > bestTime ? r : best;
+  });
 }
 
 /** Query filters for the eowikicurrent endpoint. */

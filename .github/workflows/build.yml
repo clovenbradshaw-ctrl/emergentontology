@@ -83,6 +83,10 @@ jobs:
         working-directory: admin
         run: npm install
 
+      - name: Run admin tests
+        working-directory: admin
+        run: npm test
+
       - name: Build admin SPA
         working-directory: admin
         env:

@@ -53,8 +53,14 @@ function fetchJson(url) {
  * Uses the server-side ?record_id= filter so we don't download everything.
  * Returns the parsed record object, or null on failure.
  */
-function fetchXanoRecord(recordId) {
+function fetchXanoRecord(recordId, extraParams) {
   var url = XANO_PUBLIC + '?record_id=' + encodeURIComponent(recordId);
+  if (extraParams) {
+    var keys = Object.keys(extraParams);
+    for (var i = 0; i < keys.length; i++) {
+      url += '&' + encodeURIComponent(keys[i]) + '=' + encodeURIComponent(extraParams[keys[i]]);
+    }
+  }
 
   var controller = new AbortController();
   var timer = setTimeout(function () { controller.abort(); }, API_TIMEOUT);
@@ -68,8 +74,11 @@ function fetchXanoRecord(recordId) {
     .then(function (data) {
       if (!data) return null;
       // Xano may return a single object or an array
-      if (Array.isArray(data)) return data[0] || null;
-      return data;
+      var records = Array.isArray(data) ? data : [data];
+      // Filter to only records matching the requested record_id — in case
+      // the server ignores the filter and returns all records
+      var matches = records.filter(function (r) { return r && r.record_id === recordId; });
+      return matches[0] || null;
     })
     .catch(function (e) {
       clearTimeout(timer);
