@@ -421,11 +421,14 @@ var OPERATORS = [
   { sym:'\u27F3', name:'REC', triad:'i', slug:'rec', label:'Recursion' }
 ];
 
-var siteData = {}, siteIndex = null, allPages = [];
+var siteData = {}, siteIndex = null, allPages = [], homeConfig = null;
 
 // ── Data Loading ──────────────────────────────────────────────────────────────
 
 function loadData() {
+  // Load home config from generated YAML→JSON in parallel
+  fetchJson('generated/home.json').then(function(data) { if (data) homeConfig = data; });
+
   // Try static JSON first, then fall back to API
   fetchJson('generated/state/index.json')
     .then(function(staticIndex) {
@@ -571,10 +574,18 @@ function renderHome() {
   var blogs = filterPages('blog');
   var exps = filterPages('experiment');
 
+  // Hero — read from home.yaml config (generated/home.json), fall back to defaults
+  var heroTitle = (homeConfig && homeConfig.hero && homeConfig.hero.title)
+    ? esc(homeConfig.hero.title.replace(/\n+$/, '')).replace(/\n/g, '<br>')
+    : 'A framework that changes everything<br>about everything that changes';
+  var heroBadge = (homeConfig && homeConfig.hero && homeConfig.hero.badge)
+    ? esc(homeConfig.hero.badge)
+    : 'Emergent Ontology (EO)';
+
   var h = '<div class="fade-in">';
   h += '<div class="hero">';
-  h += '<div class="hero-badge">Emergent Ontology (EO)</div>';
-  h += '<h1>A framework that changes everything<br>about everything that changes</h1>';
+  h += '<div class="hero-badge">' + heroBadge + '</div>';
+  h += '<h1>' + heroTitle + '</h1>';
   h += '</div>';
   h += '<div class="home-sections"><div class="home-left">';
 

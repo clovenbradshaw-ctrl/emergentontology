@@ -30,10 +30,12 @@ var _siteIndex = null;
 var _contentCache = {};
 var _apiRecords = null;      // deduped map of record_id → record (legacy full-fetch)
 var _apiPromise = null;      // in-flight API fetch (prevents duplicate requests)
+var _homeConfig = null;
 
 // ── Public getters ───────────────────────────────────────────────────────────
 
 export function getSiteIndex() { return _siteIndex; }
+export function getHomeConfig() { return _homeConfig; }
 
 // ── JSON fetch helper ────────────────────────────────────────────────────────
 
@@ -159,6 +161,25 @@ function parseTime(val) {
   return isNaN(t) ? 0 : t;
 }
 
+// ── Home config loading ──────────────────────────────────────────────────────
+
+/**
+ * Load the homepage config from generated/home.json (built from home.yaml).
+ * Populates _homeConfig with hero, operators, sections from the YAML.
+ */
+export function loadHomeConfig() {
+  if (_homeConfig) return Promise.resolve(_homeConfig);
+  return fetchJson(BASE + '/generated/home.json')
+    .then(function (data) {
+      if (data) {
+        _homeConfig = data;
+        console.log('[eo] Loaded home config');
+      }
+      return _homeConfig;
+    })
+    .catch(function () { return null; });
+}
+
 // ── Index loading ────────────────────────────────────────────────────────────
 
 /**
@@ -173,6 +194,9 @@ function parseTime(val) {
  */
 export function loadIndex() {
   if (_siteIndex) return Promise.resolve(_siteIndex);
+
+  // Load home config in parallel with the index
+  loadHomeConfig();
 
   return fetchJson(BASE + '/generated/state/index.json')
     .then(function (data) {

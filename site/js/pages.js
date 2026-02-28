@@ -6,7 +6,7 @@
  */
 
 import { BASE, OPERATORS } from './config.js';
-import { getSiteIndex, loadContent } from './api.js';
+import { getSiteIndex, getHomeConfig, loadContent } from './api.js';
 import { contentUrl } from './router.js';
 import {
   esc, md, setBreadcrumbs, setTitle, renderBlock,
@@ -57,10 +57,17 @@ export function renderHome(el) {
 
   var h = '';
 
-  // Hero
+  // Hero — read from home.yaml config (generated/home.json), fall back to defaults
+  var home = getHomeConfig();
+  var heroTitle = (home && home.hero && home.hero.title)
+    ? esc(home.hero.title.replace(/\n+$/, '')).replace(/\n/g, '<br>')
+    : 'A framework that changes everything<br>about everything that changes';
+  var heroBadge = (home && home.hero && home.hero.badge)
+    ? esc(home.hero.badge)
+    : 'Emergent Ontology (EO)';
   h += '<section class="home-hero">';
-  h += '<div class="hero-badge">Emergent Ontology (EO)</div>';
-  h += '<h1 class="hero-title">A framework that changes everything<br>about everything that changes</h1>';
+  h += '<div class="hero-badge">' + heroBadge + '</div>';
+  h += '<h1 class="hero-title">' + heroTitle + '</h1>';
   h += '</section>';
 
   // Two-column layout
