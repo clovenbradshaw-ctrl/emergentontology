@@ -195,7 +195,7 @@
     .ops-grid {
       display: grid;
       grid-template-columns: repeat(3, 1fr);
-      gap: 3px;
+      gap: 10px;
     }
     .ops-cell {
       position: relative;
@@ -206,18 +206,19 @@
       justify-content: center;
       background: var(--bg2);
       border: 1px solid var(--border);
-      border-radius: 12px;
-      padding: 12px;
+      border-top: 3px solid var(--op-color, var(--accent));
+      border-radius: 10px;
+      padding: 14px 12px;
       cursor: pointer;
-      transition: all 0.3s ease;
+      transition: border-color .2s, background .2s, transform .15s, box-shadow .2s;
       text-decoration: none;
       color: inherit;
     }
     .ops-cell:hover {
       background: var(--bg3);
-      border-color: var(--accent);
-      transform: scale(1.03);
-      box-shadow: 0 0 24px var(--shadow-color);
+      border-color: var(--op-color, var(--accent));
+      transform: scale(1.04);
+      box-shadow: 0 0 20px color-mix(in srgb, var(--op-color, var(--accent)) 20%, transparent);
     }
     .ops-symbol {
       font-size: clamp(2rem, 6vw, 3.5rem);
@@ -229,12 +230,12 @@
       font-weight: 700;
       letter-spacing: 0.15em;
       text-transform: uppercase;
-      color: var(--text-dim);
+      color: var(--text);
       margin-bottom: 4px;
       font-family: var(--font-mono);
     }
     .ops-label {
-      font-size: clamp(0.55rem, 1.4vw, 0.72rem);
+      font-size: clamp(0.58rem, 1.4vw, 0.75rem);
       color: var(--text-dim);
       text-align: center;
       line-height: 1.3;
@@ -243,8 +244,8 @@
       position: absolute;
       top: 8px;
       left: 10px;
-      font-size: 0.6rem;
-      color: var(--border);
+      font-size: 0.65rem;
+      color: color-mix(in srgb, var(--op-color, var(--text-dim)) 60%, var(--text-dim));
       font-weight: 600;
       font-family: var(--font-mono);
     }
@@ -339,15 +340,15 @@
         <svg width="12" height="12" viewBox="0 0 12 12" fill="none" aria-hidden="true"><path d="M3 5l3 3 3-3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
       </button>
       <div class="ops-grid" id="ops-grid" data-mode="runes">
-        <a class="ops-cell" href="wiki/nul/"><span class="ops-num">1</span><div class="ops-symbol ops-symbol--rune" style="color:#9ca3af">∅</div><div class="ops-symbol ops-symbol--greek" style="color:#9ca3af">ν</div><div class="ops-symbol ops-symbol--code" style="color:#9ca3af">NUL</div><div class="ops-code">NUL</div><div class="ops-label">Absence &amp; Nullity</div></a>
-        <a class="ops-cell" href="wiki/des/"><span class="ops-num">2</span><div class="ops-symbol ops-symbol--rune" style="color:#60a5fa">⊡</div><div class="ops-symbol ops-symbol--greek" style="color:#60a5fa">δ</div><div class="ops-symbol ops-symbol--code" style="color:#60a5fa">DES</div><div class="ops-code">DES</div><div class="ops-label">Designation &amp; Definition</div></a>
-        <a class="ops-cell" href="wiki/ins/"><span class="ops-num">3</span><div class="ops-symbol ops-symbol--rune" style="color:#4ade80">△</div><div class="ops-symbol ops-symbol--greek" style="color:#4ade80">ι</div><div class="ops-symbol ops-symbol--code" style="color:#4ade80">INS</div><div class="ops-code">INS</div><div class="ops-label">Instantiation</div></a>
-        <a class="ops-cell" href="wiki/seg/"><span class="ops-num">4</span><div class="ops-symbol ops-symbol--rune" style="color:#c084fc">｜</div><div class="ops-symbol ops-symbol--greek" style="color:#c084fc">σ</div><div class="ops-symbol ops-symbol--code" style="color:#c084fc">SEG</div><div class="ops-code">SEG</div><div class="ops-label">Segmentation</div></a>
-        <a class="ops-cell" href="wiki/con/"><span class="ops-num">5</span><div class="ops-symbol ops-symbol--rune" style="color:#34d399">⋈</div><div class="ops-symbol ops-symbol--greek" style="color:#34d399">κ</div><div class="ops-symbol ops-symbol--code" style="color:#34d399">CON</div><div class="ops-code">CON</div><div class="ops-label">Connection</div></a>
-        <a class="ops-cell" href="wiki/syn/"><span class="ops-num">6</span><div class="ops-symbol ops-symbol--rune" style="color:#818cf8">∨</div><div class="ops-symbol ops-symbol--greek" style="color:#818cf8">ψ</div><div class="ops-symbol ops-symbol--code" style="color:#818cf8">SYN</div><div class="ops-code">SYN</div><div class="ops-label">Synthesis</div></a>
-        <a class="ops-cell" href="wiki/alt/"><span class="ops-num">7</span><div class="ops-symbol ops-symbol--rune" style="color:#fbbf24">∿</div><div class="ops-symbol ops-symbol--greek" style="color:#fbbf24">δ</div><div class="ops-symbol ops-symbol--code" style="color:#fbbf24">ALT</div><div class="ops-code">ALT</div><div class="ops-label">Alternation</div></a>
-        <a class="ops-cell" href="wiki/sup/"><span class="ops-num">8</span><div class="ops-symbol ops-symbol--rune" style="color:#f472b6">∥</div><div class="ops-symbol ops-symbol--greek" style="color:#f472b6">φ</div><div class="ops-symbol ops-symbol--code" style="color:#f472b6">SUP</div><div class="ops-code">SUP</div><div class="ops-label">Superposition</div></a>
-        <a class="ops-cell" href="wiki/rec/"><span class="ops-num">9</span><div class="ops-symbol ops-symbol--rune" style="color:#fb923c">⟳</div><div class="ops-symbol ops-symbol--greek" style="color:#fb923c">ρ</div><div class="ops-symbol ops-symbol--code" style="color:#fb923c">REC</div><div class="ops-code">REC</div><div class="ops-label">Recursion</div></a>
+        <a class="ops-cell" href="wiki/nul/" style="--op-color:#9ca3af"><span class="ops-num">1</span><div class="ops-symbol ops-symbol--rune" style="color:#9ca3af">∅</div><div class="ops-symbol ops-symbol--greek" style="color:#9ca3af">ν</div><div class="ops-symbol ops-symbol--code" style="color:#9ca3af">NUL</div><div class="ops-code">NUL</div><div class="ops-label">Absence &amp; Nullity</div></a>
+        <a class="ops-cell" href="wiki/des/" style="--op-color:#60a5fa"><span class="ops-num">2</span><div class="ops-symbol ops-symbol--rune" style="color:#60a5fa">⊡</div><div class="ops-symbol ops-symbol--greek" style="color:#60a5fa">δ</div><div class="ops-symbol ops-symbol--code" style="color:#60a5fa">DES</div><div class="ops-code">DES</div><div class="ops-label">Designation &amp; Definition</div></a>
+        <a class="ops-cell" href="wiki/ins/" style="--op-color:#4ade80"><span class="ops-num">3</span><div class="ops-symbol ops-symbol--rune" style="color:#4ade80">△</div><div class="ops-symbol ops-symbol--greek" style="color:#4ade80">ι</div><div class="ops-symbol ops-symbol--code" style="color:#4ade80">INS</div><div class="ops-code">INS</div><div class="ops-label">Instantiation</div></a>
+        <a class="ops-cell" href="wiki/seg/" style="--op-color:#c084fc"><span class="ops-num">4</span><div class="ops-symbol ops-symbol--rune" style="color:#c084fc">｜</div><div class="ops-symbol ops-symbol--greek" style="color:#c084fc">σ</div><div class="ops-symbol ops-symbol--code" style="color:#c084fc">SEG</div><div class="ops-code">SEG</div><div class="ops-label">Segmentation</div></a>
+        <a class="ops-cell" href="wiki/con/" style="--op-color:#34d399"><span class="ops-num">5</span><div class="ops-symbol ops-symbol--rune" style="color:#34d399">⋈</div><div class="ops-symbol ops-symbol--greek" style="color:#34d399">κ</div><div class="ops-symbol ops-symbol--code" style="color:#34d399">CON</div><div class="ops-code">CON</div><div class="ops-label">Connection</div></a>
+        <a class="ops-cell" href="wiki/syn/" style="--op-color:#818cf8"><span class="ops-num">6</span><div class="ops-symbol ops-symbol--rune" style="color:#818cf8">∨</div><div class="ops-symbol ops-symbol--greek" style="color:#818cf8">ψ</div><div class="ops-symbol ops-symbol--code" style="color:#818cf8">SYN</div><div class="ops-code">SYN</div><div class="ops-label">Synthesis</div></a>
+        <a class="ops-cell" href="wiki/alt/" style="--op-color:#fbbf24"><span class="ops-num">7</span><div class="ops-symbol ops-symbol--rune" style="color:#fbbf24">∿</div><div class="ops-symbol ops-symbol--greek" style="color:#fbbf24">δ</div><div class="ops-symbol ops-symbol--code" style="color:#fbbf24">ALT</div><div class="ops-code">ALT</div><div class="ops-label">Alternation</div></a>
+        <a class="ops-cell" href="wiki/sup/" style="--op-color:#f472b6"><span class="ops-num">8</span><div class="ops-symbol ops-symbol--rune" style="color:#f472b6">∥</div><div class="ops-symbol ops-symbol--greek" style="color:#f472b6">φ</div><div class="ops-symbol ops-symbol--code" style="color:#f472b6">SUP</div><div class="ops-code">SUP</div><div class="ops-label">Superposition</div></a>
+        <a class="ops-cell" href="wiki/rec/" style="--op-color:#fb923c"><span class="ops-num">9</span><div class="ops-symbol ops-symbol--rune" style="color:#fb923c">⟳</div><div class="ops-symbol ops-symbol--greek" style="color:#fb923c">ρ</div><div class="ops-symbol ops-symbol--code" style="color:#fb923c">REC</div><div class="ops-code">REC</div><div class="ops-label">Recursion</div></a>
       </div>
     </section>
 
