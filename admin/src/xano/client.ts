@@ -346,19 +346,27 @@ export async function upsertCurrentRecord(
   agent: string,
   existing?: XanoCurrentRecord | null,
 ): Promise<XanoCurrentRecord> {
-  // Extract metadata from snapshot so Xano server-side filter can work
+  // Extract metadata from snapshot so Xano server-side filter can work.
+  // Flat fields (content_type, status, visibility) must match what the Xano
+  // get_public_eowiki query filters on: context.content_type, context.status,
+  // context.visibility.
   const snap = stateSnapshot as Record<string, unknown> | null;
   const meta = (snap?.meta ?? {}) as Record<string, unknown>;
   const isIndex = recordId === 'site:index';
+  const contentType = isIndex ? 'index' : (recordId.split(':')[0] || 'unknown');
+  const status = isIndex ? 'published' : String(meta.status ?? 'draft');
+  const visibility = (isIndex || meta.visibility === 'public') ? 'public' : 'private';
 
   const ctx: Record<string, unknown> = {
     agent,
     ts: new Date().toISOString(),
-    object_type: isIndex || meta.visibility === 'public' ? 'public' : 'private',
-    meta: {
-      status: isIndex ? 'published' : (meta.status ?? 'draft'),
-      visibility: isIndex || meta.visibility === 'public' ? 'public' : 'private',
-    },
+    // Flat fields for Xano server-side filtering
+    content_type: contentType,
+    status,
+    visibility,
+    // Legacy nested fields (kept for backward compat with existing records)
+    object_type: visibility,
+    meta: { status, visibility },
   };
 
   const values = JSON.stringify(stateSnapshot);

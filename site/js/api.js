@@ -3,7 +3,14 @@
  *
  * Fetches content from two sources in order:
  *   1. Static JSON files (generated at build time by the projector)
- *   2. API (N8N webhook → eowikicurrent table)
+ *   2. Xano public API (get_public_eowiki with server-side filtering)
+ *   3. N8N webhook fallback (legacy, fetches all records)
+ *
+ * The Xano endpoint supports query parameters:
+ *   ?record_id=wiki:operators   → single record by ID
+ *   ?content_type=wiki          → filter by type
+ *   ?status=published           → filter by status (default: published)
+ *   ?visibility=public          → filter by visibility (default: public)
  *
  * Provides:
  *   - loadIndex()   → SiteIndex
@@ -14,11 +21,14 @@
 
 import { BASE, API_URL, API_TIMEOUT } from './config.js';
 
+// Xano public endpoint — supports server-side filtering via query params.
+var XANO_PUBLIC = 'https://xvkq-pq7i-idtl.n7d.xano.io/api:GGzWIVAW/get_public_eowiki';
+
 // ── State ────────────────────────────────────────────────────────────────────
 
 var _siteIndex = null;
 var _contentCache = {};
-var _apiRecords = null;      // deduped map of record_id → record
+var _apiRecords = null;      // deduped map of record_id → record (legacy full-fetch)
 var _apiPromise = null;      // in-flight API fetch (prevents duplicate requests)
 
 // ── Public getters ───────────────────────────────────────────────────────────
@@ -34,18 +44,50 @@ function fetchJson(url) {
   }).catch(function () { return null; });
 }
 
-// ── API fetch (with abort timeout) ───────────────────────────────────────────
+// ── Xano single-record fetch ─────────────────────────────────────────────────
 
 /**
- * Fetch all current-state records from the API.
+ * Fetch a single record from the Xano public endpoint by record_id.
+ * Uses the server-side ?record_id= filter so we don't download everything.
+ * Returns the parsed record object, or null on failure.
+ */
+function fetchXanoRecord(recordId) {
+  var url = XANO_PUBLIC + '?record_id=' + encodeURIComponent(recordId);
+
+  var controller = new AbortController();
+  var timer = setTimeout(function () { controller.abort(); }, API_TIMEOUT);
+
+  return fetch(url, { signal: controller.signal })
+    .then(function (r) {
+      clearTimeout(timer);
+      if (!r.ok) return null;
+      return r.json();
+    })
+    .then(function (data) {
+      if (!data) return null;
+      // Xano may return a single object or an array
+      if (Array.isArray(data)) return data[0] || null;
+      return data;
+    })
+    .catch(function (e) {
+      clearTimeout(timer);
+      console.warn('[eo] Xano single-record fetch failed for ' + recordId + ':', e.message || e);
+      return null;
+    });
+}
+
+// ── Legacy full-fetch (N8N webhook fallback) ─────────────────────────────────
+
+/**
+ * Fetch all current-state records from the N8N webhook (legacy fallback).
  * Returns a deduped map: record_id → most-recent record.
- * Caches the result so subsequent calls reuse the same data.
+ * Only used when Xano single-record fetches fail and we need to synthesize.
  */
 function fetchApiRecords() {
   if (_apiRecords) return Promise.resolve(_apiRecords);
   if (_apiPromise) return _apiPromise;
 
-  console.log('[eo] Fetching records from API…');
+  console.log('[eo] Fetching all records from API (fallback)…');
 
   var controller = new AbortController();
   var timer = setTimeout(function () { controller.abort(); }, API_TIMEOUT);
@@ -125,8 +167,8 @@ function parseTime(val) {
  * Strategy:
  *   1. Return cached index if available.
  *   2. Try static JSON (generated/state/index.json).
- *   3. Fall back to API — look for a site:index record.
- *   4. If no site:index, synthesize an index from individual content records.
+ *   3. Fall back to Xano — fetch just the site:index record.
+ *   4. Fall back to N8N — fetch all, look for site:index or synthesize.
  *   5. If all else fails, return an empty index.
  */
 export function loadIndex() {
@@ -148,6 +190,28 @@ export function loadIndex() {
 }
 
 function loadIndexFromApi() {
+  // Try Xano single-record fetch for site:index first
+  return fetchXanoRecord('site:index')
+    .then(function (rec) {
+      if (rec && rec.values) {
+        try {
+          var raw = JSON.parse(rec.values);
+          if (raw && raw.entries) {
+            console.log('[eo] Using site:index from Xano (' + raw.entries.length + ' entries)');
+            _siteIndex = normalizeIndex(raw);
+            return _siteIndex;
+          }
+        } catch (e) {
+          console.warn('[eo] Failed to parse site:index from Xano:', e.message);
+        }
+      }
+
+      // Xano single-record failed — fall back to N8N full fetch
+      return loadIndexFromN8n();
+    });
+}
+
+function loadIndexFromN8n() {
   return fetchApiRecords().then(function (map) {
     if (!map) {
       console.warn('[eo] No API data — showing empty site');
@@ -261,8 +325,9 @@ function synthesizeIndex(map) {
  * Strategy:
  *   1. Return cached content if available.
  *   2. Try static JSON (generated/state/content/{id}.json).
- *   3. Fall back to API — find matching record and parse its values.
- *   4. Return null if content not found anywhere.
+ *   3. Fall back to Xano — fetch single record by record_id.
+ *   4. Fall back to N8N — fetch all records, find matching one.
+ *   5. Return null if content not found anywhere.
  */
 export function loadContent(contentId) {
   if (_contentCache[contentId]) return Promise.resolve(_contentCache[contentId]);
@@ -282,41 +347,61 @@ export function loadContent(contentId) {
     });
 }
 
+/**
+ * Load content from API — tries Xano single-record first, then N8N fallback.
+ */
 function loadContentFromApi(contentId) {
-  return fetchApiRecords().then(function (map) {
-    if (!map || !map[contentId]) return null;
-
-    try {
-      var parsed = JSON.parse(map[contentId].values);
-      if (!parsed) return null;
-
-      // Ensure content_id is set at top level
-      if (!parsed.content_id) parsed.content_id = contentId;
-
-      // Ensure meta exists with at least basic fields
-      if (!parsed.meta) {
-        var parts = contentId.split(':');
-        parsed.meta = {
-          content_id: contentId,
-          content_type: parts[0],
-          slug: parts.slice(1).join(':'),
-          title: map[contentId].displayName || parts.slice(1).join(':'),
-          status: 'published',
-          visibility: 'public',
-          tags: []
-        };
+  // Try Xano single-record fetch first
+  return fetchXanoRecord(contentId)
+    .then(function (rec) {
+      if (rec) {
+        var parsed = parseContentRecord(contentId, rec);
+        if (parsed) return parsed;
       }
 
-      // Ensure content_type is set at top level
-      if (!parsed.content_type && parsed.meta) {
-        parsed.content_type = parsed.meta.content_type;
-      }
+      // Xano failed — fall back to N8N full fetch
+      return fetchApiRecords().then(function (map) {
+        if (!map || !map[contentId]) return null;
+        return parseContentRecord(contentId, map[contentId]);
+      });
+    });
+}
 
-      _contentCache[contentId] = parsed;
-      return parsed;
-    } catch (e) {
-      console.warn('[eo] Failed to parse content for ' + contentId + ':', e.message);
-      return null;
+/**
+ * Parse a raw API record into a content object.
+ * Ensures content_id, meta, and content_type are set.
+ */
+function parseContentRecord(contentId, rec) {
+  try {
+    var parsed = JSON.parse(rec.values);
+    if (!parsed) return null;
+
+    // Ensure content_id is set at top level
+    if (!parsed.content_id) parsed.content_id = contentId;
+
+    // Ensure meta exists with at least basic fields
+    if (!parsed.meta) {
+      var parts = contentId.split(':');
+      parsed.meta = {
+        content_id: contentId,
+        content_type: parts[0],
+        slug: parts.slice(1).join(':'),
+        title: rec.displayName || parts.slice(1).join(':'),
+        status: 'published',
+        visibility: 'public',
+        tags: []
+      };
     }
-  });
+
+    // Ensure content_type is set at top level
+    if (!parsed.content_type && parsed.meta) {
+      parsed.content_type = parsed.meta.content_type;
+    }
+
+    _contentCache[contentId] = parsed;
+    return parsed;
+  } catch (e) {
+    console.warn('[eo] Failed to parse content for ' + contentId + ':', e.message);
+    return null;
+  }
 }
