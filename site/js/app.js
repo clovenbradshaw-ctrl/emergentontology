@@ -753,7 +753,7 @@
       setTitle(title);
       setBreadcrumbs([{ label: 'Experiments', href: BASE + '/exp/' }, { label: title, href: BASE + '/exp/' + slug + '/' }]);
 
-      var kindIcons = { note: '\uD83D\uDCDD', dataset: '\uD83D\uDCC1', result: '\u2705', chart: '\uD83D\uDCC8', link: '\uD83D\uDD17', decision: '\u2696\uFE0F' };
+      var kindIcons = { note: '\uD83D\uDCDD', dataset: '\uD83D\uDCC1', result: '\u2705', chart: '\uD83D\uDCC8', link: '\uD83D\uDD17', decision: '\u2696\uFE0F', html: '\uD83C\uDF10' };
       var entries = (content.entries || []).filter(function (e) { return !e.deleted; });
 
       var h = '<article data-eo-op="DES" data-eo-target="' + esc(content.content_id) + '">';
@@ -769,9 +769,13 @@
           h += '<li class="exp-entry" data-eo-op="INS" data-eo-target="' + esc(content.content_id) + '/entry:' + esc(entry.entry_id) + '">';
           h += '<span class="entry-kind">' + icon + '</span>';
           h += '<div class="entry-body">';
-          if (entry.data && entry.data.text) h += md(String(entry.data.text));
-          if (entry.data && entry.data.title) h += '<strong>' + esc(String(entry.data.title)) + '</strong>';
-          if (entry.data && entry.data.url) h += '<p><a href="' + esc(String(entry.data.url)) + '">' + esc(String(entry.data.url)) + '</a></p>';
+          if (entry.kind === 'html') {
+            h += '<div class="entry-html">' + String((entry.data && entry.data.html) || '') + '</div>';
+          } else {
+            if (entry.data && entry.data.text) h += md(String(entry.data.text));
+            if (entry.data && entry.data.title) h += '<strong>' + esc(String(entry.data.title)) + '</strong>';
+            if (entry.data && entry.data.url) h += '<p><a href="' + esc(String(entry.data.url)) + '">' + esc(String(entry.data.url)) + '</a></p>';
+          }
           h += '</div>';
           h += '<time class="entry-ts">' + new Date(entry.ts).toLocaleDateString() + '</time>';
           h += '</li>';

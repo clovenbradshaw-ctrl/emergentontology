@@ -110,7 +110,7 @@ export interface BlogRevision {
 
 export interface ExperimentEntry {
   entry_id: string;
-  kind: 'note' | 'dataset' | 'result' | 'chart' | 'link' | 'decision';
+  kind: 'note' | 'dataset' | 'result' | 'chart' | 'link' | 'decision' | 'html';
   data: Record<string, unknown>;
   ts: string;
   deleted: boolean;
