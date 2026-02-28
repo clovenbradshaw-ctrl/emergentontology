@@ -163,7 +163,8 @@ function AdminShell() {
 
   function openContent(contentId: string, type: ContentType) {
     const slug = contentId.split(':')[1] ?? contentId;
-    navigate(`${type}/${slug}`);
+    const prefix = type === 'experiment' ? 'exp' : type;
+    navigate(`${prefix}/${slug}`);
   }
 
   if (!isAuthenticated) return <LoginForm />;
