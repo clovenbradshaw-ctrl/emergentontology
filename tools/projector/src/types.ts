@@ -117,6 +117,12 @@ export interface IndexEntry {
   visibility: 'public' | 'private';
   tags: string[];
   event_id: string;
+  /** TF-IDF operator classification (computed at build time) */
+  operator?: {
+    code: string;
+    symbol: string;
+    color: string;
+  };
 }
 
 // ──────────────────────────────────────────────────────────────────────────────

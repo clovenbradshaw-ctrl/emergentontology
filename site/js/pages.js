@@ -147,6 +147,9 @@ function sectionHtml(title, type, entries, max, layout) {
 
 function cardHtml(type, e) {
   var h = '<a class="content-card' + (type === 'experiment' ? ' content-card--exp' : '') + '" href="' + contentUrl(type, e.slug) + '">';
+  if (e.operator) {
+    h += '<span class="card-operator" style="color:' + e.operator.color + '" title="' + e.operator.code + '">' + e.operator.symbol + '</span>';
+  }
   h += '<h3 class="card-title">' + esc(e.title) + '</h3>';
   if (e.tags && e.tags.length) {
     h += '<div class="card-tags">';
@@ -159,6 +162,9 @@ function cardHtml(type, e) {
 
 function listCardHtml(type, e) {
   var h = '<a class="list-card" href="' + contentUrl(type, e.slug) + '">';
+  if (e.operator) {
+    h += '<span class="list-card-operator" style="color:' + e.operator.color + '" title="' + e.operator.code + '">' + e.operator.symbol + '</span>';
+  }
   h += '<div class="list-card-body"><h3 class="list-card-title">' + esc(e.title) + '</h3></div>';
   h += '<div class="list-card-arrow">\u2192</div></a>';
   return h;
@@ -249,7 +255,11 @@ export function renderWikiList(el) {
 }
 
 function wikiListItem(w) {
-  var h = '<li><a href="' + contentUrl('wiki', w.slug) + '">' + esc(w.title) + '</a>';
+  var opHtml = '';
+  if (w.operator) {
+    opHtml = '<span class="list-operator" style="color:' + w.operator.color + '" title="' + w.operator.code + '">' + w.operator.symbol + '</span> ';
+  }
+  var h = '<li>' + opHtml + '<a href="' + contentUrl('wiki', w.slug) + '">' + esc(w.title) + '</a>';
   if (w.tags && w.tags.length) {
     h += ' <span class="tags">';
     w.tags.forEach(function (t) { h += '<span class="tag">' + esc(t) + '</span>'; });
