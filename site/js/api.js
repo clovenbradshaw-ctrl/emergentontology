@@ -238,7 +238,8 @@ function synthesizeIndex(map) {
       content_type: contentType,
       status: meta.status || 'published',
       visibility: meta.visibility || 'public',
-      tags: meta.tags || []
+      tags: meta.tags || [],
+      updated_at: meta.updated_at || rec.lastModified || ''
     });
   }
 

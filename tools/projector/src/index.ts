@@ -236,16 +236,28 @@ async function main() {
     ? parseJson<IndexSnapshot>(indexRecord.values, { entries: [] })
     : { entries: [] };
 
-  const allEntries = (indexSnap.entries ?? []).map((e) => ({
-    content_id: e.content_id,
-    slug: e.slug,
-    title: e.title,
-    content_type: (e.content_type ?? 'wiki') as ContentType,
-    status: (e.status ?? 'draft') as 'draft' | 'published' | 'archived',
-    visibility: (e.visibility ?? 'private') as 'public' | 'private',
-    tags: e.tags ?? [],
-    event_id: '',
-  }));
+  const allEntries = (indexSnap.entries ?? []).map((e) => {
+    // Pull updated_at from the content snapshot's meta if available
+    const contentRecord = records.find((r) => r.record_id === e.content_id);
+    let updated_at = '';
+    if (contentRecord) {
+      try {
+        const snap = JSON.parse(contentRecord.values);
+        updated_at = snap?.meta?.updated_at ?? '';
+      } catch { /* ignore */ }
+    }
+    return {
+      content_id: e.content_id,
+      slug: e.slug,
+      title: e.title,
+      content_type: (e.content_type ?? 'wiki') as ContentType,
+      status: (e.status ?? 'draft') as 'draft' | 'published' | 'archived',
+      visibility: (e.visibility ?? 'private') as 'public' | 'private',
+      tags: e.tags ?? [],
+      updated_at,
+      event_id: '',
+    };
+  });
 
   const nav = allEntries.filter(
     (e) => e.status === 'published' && e.visibility === 'public',

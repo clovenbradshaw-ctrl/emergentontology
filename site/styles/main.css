@@ -611,6 +611,21 @@ main.home { max-width: 1100px; }
 }
 .tag-lg:hover { border-color: var(--accent); color: var(--text); }
 
+/* Show more toggle */
+.show-more-wrap { margin-top: .75rem; }
+.show-more-toggle {
+  cursor: pointer;
+  font-size: .85rem;
+  color: var(--accent);
+  padding: .4rem 0;
+  list-style: none;
+}
+.show-more-toggle::-webkit-details-marker { display: none; }
+.show-more-toggle::before { content: '\25B8 '; }
+details[open] > .show-more-toggle::before { content: '\25BE '; }
+.show-more-toggle:hover { text-decoration: underline; }
+.show-more-items { margin-top: .75rem; }
+
 /* Empty state */
 .home-empty { padding: 3rem 0; text-align: center; }
 .empty-card {

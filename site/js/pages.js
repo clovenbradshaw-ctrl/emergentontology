@@ -13,6 +13,20 @@ import {
   revisionHistoryHtml, renderRevisionContent, revealAdmin
 } from './render.js';
 
+// ── Sort helper ──────────────────────────────────────────────────────────────
+
+function sortByUpdated(entries) {
+  return entries.slice().sort(function (a, b) {
+    var ta = a.updated_at || '';
+    var tb = b.updated_at || '';
+    if (tb > ta) return 1;
+    if (tb < ta) return -1;
+    return 0;
+  });
+}
+
+var COLUMN_LIMIT = 6;
+
 // ═══════════════════════════════════════════════════════════════════════════
 // Home
 // ═══════════════════════════════════════════════════════════════════════════
@@ -26,10 +40,10 @@ export function renderHome(el) {
   var publicEntries = (idx.entries || []).filter(function (e) {
     return e.visibility === 'public' && e.status !== 'archived';
   });
-  var wikis = publicEntries.filter(function (e) { return e.content_type === 'wiki'; });
-  var blogs = publicEntries.filter(function (e) { return e.content_type === 'blog'; });
-  var exps  = publicEntries.filter(function (e) { return e.content_type === 'experiment'; });
-  var pages = publicEntries.filter(function (e) { return e.content_type === 'page'; });
+  var wikis = sortByUpdated(publicEntries.filter(function (e) { return e.content_type === 'wiki'; }));
+  var blogs = sortByUpdated(publicEntries.filter(function (e) { return e.content_type === 'blog'; }));
+  var exps  = sortByUpdated(publicEntries.filter(function (e) { return e.content_type === 'experiment'; }));
+  var pages = sortByUpdated(publicEntries.filter(function (e) { return e.content_type === 'page'; }));
   var total = wikis.length + blogs.length + exps.length + pages.length;
 
   var allTags = [];
@@ -60,9 +74,9 @@ export function renderHome(el) {
   // Two-column layout
   h += '<div class="home-columns"><div class="home-col-main">';
 
-  if (wikis.length > 0) h += sectionHtml('Wiki', 'wiki', wikis, 6, 'grid');
-  h += sectionHtml('Blog', 'blog', blogs, 5, 'list');
-  h += sectionHtml('Experiments', 'experiment', exps, 4, 'grid');
+  if (wikis.length > 0) h += sectionHtml('Wiki', 'wiki', wikis, COLUMN_LIMIT, 'grid');
+  h += sectionHtml('Blog', 'blog', blogs, COLUMN_LIMIT, 'list');
+  h += sectionHtml('Experiments', 'experiment', exps, COLUMN_LIMIT, 'grid');
 
   if (pages.length > 0) {
     h += '<section class="home-section"><div class="section-header"><h2 class="section-title">Pages</h2></div>';
@@ -95,26 +109,52 @@ function sectionHtml(title, type, entries, max, layout) {
   } else if (layout === 'grid') {
     h += '<div class="content-grid' + (type === 'experiment' ? ' content-grid--sm' : '') + '">';
     entries.slice(0, max).forEach(function (e) {
-      h += '<a class="content-card' + (type === 'experiment' ? ' content-card--exp' : '') + '" href="' + contentUrl(type, e.slug) + '">';
-      h += '<h3 class="card-title">' + esc(e.title) + '</h3>';
-      if (e.tags && e.tags.length) {
-        h += '<div class="card-tags">';
-        e.tags.slice(0, 3).forEach(function (t) { h += '<span class="tag">' + esc(t) + '</span>'; });
-        h += '</div>';
-      }
-      h += '</a>';
+      h += cardHtml(type, e);
     });
     h += '</div>';
+    if (entries.length > max) {
+      h += '<details class="show-more-wrap"><summary class="show-more-toggle">Show ' + (entries.length - max) + ' more</summary>';
+      h += '<div class="content-grid' + (type === 'experiment' ? ' content-grid--sm' : '') + ' show-more-items">';
+      entries.slice(max).forEach(function (e) {
+        h += cardHtml(type, e);
+      });
+      h += '</div></details>';
+    }
   } else {
     h += '<div class="content-list-cards">';
     entries.slice(0, max).forEach(function (e) {
-      h += '<a class="list-card" href="' + contentUrl(type, e.slug) + '">';
-      h += '<div class="list-card-body"><h3 class="list-card-title">' + esc(e.title) + '</h3></div>';
-      h += '<div class="list-card-arrow">\u2192</div></a>';
+      h += listCardHtml(type, e);
     });
     h += '</div>';
+    if (entries.length > max) {
+      h += '<details class="show-more-wrap"><summary class="show-more-toggle">Show ' + (entries.length - max) + ' more</summary>';
+      h += '<div class="content-list-cards show-more-items">';
+      entries.slice(max).forEach(function (e) {
+        h += listCardHtml(type, e);
+      });
+      h += '</div></details>';
+    }
   }
   h += '</section>';
+  return h;
+}
+
+function cardHtml(type, e) {
+  var h = '<a class="content-card' + (type === 'experiment' ? ' content-card--exp' : '') + '" href="' + contentUrl(type, e.slug) + '">';
+  h += '<h3 class="card-title">' + esc(e.title) + '</h3>';
+  if (e.tags && e.tags.length) {
+    h += '<div class="card-tags">';
+    e.tags.slice(0, 3).forEach(function (t) { h += '<span class="tag">' + esc(t) + '</span>'; });
+    h += '</div>';
+  }
+  h += '</a>';
+  return h;
+}
+
+function listCardHtml(type, e) {
+  var h = '<a class="list-card" href="' + contentUrl(type, e.slug) + '">';
+  h += '<div class="list-card-body"><h3 class="list-card-title">' + esc(e.title) + '</h3></div>';
+  h += '<div class="list-card-arrow">\u2192</div></a>';
   return h;
 }
 
@@ -175,29 +215,42 @@ export function renderWikiList(el) {
   setBreadcrumbs([{ label: 'Wiki', href: BASE + '/wiki/' }]);
   el.className = '';
 
-  var wikis = (idx.entries || []).filter(function (e) {
+  var wikis = sortByUpdated((idx.entries || []).filter(function (e) {
     return e.content_type === 'wiki' && e.visibility === 'public' && e.status !== 'archived';
-  });
+  }));
 
   var h = '<section class="home-section"><h1>Wiki</h1>';
   if (wikis.length > 0) {
     h += '<ul class="content-list">';
-    wikis.forEach(function (w) {
-      h += '<li><a href="' + contentUrl('wiki', w.slug) + '">' + esc(w.title) + '</a>';
-      if (w.tags && w.tags.length) {
-        h += ' <span class="tags">';
-        w.tags.forEach(function (t) { h += '<span class="tag">' + esc(t) + '</span>'; });
-        h += '</span>';
-      }
-      h += '</li>';
+    wikis.slice(0, COLUMN_LIMIT).forEach(function (w) {
+      h += wikiListItem(w);
     });
     h += '</ul>';
+    if (wikis.length > COLUMN_LIMIT) {
+      h += '<details class="show-more-wrap"><summary class="show-more-toggle">Show ' + (wikis.length - COLUMN_LIMIT) + ' more</summary>';
+      h += '<ul class="content-list show-more-items">';
+      wikis.slice(COLUMN_LIMIT).forEach(function (w) {
+        h += wikiListItem(w);
+      });
+      h += '</ul></details>';
+    }
   } else {
     h += '<p class="empty-page">No wiki entries yet.</p>';
   }
   h += '</section>';
   el.innerHTML = h;
   return Promise.resolve();
+}
+
+function wikiListItem(w) {
+  var h = '<li><a href="' + contentUrl('wiki', w.slug) + '">' + esc(w.title) + '</a>';
+  if (w.tags && w.tags.length) {
+    h += ' <span class="tags">';
+    w.tags.forEach(function (t) { h += '<span class="tag">' + esc(t) + '</span>'; });
+    h += '</span>';
+  }
+  h += '</li>';
+  return h;
 }
 
 // ═══════════════════════════════════════════════════════════════════════════
@@ -267,19 +320,25 @@ export function renderBlogList(el) {
   setBreadcrumbs([{ label: 'Blog', href: BASE + '/blog/' }]);
   el.className = '';
 
-  var blogs = (idx.entries || []).filter(function (e) {
+  var blogs = sortByUpdated((idx.entries || []).filter(function (e) {
     return e.content_type === 'blog' && e.visibility === 'public' && e.status !== 'archived';
-  });
+  }));
 
   var h = '<section class="home-section"><h1>Blog</h1>';
   if (blogs.length > 0) {
     h += '<div class="content-list-cards">';
-    blogs.forEach(function (b) {
-      h += '<a class="list-card" href="' + contentUrl('blog', b.slug) + '">';
-      h += '<div class="list-card-body"><h3 class="list-card-title">' + esc(b.title) + '</h3></div>';
-      h += '<div class="list-card-arrow">\u2192</div></a>';
+    blogs.slice(0, COLUMN_LIMIT).forEach(function (b) {
+      h += listCardHtml('blog', b);
     });
     h += '</div>';
+    if (blogs.length > COLUMN_LIMIT) {
+      h += '<details class="show-more-wrap"><summary class="show-more-toggle">Show ' + (blogs.length - COLUMN_LIMIT) + ' more</summary>';
+      h += '<div class="content-list-cards show-more-items">';
+      blogs.slice(COLUMN_LIMIT).forEach(function (b) {
+        h += listCardHtml('blog', b);
+      });
+      h += '</div></details>';
+    }
   } else {
     h += '<p class="empty-page">No blog posts yet.</p>';
   }
@@ -338,18 +397,27 @@ export function renderExpList(el) {
   setBreadcrumbs([{ label: 'Experiments', href: BASE + '/exp/' }]);
   el.className = '';
 
-  var exps = (idx.entries || []).filter(function (e) {
+  var exps = sortByUpdated((idx.entries || []).filter(function (e) {
     return e.content_type === 'experiment' && e.visibility === 'public' && e.status !== 'archived';
-  });
+  }));
 
   var h = '<section class="home-section"><h1>Experiments</h1>';
   if (exps.length > 0) {
     h += '<div class="content-grid content-grid--sm">';
-    exps.forEach(function (e) {
+    exps.slice(0, COLUMN_LIMIT).forEach(function (e) {
       h += '<a class="content-card content-card--exp" href="' + contentUrl('experiment', e.slug) + '">';
       h += '<h3 class="card-title">' + esc(e.title) + '</h3></a>';
     });
     h += '</div>';
+    if (exps.length > COLUMN_LIMIT) {
+      h += '<details class="show-more-wrap"><summary class="show-more-toggle">Show ' + (exps.length - COLUMN_LIMIT) + ' more</summary>';
+      h += '<div class="content-grid content-grid--sm show-more-items">';
+      exps.slice(COLUMN_LIMIT).forEach(function (e) {
+        h += '<a class="content-card content-card--exp" href="' + contentUrl('experiment', e.slug) + '">';
+        h += '<h3 class="card-title">' + esc(e.title) + '</h3></a>';
+      });
+      h += '</div></details>';
+    }
   } else {
     h += '<p class="empty-page">No experiments yet.</p>';
   }
