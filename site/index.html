@@ -331,6 +331,30 @@
   .fade-in { animation: fadeIn 0.3s ease-out; }
   @keyframes fadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
 
+  /* ── Experiment entries & HTML sandbox ── */
+  .exp-entries-section { display: flex; flex-direction: column; gap: 1.25rem; margin-top: 1.5rem; }
+  .exp-entry-card {
+    border: 1px solid var(--border);
+    border-radius: 8px; background: var(--bg-page); overflow: hidden;
+  }
+  .exp-entry-header {
+    display: flex; align-items: center; gap: 0.5rem;
+    padding: 0.5rem 1rem; border-bottom: 1px solid var(--border);
+    background: var(--border-light); font-size: 0.8rem;
+  }
+  .exp-entry-icon { font-size: 1rem; }
+  .exp-entry-kind {
+    font-weight: 600; text-transform: uppercase;
+    letter-spacing: 0.04em; color: var(--text-faint); font-size: 0.7rem;
+  }
+  .exp-entry-time { margin-left: auto; color: var(--text-faint); font-size: 0.75rem; }
+  .exp-entry-content { padding: 1rem; }
+  .exp-entry-content p { margin-bottom: 0.5rem; }
+  .exp-html-sandbox {
+    border: 1px solid var(--border); border-radius: 8px;
+    padding: 1.5rem; background: var(--bg); overflow: auto;
+  }
+
   @media (max-width: 768px) {
     .topnav { padding: 0 1rem; }
     .topnav-links { display: none; }
@@ -724,6 +748,7 @@ function renderPage(slug) {
     h += '</div>';
   }
 
+  // Revision-based content (wiki, blog, and experiments with a body)
   if (rev && rev.content) {
     var content = rev.content;
     var fmt = rev.format || 'markdown';
@@ -732,7 +757,34 @@ function renderPage(slug) {
     } else {
       h += '<div class="wiki-body">' + rewriteLinks(renderMarkdown(content)) + '</div>';
     }
-  } else {
+  }
+
+  // Experiment entries (log-style: notes, datasets, HTML embeds, etc.)
+  var isExperiment = (meta.content_type === 'experiment');
+  var expEntries = (parsed && parsed.entries) || [];
+  expEntries = expEntries.filter(function(e) { return !e.deleted; });
+
+  if (isExperiment && expEntries.length > 0) {
+    var kindIcons = { note: '\uD83D\uDCDD', dataset: '\uD83D\uDCC1', result: '\u2705', chart: '\uD83D\uDCC8', link: '\uD83D\uDD17', decision: '\u2696\uFE0F', html: '\uD83C\uDF10' };
+    h += '<div class="exp-entries-section">';
+    for (var ei = 0; ei < expEntries.length; ei++) {
+      var entry = expEntries[ei];
+      var icon = kindIcons[entry.kind] || '\uD83D\uDCDD';
+      h += '<div class="exp-entry-card">';
+      h += '<div class="exp-entry-header"><span class="exp-entry-icon">' + icon + '</span><span class="exp-entry-kind">' + esc(entry.kind) + '</span>';
+      h += '<time class="exp-entry-time">' + new Date(entry.ts).toLocaleDateString() + '</time></div>';
+      h += '<div class="exp-entry-content">';
+      if (entry.kind === 'html') {
+        h += '<div class="exp-html-sandbox">' + String((entry.data && entry.data.html) || '') + '</div>';
+      } else {
+        if (entry.data && entry.data.text) h += renderMarkdown(String(entry.data.text));
+        if (entry.data && entry.data.title) h += '<strong>' + esc(String(entry.data.title)) + '</strong>';
+        if (entry.data && entry.data.url) h += '<p><a href="' + esc(String(entry.data.url)) + '" target="_blank">' + esc(String(entry.data.url)) + '</a></p>';
+      }
+      h += '</div></div>';
+    }
+    h += '</div>';
+  } else if (!rev || !rev.content) {
     h += '<div class="wiki-body"><h1>' + esc(meta.title || slug) + '</h1></div>';
     h += '<div class="empty"><p style="font-style:italic">No content yet.</p></div>';
   }
@@ -769,6 +821,11 @@ function renderPage(slug) {
 
   h += '</div>';
   app.innerHTML = h;
+
+  // Activate embedded scripts so experiment HTML/JS actually executes
+  if (isExperiment) {
+    activateScripts(app);
+  }
 
   // Wire up wiki links
   var wikiLinks = app.querySelectorAll('a[data-wiki-link]');
@@ -941,6 +998,20 @@ function esc(s) {
 
 function escAttr(s) {
   return (s || '').replace(/\\/g, '\\\\').replace(/'/g, "\\'");
+}
+
+// Activate <script> tags after innerHTML insertion so embedded JS runs
+function activateScripts(container) {
+  var scripts = container.querySelectorAll('script');
+  for (var i = 0; i < scripts.length; i++) {
+    var old = scripts[i];
+    var fresh = document.createElement('script');
+    for (var j = 0; j < old.attributes.length; j++) {
+      fresh.setAttribute(old.attributes[j].name, old.attributes[j].value);
+    }
+    fresh.textContent = old.textContent;
+    old.parentNode.replaceChild(fresh, old);
+  }
 }
 
 // ── Legacy URL Support ────────────────────────────────────────────────────────
