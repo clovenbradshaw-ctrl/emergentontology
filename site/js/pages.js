@@ -62,7 +62,6 @@ export function renderHome(el) {
   h += '<section class="home-hero">';
   h += '<div class="hero-badge">Emergent Ontology (EO)</div>';
   h += '<h1 class="hero-title">A framework that changes everything<br>about everything that changes</h1>';
-  h += '<p class="hero-sub">Every language encodes the same nine transformations. Every system implements them. Every experience moves through them. EO is a universal grammar of change.</p>';
   if (total > 0) {
     h += '<p class="hero-stats">' + total + ' article' + (total !== 1 ? 's' : '');
     if (wikis.length) h += ' \u00B7 ' + wikis.length + ' wiki';
