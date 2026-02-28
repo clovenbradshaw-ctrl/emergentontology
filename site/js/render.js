@@ -283,6 +283,28 @@ function looksLikeHtml(content) {
   return trimmed.charAt(0) === '<' || /<[a-z][\s\S]*>/i.test(trimmed.slice(0, 200));
 }
 
+// ── HTML widget hydration ────────────────────────────────────────────────────
+
+/**
+ * Hydrate <div data-type="html-widget"> elements inside a container.
+ *
+ * The TipTap editor serialises HTML widget content as a text node (entity-
+ * escaped) inside the wrapper div.  After innerHTML assignment the browser
+ * decodes the entities into a text node — so the user sees raw HTML source
+ * instead of rendered markup.  This function takes each widget's textContent
+ * and sets it as innerHTML so the HTML actually renders.
+ */
+export function hydrateHtmlWidgets(container) {
+  var widgets = container.querySelectorAll('[data-type="html-widget"]');
+  for (var i = 0; i < widgets.length; i++) {
+    var w = widgets[i];
+    var src = w.textContent || '';
+    if (src && src !== w.innerHTML) {
+      w.innerHTML = src;
+    }
+  }
+}
+
 // ── Script activation (for live HTML/JS experiments) ─────────────────────────
 
 /**
