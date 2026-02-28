@@ -247,7 +247,7 @@ export default function ContentManager({ siteBase, onOpen }: Props) {
           contentState.meta = { ...contentState.meta, status: newStatus, updated_at: desEvent.ctx.ts };
           await upsertCurrentRecord(contentId, contentState, agent, contentRec);
         }
-      } catch { /* best-effort update */ }
+      } catch (err) { console.warn('[ContentManager] state sync failed:', err); }
     } catch (err) {
       setError(err instanceof Error ? err.message : String(err));
     }
@@ -303,7 +303,7 @@ export default function ContentManager({ siteBase, onOpen }: Props) {
             contentState.meta = { ...contentState.meta, visibility: newVisibility, first_public_at: firstPublicTs };
             await upsertCurrentRecord(contentId, contentState, agent, contentRec);
           }
-        } catch { /* best-effort update */ }
+        } catch (err) { console.warn('[ContentManager] state sync failed:', err); }
       }
     } catch (err) {
       setError(err instanceof Error ? err.message : String(err));
@@ -397,7 +397,7 @@ export default function ContentManager({ siteBase, onOpen }: Props) {
           contentState.meta = { ...contentState.meta, status: 'archived', updated_at: ts };
           await upsertCurrentRecord(contentId, contentState, agent, contentRec);
         }
-      } catch { /* best-effort update */ }
+      } catch (err) { console.warn('[ContentManager] state sync failed:', err); }
     } catch (err) {
       setError(err instanceof Error ? err.message : String(err));
     }
@@ -446,7 +446,7 @@ export default function ContentManager({ siteBase, onOpen }: Props) {
           contentState.meta = { ...contentState.meta, status: 'draft', updated_at: ts };
           await upsertCurrentRecord(contentId, contentState, agent, contentRec);
         }
-      } catch { /* best-effort update */ }
+      } catch (err) { console.warn('[ContentManager] state sync failed:', err); }
     } catch (err) {
       setError(err instanceof Error ? err.message : String(err));
     }
@@ -492,7 +492,7 @@ export default function ContentManager({ siteBase, onOpen }: Props) {
           contentState.meta = { ...contentState.meta, ...fields, updated_at: desEvent.ctx.ts };
           await upsertCurrentRecord(contentId, contentState, agent, contentRec);
         }
-      } catch { /* best-effort */ }
+      } catch (err) { console.warn('[ContentManager] state sync failed:', err); }
     } catch (err) {
       setError(err instanceof Error ? err.message : String(err));
     }

@@ -92,7 +92,7 @@ export default function ExperimentEditor({ contentId, siteBase }: Props) {
           const normalized = { entries: freshState.entries ?? [], meta: freshState.meta ?? {} };
           setState(normalized);
           savedStateRef.current = normalized;
-        }).catch(() => { /* best-effort freshness check */ });
+        }).catch((err) => { console.warn('[ExperimentEditor] freshness check failed:', err); });
       }
     }
     load();

@@ -7,6 +7,9 @@ dist/
 site/.astro/
 site/dist/
 
+# Admin build output (Vite outputs to site/admin/)
+site/admin/
+
 # Admin build output goes into site/public/admin/ — commit placeholder only
 site/public/admin/
 !site/public/admin/.gitkeep

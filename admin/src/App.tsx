@@ -163,7 +163,8 @@ function AdminShell() {
 
   function openContent(contentId: string, type: ContentType) {
     const slug = contentId.split(':')[1] ?? contentId;
-    navigate(`${type}/${slug}`);
+    const prefix = type === 'experiment' ? 'exp' : type;
+    navigate(`${prefix}/${slug}`);
   }
 
   if (!isAuthenticated) return <LoginForm />;
@@ -231,7 +232,7 @@ function AdminShell() {
           <PageBuilder contentId={`page:${route.slug}`} siteBase={SITE_BASE} />
         )}
         {route.type === 'exp' && (
-          <ExperimentEditor contentId={`exp:${route.slug}`} siteBase={SITE_BASE} />
+          <ExperimentEditor contentId={`experiment:${route.slug}`} siteBase={SITE_BASE} />
         )}
         {route.type === 'settings' && <SettingsPanel />}
       </main>
