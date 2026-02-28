@@ -675,6 +675,7 @@ details[open] > .show-more-toggle::before { content: '\25BE '; }
 /* Content list (simple) */
 .content-list { list-style: none; display: flex; flex-direction: column; gap: .75rem; }
 .content-list li { display: flex; align-items: baseline; gap: .75rem; flex-wrap: wrap; }
+.list-updated { margin-left: auto; color: var(--text-dim); font-size: .8rem; white-space: nowrap; }
 .empty-page { color: var(--text-dim); font-style: italic; }
 
 /* ── Buttons ── */
