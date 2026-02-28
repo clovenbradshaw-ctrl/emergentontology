@@ -499,9 +499,8 @@ function renderPage(slug) {
     <a class="back-link" onclick="goHome()">← Home</a>
     <div class="wiki-page-meta"><span class="type-badge">${meta.content_type||'page'}</span> · ${meta.slug||slug}</div>`;
   if (rev) {
-    const d = new Date(rev.ts);
     h += `<div class="revision-info">
-      <span><strong>Last edited:</strong> ${d.toLocaleDateString('en-US',{year:'numeric',month:'long',day:'numeric'})}</span>
+      <span><strong>Last edited:</strong> ${timeAgo(rev.ts)}</span>
       <span><strong>Revisions:</strong> ${revs.length}</span>
       <span><strong>Status:</strong> ${meta.status||'—'}</span>
     </div>`;
@@ -558,6 +557,23 @@ tBtn.addEventListener('click',()=>{ dk=!dk; localStorage.setItem('eo-dark',dk?'1
 applyTheme();
 
 function esc(s){ const d=document.createElement('div'); d.textContent=s||''; return d.innerHTML; }
+
+function timeAgo(ts) {
+  if (!ts) return '';
+  const seconds = Math.floor((Date.now() - new Date(ts).getTime()) / 1000);
+  if (seconds < 60) return 'just now';
+  const minutes = Math.floor(seconds / 60);
+  if (minutes < 60) return minutes + 'm ago';
+  const hours = Math.floor(minutes / 60);
+  if (hours < 24) return hours + 'h ago';
+  const days = Math.floor(hours / 24);
+  if (days < 7) return days + 'd ago';
+  const weeks = Math.floor(days / 7);
+  if (weeks < 5) return weeks + 'w ago';
+  const months = Math.floor(days / 30);
+  if (months < 12) return months + 'mo ago';
+  return Math.floor(days / 365) + 'y ago';
+}
 
 loadData();
 </script>
