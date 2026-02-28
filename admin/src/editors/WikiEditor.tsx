@@ -222,13 +222,6 @@ export default function WikiEditor({ contentId, siteBase }: Props) {
 
       {error && <div className="error-banner">{error} <button onClick={() => setError(null)}>&times;</button></div>}
 
-      <RichTextEditor
-        content={editorContent}
-        onChange={handleContentChange}
-        placeholder="Start writing…"
-        contentEntries={contentEntries}
-      />
-
       <div className="editor-footer-row">
         <input
           className="summary-input"
@@ -245,6 +238,13 @@ export default function WikiEditor({ contentId, siteBase }: Props) {
           {saving ? 'Saving…' : 'Save revision'}
         </button>
       </div>
+
+      <RichTextEditor
+        content={editorContent}
+        onChange={handleContentChange}
+        placeholder="Start writing…"
+        contentEntries={contentEntries}
+      />
 
       {state && state.revisions.length > 0 && (
         <section className="revision-list">
