@@ -16,6 +16,7 @@ import { TableCell } from '@tiptap/extension-table-cell';
 import { TableHeader } from '@tiptap/extension-table-header';
 import { Columns, Column } from './extensions/Columns';
 import { InternalLink } from './extensions/InternalLink';
+import { HtmlWidget } from './extensions/HtmlWidget';
 
 interface ContentEntry {
   content_id: string;
@@ -59,6 +60,7 @@ export default function RichTextEditor({ content, onChange, placeholder, content
       TableRow,
       TableCell,
       TableHeader,
+      HtmlWidget,
     ],
     content,
     onUpdate: ({ editor }) => {
@@ -241,6 +243,16 @@ function Toolbar({ editor, onLinkPicker, onColumnMenu, showColumnMenu }: {
             <button onClick={() => editor.chain().focus().deleteTable().run()} className="rte-btn rte-btn-danger" title="Delete table">Del Table</button>
           </>
         )}
+      </div>
+
+      <span className="rte-sep" />
+
+      <div className="rte-toolbar-group">
+        <button
+          onClick={() => editor.chain().focus().insertHtmlWidget().run()}
+          className="rte-btn"
+          title="Insert HTML widget"
+        >{'<html>'}</button>
       </div>
 
       <span className="rte-sep" />
