@@ -122,11 +122,6 @@
     font-size: 1.05rem; color: var(--text-muted);
     max-width: 520px; margin: 0 auto; line-height: 1.65;
   }
-  .hero-stats {
-    font-size: 0.85rem; color: var(--text-faint);
-    margin-top: 1rem;
-  }
-
   /* ── Home Sections ── */
   .home-sections { display: flex; gap: 3rem; padding-bottom: 5rem; align-items: flex-start; }
   .home-left { flex: 1; min-width: 0; display: grid; grid-template-columns: repeat(3, 1fr); gap: 2rem; }
@@ -576,19 +571,11 @@ function renderHome() {
   var wiki = filterPages('wiki');
   var blogs = filterPages('blog');
   var exps = filterPages('experiment');
-  var total = wiki.length + blogs.length + exps.length;
 
   var h = '<div class="fade-in">';
   h += '<div class="hero">';
   h += '<div class="hero-badge">Emergent Ontology (EO)</div>';
   h += '<h1>A framework that changes everything<br>about everything that changes</h1>';
-  if (total > 0) {
-    h += '<p class="hero-stats">' + total + ' article' + (total !== 1 ? 's' : '');
-    if (wiki.length) h += ' &middot; ' + wiki.length + ' wiki';
-    if (blogs.length) h += ' &middot; ' + blogs.length + ' blog';
-    if (exps.length) h += ' &middot; ' + exps.length + ' experiment' + (exps.length !== 1 ? 's' : '');
-    h += '</p>';
-  }
   h += '</div>';
   h += '<div class="home-sections"><div class="home-left">';
 
