@@ -195,11 +195,35 @@ function buildExperiment(
       event_id: e.event_id ?? e.entry_id ?? '',
     }))
     .filter((e) => !e.deleted);
+  // Normalize revisions from snapshot (if present)
+  const revisions = Array.isArray(snap?.revisions)
+    ? (snap.revisions as Array<Record<string, unknown>>).map((r) => ({
+        rev_id: String(r.rev_id ?? ''),
+        format: (r.format as 'markdown' | 'html') ?? 'html',
+        content: String(r.content ?? ''),
+        summary: String(r.summary ?? ''),
+        ts: String(r.ts ?? ''),
+        event_id: String(r.event_id ?? r.rev_id ?? ''),
+      }))
+    : [];
+  const currentRevision = snap?.current_revision
+    ? {
+        rev_id: String((snap.current_revision as Record<string, unknown>).rev_id ?? ''),
+        format: ((snap.current_revision as Record<string, unknown>).format as 'markdown' | 'html') ?? 'html',
+        content: String((snap.current_revision as Record<string, unknown>).content ?? ''),
+        summary: String((snap.current_revision as Record<string, unknown>).summary ?? ''),
+        ts: String((snap.current_revision as Record<string, unknown>).ts ?? ''),
+        event_id: String((snap.current_revision as Record<string, unknown>).event_id ?? (snap.current_revision as Record<string, unknown>).rev_id ?? ''),
+      }
+    : revisions.at(-1) ?? null;
+
   return {
     content_type: 'experiment',
     content_id: entry.content_id,
     meta: buildMeta(entry, snap),
     entries: expEntries,
+    current_revision: currentRevision,
+    revisions,
     history: [],
   };
 }

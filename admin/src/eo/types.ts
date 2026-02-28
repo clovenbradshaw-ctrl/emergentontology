@@ -109,6 +109,8 @@ export interface ProjectedExperiment {
   content_id: string;
   meta: ContentMeta;
   entries: ExperimentEntry[];
+  current_revision: WikiRevision | null;
+  revisions: WikiRevision[];
   history: HistoryEntry[];
 }
 

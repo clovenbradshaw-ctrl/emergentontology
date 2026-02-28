@@ -155,6 +155,8 @@ export interface ProjectedBlog extends BaseProjected {
 export interface ProjectedExperiment extends BaseProjected {
   content_type: 'experiment';
   entries: ExperimentEntry[];
+  current_revision: WikiRevision | null;
+  revisions: WikiRevision[];
 }
 
 export type ProjectedContent =

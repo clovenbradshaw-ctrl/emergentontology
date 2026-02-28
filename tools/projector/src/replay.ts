@@ -258,6 +258,7 @@ function replayBlog(contentId: string, meta: ContentMeta, events: MatrixEvent[])
 
 function replayExperiment(contentId: string, meta: ContentMeta, events: MatrixEvent[]): ProjectedExperiment {
   const entries = new Map<string, ExperimentEntry>();
+  const revisions = new Map<string, WikiRevision>();
   const history: ProjectedExperiment['history'] = [];
 
   for (const mxEvent of events) {
@@ -266,7 +267,27 @@ function replayExperiment(contentId: string, meta: ContentMeta, events: MatrixEv
     if (!isEOEvent(e)) continue;
 
     const { childType, childId } = parseTarget(e.target);
-    if (childType !== 'entry' || !childId) continue;
+    if (!childId) continue;
+
+    // ── Revision targets (HTML body) ────────────────────────────────────
+    if (childType === 'rev') {
+      history.push({ event_id: mxEvent.event_id, op: e.op, ts: e.ctx.ts, agent: e.ctx.agent });
+      if (e.op === 'INS') {
+        const o = e.operand as { format: 'markdown' | 'html'; content: string; summary: string };
+        revisions.set(childId, {
+          rev_id: childId,
+          format: o.format ?? 'html',
+          content: o.content ?? '',
+          summary: o.summary ?? '',
+          ts: e.ctx.ts,
+          event_id: mxEvent.event_id,
+        });
+      }
+      continue;
+    }
+
+    // ── Entry targets (experiment log) ──────────────────────────────────
+    if (childType !== 'entry') continue;
 
     history.push({ event_id: mxEvent.event_id, op: e.op, ts: e.ctx.ts, agent: e.ctx.agent });
 
@@ -303,11 +324,15 @@ function replayExperiment(contentId: string, meta: ContentMeta, events: MatrixEv
     }
   }
 
+  const sortedRevisions = Array.from(revisions.values()).sort((a, b) => a.ts.localeCompare(b.ts));
+
   return {
     content_type: 'experiment',
     content_id: contentId,
     meta,
     entries: Array.from(entries.values()).filter((e) => !e.deleted),
+    current_revision: sortedRevisions.at(-1) ?? null,
+    revisions: sortedRevisions,
     history,
   };
 }
