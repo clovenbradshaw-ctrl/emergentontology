@@ -107,7 +107,7 @@ export default function WikiEditor({ contentId, siteBase }: Props) {
               const html = rev.format === 'markdown' ? simpleMarkdownToHtml(rev.content) : rev.content;
               setEditorContent(html);
             }
-          }).catch(() => { /* best-effort freshness check */ });
+          }).catch((err) => { console.warn('[WikiEditor] freshness check failed:', err); });
         }
       }
       setLoading(false);

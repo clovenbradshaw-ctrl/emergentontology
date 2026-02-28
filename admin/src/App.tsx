@@ -232,7 +232,7 @@ function AdminShell() {
           <PageBuilder contentId={`page:${route.slug}`} siteBase={SITE_BASE} />
         )}
         {route.type === 'exp' && (
-          <ExperimentEditor contentId={`exp:${route.slug}`} siteBase={SITE_BASE} />
+          <ExperimentEditor contentId={`experiment:${route.slug}`} siteBase={SITE_BASE} />
         )}
         {route.type === 'settings' && <SettingsPanel />}
       </main>

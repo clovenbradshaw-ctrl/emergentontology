@@ -187,7 +187,7 @@ export default function PageBuilder({ contentId, siteBase }: Props) {
           };
           setState(normalized);
           savedStateRef.current = normalized;
-        }).catch(() => { /* best-effort freshness check */ });
+        }).catch((err) => { console.warn('[PageBuilder] freshness check failed:', err); });
       }
     }
     load();

@@ -71,7 +71,7 @@ export default function RichTextEditor({ content, onChange, placeholder, content
     if (editor && content !== editor.getHTML()) {
       editor.commands.setContent(content, { emitUpdate: false });
     }
-  }, [content]);
+  }, [content, editor]);
 
   if (!editor) return null;
 
