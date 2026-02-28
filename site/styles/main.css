@@ -398,6 +398,9 @@ main { flex: 1; max-width: 860px; margin: 0 auto; padding: 2rem 1.5rem; width: 1
 /* HTML block */
 .block-html { margin: 1rem 0; }
 
+/* HTML widget (from TipTap editor) */
+[data-type="html-widget"] { margin: 1rem 0; }
+
 /* Wiki */
 .wiki-body h1, .wiki-body h2, .wiki-body h3 { margin: 1.5rem 0 .5rem; }
 .wiki-body p { margin-bottom: .75rem; }

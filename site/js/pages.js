@@ -11,7 +11,7 @@ import { contentUrl } from './router.js';
 import {
   esc, md, setBreadcrumbs, setTitle, renderBlock,
   revisionHistoryHtml, renderRevisionContent, revealAdmin,
-  activateScripts, timeAgo
+  hydrateHtmlWidgets, activateScripts, timeAgo
 } from './render.js';
 
 // ── Sort helper ──────────────────────────────────────────────────────────────
@@ -318,6 +318,7 @@ export function renderWiki(el, slug) {
       h += '<a class="btn btn-edit" href="' + BASE + '/admin/#wiki/' + esc(slug) + '">Edit in Admin</a></div>';
       h += '</article>';
       el.innerHTML = h;
+      hydrateHtmlWidgets(el);
     } else if (operator) {
       setTitle(operator.code + ' \u2014 ' + operator.label);
       setBreadcrumbs([{ label: 'Wiki', href: BASE + '/wiki/' }, { label: operator.code + ' \u2014 ' + operator.label, href: BASE + '/wiki/' + slug + '/' }]);
@@ -409,6 +410,7 @@ export function renderBlog(el, slug) {
     h += '<a class="btn btn-edit" href="' + BASE + '/admin/#blog/' + esc(slug) + '">Edit in Admin</a></div>';
     h += '</article>';
     el.innerHTML = h;
+    hydrateHtmlWidgets(el);
     revealAdmin();
   });
 }
@@ -520,6 +522,8 @@ export function renderExp(el, slug) {
     h += '</article>';
     el.innerHTML = h;
 
+    // Hydrate HTML widgets so their content renders instead of showing source
+    hydrateHtmlWidgets(el);
     // Activate embedded scripts so HTML/JS experiments actually run
     activateScripts(el);
     revealAdmin();
@@ -563,6 +567,7 @@ export function renderPage(el, slug) {
     h += '<a class="btn btn-edit" href="' + BASE + '/admin/#page/' + esc(slug) + '">Edit in Admin</a></div>';
     h += '</article>';
     el.innerHTML = h;
+    hydrateHtmlWidgets(el);
     revealAdmin();
   });
 }
@@ -662,6 +667,7 @@ export function renderAll(el) {
     });
 
     el.innerHTML = h;
+    hydrateHtmlWidgets(el);
   });
 }
 
