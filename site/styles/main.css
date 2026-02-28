@@ -445,6 +445,35 @@ details[open] > .rev-expand-toggle::before { content: '▾ '; }
 .entry-eo-meta { display: flex; flex-direction: column; align-items: flex-end; gap: .25rem; flex-shrink: 0; }
 .attachments { margin-top: .5rem; padding-left: 1.25rem; font-size: .85rem; }
 
+/* Experiment HTML sandbox — live HTML/JS embeds */
+.exp-html-sandbox {
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 1.5rem;
+  background: var(--bg);
+  overflow: auto;
+}
+.exp-body { margin-bottom: 2rem; }
+.exp-entries-section { display: flex; flex-direction: column; gap: 1.25rem; margin-top: 1.5rem; }
+.exp-entry-card {
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--bg2);
+  overflow: hidden;
+}
+.exp-entry-header {
+  display: flex; align-items: center; gap: .5rem;
+  padding: .5rem 1rem;
+  border-bottom: 1px solid var(--border);
+  background: var(--bg3);
+  font-size: .8rem;
+}
+.exp-entry-icon { font-size: 1rem; }
+.exp-entry-kind { font-weight: 600; text-transform: uppercase; letter-spacing: .04em; color: var(--text-dim); font-size: .7rem; }
+.exp-entry-time { margin-left: auto; color: var(--text-dim); font-size: .75rem; }
+.exp-entry-content { padding: 1rem; }
+.exp-entry-content p { margin-bottom: .5rem; }
+
 /* ── Search results (shared) ── */
 .search-result-item {
   display: block;

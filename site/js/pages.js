@@ -10,7 +10,8 @@ import { getSiteIndex, loadContent } from './api.js';
 import { contentUrl } from './router.js';
 import {
   esc, md, setBreadcrumbs, setTitle, renderBlock,
-  revisionHistoryHtml, renderRevisionContent, revealAdmin
+  revisionHistoryHtml, renderRevisionContent, revealAdmin,
+  activateScripts
 } from './render.js';
 
 // ── Sort helper ──────────────────────────────────────────────────────────────
@@ -443,15 +444,27 @@ export function renderExp(el, slug) {
     setTitle(title);
     setBreadcrumbs([{ label: 'Experiments', href: BASE + '/exp/' }, { label: title, href: BASE + '/exp/' + slug + '/' }]);
 
+    var rev = content.current_revision;
     var kindIcons = { note: '\uD83D\uDCDD', dataset: '\uD83D\uDCC1', result: '\u2705', chart: '\uD83D\uDCC8', link: '\uD83D\uDD17', decision: '\u2696\uFE0F', html: '\uD83C\uDF10' };
     var entries = (content.entries || []).filter(function (e) { return !e.deleted; });
 
-    var h = '<article data-eo-op="DES" data-eo-target="' + esc(content.content_id) + '">';
+    var h = '<article class="experiment-article" data-eo-op="DES" data-eo-target="' + esc(content.content_id) + '">';
     h += '<header class="content-header"><h1>' + esc(title) + '</h1>';
+    h += '<div class="post-meta">';
+    if (content.meta.updated_at) h += '<time>' + new Date(content.meta.updated_at).toLocaleDateString() + '</time>';
+    h += '</div>';
     h += '<div class="content-tags">';
     (content.meta.tags || []).forEach(function (t) { h += '<span class="tag">' + esc(t) + '</span>'; });
     h += '</div></header>';
 
+    // Revision-based body (like a blog post — supports full HTML/JS)
+    if (rev && rev.content) {
+      h += '<div class="wiki-body exp-body">';
+      h += renderRevisionContent(rev);
+      h += '</div>';
+    }
+
+    // Entry-based log (experiment entries)
     if (entries.length > 0) {
       h += '<ul class="exp-entries">';
       entries.forEach(function (entry) {
@@ -460,7 +473,7 @@ export function renderExp(el, slug) {
         h += '<span class="entry-kind">' + icon + '</span>';
         h += '<div class="entry-body">';
         if (entry.kind === 'html') {
-          h += '<div class="entry-html">' + String((entry.data && entry.data.html) || '') + '</div>';
+          h += '<div class="exp-html-sandbox">' + String((entry.data && entry.data.html) || '') + '</div>';
         } else {
           if (entry.data && entry.data.text) h += md(String(entry.data.text));
           if (entry.data && entry.data.title) h += '<strong>' + esc(String(entry.data.title)) + '</strong>';
@@ -471,14 +484,19 @@ export function renderExp(el, slug) {
         h += '</li>';
       });
       h += '</ul>';
-    } else {
-      h += '<p class="empty-page">No entries yet.</p>';
+    } else if (!rev || !rev.content) {
+      h += '<p class="empty-page">No content yet.</p>';
     }
+
+    if (rev) h += revisionHistoryHtml(content);
 
     h += '<div class="content-actions eo-admin-only" hidden>';
     h += '<a class="btn btn-edit" href="' + BASE + '/admin/#exp/' + esc(slug) + '">Edit in Admin</a></div>';
     h += '</article>';
     el.innerHTML = h;
+
+    // Activate embedded scripts so HTML/JS experiments actually run
+    activateScripts(el);
     revealAdmin();
   });
 }

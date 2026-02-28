@@ -251,6 +251,28 @@ export function renderRevisionContent(revision) {
   return md(revision.content);
 }
 
+// ── Script activation (for live HTML/JS experiments) ─────────────────────────
+
+/**
+ * Activate <script> tags inside a container.
+ *
+ * When HTML is inserted via innerHTML, browsers ignore embedded <script> tags.
+ * This function replaces each script with a fresh element so the browser
+ * evaluates it.  Handles both inline scripts and external src scripts.
+ */
+export function activateScripts(container) {
+  var scripts = container.querySelectorAll('script');
+  for (var i = 0; i < scripts.length; i++) {
+    var old = scripts[i];
+    var fresh = document.createElement('script');
+    for (var j = 0; j < old.attributes.length; j++) {
+      fresh.setAttribute(old.attributes[j].name, old.attributes[j].value);
+    }
+    fresh.textContent = old.textContent;
+    old.parentNode.replaceChild(fresh, old);
+  }
+}
+
 // ── Admin reveal ─────────────────────────────────────────────────────────────
 
 export function revealAdmin() {
