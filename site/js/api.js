@@ -1,0 +1,321 @@
+/**
+ * api.js — Data loading layer.
+ *
+ * Fetches content from two sources in order:
+ *   1. Static JSON files (generated at build time by the projector)
+ *   2. API (N8N webhook → eowikicurrent table)
+ *
+ * Provides:
+ *   - loadIndex()   → SiteIndex
+ *   - loadContent() → content object for a specific content_id
+ *
+ * Handles deduplication, caching, error recovery, and index synthesis.
+ */
+
+import { BASE, API_URL, API_TIMEOUT } from './config.js';
+
+// ── State ────────────────────────────────────────────────────────────────────
+
+var _siteIndex = null;
+var _contentCache = {};
+var _apiRecords = null;      // deduped map of record_id → record
+var _apiPromise = null;      // in-flight API fetch (prevents duplicate requests)
+
+// ── Public getters ───────────────────────────────────────────────────────────
+
+export function getSiteIndex() { return _siteIndex; }
+
+// ── JSON fetch helper ────────────────────────────────────────────────────────
+
+function fetchJson(url) {
+  return fetch(url).then(function (r) {
+    if (!r.ok) return null;
+    return r.json();
+  }).catch(function () { return null; });
+}
+
+// ── API fetch (with abort timeout) ───────────────────────────────────────────
+
+/**
+ * Fetch all current-state records from the API.
+ * Returns a deduped map: record_id → most-recent record.
+ * Caches the result so subsequent calls reuse the same data.
+ */
+function fetchApiRecords() {
+  if (_apiRecords) return Promise.resolve(_apiRecords);
+  if (_apiPromise) return _apiPromise;
+
+  console.log('[eo] Fetching records from API…');
+
+  var controller = new AbortController();
+  var timer = setTimeout(function () { controller.abort(); }, API_TIMEOUT);
+
+  _apiPromise = fetch(API_URL, { signal: controller.signal })
+    .then(function (r) {
+      clearTimeout(timer);
+      if (!r.ok) {
+        console.warn('[eo] API returned HTTP ' + r.status);
+        return null;
+      }
+      return r.json();
+    })
+    .then(function (data) {
+      _apiPromise = null;
+      if (!data) return null;
+
+      // Handle both array responses and wrapped { records: [...] } responses
+      var records = Array.isArray(data) ? data : (data.records || data.items || null);
+      if (!Array.isArray(records)) {
+        console.warn('[eo] API returned unexpected shape:', typeof data);
+        return null;
+      }
+
+      _apiRecords = dedup(records);
+      var ids = Object.keys(_apiRecords);
+      console.log('[eo] Fetched ' + records.length + ' records, ' + ids.length + ' unique');
+      return _apiRecords;
+    })
+    .catch(function (e) {
+      clearTimeout(timer);
+      _apiPromise = null;
+      console.warn('[eo] API fetch failed:', e.message || e);
+      return null;
+    });
+
+  return _apiPromise;
+}
+
+/**
+ * Deduplicate records by record_id, keeping the most recently modified.
+ * Handles records with or without lastModified timestamps.
+ */
+function dedup(records) {
+  var map = {};
+  for (var i = 0; i < records.length; i++) {
+    var r = records[i];
+    var id = r.record_id;
+    if (!id) continue; // skip records without a record_id
+
+    var prev = map[id];
+    if (!prev) {
+      map[id] = r;
+      continue;
+    }
+
+    // Compare by lastModified — handle string dates and epoch numbers
+    var prevTime = parseTime(prev.lastModified);
+    var rTime = parseTime(r.lastModified);
+    if (rTime > prevTime) map[id] = r;
+  }
+  return map;
+}
+
+function parseTime(val) {
+  if (!val) return 0;
+  if (typeof val === 'number') return val;
+  var t = new Date(val).getTime();
+  return isNaN(t) ? 0 : t;
+}
+
+// ── Index loading ────────────────────────────────────────────────────────────
+
+/**
+ * Load the site index.
+ *
+ * Strategy:
+ *   1. Return cached index if available.
+ *   2. Try static JSON (generated/state/index.json).
+ *   3. Fall back to API — look for a site:index record.
+ *   4. If no site:index, synthesize an index from individual content records.
+ *   5. If all else fails, return an empty index.
+ */
+export function loadIndex() {
+  if (_siteIndex) return Promise.resolve(_siteIndex);
+
+  return fetchJson(BASE + '/generated/state/index.json')
+    .then(function (data) {
+      if (data && data.entries) {
+        console.log('[eo] Using static index (' + data.entries.length + ' entries)');
+        _siteIndex = normalizeIndex(data);
+        return _siteIndex;
+      }
+      return loadIndexFromApi();
+    })
+    .catch(function (err) {
+      console.warn('[eo] Index load error:', err);
+      return loadIndexFromApi();
+    });
+}
+
+function loadIndexFromApi() {
+  return fetchApiRecords().then(function (map) {
+    if (!map) {
+      console.warn('[eo] No API data — showing empty site');
+      _siteIndex = emptyIndex();
+      return _siteIndex;
+    }
+
+    // Try the site:index record first
+    if (map['site:index']) {
+      try {
+        var raw = JSON.parse(map['site:index'].values);
+        if (raw && raw.entries) {
+          console.log('[eo] Using site:index record (' + raw.entries.length + ' entries)');
+          _siteIndex = normalizeIndex(raw);
+          return _siteIndex;
+        }
+      } catch (e) {
+        console.warn('[eo] Failed to parse site:index:', e.message);
+      }
+    }
+
+    // No usable site:index — synthesize from individual content records
+    console.log('[eo] No site:index — synthesizing from content records');
+    _siteIndex = synthesizeIndex(map);
+    return _siteIndex;
+  });
+}
+
+/**
+ * Normalize an index object — ensure nav and slug_map exist.
+ */
+function normalizeIndex(raw) {
+  var entries = raw.entries || [];
+  var nav = raw.nav;
+  if (!nav) {
+    nav = entries.filter(function (e) {
+      return e.status === 'published' && e.visibility === 'public';
+    });
+  }
+  var slugMap = raw.slug_map || {};
+  if (Object.keys(slugMap).length === 0) {
+    entries.forEach(function (e) { slugMap[e.slug] = e.content_id; });
+  }
+  return {
+    entries: entries,
+    nav: nav,
+    slug_map: slugMap,
+    built_at: raw.built_at || '',
+    site_settings: raw.site_settings || null
+  };
+}
+
+function emptyIndex() {
+  return { entries: [], nav: [], slug_map: {}, built_at: '', site_settings: null };
+}
+
+/**
+ * Build a site index from individual content records in the API.
+ * Each content record has a record_id like "wiki:operators", "page:about", etc.
+ */
+function synthesizeIndex(map) {
+  var CONTENT_PREFIXES = ['wiki:', 'blog:', 'experiment:', 'page:'];
+  var entries = [];
+
+  var ids = Object.keys(map);
+  for (var i = 0; i < ids.length; i++) {
+    var id = ids[i];
+    var isContent = false;
+    for (var j = 0; j < CONTENT_PREFIXES.length; j++) {
+      if (id.indexOf(CONTENT_PREFIXES[j]) === 0) { isContent = true; break; }
+    }
+    if (!isContent) continue;
+
+    var rec = map[id];
+    var parsed;
+    try { parsed = JSON.parse(rec.values); } catch (e) { continue; }
+
+    var meta = parsed.meta || {};
+    var parts = id.split(':');
+    var prefix = parts[0];
+    var slug = meta.slug || parts.slice(1).join(':');
+    var contentType = meta.content_type || prefix;
+
+    entries.push({
+      content_id: id,
+      slug: slug,
+      title: meta.title || rec.displayName || slug,
+      content_type: contentType,
+      status: meta.status || 'published',
+      visibility: meta.visibility || 'public',
+      tags: meta.tags || []
+    });
+  }
+
+  var nav = entries.filter(function (e) {
+    return e.status === 'published' && e.visibility === 'public';
+  });
+  var slugMap = {};
+  entries.forEach(function (e) { slugMap[e.slug] = e.content_id; });
+
+  console.log('[eo] Synthesized index: ' + entries.length + ' entries, ' + nav.length + ' in nav');
+  return { entries: entries, nav: nav, slug_map: slugMap, built_at: '', site_settings: null };
+}
+
+// ── Content loading ──────────────────────────────────────────────────────────
+
+/**
+ * Load content for a specific content_id.
+ *
+ * Strategy:
+ *   1. Return cached content if available.
+ *   2. Try static JSON (generated/state/content/{id}.json).
+ *   3. Fall back to API — find matching record and parse its values.
+ *   4. Return null if content not found anywhere.
+ */
+export function loadContent(contentId) {
+  if (_contentCache[contentId]) return Promise.resolve(_contentCache[contentId]);
+
+  var fileName = contentId.replace(':', '-') + '.json';
+
+  return fetchJson(BASE + '/generated/state/content/' + fileName)
+    .then(function (data) {
+      if (data) {
+        _contentCache[contentId] = data;
+        return data;
+      }
+      return loadContentFromApi(contentId);
+    })
+    .catch(function () {
+      return loadContentFromApi(contentId);
+    });
+}
+
+function loadContentFromApi(contentId) {
+  return fetchApiRecords().then(function (map) {
+    if (!map || !map[contentId]) return null;
+
+    try {
+      var parsed = JSON.parse(map[contentId].values);
+      if (!parsed) return null;
+
+      // Ensure content_id is set at top level
+      if (!parsed.content_id) parsed.content_id = contentId;
+
+      // Ensure meta exists with at least basic fields
+      if (!parsed.meta) {
+        var parts = contentId.split(':');
+        parsed.meta = {
+          content_id: contentId,
+          content_type: parts[0],
+          slug: parts.slice(1).join(':'),
+          title: map[contentId].displayName || parts.slice(1).join(':'),
+          status: 'published',
+          visibility: 'public',
+          tags: []
+        };
+      }
+
+      // Ensure content_type is set at top level
+      if (!parsed.content_type && parsed.meta) {
+        parsed.content_type = parsed.meta.content_type;
+      }
+
+      _contentCache[contentId] = parsed;
+      return parsed;
+    } catch (e) {
+      console.warn('[eo] Failed to parse content for ' + contentId + ':', e.message);
+      return null;
+    }
+  });
+}
