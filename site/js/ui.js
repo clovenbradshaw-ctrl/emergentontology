@@ -16,6 +16,7 @@ export function setupUI(renderFn) {
   setupAdminDrawer();
   setupAdminEscReveal();
   setupLogoCycling();
+  setupButtonActions();
   setupSpaNavigation(renderFn);
   revealAdmin();
 }
@@ -125,6 +126,51 @@ function setupLogoCycling() {
     mark.style.color = OPERATORS[idx].color;
     localStorage.setItem('eo-logo-idx', String(idx));
   });
+}
+
+// ── Button block actions (copy to clipboard) ─────────────────────────────────
+
+function setupButtonActions() {
+  document.addEventListener('click', function (e) {
+    var btn = e.target.closest('[data-action="copy"]');
+    if (!btn) return;
+    e.preventDefault();
+    var copyText = btn.getAttribute('data-copy-text');
+    if (!copyText) return;
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(copyText).then(function () {
+        showCopyFeedback(btn);
+      }).catch(function () {
+        fallbackCopy(copyText, btn);
+      });
+    } else {
+      fallbackCopy(copyText, btn);
+    }
+  });
+}
+
+function fallbackCopy(text, btn) {
+  var ta = document.createElement('textarea');
+  ta.value = text;
+  ta.style.position = 'fixed';
+  ta.style.left = '-9999px';
+  document.body.appendChild(ta);
+  ta.select();
+  try {
+    document.execCommand('copy');
+    showCopyFeedback(btn);
+  } catch (e) { /* silent fail */ }
+  document.body.removeChild(ta);
+}
+
+function showCopyFeedback(btn) {
+  var original = btn.textContent;
+  btn.textContent = 'Copied!';
+  btn.classList.add('btn-copied');
+  setTimeout(function () {
+    btn.textContent = original;
+    btn.classList.remove('btn-copied');
+  }, 1500);
 }
 
 // ── SPA link interception ────────────────────────────────────────────────────
