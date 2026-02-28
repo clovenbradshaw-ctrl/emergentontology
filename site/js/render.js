@@ -4,6 +4,7 @@
 
 import { BASE, OPERATORS } from './config.js';
 import { contentUrl } from './router.js';
+import { timeAgo } from './time.js';
 
 // ── HTML escape ──────────────────────────────────────────────────────────────
 
@@ -217,7 +218,7 @@ export function revisionHistoryHtml(content) {
       var opName = isFirst ? 'INS' : 'ALT';
       h += '<li class="rev-entry rev-entry--' + opName.toLowerCase() + '">';
       h += '<code class="eo-op eo-op-inline"><span class="eo-name">' + opName + '</span>(<span class="eo-target">' + esc(content.content_id) + '/rev:' + esc(r.rev_id) + '</span>, <span class="eo-operand">{summary: "' + esc(r.summary || '\u2026') + '"}</span>)</code>';
-      h += ' <time class="rev-ts">' + new Date(r.ts).toLocaleDateString() + '</time>';
+      h += ' <time class="rev-ts" title="' + new Date(r.ts).toLocaleString() + '">' + timeAgo(r.ts) + '</time>';
       h += '</li>';
     });
     h += '</ol>';
@@ -228,7 +229,7 @@ export function revisionHistoryHtml(content) {
         var isFirst = r.rev_id === revs[0].rev_id;
         var opName = isFirst ? 'INS' : 'ALT';
         h += '<li class="rev-entry"><code class="eo-op eo-op-inline"><span class="eo-name">' + opName + '</span>(<span class="eo-target">' + esc(content.content_id) + '/rev:' + esc(r.rev_id) + '</span>)</code>';
-        h += ' <time class="rev-ts">' + new Date(r.ts).toLocaleDateString() + '</time></li>';
+        h += ' <time class="rev-ts" title="' + new Date(r.ts).toLocaleString() + '">' + timeAgo(r.ts) + '</time></li>';
       });
       h += '</ol></details>';
     }

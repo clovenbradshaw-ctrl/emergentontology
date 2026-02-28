@@ -14,6 +14,25 @@
   let enabled = false;
   let panel = null;
 
+  function timeAgo(ts) {
+    if (!ts) return '';
+    const date = ts instanceof Date ? ts : new Date(ts);
+    const diff = Date.now() - date.getTime();
+    if (diff < 0) return 'just now';
+    const sec = Math.floor(diff / 1000);
+    const min = Math.floor(sec / 60);
+    const hrs = Math.floor(min / 60);
+    const days = Math.floor(hrs / 24);
+    if (sec < 60) return 'just now';
+    if (min === 1) return '1 minute ago';
+    if (min < 60) return min + ' minutes ago';
+    if (hrs === 1) return '1 hour ago';
+    if (hrs < 24) return hrs + ' hours ago';
+    if (days === 1) return 'yesterday';
+    if (days < 30) return days + ' days ago';
+    return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+  }
+
   const OP_COLORS = {
     INS: '#4ade80', DES: '#60a5fa', ALT: '#fbbf24',
     SEG: '#c084fc', CON: '#34d399', SYN: '#818cf8',
@@ -212,7 +231,7 @@
           <div style="display:flex;align-items:center;gap:6px">
             <span style="color:${color};font-weight:700;font-size:14px">${sym}</span>
             <span style="color:${color};font-weight:600">${entry.op}</span><span style="color:#aaa">(</span><span style="color:#888;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${target}${summary}</span><span style="color:#aaa">)</span>
-            <span style="color:#555;font-size:10px;margin-left:auto;flex-shrink:0">${new Date(entry.ts).toLocaleTimeString()}</span>
+            <span style="color:#555;font-size:10px;margin-left:auto;flex-shrink:0" title="${new Date(entry.ts).toLocaleString()}">${timeAgo(entry.ts)}</span>
           </div>
         `;
         body.appendChild(row);
@@ -224,7 +243,7 @@
       topo.innerHTML = `
         <strong style="color:#7c6fcd">${data.content_id ?? ''}</strong>
         &nbsp;·&nbsp; ${data.content_type ?? ''} &nbsp;·&nbsp; ${history.length} events
-        &nbsp;·&nbsp; built <span style="color:#aaa">${data.meta?.updated_at ? new Date(data.meta.updated_at).toLocaleDateString() : 'unknown'}</span>
+        &nbsp;·&nbsp; built <span style="color:#aaa" title="${data.meta?.updated_at ? new Date(data.meta.updated_at).toLocaleString() : ''}">${data.meta?.updated_at ? timeAgo(data.meta.updated_at) : 'unknown'}</span>
       `;
       body.insertBefore(topo, body.firstChild);
     } catch {

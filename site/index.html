@@ -433,6 +433,22 @@ var OPERATORS = [
 
 var siteData = {}, siteIndex = null, allPages = [];
 
+function timeAgo(ts) {
+  if (!ts) return '';
+  var date = ts instanceof Date ? ts : new Date(ts);
+  var diff = Date.now() - date.getTime();
+  if (diff < 0) return 'just now';
+  var sec = Math.floor(diff / 1000), min = Math.floor(sec / 60), hrs = Math.floor(min / 60), days = Math.floor(hrs / 24);
+  if (sec < 60) return 'just now';
+  if (min === 1) return '1 minute ago';
+  if (min < 60) return min + ' minutes ago';
+  if (hrs === 1) return '1 hour ago';
+  if (hrs < 24) return hrs + ' hours ago';
+  if (days === 1) return 'yesterday';
+  if (days < 30) return days + ' days ago';
+  return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+}
+
 // ── Data Loading ──────────────────────────────────────────────────────────────
 
 function loadData() {
@@ -743,7 +759,7 @@ function renderPage(slug) {
   if (rev) {
     var d = new Date(rev.ts);
     h += '<div class="revision-info">';
-    h += '<span><strong>Last edited:</strong> ' + d.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }) + '</span>';
+    h += '<span title="' + d.toLocaleString() + '"><strong>Last edited:</strong> ' + timeAgo(rev.ts) + '</span>';
     h += '<span><strong>Revisions:</strong> ' + revs.length + '</span>';
     h += '<span><strong>Status:</strong> ' + esc(meta.status || '\u2014') + '</span>';
     h += '</div>';
@@ -773,7 +789,7 @@ function renderPage(slug) {
       var icon = kindIcons[entry.kind] || '\uD83D\uDCDD';
       h += '<div class="exp-entry-card">';
       h += '<div class="exp-entry-header"><span class="exp-entry-icon">' + icon + '</span><span class="exp-entry-kind">' + esc(entry.kind) + '</span>';
-      h += '<time class="exp-entry-time">' + new Date(entry.ts).toLocaleDateString() + '</time></div>';
+      h += '<time class="exp-entry-time" title="' + new Date(entry.ts).toLocaleString() + '">' + timeAgo(entry.ts) + '</time></div>';
       h += '<div class="exp-entry-content">';
       if (entry.kind === 'html') {
         h += '<div class="exp-html-sandbox">' + String((entry.data && entry.data.html) || '') + '</div>';
@@ -811,7 +827,7 @@ function renderPage(slug) {
       h += '<div style="display:flex;gap:0.75rem;font-size:0.82rem;color:var(--text-faint);align-items:center">';
       h += '<span style="font-family:\'JetBrains Mono\',monospace;color:var(--purple);font-weight:600;font-size:0.75rem">' + (isFirst ? 'INS' : 'ALT') + '</span>';
       h += '<span>' + esc(r.summary || '\u2026') + '</span>';
-      h += '<span style="margin-left:auto;white-space:nowrap">' + new Date(r.ts).toLocaleDateString() + '</span>';
+      h += '<span style="margin-left:auto;white-space:nowrap" title="' + new Date(r.ts).toLocaleString() + '">' + timeAgo(r.ts) + '</span>';
       h += '</div>';
     }
     if (revs.length > 6) {

@@ -13,6 +13,7 @@ import {
   revisionHistoryHtml, renderRevisionContent, revealAdmin,
   activateScripts
 } from './render.js';
+import { timeAgo } from './time.js';
 
 // ── Sort helper ──────────────────────────────────────────────────────────────
 
@@ -251,7 +252,7 @@ function wikiListItem(w) {
     h += '</span>';
   }
   if (w.updated_at) {
-    h += ' <time class="list-updated">' + new Date(w.updated_at).toLocaleDateString() + '</time>';
+    h += ' <time class="list-updated" title="' + new Date(w.updated_at).toLocaleString() + '">' + timeAgo(w.updated_at) + '</time>';
   }
   h += '</li>';
   return h;
@@ -371,7 +372,7 @@ export function renderBlog(el, slug) {
     var h = '<article class="wiki-content" data-eo-op="DES" data-eo-target="' + esc(content.content_id) + '">';
     h += '<header class="content-header"><h1>' + esc(title) + '</h1>';
     h += '<div class="post-meta">';
-    if (content.meta.updated_at) h += '<time>' + new Date(content.meta.updated_at).toLocaleDateString() + '</time>';
+    if (content.meta.updated_at) h += '<time title="' + new Date(content.meta.updated_at).toLocaleString() + '">' + timeAgo(content.meta.updated_at) + '</time>';
     h += '</div>';
     h += '<div class="content-tags">';
     (content.meta.tags || []).forEach(function (t) { h += '<span class="tag">' + esc(t) + '</span>'; });
@@ -454,7 +455,7 @@ export function renderExp(el, slug) {
     var h = '<article class="experiment-article" data-eo-op="DES" data-eo-target="' + esc(content.content_id) + '">';
     h += '<header class="content-header"><h1>' + esc(title) + '</h1>';
     h += '<div class="post-meta">';
-    if (content.meta.updated_at) h += '<time>' + new Date(content.meta.updated_at).toLocaleDateString() + '</time>';
+    if (content.meta.updated_at) h += '<time title="' + new Date(content.meta.updated_at).toLocaleString() + '">' + timeAgo(content.meta.updated_at) + '</time>';
     h += '</div>';
     h += '<div class="content-tags">';
     (content.meta.tags || []).forEach(function (t) { h += '<span class="tag">' + esc(t) + '</span>'; });
@@ -483,7 +484,7 @@ export function renderExp(el, slug) {
           if (entry.data && entry.data.url) h += '<p><a href="' + esc(String(entry.data.url)) + '">' + esc(String(entry.data.url)) + '</a></p>';
         }
         h += '</div>';
-        h += '<time class="entry-ts">' + new Date(entry.ts).toLocaleDateString() + '</time>';
+        h += '<time class="entry-ts" title="' + new Date(entry.ts).toLocaleString() + '">' + timeAgo(entry.ts) + '</time>';
         h += '</li>';
       });
       h += '</ul>';

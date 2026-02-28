@@ -13,6 +13,25 @@
 import { useState, useEffect, createContext, useContext } from 'react';
 import type { HistoryEntry, EOOp } from '../eo/types';
 
+function timeAgo(ts: string | number | Date): string {
+  if (!ts) return '';
+  const date = ts instanceof Date ? ts : new Date(ts);
+  const diff = Date.now() - date.getTime();
+  if (diff < 0) return 'just now';
+  const sec = Math.floor(diff / 1000);
+  const min = Math.floor(sec / 60);
+  const hrs = Math.floor(min / 60);
+  const days = Math.floor(hrs / 24);
+  if (sec < 60) return 'just now';
+  if (min === 1) return '1 minute ago';
+  if (min < 60) return `${min} minutes ago`;
+  if (hrs === 1) return '1 hour ago';
+  if (hrs < 24) return `${hrs} hours ago`;
+  if (days === 1) return 'yesterday';
+  if (days < 30) return `${days} days ago`;
+  return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+}
+
 // ── Context ───────────────────────────────────────────────────────────────────
 
 interface XRayState {
@@ -230,7 +249,7 @@ function HistoryRow({ entry }: { entry: HistoryEntry }) {
         <span style={{ color: '#aaa', flex: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
           {entry.target ?? entry.event_id}
         </span>
-        <span style={{ color: '#555', fontSize: '10px' }}>{new Date(entry.ts).toLocaleTimeString()}</span>
+        <span style={{ color: '#555', fontSize: '10px' }} title={new Date(entry.ts).toLocaleString()}>{timeAgo(entry.ts)}</span>
       </div>
       {open && (
         <div style={{ marginTop: '4px', color: '#888', fontSize: '11px' }}>
