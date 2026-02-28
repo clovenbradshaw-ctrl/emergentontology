@@ -45,7 +45,6 @@ export function renderHome(el) {
   var blogs = sortByUpdated(publicEntries.filter(function (e) { return e.content_type === 'blog'; }));
   var exps  = sortByUpdated(publicEntries.filter(function (e) { return e.content_type === 'experiment'; }));
   var pages = sortByUpdated(publicEntries.filter(function (e) { return e.content_type === 'page'; }));
-  var total = wikis.length + blogs.length + exps.length + pages.length;
 
   var allTags = [];
   var tagSet = {};
@@ -62,13 +61,6 @@ export function renderHome(el) {
   h += '<section class="home-hero">';
   h += '<div class="hero-badge">Emergent Ontology (EO)</div>';
   h += '<h1 class="hero-title">A framework that changes everything<br>about everything that changes</h1>';
-  if (total > 0) {
-    h += '<p class="hero-stats">' + total + ' article' + (total !== 1 ? 's' : '');
-    if (wikis.length) h += ' \u00B7 ' + wikis.length + ' wiki';
-    if (blogs.length) h += ' \u00B7 ' + blogs.length + ' blog';
-    if (exps.length)  h += ' \u00B7 ' + exps.length + ' experiments';
-    h += '</p>';
-  }
   h += '</section>';
 
   // Two-column layout
