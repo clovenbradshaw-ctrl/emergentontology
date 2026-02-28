@@ -498,7 +498,7 @@ function buildPageList() {
         status: e.status,
         visibility: e.visibility || 'public',
         tags: e.tags || [],
-        updated_at: e.updated_at || '',
+        updated_at: e.updated_at || (rec && rec.parsed && rec.parsed.meta && rec.parsed.meta.updated_at) || '',
         hasContent: !!(rec && rec.parsed && rec.parsed.current_revision && rec.parsed.current_revision.content),
         record: rec
       });
@@ -639,7 +639,7 @@ function renderHomeSection(title, items, icon) {
       h += '<div class="item-icon">' + icon + '</div>';
       h += '<div><div class="item-title">' + esc(p.title) + '</div>';
       var ts = relativeTime(p.updated_at);
-      h += '<div class="item-meta">' + (ts || (p.hasContent ? 'Published' : 'Empty')) + '</div>';
+      h += '<div class="item-meta">' + (ts || '') + '</div>';
       if (p.tags && p.tags.length) {
         h += '<div class="item-tags">';
         for (var j = 0; j < Math.min(p.tags.length, 3); j++) {
