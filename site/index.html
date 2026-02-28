@@ -498,6 +498,7 @@ function buildPageList() {
         status: e.status,
         visibility: e.visibility || 'public',
         tags: e.tags || [],
+        updated_at: e.updated_at || '',
         hasContent: !!(rec && rec.parsed && rec.parsed.current_revision && rec.parsed.current_revision.content),
         record: rec
       });
@@ -519,6 +520,7 @@ function buildPageList() {
         status: meta.status,
         visibility: meta.visibility || 'public',
         tags: meta.tags || [],
+        updated_at: meta.updated_at || '',
         hasContent: !!(rec.parsed.current_revision && rec.parsed.current_revision.content),
         record: rec
       });
@@ -617,19 +619,28 @@ function renderHome() {
 function filterPages(type) {
   return allPages.filter(function(p) {
     return p.content_type === type && (p.status === 'published' || p.hasContent) && p.visibility !== 'private';
+  }).sort(function(a, b) {
+    var ta = a.updated_at || '';
+    var tb = b.updated_at || '';
+    if (tb > ta) return 1;
+    if (tb < ta) return -1;
+    return 0;
   });
 }
 
 function renderHomeSection(title, items, icon) {
+  var MAX = 6;
   var h = '<div class="home-section"><div class="home-section-title">' + title + '</div>';
   if (items.length) {
     h += '<div class="wiki-list">';
-    for (var i = 0; i < items.length; i++) {
+    var show = Math.min(items.length, MAX);
+    for (var i = 0; i < show; i++) {
       var p = items[i];
       h += '<a class="wiki-list-item" onclick="navigate(\'' + escAttr(p.slug) + '\')">';
       h += '<div class="item-icon">' + icon + '</div>';
       h += '<div><div class="item-title">' + esc(p.title) + '</div>';
-      h += '<div class="item-meta">' + (p.hasContent ? 'Published' : 'Empty') + '</div>';
+      var ts = relativeTime(p.updated_at);
+      h += '<div class="item-meta">' + (ts || (p.hasContent ? 'Published' : 'Empty')) + '</div>';
       if (p.tags && p.tags.length) {
         h += '<div class="item-tags">';
         for (var j = 0; j < Math.min(p.tags.length, 3); j++) {
@@ -640,6 +651,11 @@ function renderHomeSection(title, items, icon) {
       h += '</div></a>';
     }
     h += '</div>';
+    if (items.length > MAX) {
+      var viewMap = { 'Wiki': 'wiki', 'Blog': 'blog', 'Experiments': 'experiments' };
+      var viewKey = viewMap[title] || title.toLowerCase();
+      h += '<a class="show-more-link" onclick="showView(\'' + viewKey + '\')" style="display:inline-block;margin-top:0.5rem;font-size:0.82rem;color:var(--purple);cursor:pointer;font-weight:500">+ ' + (items.length - MAX) + ' more</a>';
+    }
   } else {
     h += '<p class="home-section-empty">No ' + title.toLowerCase() + ' entries published yet.</p>';
   }
@@ -656,6 +672,12 @@ function renderSection(type) {
 
   var pages = allPages.filter(function(p) {
     return p.content_type === typeFilter && p.visibility !== 'private';
+  }).sort(function(a, b) {
+    var ta = a.updated_at || '';
+    var tb = b.updated_at || '';
+    if (tb > ta) return 1;
+    if (tb < ta) return -1;
+    return 0;
   });
   var label = type.charAt(0).toUpperCase() + type.slice(1);
   document.title = label + ' \u2014 Emergent Ontology';
@@ -673,7 +695,8 @@ function renderSection(type) {
       h += '<a class="wiki-list-item" onclick="navigate(\'' + escAttr(p.slug) + '\')">';
       h += '<div class="item-icon">' + icon + '</div>';
       h += '<div><div class="item-title">' + esc(p.title) + '</div>';
-      h += '<div class="item-meta">' + (p.status || '') + '</div></div>';
+      var ts = relativeTime(p.updated_at);
+      h += '<div class="item-meta">' + (ts || p.status || '') + '</div></div>';
       h += '</a>';
     }
     h += '</div>';
@@ -984,6 +1007,20 @@ try {
 } catch(e) {}
 
 // ── Utilities ─────────────────────────────────────────────────────────────────
+
+function relativeTime(dateStr) {
+  if (!dateStr) return '';
+  var now = Date.now();
+  var then = new Date(dateStr).getTime();
+  if (isNaN(then)) return '';
+  var diff = Math.floor((now - then) / 1000);
+  if (diff < 60) return 'just now';
+  if (diff < 3600) { var m = Math.floor(diff / 60); return m + (m === 1 ? ' min ago' : ' mins ago'); }
+  if (diff < 86400) { var h = Math.floor(diff / 3600); return h + (h === 1 ? ' hour ago' : ' hours ago'); }
+  if (diff < 2592000) { var d = Math.floor(diff / 86400); return d + (d === 1 ? ' day ago' : ' days ago'); }
+  if (diff < 31536000) { var mo = Math.floor(diff / 2592000); return mo + (mo === 1 ? ' month ago' : ' months ago'); }
+  var y = Math.floor(diff / 31536000); return y + (y === 1 ? ' year ago' : ' years ago');
+}
 
 function esc(s) {
   var d = document.createElement('div');
