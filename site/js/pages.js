@@ -283,7 +283,7 @@ export function renderWiki(el, slug) {
   return loadContent(contentId).then(function (content) {
     var operator = OPERATORS.find(function (op) { return op.slug === slug; });
 
-    if (content && content.meta) {
+    if (content && content.meta && content.meta.status !== 'archived') {
       var title = content.meta.title;
       setTitle(title);
       setBreadcrumbs([{ label: 'Wiki', href: BASE + '/wiki/' }, { label: title, href: BASE + '/wiki/' + slug + '/' }]);
@@ -375,7 +375,7 @@ export function renderBlog(el, slug) {
   var contentId = entry ? entry.content_id : 'blog:' + slug;
 
   return loadContent(contentId).then(function (content) {
-    if (!content || !content.meta) { render404(el); return; }
+    if (!content || !content.meta || content.meta.status === 'archived') { render404(el); return; }
 
     var title = content.meta.title;
     setTitle(title);
@@ -454,7 +454,7 @@ export function renderExp(el, slug) {
   var contentId = entry ? entry.content_id : 'experiment:' + slug;
 
   return loadContent(contentId).then(function (content) {
-    if (!content || !content.meta) { render404(el); return; }
+    if (!content || !content.meta || content.meta.status === 'archived') { render404(el); return; }
 
     var title = content.meta.title;
     setTitle(title);
@@ -528,7 +528,7 @@ export function renderPage(el, slug) {
   var contentId = entry ? entry.content_id : 'page:' + slug;
 
   return loadContent(contentId).then(function (content) {
-    if (!content || !content.meta) { render404(el); return; }
+    if (!content || !content.meta || content.meta.status === 'archived') { render404(el); return; }
 
     var title = content.meta.title;
     setTitle(title);

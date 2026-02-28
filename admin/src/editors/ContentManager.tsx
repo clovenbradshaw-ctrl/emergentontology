@@ -376,10 +376,8 @@ export default function ContentManager({ siteBase, onOpen }: Props) {
       } as Partial<import('../eo/types').ContentMeta>, agent);
       await addRecord(eventToPayload(metaEvent));
 
-      // 3. Update site:index current state
-      const updatedEntries = entries.map((e) =>
-        e.content_id === contentId ? { ...e, status: 'archived' as ContentStatus } : e
-      );
+      // 3. Update site:index current state — remove the entry entirely
+      const updatedEntries = entries.filter((e) => e.content_id !== contentId);
       const updated = await upsertCurrentRecord(
         'site:index',
         buildIndexPayload(updatedEntries),
@@ -389,7 +387,7 @@ export default function ContentManager({ siteBase, onOpen }: Props) {
       indexRecordRef.current = updated;
       setEntries(updatedEntries);
 
-      // 4. Update content's own current state
+      // 4. Update content's own current state to archived
       try {
         const contentRec = await fetchCurrentRecordCached(contentId);
         if (contentRec) {
