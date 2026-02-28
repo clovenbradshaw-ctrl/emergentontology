@@ -21,6 +21,9 @@ site/public/generated/build-manifest.json
 site/public/generated/styles/
 site/public/generated/js/
 
+# Projector build output (generated at build time, not committed)
+site/generated/
+
 # TypeScript compile output for projector
 tools/projector/dist/
 
