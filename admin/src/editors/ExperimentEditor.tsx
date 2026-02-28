@@ -1,13 +1,15 @@
 /**
- * ExperimentEditor — log-style editor for experiment entries.
+ * ExperimentEditor — rich HTML body + log-style entries for experiments.
+ *
+ * Experiments have two content layers:
+ *   1. A revision-based HTML body (like wiki/blog) for full experiment write-ups.
+ *   2. A log of typed entries (note, dataset, result, chart, link, decision, html).
  *
  * Data flow:
- *   Load  →  GET /eowikicurrent (record_id = contentId) → current entries
+ *   Load  →  GET /eowikicurrent (record_id = contentId) → current state
  *            Fall back to static snapshot if no Xano record.
- *   Add   →  POST /eowiki (INS entry event)
- *            UPSERT /eowikicurrent (update current state)
- *   Delete→  POST /eowiki (NUL entry event)
- *            UPSERT /eowikicurrent (update current state)
+ *   Save  →  POST /eowiki (INS rev event for body, INS/NUL entry events for log)
+ *            UPSERT /eowikicurrent (update current state snapshot)
  */
 
 import React, { useEffect, useRef, useState } from 'react';
@@ -21,18 +23,29 @@ import {
   type XanoCurrentRecord,
 } from '../xano/client';
 import { loadState, applyFreshnessUpdate } from '../xano/stateCache';
-import { insExpEntry, nulExpEntry } from '../eo/events';
-import type { ExperimentEntry } from '../eo/types';
+import { insExpEntry, nulExpEntry, insRevision } from '../eo/events';
+import type { ExperimentEntry, WikiRevision, ContentMeta } from '../eo/types';
+import { mdToHtml } from '../eo/markdown';
+import RichTextEditor from './RichTextEditor';
 import MetadataBar from '../components/MetadataBar';
 
 const KINDS: ExperimentEntry['kind'][] = ['note', 'dataset', 'result', 'chart', 'link', 'decision', 'html'];
 const KIND_ICONS: Record<string, string> = {
-  note: '📝', dataset: '📊', result: '✅', chart: '📈', link: '🔗', decision: '⚖️', html: '🌐',
+  note: '\uD83D\uDCDD', dataset: '\uD83D\uDCC1', result: '\u2705', chart: '\uD83D\uDCC8', link: '\uD83D\uDD17', decision: '\u2696\uFE0F', html: '\uD83C\uDF10',
 };
 
 interface ExpState {
   entries: ExperimentEntry[];
   meta: Record<string, unknown>;
+  current_revision: WikiRevision | null;
+  revisions: WikiRevision[];
+}
+
+interface ContentEntry {
+  content_id: string;
+  slug: string;
+  title: string;
+  content_type: string;
 }
 
 interface Props {
@@ -52,9 +65,16 @@ export default function ExperimentEditor({ contentId, siteBase }: Props) {
   const currentRecordRef = useRef<XanoCurrentRecord | null>(null);
   const savedStateRef = useRef<ExpState | null>(null);
 
+  // Entry log state
   const [kind, setKind] = useState<ExperimentEntry['kind']>('note');
   const [text, setText] = useState('');
   const [saving, setSaving] = useState(false);
+
+  // Rich body state
+  const [editorContent, setEditorContent] = useState('');
+  const [summary, setSummary] = useState('');
+  const savedContentRef = useRef('');
+  const [contentEntries, setContentEntries] = useState<ContentEntry[]>([]);
 
   // ── Load ──────────────────────────────────────────────────────────────────
 
@@ -71,14 +91,28 @@ export default function ExperimentEditor({ contentId, siteBase }: Props) {
 
       let expState = result.state;
 
-      // Normalize: ensure entries/meta exist
+      // Normalize: ensure entries/meta/revisions exist
       if (expState) {
-        expState = { entries: expState.entries ?? [], meta: expState.meta ?? {} };
+        expState = {
+          entries: expState.entries ?? [],
+          meta: expState.meta ?? {},
+          current_revision: expState.current_revision ?? null,
+          revisions: expState.revisions ?? [],
+        };
       }
 
       setState(expState);
       savedStateRef.current = expState;
       setIsDirty(false);
+
+      // Initialize body editor from current revision
+      if (expState?.current_revision) {
+        const rev = expState.current_revision;
+        const html = rev.format === 'markdown' ? mdToHtml(rev.content) : rev.content;
+        setEditorContent(html);
+        savedContentRef.current = html;
+      }
+
       setLoading(false);
 
       // 2. Background freshness check: apply any newer events from the log
@@ -89,15 +123,42 @@ export default function ExperimentEditor({ contentId, siteBase }: Props) {
         }).then(({ updated, hadUpdates }) => {
           if (cancelled || !hadUpdates) return;
           const freshState = updated as unknown as ExpState;
-          const normalized = { entries: freshState.entries ?? [], meta: freshState.meta ?? {} };
+          const normalized: ExpState = {
+            entries: freshState.entries ?? [],
+            meta: freshState.meta ?? {},
+            current_revision: freshState.current_revision ?? null,
+            revisions: freshState.revisions ?? [],
+          };
           setState(normalized);
           savedStateRef.current = normalized;
+          if (normalized.current_revision) {
+            const rev = normalized.current_revision;
+            const html = rev.format === 'markdown' ? mdToHtml(rev.content) : rev.content;
+            setEditorContent(html);
+            savedContentRef.current = html;
+          }
         }).catch((err) => { console.warn('[ExperimentEditor] freshness check failed:', err); });
       }
     }
     load();
     return () => { cancelled = true; };
   }, [contentId, siteBase, settings.displayName]);
+
+  // ── Load content entries for internal link picker ──────────────────────────
+
+  useEffect(() => {
+    async function loadEntries() {
+      const result = await loadState<{ entries?: ContentEntry[] }>(
+        'site:index',
+        siteBase,
+        '/generated/state/index.json',
+      );
+      if (result.state) {
+        setContentEntries(result.state.entries ?? []);
+      }
+    }
+    loadEntries();
+  }, [siteBase]);
 
   // ── Warn on unload with unsaved changes ──────────────────────────────────
 
@@ -108,6 +169,13 @@ export default function ExperimentEditor({ contentId, siteBase }: Props) {
     window.addEventListener('beforeunload', handler);
     return () => window.removeEventListener('beforeunload', handler);
   }, [isDirty]);
+
+  // ── Handle body content change ────────────────────────────────────────────
+
+  function handleContentChange(html: string) {
+    setEditorContent(html);
+    setIsDirty(true);
+  }
 
   // ── Add entry (local only — not saved until "Save") ─────────────────────
 
@@ -125,6 +193,8 @@ export default function ExperimentEditor({ contentId, siteBase }: Props) {
     const updatedState: ExpState = {
       meta: state?.meta ?? {},
       entries: [...(state?.entries ?? []), newEntry],
+      current_revision: state?.current_revision ?? null,
+      revisions: state?.revisions ?? [],
     };
     setState(updatedState);
     setIsDirty(true);
@@ -138,6 +208,8 @@ export default function ExperimentEditor({ contentId, siteBase }: Props) {
     const updatedState: ExpState = {
       meta: state?.meta ?? {},
       entries: (state?.entries ?? []).filter((e) => e.entry_id !== entryId),
+      current_revision: state?.current_revision ?? null,
+      revisions: state?.revisions ?? [],
     };
     setState(updatedState);
     setIsDirty(true);
@@ -155,7 +227,32 @@ export default function ExperimentEditor({ contentId, siteBase }: Props) {
     const savedEntryIds = new Set((saved?.entries ?? []).map(e => e.entry_id));
     const currentEntryIds = new Set(state.entries.map(e => e.entry_id));
 
+    let newRev: WikiRevision | null = null;
+
     try {
+      // ── Body revision (if content changed) ──────────────────────────────
+      const bodyChanged = editorContent !== savedContentRef.current;
+      if (bodyChanged) {
+        const revId = `r_${Date.now()}`;
+        const ts = new Date().toISOString();
+        const event = insRevision(contentId, {
+          rev_id: revId,
+          format: 'html' as WikiRevision['format'],
+          content: editorContent,
+          summary: summary || 'Edit',
+          ts,
+        }, agent);
+
+        const xid = `${event.op}-${revId}`;
+        registerEvent({ id: xid, op: event.op, target: event.target, operand: event.operand, ts: event.ctx.ts, agent: event.ctx.agent, status: 'pending' });
+        await addRecord(eventToPayload(event));
+        registerEvent({ id: xid, op: event.op, target: event.target, operand: event.operand, ts: event.ctx.ts, agent: event.ctx.agent, status: 'sent' });
+
+        newRev = { rev_id: revId, format: 'html' as WikiRevision['format'], content: editorContent, summary: summary || 'Edit', ts };
+      }
+
+      // ── Entry log events ────────────────────────────────────────────────
+
       // Emit INS events for new entries
       for (const entry of state.entries) {
         if (savedEntryIds.has(entry.entry_id)) continue;
@@ -176,12 +273,24 @@ export default function ExperimentEditor({ contentId, siteBase }: Props) {
         registerEvent({ id: xid, op: event.op, target: event.target, operand: event.operand, ts: event.ctx.ts, agent: event.ctx.agent, status: 'sent' });
       }
 
+      // ── Build updated state snapshot ────────────────────────────────────
+
+      const updatedState: ExpState = {
+        meta: state.meta,
+        entries: state.entries,
+        revisions: newRev ? [...(state.revisions ?? []), newRev] : (state.revisions ?? []),
+        current_revision: newRev ?? state.current_revision,
+      };
+
       // Upsert current state snapshot
-      const updated = await upsertCurrentRecord(contentId, state, agent, currentRecordRef.current);
+      const updated = await upsertCurrentRecord(contentId, updatedState, agent, currentRecordRef.current);
       currentRecordRef.current = updated;
 
-      savedStateRef.current = state;
+      setState(updatedState);
+      savedStateRef.current = updatedState;
+      savedContentRef.current = editorContent;
       setIsDirty(false);
+      setSummary('');
     } catch (err) {
       const msg = err instanceof Error ? err.message : String(err);
       setError(`Save failed: ${msg}`);
@@ -205,43 +314,85 @@ export default function ExperimentEditor({ contentId, siteBase }: Props) {
           {saving ? 'Saving\u2026' : 'Save experiment'}
         </button>
       </div>
-      {error && <div className="error-banner">{error} <button onClick={() => setError(null)}>×</button></div>}
+      {error && <div className="error-banner">{error} <button onClick={() => setError(null)}>&times;</button></div>}
 
-      <div className="exp-entry-form">
-        <select value={kind} onChange={(e) => setKind(e.target.value as ExperimentEntry['kind'])} className="kind-select">
-          {KINDS.map((k) => <option key={k} value={k}>{KIND_ICONS[k]} {k}</option>)}
-        </select>
-        <textarea
-          value={text}
-          onChange={(e) => setText(e.target.value)}
-          placeholder={kind === 'html' ? 'Enter HTML content...' : 'Write a note, observation, result\u2026'}
-          rows={4}
-          className="entry-textarea"
+      <section className="exp-body-section">
+        <h3>Experiment content</h3>
+        <RichTextEditor
+          content={editorContent}
+          onChange={handleContentChange}
+          placeholder="Write up the experiment\u2026"
+          contentEntries={contentEntries}
         />
-        <button
-          className="btn btn-sm"
-          onClick={addEntry}
-          disabled={!text.trim() || !isAuthenticated}
-        >
-          + Add entry
-        </button>
-      </div>
+        <div className="editor-footer-row">
+          <input
+            className="summary-input"
+            value={summary}
+            onChange={(e) => setSummary(e.target.value)}
+            placeholder="Revision summary (optional)"
+            maxLength={120}
+          />
+        </div>
+      </section>
 
-      <ol className="exp-log">
-        {(state?.entries ?? []).length === 0 && (
-          <li className="exp-empty">No entries yet. Add one above.</li>
-        )}
-        {(state?.entries ?? []).map((entry) => (
-          <li key={entry.entry_id} className={`exp-log-entry exp-log-${entry.kind}`}>
-            <span className="entry-kind-icon" title={entry.kind}>{KIND_ICONS[entry.kind] ?? '•'}</span>
-            <div className="entry-content">
-              <p>{String(entry.kind === 'html' ? (entry.data.html ?? '') : (entry.data.text ?? ''))}</p>
-              <span className="entry-meta">{new Date(entry.ts).toLocaleString()} · {entry.kind}</span>
-            </div>
-            <button className="btn-icon" onClick={() => deleteEntry(entry.entry_id)} title="Delete entry">×</button>
-          </li>
-        ))}
-      </ol>
+      <section className="exp-log-section">
+        <h3>Experiment log</h3>
+        <div className="exp-entry-form">
+          <select value={kind} onChange={(e) => setKind(e.target.value as ExperimentEntry['kind'])} className="kind-select">
+            {KINDS.map((k) => <option key={k} value={k}>{KIND_ICONS[k]} {k}</option>)}
+          </select>
+          <textarea
+            value={text}
+            onChange={(e) => setText(e.target.value)}
+            placeholder={kind === 'html' ? 'Enter HTML content...' : 'Write a note, observation, result\u2026'}
+            rows={4}
+            className="entry-textarea"
+          />
+          <button
+            className="btn btn-sm"
+            onClick={addEntry}
+            disabled={!text.trim() || !isAuthenticated}
+          >
+            + Add entry
+          </button>
+        </div>
+
+        <ol className="exp-log">
+          {(state?.entries ?? []).length === 0 && (
+            <li className="exp-empty">No entries yet. Add one above.</li>
+          )}
+          {(state?.entries ?? []).map((entry) => (
+            <li key={entry.entry_id} className={`exp-log-entry exp-log-${entry.kind}`}>
+              <span className="entry-kind-icon" title={entry.kind}>{KIND_ICONS[entry.kind] ?? '\u2022'}</span>
+              <div className="entry-content">
+                {entry.kind === 'html' ? (
+                  <div dangerouslySetInnerHTML={{ __html: String(entry.data.html ?? '') }} />
+                ) : (
+                  <p>{String(entry.data.text ?? '')}</p>
+                )}
+                <span className="entry-meta">{new Date(entry.ts).toLocaleString()} &middot; {entry.kind}</span>
+              </div>
+              <button className="btn-icon" onClick={() => deleteEntry(entry.entry_id)} title="Delete entry">&times;</button>
+            </li>
+          ))}
+        </ol>
+      </section>
+
+      {(state?.revisions ?? []).length > 0 && (
+        <section className="revision-list">
+          <h3>Revisions ({state!.revisions.length})</h3>
+          <ol reversed>
+            {state!.revisions.slice().reverse().map((r) => (
+              <li key={r.rev_id} className="rev-item">
+                <span className="rev-id">{r.rev_id}</span>
+                <span className="rev-ts">{new Date(r.ts).toLocaleString()}</span>
+                <span className="rev-summary">{r.summary || '\u2014'}</span>
+                <span className="rev-format-badge">{r.format}</span>
+              </li>
+            ))}
+          </ol>
+        </section>
+      )}
     </div>
   );
 }
