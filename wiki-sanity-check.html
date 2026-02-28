@@ -1,0 +1,657 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>EO Wiki</title>
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400;1,500&family=JetBrains+Mono:wght@400;500&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #faf8f4;
+    --bg-nav: #f0ece4;
+    --bg-code: #eee9df;
+    --text: #1a1714;
+    --text-muted: #6b6358;
+    --text-faint: #9e9589;
+    --accent: #8b4513;
+    --accent-light: #c4956a;
+    --accent-hover: #6d3410;
+    --border: #d8d0c4;
+    --border-light: #e8e2d8;
+    --highlight: #fff8e7;
+    --shadow: rgba(26, 23, 20, 0.06);
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  html { font-size: 17px; scroll-behavior: smooth; }
+
+  body {
+    font-family: 'Newsreader', Georgia, serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.72;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* ── Top Bar ── */
+  .topbar {
+    background: var(--text);
+    color: var(--bg);
+    padding: 0.5rem 2rem;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.72rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .topbar-title {
+    font-weight: 700;
+    cursor: pointer;
+  }
+  .topbar-subtitle { color: var(--text-faint); }
+
+  /* ── Layout ── */
+  .layout {
+    display: flex;
+    flex: 1;
+    max-width: 1400px;
+    margin: 0 auto;
+    width: 100%;
+  }
+
+  /* ── Sidebar ── */
+  .sidebar {
+    width: 260px;
+    min-width: 260px;
+    background: var(--bg-nav);
+    border-right: 1px solid var(--border);
+    padding: 2rem 1.5rem;
+    position: sticky;
+    top: 0;
+    height: 100vh;
+    overflow-y: auto;
+  }
+  .sidebar-section {
+    margin-bottom: 2rem;
+  }
+  .sidebar-label {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.62rem;
+    font-weight: 700;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--text-faint);
+    margin-bottom: 0.75rem;
+  }
+  .sidebar-link {
+    display: block;
+    padding: 0.35rem 0.65rem;
+    margin: 0.15rem 0;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.82rem;
+    color: var(--text-muted);
+    text-decoration: none;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+  .sidebar-link:hover {
+    background: var(--bg);
+    color: var(--accent);
+  }
+  .sidebar-link.active {
+    background: var(--bg);
+    color: var(--accent);
+    font-weight: 600;
+    box-shadow: 0 1px 3px var(--shadow);
+  }
+  .sidebar-link .status-dot {
+    display: inline-block;
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    margin-right: 6px;
+    vertical-align: middle;
+  }
+  .status-published { background: #4a8c5c; }
+  .status-draft { background: var(--border); }
+  .status-archived { background: var(--text-faint); }
+
+  /* ── Main Content ── */
+  .main {
+    flex: 1;
+    min-width: 0;
+    padding: 3rem 4rem 6rem;
+  }
+
+  /* ── Loading / Error ── */
+  .state-msg {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 60vh;
+    color: var(--text-muted);
+    font-style: italic;
+    gap: 1rem;
+  }
+  .state-msg .spinner {
+    width: 28px; height: 28px;
+    border: 2.5px solid var(--border);
+    border-top-color: var(--accent);
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  /* ── Article chrome ── */
+  .page-meta {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.72rem;
+    color: var(--text-faint);
+    letter-spacing: 0.04em;
+    margin-bottom: 0.5rem;
+  }
+  .page-meta .content-type {
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    font-weight: 600;
+    color: var(--accent-light);
+  }
+
+  .revision-bar {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.7rem;
+    color: var(--text-faint);
+    background: var(--bg-nav);
+    padding: 0.5rem 0.85rem;
+    border-radius: 4px;
+    margin-bottom: 2rem;
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+    border: 1px solid var(--border-light);
+  }
+  .revision-bar strong { color: var(--text-muted); font-weight: 600; }
+
+  /* ── Wiki body content ── */
+  .wiki-body h1 {
+    font-size: 2.4rem;
+    font-weight: 700;
+    line-height: 1.15;
+    margin-bottom: 1.2rem;
+    letter-spacing: -0.02em;
+    color: var(--text);
+  }
+  .wiki-body h2 {
+    font-size: 1.5rem;
+    font-weight: 600;
+    margin: 2.8rem 0 1rem;
+    padding-bottom: 0.4rem;
+    border-bottom: 1px solid var(--border-light);
+    color: var(--text);
+  }
+  .wiki-body h3 {
+    font-size: 1.15rem;
+    font-weight: 600;
+    margin: 2rem 0 0.7rem;
+    color: var(--accent-hover);
+  }
+  .wiki-body p {
+    margin-bottom: 1rem;
+  }
+  .wiki-body ul, .wiki-body ol {
+    margin: 0.8rem 0 1.2rem 1.6rem;
+  }
+  .wiki-body li {
+    margin-bottom: 0.5rem;
+  }
+  .wiki-body a {
+    color: var(--accent);
+    text-decoration: underline;
+    text-decoration-color: var(--accent-light);
+    text-underline-offset: 2px;
+    transition: all 0.15s;
+  }
+  .wiki-body a:hover {
+    color: var(--accent-hover);
+    text-decoration-color: var(--accent-hover);
+  }
+  .wiki-body a[data-wiki-link] {
+    cursor: pointer;
+    text-decoration-style: dotted;
+  }
+  .wiki-body blockquote {
+    border-left: 3px solid var(--accent-light);
+    padding: 0.6rem 1.2rem;
+    margin: 1.2rem 0;
+    background: var(--highlight);
+    border-radius: 0 4px 4px 0;
+    color: var(--text-muted);
+    font-style: italic;
+  }
+  .wiki-body code {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.82em;
+    background: var(--bg-code);
+    padding: 0.15em 0.4em;
+    border-radius: 3px;
+    color: var(--accent-hover);
+  }
+  .wiki-body pre {
+    background: var(--text);
+    color: #e8e2d8;
+    padding: 1.2rem 1.4rem;
+    border-radius: 6px;
+    overflow-x: auto;
+    margin: 1.2rem 0;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.82rem;
+    line-height: 1.6;
+  }
+  .wiki-body pre code {
+    background: none;
+    padding: 0;
+    color: inherit;
+  }
+  .wiki-body hr {
+    border: none;
+    border-top: 1px solid var(--border);
+    margin: 2.5rem 0;
+  }
+  .wiki-body strong {
+    font-weight: 600;
+    color: var(--text);
+  }
+  .wiki-body em {
+    font-style: italic;
+  }
+  .wiki-body img {
+    max-width: 100%;
+    border-radius: 6px;
+    margin: 1rem 0;
+  }
+
+  /* ── Homepage (no content) ── */
+  .home-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 1.2rem;
+    margin-top: 2rem;
+  }
+  .home-card {
+    background: white;
+    border: 1px solid var(--border-light);
+    border-radius: 8px;
+    padding: 1.5rem;
+    cursor: pointer;
+    transition: all 0.2s;
+    box-shadow: 0 1px 3px var(--shadow);
+  }
+  .home-card:hover {
+    border-color: var(--accent-light);
+    box-shadow: 0 4px 12px var(--shadow);
+    transform: translateY(-2px);
+  }
+  .home-card-type {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.62rem;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--accent-light);
+    margin-bottom: 0.5rem;
+  }
+  .home-card-title {
+    font-size: 1.15rem;
+    font-weight: 600;
+    margin-bottom: 0.4rem;
+  }
+  .home-card-excerpt {
+    font-size: 0.85rem;
+    color: var(--text-muted);
+    line-height: 1.5;
+  }
+
+  /* ── Empty state ── */
+  .empty-page {
+    text-align: center;
+    padding: 4rem 2rem;
+    color: var(--text-faint);
+  }
+  .empty-page .icon { font-size: 3rem; margin-bottom: 1rem; opacity: 0.4; }
+  .empty-page p { font-style: italic; }
+
+  /* ── Responsive ── */
+  @media (max-width: 900px) {
+    .sidebar { display: none; }
+    .main { padding: 2rem 1.5rem 4rem; }
+    .wiki-body h1 { font-size: 1.8rem; }
+  }
+
+  /* ── Fade-in animation ── */
+  .fade-in {
+    animation: fadeIn 0.35s ease-out;
+  }
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(8px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <span class="topbar-title" id="homeBtn">EO Wiki</span>
+  <span class="topbar-subtitle">Emergent Ontology Knowledge Base</span>
+</div>
+
+<div class="layout">
+  <nav class="sidebar" id="sidebar"></nav>
+  <main class="main" id="content">
+    <div class="state-msg">
+      <div class="spinner"></div>
+      <span>Loading wiki…</span>
+    </div>
+  </main>
+</div>
+
+<script>
+const API = 'https://n8n.intelechia.com/webhook/81ca952a-3387-4837-8bcd-d18e3d28e758';
+
+let siteData = {};  // keyed by record_id → latest record
+let siteIndex = null;
+let currentSlug = null;
+
+// ── Data Loading ──
+
+async function loadData() {
+  try {
+    const res = await fetch(API);
+    const raw = await res.json();
+
+    // Parse records — each has record_id, values (JSON string), context, etc.
+    // Many records can share the same record_id (multiple versions).
+    // We want the latest by lastModified for each unique record_id.
+    const byId = {};
+    for (const row of raw) {
+      const rid = row.record_id;
+      const existing = byId[rid];
+      if (!existing || row.lastModified > existing.lastModified) {
+        let vals;
+        try {
+          vals = typeof row.values === 'string' ? JSON.parse(row.values) : row.values;
+        } catch { vals = row.values; }
+        byId[rid] = { ...row, parsed: vals };
+      }
+    }
+    siteData = byId;
+    siteIndex = byId['site:index']?.parsed || null;
+
+    buildSidebar();
+    navigateFromHash();
+  } catch (e) {
+    document.getElementById('content').innerHTML =
+      `<div class="state-msg"><span>Failed to load wiki data.</span><span style="font-size:.8rem;color:var(--text-faint)">${e.message}</span></div>`;
+  }
+}
+
+// ── Sidebar ──
+
+function buildSidebar() {
+  const sb = document.getElementById('sidebar');
+  if (!siteIndex) { sb.innerHTML = '<p style="color:var(--text-faint);font-size:.85rem">No index found.</p>'; return; }
+
+  const entries = siteIndex.entries || [];
+  const wikiPages = entries.filter(e => e.content_type === 'wiki');
+  const pages = entries.filter(e => e.content_type === 'page');
+  const blogs = entries.filter(e => e.content_type === 'blog');
+
+  // Also scan siteData for wiki entries not in the index
+  const indexSlugs = new Set(entries.map(e => e.slug));
+  for (const [rid, rec] of Object.entries(siteData)) {
+    if (rid.startsWith('wiki:') && rid !== 'site:index') {
+      const meta = rec.parsed?.meta;
+      if (meta && !indexSlugs.has(meta.slug) && meta.status === 'published') {
+        wikiPages.push(meta);
+      }
+    }
+  }
+
+  let html = '';
+
+  // Home link
+  html += `<div class="sidebar-section">
+    <a class="sidebar-link" data-slug="__home__" onclick="goHome()">◈&ensp;Home</a>
+  </div>`;
+
+  if (wikiPages.length) {
+    html += `<div class="sidebar-section"><div class="sidebar-label">Wiki</div>`;
+    for (const p of wikiPages) {
+      const dot = `<span class="status-dot status-${p.status}"></span>`;
+      html += `<a class="sidebar-link" data-slug="${p.slug}" onclick="navigate('${p.slug}')">${dot}${esc(p.title)}</a>`;
+    }
+    html += `</div>`;
+  }
+  if (pages.length) {
+    html += `<div class="sidebar-section"><div class="sidebar-label">Pages</div>`;
+    for (const p of pages) {
+      const dot = `<span class="status-dot status-${p.status}"></span>`;
+      html += `<a class="sidebar-link" data-slug="${p.slug}" onclick="navigate('${p.slug}')">${dot}${esc(p.title)}</a>`;
+    }
+    html += `</div>`;
+  }
+  if (blogs.length) {
+    html += `<div class="sidebar-section"><div class="sidebar-label">Blog</div>`;
+    for (const p of blogs) {
+      const dot = `<span class="status-dot status-${p.status}"></span>`;
+      html += `<a class="sidebar-link" data-slug="${p.slug}" onclick="navigate('${p.slug}')">${dot}${esc(p.title)}</a>`;
+    }
+    html += `</div>`;
+  }
+
+  sb.innerHTML = html;
+}
+
+function updateActiveLink(slug) {
+  document.querySelectorAll('.sidebar-link').forEach(el => {
+    el.classList.toggle('active', el.dataset.slug === slug);
+  });
+}
+
+// ── Navigation ──
+
+function navigate(slug) {
+  currentSlug = slug;
+  window.location.hash = slug;
+  renderPage(slug);
+  updateActiveLink(slug);
+}
+
+function goHome() {
+  currentSlug = '__home__';
+  window.location.hash = '';
+  renderHome();
+  updateActiveLink('__home__');
+}
+
+function navigateFromHash() {
+  const hash = window.location.hash.replace('#', '');
+  if (hash) {
+    navigate(hash);
+  } else {
+    goHome();
+  }
+}
+
+window.addEventListener('hashchange', navigateFromHash);
+document.getElementById('homeBtn').addEventListener('click', goHome);
+
+// ── Rendering ──
+
+function renderHome() {
+  const el = document.getElementById('content');
+  const entries = siteIndex?.entries || [];
+
+  let html = `<div class="fade-in">`;
+  html += `<h1 class="wiki-body" style="margin-bottom:.3rem">
+    <span style="font-size:2.4rem">Emergent Ontology</span>
+  </h1>`;
+  html += `<p style="color:var(--text-muted);font-size:1.05rem;margin-bottom:2.5rem;font-style:italic;line-height:1.6">
+    A proposed metatheoretical framework for modeling transformation and structural change.<br>
+    Nine operators. Three triads. Twenty-seven phaseposts.
+  </p>`;
+
+  // Show cards for all content
+  const withContent = [];
+  for (const entry of entries) {
+    // Find matching record
+    const contentId = entry.content_id;
+    const rec = siteData[contentId];
+    const hasContent = rec?.parsed?.current_revision?.content;
+    withContent.push({ ...entry, hasContent: !!hasContent });
+  }
+
+  // Also add wiki pages from siteData not in index
+  const indexIds = new Set(entries.map(e => e.content_id));
+  for (const [rid, rec] of Object.entries(siteData)) {
+    if (rid.startsWith('wiki:') && !indexIds.has(rid) && rid !== 'site:index') {
+      const meta = rec.parsed?.meta;
+      if (meta && meta.status === 'published') {
+        const hasContent = !!rec.parsed?.current_revision?.content;
+        withContent.push({ ...meta, content_id: rid, hasContent });
+      }
+    }
+  }
+
+  if (withContent.length) {
+    html += `<div class="home-grid">`;
+    for (const item of withContent) {
+      const excerpt = item.hasContent ? 'Click to read →' : 'No content yet';
+      html += `<div class="home-card" onclick="navigate('${item.slug}')">
+        <div class="home-card-type">${item.content_type}</div>
+        <div class="home-card-title">${esc(item.title)}</div>
+        <div class="home-card-excerpt">${excerpt}</div>
+      </div>`;
+    }
+    html += `</div>`;
+  } else {
+    html += `<div class="empty-page"><div class="icon">◇</div><p>No entries yet.</p></div>`;
+  }
+
+  html += `</div>`;
+  el.innerHTML = html;
+}
+
+function renderPage(slug) {
+  const el = document.getElementById('content');
+
+  // Find record by slug — check slug_map first, then scan
+  let contentId = siteIndex?.slug_map?.[slug];
+  let record = contentId ? siteData[contentId] : null;
+
+  // Fallback: scan all records for matching slug
+  if (!record) {
+    for (const [rid, rec] of Object.entries(siteData)) {
+      if (rec.parsed?.meta?.slug === slug) {
+        record = rec;
+        break;
+      }
+    }
+  }
+
+  if (!record) {
+    el.innerHTML = `<div class="fade-in empty-page"><div class="icon">◇</div>
+      <p>Page "${esc(slug)}" not found.</p>
+      <a style="color:var(--accent);cursor:pointer;margin-top:1rem;display:block" onclick="goHome()">← Back to home</a>
+    </div>`;
+    return;
+  }
+
+  const parsed = record.parsed;
+  const meta = parsed.meta || {};
+  const revision = parsed.current_revision;
+  const revisions = parsed.revisions || [];
+
+  let html = `<div class="fade-in">`;
+
+  // Page meta bar
+  html += `<div class="page-meta">
+    <span class="content-type">${meta.content_type || 'page'}</span>
+    &nbsp;·&nbsp; ${meta.slug || slug}
+  </div>`;
+
+  // Revision bar
+  if (revision) {
+    const date = new Date(revision.ts).toLocaleDateString('en-US', {
+      year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit'
+    });
+    html += `<div class="revision-bar">
+      <span><strong>Last edited:</strong> ${date}</span>
+      <span><strong>Revisions:</strong> ${revisions.length}</span>
+      <span><strong>Status:</strong> ${meta.status || '—'}</span>
+    </div>`;
+  }
+
+  // Content
+  if (revision && revision.content) {
+    let body = revision.content;
+    // Rewrite internal wiki links
+    body = rewriteLinks(body);
+    html += `<div class="wiki-body">${body}</div>`;
+  } else if (!meta.title) {
+    html += `<div class="empty-page"><div class="icon">◇</div><p>This page has no content yet.</p></div>`;
+  } else {
+    html += `<div class="wiki-body"><h1>${esc(meta.title)}</h1></div>`;
+    html += `<div class="empty-page" style="padding-top:2rem"><p>This page has no content yet.</p></div>`;
+  }
+
+  html += `</div>`;
+  el.innerHTML = html;
+
+  // Bind internal wiki links
+  el.querySelectorAll('a[data-wiki-link]').forEach(a => {
+    a.addEventListener('click', e => {
+      e.preventDefault();
+      navigate(a.dataset.wikiLink);
+    });
+  });
+
+  // Scroll to top
+  el.scrollTop = 0;
+  window.scrollTo(0, 0);
+}
+
+// ── Link rewriting ──
+
+function rewriteLinks(html) {
+  // Rewrite claude.ai/wiki/... links to internal navigation
+  // Patterns: href="https://claude.ai/wiki/something"
+  return html.replace(
+    /href="https:\/\/claude\.ai\/wiki\/([^"#]+)(#[^"]*)?"/g,
+    (match, path, hash) => {
+      const slug = path.replace(/\//g, '-').replace(/^-|-$/g, '');
+      return `href="#${slug}" data-wiki-link="${slug}"`;
+    }
+  );
+}
+
+// ── Helpers ──
+
+function esc(s) {
+  const d = document.createElement('div');
+  d.textContent = s || '';
+  return d.innerHTML;
+}
+
+// ── Boot ──
+loadData();
+</script>
+
+</body>
+</html>
