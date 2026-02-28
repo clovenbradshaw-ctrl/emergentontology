@@ -245,6 +245,13 @@ function loadIndexFromN8n() {
  */
 function normalizeIndex(raw) {
   var entries = raw.entries || [];
+  // Deduplicate by content_id (Xano index may contain duplicate entries)
+  var dedupSeen = {};
+  entries = entries.filter(function (e) {
+    if (dedupSeen[e.content_id]) return false;
+    dedupSeen[e.content_id] = true;
+    return true;
+  });
   var nav = raw.nav;
   if (!nav) {
     nav = entries.filter(function (e) {

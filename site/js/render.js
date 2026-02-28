@@ -265,9 +265,15 @@ export function revisionHistoryHtml(content) {
  */
 export function renderRevisionContent(revision) {
   if (!revision || !revision.content) return '<p class="empty-page">No content yet.</p>';
-  var fmt = revision.format || 'markdown';
+  var fmt = revision.format || (looksLikeHtml(revision.content) ? 'html' : 'markdown');
   if (fmt === 'html') return revision.content;
   return md(revision.content);
+}
+
+function looksLikeHtml(content) {
+  if (!content) return false;
+  var trimmed = content.trim();
+  return trimmed.charAt(0) === '<' || /<[a-z][\s\S]*>/i.test(trimmed.slice(0, 200));
 }
 
 // ── Script activation (for live HTML/JS experiments) ─────────────────────────

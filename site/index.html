@@ -482,6 +482,7 @@ function buildPageList() {
   if (siteIndex && siteIndex.entries) {
     for (var i = 0; i < siteIndex.entries.length; i++) {
       var e = siteIndex.entries[i];
+      if (seen[e.content_id]) continue;
       seen[e.content_id] = true;
       var rec = siteData[e.content_id];
       allPages.push({
@@ -754,7 +755,7 @@ function renderPage(slug) {
   // Revision-based content (wiki, blog, and experiments with a body)
   if (rev && rev.content) {
     var content = rev.content;
-    var fmt = rev.format || 'markdown';
+    var fmt = rev.format || (looksLikeHtml(content) ? 'html' : 'markdown');
     if (fmt === 'html') {
       h += '<div class="wiki-body">' + rewriteLinks(content) + '</div>';
     } else {
@@ -854,6 +855,14 @@ function rewriteLinks(html) {
       return 'href="#' + slug + '" data-wiki-link="' + slug + '"';
     }
   );
+}
+
+// ── HTML Detection ────────────────────────────────────────────────────────────
+
+function looksLikeHtml(content) {
+  if (!content) return false;
+  var trimmed = content.trim();
+  return trimmed.charAt(0) === '<' || /<[a-z][\s\S]*>/i.test(trimmed.slice(0, 200));
 }
 
 // ── Markdown Rendering ────────────────────────────────────────────────────────
