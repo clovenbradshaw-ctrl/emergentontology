@@ -42,14 +42,17 @@ export interface XanoCurrentRecord {
   lastModified: string;  // ISO timestamp
 }
 
-export async function fetchAllCurrentRecords(): Promise<XanoCurrentRecord[]> {
-  const password = process.env.EO_PASSWORD;
-  if (!password) {
-    throw new Error('EO_PASSWORD environment variable is required to decrypt the private endpoint.');
-  }
-  const endpoint = decryptEndpoint(password);
+/** Build the private endpoint URL, optionally with query parameters. */
+function buildUrl(endpoint: string, params?: Record<string, string>): string {
   const url = `${XANO_BASE}/${endpoint}`;
-  const resp = await fetch(url, {
+  if (!params || Object.keys(params).length === 0) return url;
+  const qs = new URLSearchParams(params).toString();
+  return `${url}?${qs}`;
+}
+
+export async function fetchAllCurrentRecords(): Promise<XanoCurrentRecord[]> {
+  const endpoint = getEndpoint();
+  const resp = await fetch(buildUrl(endpoint), {
     signal: AbortSignal.timeout(TIMEOUT_MS),
   });
   if (!resp.ok) {
@@ -57,4 +60,59 @@ export async function fetchAllCurrentRecords(): Promise<XanoCurrentRecord[]> {
     throw new Error(`Xano fetch failed: HTTP ${resp.status} — ${body}`);
   }
   return resp.json() as Promise<XanoCurrentRecord[]>;
+}
+
+/** Fetch a single current-state record by record_id. */
+export async function fetchCurrentRecordByRecordId(
+  recordId: string,
+): Promise<XanoCurrentRecord | null> {
+  const endpoint = getEndpoint();
+  const resp = await fetch(buildUrl(endpoint, { record_id: recordId }), {
+    signal: AbortSignal.timeout(TIMEOUT_MS),
+  });
+  if (!resp.ok) {
+    const body = await resp.text().catch(() => '');
+    throw new Error(`Xano single-record fetch failed: HTTP ${resp.status} — ${body}`);
+  }
+  const data = await resp.json();
+  const records: XanoCurrentRecord[] = Array.isArray(data) ? data : [data];
+  return records[0] ?? null;
+}
+
+/** Query filters for the eowikicurrent endpoint. */
+export interface CurrentRecordFilters {
+  record_id?: string;
+  content_type?: string;
+  status?: string;
+  visibility?: string;
+}
+
+/** Fetch current-state records with server-side filters. */
+export async function fetchFilteredCurrentRecords(
+  filters: CurrentRecordFilters,
+): Promise<XanoCurrentRecord[]> {
+  const endpoint = getEndpoint();
+  const params: Record<string, string> = {};
+  if (filters.content_type) params.content_type = filters.content_type;
+  if (filters.status) params.status = filters.status;
+  if (filters.visibility) params.visibility = filters.visibility;
+  if (filters.record_id) params.record_id = filters.record_id;
+
+  const resp = await fetch(buildUrl(endpoint, params), {
+    signal: AbortSignal.timeout(TIMEOUT_MS),
+  });
+  if (!resp.ok) {
+    const body = await resp.text().catch(() => '');
+    throw new Error(`Xano filtered fetch failed: HTTP ${resp.status} — ${body}`);
+  }
+  const data = await resp.json();
+  return Array.isArray(data) ? data : [data];
+}
+
+function getEndpoint(): string {
+  const password = process.env.EO_PASSWORD;
+  if (!password) {
+    throw new Error('EO_PASSWORD environment variable is required to decrypt the private endpoint.');
+  }
+  return decryptEndpoint(password);
 }
