@@ -25,9 +25,9 @@ import { insExpEntry, nulExpEntry } from '../eo/events';
 import type { ExperimentEntry } from '../eo/types';
 import MetadataBar from '../components/MetadataBar';
 
-const KINDS: ExperimentEntry['kind'][] = ['note', 'dataset', 'result', 'chart', 'link', 'decision'];
+const KINDS: ExperimentEntry['kind'][] = ['note', 'dataset', 'result', 'chart', 'link', 'decision', 'html'];
 const KIND_ICONS: Record<string, string> = {
-  note: '📝', dataset: '📊', result: '✅', chart: '📈', link: '🔗', decision: '⚖️',
+  note: '📝', dataset: '📊', result: '✅', chart: '📈', link: '🔗', decision: '⚖️', html: '🌐',
 };
 
 interface ExpState {
@@ -118,7 +118,7 @@ export default function ExperimentEditor({ contentId, siteBase }: Props) {
     const newEntry: ExperimentEntry = {
       entry_id: entryId,
       kind,
-      data: { text: text.trim() },
+      data: kind === 'html' ? { html: text.trim() } : { text: text.trim() },
       ts,
       deleted: false,
     };
@@ -214,7 +214,7 @@ export default function ExperimentEditor({ contentId, siteBase }: Props) {
         <textarea
           value={text}
           onChange={(e) => setText(e.target.value)}
-          placeholder="Write a note, observation, result…"
+          placeholder={kind === 'html' ? 'Enter HTML content...' : 'Write a note, observation, result\u2026'}
           rows={4}
           className="entry-textarea"
         />
@@ -235,7 +235,7 @@ export default function ExperimentEditor({ contentId, siteBase }: Props) {
           <li key={entry.entry_id} className={`exp-log-entry exp-log-${entry.kind}`}>
             <span className="entry-kind-icon" title={entry.kind}>{KIND_ICONS[entry.kind] ?? '•'}</span>
             <div className="entry-content">
-              <p>{String(entry.data.text ?? '')}</p>
+              <p>{String(entry.kind === 'html' ? (entry.data.html ?? '') : (entry.data.text ?? ''))}</p>
               <span className="entry-meta">{new Date(entry.ts).toLocaleString()} · {entry.kind}</span>
             </div>
             <button className="btn-icon" onClick={() => deleteEntry(entry.entry_id)} title="Delete entry">×</button>
