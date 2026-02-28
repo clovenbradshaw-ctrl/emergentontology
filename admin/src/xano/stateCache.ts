@@ -82,14 +82,22 @@ export async function fetchCurrentRecordCached(
   // Cache is cold — fetch just this one record from the server
   try {
     const record = await fetchCurrentRecordByRecordId(recordId);
-    singleRecordCache.set(recordId, { record, ts: now });
-    // Also insert into the full cache if it's warm (keeps it consistent)
-    if (record && cachedRecords) {
-      const idx = cachedRecords.findIndex((r) => r.record_id === recordId);
-      if (idx >= 0) cachedRecords[idx] = record;
-      else cachedRecords.push(record);
+    if (record) {
+      singleRecordCache.set(recordId, { record, ts: now });
+      // Also insert into the full cache if it's warm (keeps it consistent)
+      if (cachedRecords) {
+        const idx = cachedRecords.findIndex((r) => r.record_id === recordId);
+        if (idx >= 0) cachedRecords[idx] = record;
+        else cachedRecords.push(record);
+      }
+      return record;
     }
-    return record;
+    // Single-record filter returned nothing — fall back to full fetch
+    console.warn(`[stateCache] Single-record fetch returned null for ${recordId}, trying full fetch`);
+    const all = await fetchAllCurrentRecordsCached();
+    const match = findBestMatch(all, recordId);
+    singleRecordCache.set(recordId, { record: match, ts: now });
+    return match;
   } catch (err) {
     console.warn(`[stateCache] Single-record fetch failed for ${recordId}, falling back to full fetch:`, err);
     // Fallback: fetch all (original behavior)
@@ -178,8 +186,15 @@ export async function fetchFilteredRecordsCached(
         const recType = (r.record_id.split(':')[0]) || '';
         if (recType !== filters.content_type) return false;
       }
-      if (filters.status && meta.status !== filters.status) return false;
-      if (filters.visibility && meta.visibility !== filters.visibility) return false;
+      // Check both flat context fields (new format) and nested meta (old format)
+      if (filters.status) {
+        const status = ctx?.status ?? meta.status;
+        if (status !== filters.status) return false;
+      }
+      if (filters.visibility) {
+        const visibility = ctx?.visibility ?? meta.visibility;
+        if (visibility !== filters.visibility) return false;
+      }
       return true;
     });
   }

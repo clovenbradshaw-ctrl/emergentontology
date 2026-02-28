@@ -255,7 +255,10 @@ export async function fetchCurrentRecordByRecordId(
   const data = await resp.json();
 
   // Xano may return a single object or an array — normalise to array
-  const records: XanoCurrentRecord[] = Array.isArray(data) ? data : [data];
+  const allRecords: XanoCurrentRecord[] = Array.isArray(data) ? data : [data];
+  // Filter to only records matching the requested record_id — in case
+  // the server-side filter is ignored and all records are returned.
+  const records = allRecords.filter((r) => r && r.record_id === recordId);
   if (records.length === 0) return null;
   if (records.length === 1) return records[0];
 
