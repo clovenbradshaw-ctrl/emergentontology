@@ -226,6 +226,7 @@ function synthesizeIndex(map) {
     try { parsed = JSON.parse(rec.values); } catch (e) { continue; }
 
     var meta = parsed.meta || {};
+    if (meta.status === 'archived') continue;
     var parts = id.split(':');
     var prefix = parts[0];
     var slug = meta.slug || parts.slice(1).join(':');
