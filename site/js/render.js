@@ -265,15 +265,37 @@ export function revisionHistoryHtml(content) {
  */
 export function renderRevisionContent(revision) {
   if (!revision || !revision.content) return '<p class="empty-page">No content yet.</p>';
-  var fmt = revision.format || (looksLikeHtml(revision.content) ? 'html' : 'markdown');
-  if (fmt === 'html') return revision.content;
-  return md(revision.content);
+  var content = revision.content;
+  // Decode HTML-escaped content (e.g. &lt;html&gt; → <html>)
+  if (content.indexOf('&lt;') >= 0 && looksLikeHtml(content)) {
+    content = unescapeHtml(content);
+  }
+  var fmt = revision.format || (looksLikeHtml(content) ? 'html' : 'markdown');
+  if (fmt === 'html' && isFullHtmlDocument(content)) {
+    // Full HTML documents need an iframe; return a placeholder + data attr
+    return '<div class="exp-full-doc" data-srcdoc="' + content.replace(/&/g, '&amp;').replace(/"/g, '&quot;') + '"></div>';
+  }
+  if (fmt === 'html') return content;
+  return md(content);
 }
 
 function looksLikeHtml(content) {
   if (!content) return false;
   var trimmed = content.trim();
-  return trimmed.charAt(0) === '<' || /<[a-z][\s\S]*>/i.test(trimmed.slice(0, 200));
+  return trimmed.charAt(0) === '<' || trimmed.indexOf('&lt;') === 0 ||
+         /<[a-z][\s\S]*>/i.test(trimmed.slice(0, 200));
+}
+
+function unescapeHtml(str) {
+  var el = document.createElement('textarea');
+  el.innerHTML = str;
+  return el.value;
+}
+
+function isFullHtmlDocument(content) {
+  if (!content) return false;
+  var check = content.trim().slice(0, 100).toLowerCase();
+  return check.indexOf('<!doctype') >= 0 || check.indexOf('<html') >= 0;
 }
 
 // ── Script activation (for live HTML/JS experiments) ─────────────────────────

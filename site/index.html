@@ -344,6 +344,10 @@
     border: 1px solid var(--border); border-radius: 8px;
     padding: 1.5rem; background: var(--bg); overflow: auto;
   }
+  .exp-body iframe {
+    width: 100%; border: none; min-height: 80vh;
+    border-radius: 8px; background: white;
+  }
 
   @media (max-width: 768px) {
     .topnav { padding: 0 1rem; }
@@ -753,10 +757,18 @@ function renderPage(slug) {
   }
 
   // Revision-based content (wiki, blog, and experiments with a body)
+  var fullDocContent = null;
   if (rev && rev.content) {
     var content = rev.content;
+    // Decode HTML-escaped content (e.g. &lt;html&gt; → <html>)
+    if (content.indexOf('&lt;') >= 0 && looksLikeHtml(content)) {
+      content = unescapeHtml(content);
+    }
     var fmt = rev.format || (looksLikeHtml(content) ? 'html' : 'markdown');
-    if (fmt === 'html') {
+    if (fmt === 'html' && isFullHtmlDocument(content)) {
+      h += '<div class="wiki-body exp-body"><div id="exp-frame-target"></div></div>';
+      fullDocContent = content;
+    } else if (fmt === 'html') {
       h += '<div class="wiki-body">' + rewriteLinks(content) + '</div>';
     } else {
       h += '<div class="wiki-body">' + rewriteLinks(renderMarkdown(content)) + '</div>';
@@ -826,6 +838,20 @@ function renderPage(slug) {
   h += '</div>';
   app.innerHTML = h;
 
+  // Render full HTML documents in an iframe (can't inject <!DOCTYPE> via innerHTML)
+  if (fullDocContent) {
+    var ft = app.querySelector('#exp-frame-target');
+    if (ft) {
+      var iframe = document.createElement('iframe');
+      iframe.style.cssText = 'width:100%;border:none;min-height:80vh;border-radius:8px';
+      iframe.srcdoc = fullDocContent;
+      ft.appendChild(iframe);
+      iframe.onload = function() {
+        try { iframe.style.height = iframe.contentDocument.documentElement.scrollHeight + 'px'; } catch(e) {}
+      };
+    }
+  }
+
   // Activate embedded scripts so experiment HTML/JS actually executes
   if (isExperiment) {
     activateScripts(app);
@@ -857,12 +883,25 @@ function rewriteLinks(html) {
   );
 }
 
-// ── HTML Detection ────────────────────────────────────────────────────────────
+// ── HTML Detection & Helpers ──────────────────────────────────────────────────
 
 function looksLikeHtml(content) {
   if (!content) return false;
   var trimmed = content.trim();
-  return trimmed.charAt(0) === '<' || /<[a-z][\s\S]*>/i.test(trimmed.slice(0, 200));
+  return trimmed.charAt(0) === '<' || trimmed.indexOf('&lt;') === 0 ||
+         /<[a-z][\s\S]*>/i.test(trimmed.slice(0, 200));
+}
+
+function unescapeHtml(str) {
+  var el = document.createElement('textarea');
+  el.innerHTML = str;
+  return el.value;
+}
+
+function isFullHtmlDocument(content) {
+  if (!content) return false;
+  var check = content.trim().slice(0, 100).toLowerCase();
+  return check.indexOf('<!doctype') >= 0 || check.indexOf('<html') >= 0;
 }
 
 // ── Markdown Rendering ────────────────────────────────────────────────────────
