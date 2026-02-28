@@ -213,6 +213,85 @@ export async function fetchAllCurrentRecords(): Promise<XanoCurrentRecord[]> {
   return (await resp.json()) as XanoCurrentRecord[];
 }
 
+// ── Filtered fetchers ────────────────────────────────────────────────────────
+
+/** Query parameters supported by the eowikicurrent endpoint. */
+export interface CurrentRecordFilters {
+  record_id?: string;
+  content_type?: string;
+  status?: string;
+  visibility?: string;
+}
+
+/**
+ * Build a URL for the private endpoint with optional query parameters.
+ * Throws if the private endpoint hasn't been unlocked.
+ */
+function privateUrl(params?: Record<string, string>): string {
+  if (!_privateEndpoint) {
+    throw new Error('Private endpoint not unlocked — please log in first.');
+  }
+  const url = `${XANO_BASE}/${_privateEndpoint}`;
+  if (!params || Object.keys(params).length === 0) return url;
+  const qs = new URLSearchParams(params).toString();
+  return `${url}?${qs}`;
+}
+
+/**
+ * Fetch a single current-state record by record_id.
+ * Uses the server-side ?record_id= filter so we don't download every record.
+ * Returns null if no record matches.
+ */
+export async function fetchCurrentRecordByRecordId(
+  recordId: string,
+): Promise<XanoCurrentRecord | null> {
+  const resp = await fetch(privateUrl({ record_id: recordId }), {
+    signal: AbortSignal.timeout(15_000),
+  });
+  if (!resp.ok) {
+    const body = await resp.text().catch(() => '');
+    throw new Error(`Xano single-record fetch failed: HTTP ${resp.status} — ${body}`);
+  }
+  const data = await resp.json();
+
+  // Xano may return a single object or an array — normalise to array
+  const records: XanoCurrentRecord[] = Array.isArray(data) ? data : [data];
+  if (records.length === 0) return null;
+  if (records.length === 1) return records[0];
+
+  // Multiple rows for same record_id — pick the most recently modified
+  return records.reduce((best, r) => {
+    const bestTime = new Date(best.lastModified).getTime() || 0;
+    const rTime = new Date(r.lastModified).getTime() || 0;
+    return rTime > bestTime ? r : best;
+  });
+}
+
+/**
+ * Fetch current-state records with server-side filters.
+ * Any combination of content_type, status, visibility can be passed.
+ * Returns matching records (empty array if none match).
+ */
+export async function fetchFilteredCurrentRecords(
+  filters: CurrentRecordFilters,
+): Promise<XanoCurrentRecord[]> {
+  const params: Record<string, string> = {};
+  if (filters.content_type) params.content_type = filters.content_type;
+  if (filters.status) params.status = filters.status;
+  if (filters.visibility) params.visibility = filters.visibility;
+  if (filters.record_id) params.record_id = filters.record_id;
+
+  const resp = await fetch(privateUrl(params), {
+    signal: AbortSignal.timeout(20_000),
+  });
+  if (!resp.ok) {
+    const body = await resp.text().catch(() => '');
+    throw new Error(`Xano filtered fetch failed: HTTP ${resp.status} — ${body}`);
+  }
+  const data = await resp.json();
+  return Array.isArray(data) ? data : [data];
+}
+
 /** Create a new current-state record (first write for this record_id). */
 export async function createCurrentRecord(payload: {
   record_id: string;

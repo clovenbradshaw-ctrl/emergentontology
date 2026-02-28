@@ -11,9 +11,11 @@
  * across all editors until the cache expires or is explicitly invalidated.
  */
 
-import type { XanoCurrentRecord } from './client';
+import type { XanoCurrentRecord, CurrentRecordFilters } from './client';
 import {
   fetchAllCurrentRecords,
+  fetchCurrentRecordByRecordId,
+  fetchFilteredCurrentRecords,
   fetchAllRecords,
   xanoToRaw,
   upsertCurrentRecord,
@@ -29,6 +31,10 @@ const CACHE_TTL = 30_000; // 30 seconds
 
 let cachedRecords: XanoCurrentRecord[] | null = null;
 let cacheTimestamp = 0;
+
+// Per-record cache for single lookups when the full cache is cold.
+// Avoids downloading all records just to get one.
+const singleRecordCache = new Map<string, { record: XanoCurrentRecord | null; ts: number }>();
 
 // ── Cached fetchers ─────────────────────────────────────────────────────────
 
@@ -50,16 +56,56 @@ export async function fetchAllCurrentRecordsCached(): Promise<XanoCurrentRecord[
   }
 }
 
-/** Fetch a single current-state record by record_id (cache-backed).
- *  When duplicate record_ids exist, returns the most recently modified one. */
+/**
+ * Fetch a single current-state record by record_id (cache-backed).
+ *
+ * When the full cache is warm, serves from it (no API call).
+ * When the cache is cold, uses the server-side ?record_id= filter to fetch
+ * only the requested record instead of downloading everything.
+ */
 export async function fetchCurrentRecordCached(
   recordId: string,
 ): Promise<XanoCurrentRecord | null> {
-  const all = await fetchAllCurrentRecordsCached();
-  const matches = all.filter((r) => r.record_id === recordId);
+  const now = Date.now();
+
+  // If full cache is warm, serve from it — no API call needed
+  if (cachedRecords && now - cacheTimestamp < CACHE_TTL) {
+    return findBestMatch(cachedRecords, recordId);
+  }
+
+  // Check per-record cache
+  const cached = singleRecordCache.get(recordId);
+  if (cached && now - cached.ts < CACHE_TTL) {
+    return cached.record;
+  }
+
+  // Cache is cold — fetch just this one record from the server
+  try {
+    const record = await fetchCurrentRecordByRecordId(recordId);
+    singleRecordCache.set(recordId, { record, ts: now });
+    // Also insert into the full cache if it's warm (keeps it consistent)
+    if (record && cachedRecords) {
+      const idx = cachedRecords.findIndex((r) => r.record_id === recordId);
+      if (idx >= 0) cachedRecords[idx] = record;
+      else cachedRecords.push(record);
+    }
+    return record;
+  } catch (err) {
+    console.warn(`[stateCache] Single-record fetch failed for ${recordId}, falling back to full fetch:`, err);
+    // Fallback: fetch all (original behavior)
+    const all = await fetchAllCurrentRecordsCached();
+    return findBestMatch(all, recordId);
+  }
+}
+
+/** Pick the most recently modified record for a given record_id. */
+function findBestMatch(
+  records: XanoCurrentRecord[],
+  recordId: string,
+): XanoCurrentRecord | null {
+  const matches = records.filter((r) => r.record_id === recordId);
   if (matches.length === 0) return null;
   if (matches.length === 1) return matches[0];
-  // Multiple rows for same record_id — pick the most recently modified
   return matches.reduce((best, r) => {
     const bestTime = typeof best.lastModified === 'string'
       ? new Date(best.lastModified).getTime() : Number(best.lastModified);
@@ -73,6 +119,8 @@ export async function fetchCurrentRecordCached(
 export function invalidateCurrentCache(): void {
   cachedRecords = null;
   cacheTimestamp = 0;
+  singleRecordCache.clear();
+  filteredCache.clear();
 }
 
 /**
@@ -80,12 +128,60 @@ export function invalidateCurrentCache(): void {
  * Called after successful upserts so other editors see the new data immediately.
  */
 export function updateCachedRecord(record: XanoCurrentRecord): void {
+  // Update per-record cache
+  singleRecordCache.set(record.record_id, { record, ts: Date.now() });
+
+  // Update full cache if it's warm
   if (!cachedRecords) return;
   const idx = cachedRecords.findIndex((r) => r.record_id === record.record_id);
   if (idx >= 0) {
     cachedRecords[idx] = record;
   } else {
     cachedRecords.push(record);
+  }
+}
+
+// ── Filtered fetcher ──────────────────────────────────────────────────────────
+
+/**
+ * Fetch current-state records with server-side filters (content_type, status,
+ * visibility).  Uses a separate cache keyed by the filter combination so
+ * repeated calls with the same filters don't hit the API.
+ */
+const filteredCache = new Map<string, { records: XanoCurrentRecord[]; ts: number }>();
+
+function filterCacheKey(filters: CurrentRecordFilters): string {
+  return [filters.content_type, filters.status, filters.visibility].join('|');
+}
+
+export async function fetchFilteredRecordsCached(
+  filters: CurrentRecordFilters,
+): Promise<XanoCurrentRecord[]> {
+  const key = filterCacheKey(filters);
+  const now = Date.now();
+  const cached = filteredCache.get(key);
+  if (cached && now - cached.ts < CACHE_TTL) {
+    return cached.records;
+  }
+  try {
+    const records = await fetchFilteredCurrentRecords(filters);
+    filteredCache.set(key, { records, ts: now });
+    return records;
+  } catch (err) {
+    console.warn('[stateCache] Filtered fetch failed, falling back to full fetch:', err);
+    // Fallback: fetch all and filter client-side
+    const all = await fetchAllCurrentRecordsCached();
+    return all.filter((r) => {
+      const ctx = r.context as Record<string, unknown>;
+      const meta = (ctx?.meta ?? {}) as Record<string, unknown>;
+      if (filters.content_type) {
+        const recType = (r.record_id.split(':')[0]) || '';
+        if (recType !== filters.content_type) return false;
+      }
+      if (filters.status && meta.status !== filters.status) return false;
+      if (filters.visibility && meta.visibility !== filters.visibility) return false;
+      return true;
+    });
   }
 }
 
