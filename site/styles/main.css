@@ -585,6 +585,7 @@ main.home { max-width: 1100px; }
 }
 .content-card {
   display: block;
+  position: relative;
   background: var(--bg2);
   border: 1px solid var(--border);
   border-radius: var(--radius);
@@ -609,6 +610,19 @@ main.home { max-width: 1100px; }
 .card-excerpt { font-size: .83rem; color: var(--text-dim); line-height: 1.5; margin: 0 0 .5rem; }
 .card-tags { display: flex; flex-wrap: wrap; gap: .3rem; margin-top: .5rem; }
 
+/* Operator classification badge (grid cards) */
+.card-operator {
+  position: absolute;
+  top: .6rem;
+  right: .7rem;
+  font-size: 1.1rem;
+  line-height: 1;
+  opacity: .55;
+  transition: opacity .15s;
+  pointer-events: none;
+}
+.content-card:hover .card-operator { opacity: 1; }
+
 /* List cards (blog style) */
 .content-list-cards { display: flex; flex-direction: column; gap: .6rem; }
 .list-card {
@@ -626,6 +640,23 @@ main.home { max-width: 1100px; }
 .list-card-body { flex: 1; min-width: 0; }
 .list-card-title { font-size: .95rem; font-weight: 600; margin-bottom: .25rem; }
 .list-card-arrow { color: var(--text-dim); flex-shrink: 0; }
+
+/* Operator classification badge (list cards / wiki lists) */
+.list-card-operator {
+  font-size: 1.1rem;
+  line-height: 1;
+  flex-shrink: 0;
+  opacity: .55;
+  transition: opacity .15s;
+}
+.list-card:hover .list-card-operator { opacity: 1; }
+.list-operator {
+  font-size: .95rem;
+  line-height: 1;
+  opacity: .5;
+  transition: opacity .15s;
+}
+li:hover .list-operator { opacity: 1; }
 
 /* Tag cloud */
 .tag-cloud { display: flex; flex-wrap: wrap; gap: .5rem; }

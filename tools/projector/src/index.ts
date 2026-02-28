@@ -30,6 +30,7 @@ import type {
 } from './types.js';
 import { fetchAllCurrentRecords, type XanoCurrentRecord } from './fetch_xano.js';
 import { renderSearchIndex, renderStateFiles } from './render.js';
+import { extractFullText, classifyAll } from './classify.js';
 
 const OUT_DEFAULT = join(
   import.meta.dirname,
@@ -346,6 +347,28 @@ async function main() {
       console.error(`[projector] Error building ${entry.content_id}:`, err);
     }
   }
+
+  // ── 3b. Classify content by primary operator via TF-IDF ─────────────────
+  const classificationInput = projectedContents.map((proj) => ({
+    id: proj.content_id,
+    text: extractFullText(proj),
+  }));
+  const classifications = classifyAll(classificationInput);
+
+  for (const entry of siteIndex.entries) {
+    const cls = classifications.get(entry.content_id);
+    if (cls) {
+      entry.operator = { code: cls.op_code, symbol: cls.op_symbol, color: cls.op_color };
+    }
+  }
+  for (const entry of siteIndex.nav) {
+    const cls = classifications.get(entry.content_id);
+    if (cls) {
+      entry.operator = { code: cls.op_code, symbol: cls.op_symbol, color: cls.op_color };
+    }
+  }
+
+  console.log(`[projector] Classified ${classifications.size} items by operator`);
 
   // ── 4. Write state files ──────────────────────────────────────────────────
   console.log(`[projector] Writing ${projectedContents.length} content files…`);
