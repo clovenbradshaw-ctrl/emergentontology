@@ -21,6 +21,7 @@ import {
 import { loadState, fetchCurrentRecordCached, applyFreshnessUpdate } from '../xano/stateCache';
 import { insRevision } from '../eo/events';
 import type { WikiRevision, ContentMeta } from '../eo/types';
+import { mdToHtml } from '../eo/markdown';
 import RichTextEditor from './RichTextEditor';
 import MetadataBar from '../components/MetadataBar';
 
@@ -89,7 +90,7 @@ export default function WikiEditor({ contentId, siteBase }: Props) {
         setState(wikiState);
         const rev = wikiState.current_revision;
         if (rev) {
-          const html = rev.format === 'markdown' ? simpleMarkdownToHtml(rev.content) : rev.content;
+          const html = rev.format === 'markdown' ? mdToHtml(rev.content) : rev.content;
           setEditorContent(html);
         }
 
@@ -104,7 +105,7 @@ export default function WikiEditor({ contentId, siteBase }: Props) {
             setState(freshState);
             const rev = freshState.current_revision;
             if (rev) {
-              const html = rev.format === 'markdown' ? simpleMarkdownToHtml(rev.content) : rev.content;
+              const html = rev.format === 'markdown' ? mdToHtml(rev.content) : rev.content;
               setEditorContent(html);
             }
           }).catch(() => { /* best-effort freshness check */ });
@@ -204,7 +205,7 @@ export default function WikiEditor({ contentId, siteBase }: Props) {
   // ── Restore revision ───────────────────────────────────────────────────────
 
   function restoreRevision(rev: WikiRevision) {
-    const html = rev.format === 'markdown' ? simpleMarkdownToHtml(rev.content) : rev.content;
+    const html = rev.format === 'markdown' ? mdToHtml(rev.content) : rev.content;
     setEditorContent(html);
     setIsDirty(true);
   }
@@ -449,72 +450,3 @@ function wordDiff(oldLine: string, newLine: string): Array<{ type: 'equal' | 'ad
   return result;
 }
 
-// ── Markdown to HTML converter (for loading legacy markdown revisions) ───────
-
-function simpleMarkdownToHtml(md: string): string {
-  // 1. Fenced code blocks
-  const codeBlocks: string[] = [];
-  let s = md.replace(/```(\w*)\n?([\s\S]*?)```/g, (_m, lang, code) => {
-    const escaped = code.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
-    const cls = lang ? ` class="language-${lang}"` : '';
-    codeBlocks.push(`<pre><code${cls}>${escaped}</code></pre>`);
-    return `\x00CODE${codeBlocks.length - 1}\x00`;
-  });
-
-  s = s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
-
-  s = s
-    .replace(/^#{4}\s+(.+)$/gm, '<h4>$1</h4>')
-    .replace(/^#{3}\s+(.+)$/gm, '<h3>$1</h3>')
-    .replace(/^#{2}\s+(.+)$/gm, '<h2>$1</h2>')
-    .replace(/^#{1}\s+(.+)$/gm, '<h1>$1</h1>');
-
-  s = s.replace(/^---$/gm, '<hr>');
-
-  s = s.replace(/((?:^[ \t]*[-*]\s+.+\n?)+)/gm, (block) => {
-    const items = block.trim().split('\n').map((l) => `<li>${l.replace(/^[ \t]*[-*]\s+/, '')}</li>`).join('');
-    return `<ul>${items}</ul>`;
-  });
-
-  s = s.replace(/((?:^[ \t]*\d+\.\s+.+\n?)+)/gm, (block) => {
-    const items = block.trim().split('\n').map((l) => `<li>${l.replace(/^[ \t]*\d+\.\s+/, '')}</li>`).join('');
-    return `<ol>${items}</ol>`;
-  });
-
-  // Tables (pipe syntax)
-  s = s.replace(
-    /((?:^\|.+\|[ \t]*\n){2,})/gm,
-    (tableBlock) => {
-      const lines = tableBlock.trim().split('\n');
-      if (lines.length < 2) return tableBlock;
-      const sepLine = lines[1];
-      if (!/^\|[\s\-:|]+\|$/.test(sepLine.trim())) return tableBlock;
-      const parseRow = (line: string) =>
-        line.trim().replace(/^\|/, '').replace(/\|$/, '').split('|').map((c: string) => c.trim());
-      const headers = parseRow(lines[0]);
-      const headHtml = '<thead><tr>' + headers.map((h: string) => `<th>${h}</th>`).join('') + '</tr></thead>';
-      const bodyRows = lines.slice(2).filter((l: string) => l.trim());
-      const bodyHtml = '<tbody>' + bodyRows.map((line: string) => {
-        const cells = parseRow(line);
-        return '<tr>' + cells.map((c: string) => `<td>${c}</td>`).join('') + '</tr>';
-      }).join('') + '</tbody>';
-      return `<table>${headHtml}${bodyHtml}</table>`;
-    }
-  );
-
-  s = s
-    .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
-    .replace(/\*(.+?)\*/g, '<em>$1</em>')
-    .replace(/`(.+?)`/g, '<code>$1</code>')
-    .replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2">$1</a>');
-
-  s = s.replace(/\n\n+/g, '</p><p>');
-  s = `<p>${s}</p>`;
-
-  s = s.replace(/\x00CODE(\d+)\x00/g, (_m, i) => codeBlocks[Number(i)]);
-
-  s = s.replace(/<p>(<(?:h[1-6]|ul|ol|hr|pre|blockquote)[^>]*>)/g, '$1');
-  s = s.replace(/(<\/(?:h[1-6]|ul|ol|hr|pre|blockquote)>)<\/p>/g, '$1');
-
-  return s;
-}

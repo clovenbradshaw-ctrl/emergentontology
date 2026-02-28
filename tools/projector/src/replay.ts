@@ -20,7 +20,6 @@ import type {
   ContentMeta,
   Block,
   WikiRevision,
-  BlogRevision,
   ExperimentEntry,
   IndexEntry,
   ProjectedPage,
@@ -245,48 +244,12 @@ function replayWiki(contentId: string, meta: ContentMeta, events: MatrixEvent[])
 }
 
 // ──────────────────────────────────────────────────────────────────────────────
-// Blog replay  (same pattern as wiki)
+// Blog replay  (delegates to wiki — same revision structure)
 // ──────────────────────────────────────────────────────────────────────────────
 
 function replayBlog(contentId: string, meta: ContentMeta, events: MatrixEvent[]): ProjectedBlog {
-  const revisions = new Map<string, BlogRevision>();
-  const history: ProjectedBlog['history'] = [];
-
-  for (const mxEvent of events) {
-    if (mxEvent.type !== 'eo.op') continue;
-    const e = mxEvent.content as EOEvent;
-    if (!isEOEvent(e)) continue;
-
-    const { childType, childId } = parseTarget(e.target);
-    if (childType !== 'rev' || !childId) continue;
-
-    history.push({ event_id: mxEvent.event_id, op: e.op, ts: e.ctx.ts, agent: e.ctx.agent });
-
-    if (e.op === 'INS') {
-      const o = e.operand as { format: 'markdown'; content: string; summary: string };
-      revisions.set(childId, {
-        rev_id: childId,
-        format: o.format ?? 'markdown',
-        content: o.content ?? '',
-        summary: o.summary ?? '',
-        ts: e.ctx.ts,
-        event_id: mxEvent.event_id,
-      });
-    }
-  }
-
-  const sorted = Array.from(revisions.values()).sort((a, b) => a.ts.localeCompare(b.ts));
-
-  return {
-    content_type: 'blog',
-    content_id: contentId,
-    meta,
-    current_revision: sorted.at(-1) ?? null,
-    revisions: sorted,
-    has_conflict: false,
-    conflict_candidates: [],
-    history,
-  };
+  const wiki = replayWiki(contentId, meta, events);
+  return { ...wiki, content_type: 'blog' };
 }
 
 // ──────────────────────────────────────────────────────────────────────────────

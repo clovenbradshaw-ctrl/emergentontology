@@ -99,15 +99,6 @@ export interface WikiRevision {
   event_id: string;
 }
 
-export interface BlogRevision {
-  rev_id: string;
-  format: 'markdown' | 'html';
-  content: string;
-  summary: string;
-  ts: string;
-  event_id: string;
-}
-
 export interface ExperimentEntry {
   entry_id: string;
   kind: 'note' | 'dataset' | 'result' | 'chart' | 'link' | 'decision' | 'html';
@@ -155,8 +146,8 @@ export interface ProjectedWiki extends BaseProjected {
 
 export interface ProjectedBlog extends BaseProjected {
   content_type: 'blog';
-  current_revision: BlogRevision | null;
-  revisions: BlogRevision[];
+  current_revision: WikiRevision | null;
+  revisions: WikiRevision[];
   has_conflict: boolean;
   conflict_candidates: string[];
 }
