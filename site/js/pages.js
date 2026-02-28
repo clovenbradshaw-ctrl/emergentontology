@@ -250,6 +250,9 @@ function wikiListItem(w) {
     w.tags.forEach(function (t) { h += '<span class="tag">' + esc(t) + '</span>'; });
     h += '</span>';
   }
+  if (w.updated_at) {
+    h += ' <time class="list-updated">' + new Date(w.updated_at).toLocaleDateString() + '</time>';
+  }
   h += '</li>';
   return h;
 }
@@ -674,9 +677,9 @@ export function updateNav() {
     }).join('') + (entries.length > max ? '<li class="nav-more"><a href="' + listUrl + '">More \u2192</a></li>' : '');
   }
 
-  fillDropdown('nav-wiki-dd', 'nav-wiki-count', nav.filter(function (e) { return e.content_type === 'wiki'; }), 'wiki', 8);
-  fillDropdown('nav-blog-dd', 'nav-blog-count', nav.filter(function (e) { return e.content_type === 'blog'; }), 'blog', 6);
-  fillDropdown('nav-exp-dd', 'nav-exp-count', nav.filter(function (e) { return e.content_type === 'experiment'; }), 'experiment', 6);
+  fillDropdown('nav-wiki-dd', 'nav-wiki-count', sortByUpdated(nav.filter(function (e) { return e.content_type === 'wiki'; })), 'wiki', 8);
+  fillDropdown('nav-blog-dd', 'nav-blog-count', sortByUpdated(nav.filter(function (e) { return e.content_type === 'blog'; })), 'blog', 6);
+  fillDropdown('nav-exp-dd', 'nav-exp-count', sortByUpdated(nav.filter(function (e) { return e.content_type === 'experiment'; })), 'experiment', 6);
 
   var siteName = (idx.site_settings && idx.site_settings.siteName) || 'Emergent Ontology';
   var hEl = document.getElementById('site-name-header');
