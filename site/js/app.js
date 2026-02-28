@@ -117,47 +117,115 @@
 
   function loadXanoRecords() {
     if (_xanoRecords) return Promise.resolve(_xanoRecords);
+    console.log('[eo] Fetching records from API…');
     try {
       var controller = new AbortController();
       var timer = setTimeout(function () { controller.abort(); }, 15000);
       return fetch(XANO_CURRENT, { signal: controller.signal })
         .then(function (r) { clearTimeout(timer); return r.ok ? r.json() : null; })
         .then(function (records) {
-          if (!Array.isArray(records)) return null;
+          if (!Array.isArray(records)) {
+            console.warn('[eo] API returned non-array:', typeof records);
+            return null;
+          }
           _xanoRecords = dedup(records);
+          var ids = Object.keys(_xanoRecords);
+          console.log('[eo] Fetched ' + records.length + ' records, ' + ids.length + ' unique');
+          console.log('[eo] Record IDs:', ids);
           return _xanoRecords;
-        }).catch(function (e) { clearTimeout(timer); console.warn('Xano fetch failed:', e); return null; });
+        }).catch(function (e) { clearTimeout(timer); console.warn('[eo] API fetch failed:', e); return null; });
     } catch (e) {
-      console.warn('Xano fetch setup failed:', e);
+      console.warn('[eo] API fetch setup failed:', e);
       return Promise.resolve(null);
     }
   }
 
   function loadIndex() {
     if (siteIndex) return Promise.resolve(siteIndex);
+    console.log('[eo] Loading index…');
 
     // Try generated JSON first; fall back to Xano API
     return fetchJson(BASE + '/generated/state/index.json').then(function (data) {
-      if (data) { siteIndex = data; return data; }
+      if (data) {
+        console.log('[eo] Using static JSON (' + (data.entries || []).length + ' entries)');
+        siteIndex = data;
+        return data;
+      }
       return loadXanoRecords().then(function (map) {
-        if (!map || !map['site:index']) return emptyIndex();
-        try {
-          var raw = JSON.parse(map['site:index'].values);
-          // Ensure nav exists (synthesize from entries if missing)
-          if (!raw.nav && raw.entries) {
-            raw.nav = raw.entries.filter(function (e) {
-              return e.status === 'published' && e.visibility === 'public';
-            });
+        if (!map) {
+          console.warn('[eo] No records from API — showing empty site');
+          return emptyIndex();
+        }
+        if (map['site:index']) {
+          console.log('[eo] Using site:index record');
+          try {
+            var raw = JSON.parse(map['site:index'].values);
+            // Ensure nav exists (synthesize from entries if missing)
+            if (!raw.nav && raw.entries) {
+              raw.nav = raw.entries.filter(function (e) {
+                return e.status === 'published' && e.visibility === 'public';
+              });
+            }
+            siteIndex = raw;
+            console.log('[eo] Index ready: ' + (siteIndex.entries || []).length + ' entries, ' + (siteIndex.nav || []).length + ' in nav');
+            return siteIndex;
+          } catch (e) {
+            console.warn('[eo] Failed to parse site:index — falling back to content records');
           }
-          siteIndex = raw;
-          return siteIndex;
-        } catch (e) { return emptyIndex(); }
+        } else {
+          console.log('[eo] No site:index — building from content records');
+        }
+        // Fallback: synthesize index from individual content records
+        return buildIndexFromRecords(map);
       });
     });
   }
 
   function emptyIndex() {
     siteIndex = { entries: [], nav: [], slug_map: {}, built_at: '' };
+    return siteIndex;
+  }
+
+  /** Synthesize a site index from individual content records when site:index is missing. */
+  function buildIndexFromRecords(map) {
+    var CONTENT_PREFIXES = ['wiki:', 'blog:', 'experiment:', 'page:'];
+    var entries = [];
+
+    Object.keys(map).forEach(function (id) {
+      var isContent = CONTENT_PREFIXES.some(function (p) { return id.indexOf(p) === 0; });
+      if (!isContent) return;
+
+      var rec = map[id];
+      var parsed;
+      try { parsed = JSON.parse(rec.values); } catch (e) { return; }
+
+      var meta = parsed.meta || {};
+      var parts = id.split(':');
+      var prefix = parts[0];
+      var slug = meta.slug || parts.slice(1).join(':');
+      var contentType = meta.content_type || prefix;
+
+      entries.push({
+        content_id: id,
+        slug: slug,
+        title: meta.title || rec.displayName || slug,
+        content_type: contentType,
+        status: meta.status || 'published',
+        visibility: meta.visibility || 'public',
+        tags: meta.tags || []
+      });
+    });
+
+    var nav = entries.filter(function (e) {
+      return e.status === 'published' && e.visibility === 'public';
+    });
+    var slug_map = {};
+    entries.forEach(function (e) { slug_map[e.slug] = e.content_id; });
+
+    console.log('[eo] Synthesized index from ' + entries.length + ' content records (no site:index found)');
+    console.log('[eo] Nav entries: ' + nav.length);
+
+    siteIndex = { entries: entries, nav: nav, slug_map: slug_map, built_at: '' };
     return siteIndex;
   }
 
