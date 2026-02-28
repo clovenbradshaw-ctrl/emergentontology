@@ -75,9 +75,23 @@ export function renderHome(el) {
   // Two-column layout
   h += '<div class="home-columns"><div class="home-col-main">';
 
-  if (wikis.length > 0) h += sectionHtml('Wiki', 'wiki', wikis, COLUMN_LIMIT, 'grid');
-  h += sectionHtml('Blog', 'blog', blogs, COLUMN_LIMIT, 'list');
-  h += sectionHtml('Experiments', 'experiment', exps, COLUMN_LIMIT, 'grid');
+  // Sort sections by most recently updated entry
+  var sections = [
+    { title: 'Wiki', type: 'wiki', entries: wikis, layout: 'grid' },
+    { title: 'Blog', type: 'blog', entries: blogs, layout: 'list' },
+    { title: 'Experiments', type: 'experiment', entries: exps, layout: 'grid' }
+  ];
+  sections.sort(function (a, b) {
+    var ta = (a.entries.length > 0 && a.entries[0].updated_at) || '';
+    var tb = (b.entries.length > 0 && b.entries[0].updated_at) || '';
+    if (tb > ta) return 1;
+    if (tb < ta) return -1;
+    return 0;
+  });
+  sections.forEach(function (sec) {
+    if (sec.type === 'wiki' && sec.entries.length === 0) return;
+    h += sectionHtml(sec.title, sec.type, sec.entries, COLUMN_LIMIT, sec.layout);
+  });
 
   if (pages.length > 0) {
     h += '<section class="home-section"><div class="section-header"><h2 class="section-title">Pages</h2></div>';
