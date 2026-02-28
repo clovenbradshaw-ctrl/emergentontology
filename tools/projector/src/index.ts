@@ -24,7 +24,6 @@ import type {
   ProjectedExperiment,
   SiteIndex,
   WikiRevision,
-  BlogRevision,
   Block,
   ExperimentEntry,
 } from './types.js';
@@ -60,8 +59,8 @@ interface WikiSnapshot {
 
 interface BlogSnapshot {
   meta: Partial<ContentMeta>;
-  current_revision: Partial<BlogRevision> | null;
-  revisions: Array<Partial<BlogRevision>>;
+  current_revision: Partial<WikiRevision> | null;
+  revisions: Array<Partial<WikiRevision>>;
 }
 
 interface PageSnapshot {
@@ -140,7 +139,7 @@ function buildBlog(
   entry: IndexSnapshot['entries'][number],
   snap: BlogSnapshot,
 ): ProjectedBlog {
-  const revisions: BlogRevision[] = (snap.revisions ?? []).map((r) => ({
+  const revisions: WikiRevision[] = (snap.revisions ?? []).map((r) => ({
     rev_id: r.rev_id ?? '',
     format: r.format ?? 'markdown',
     content: r.content ?? '',
