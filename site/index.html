@@ -1,107 +1,973 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Emergent Ontology</title>
-  <base href="/">
-  <link rel="stylesheet" href="styles/main.css">
-  <link rel="alternate" type="application/json" href="generated/state/index.json">
-  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>∅</text></svg>">
-  <script src="https://unpkg.com/@phosphor-icons/web@2.1.1" defer></script>
-  <script>
-    (function() {
-      var t = localStorage.getItem('eo-theme');
-      if (!t) t = window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark';
-      document.documentElement.setAttribute('data-theme', t);
-    })();
-  </script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Emergent Ontology</title>
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>∅</text></svg>">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&family=Newsreader:ital,wght@0,400;0,500;0,600;1,400;1,500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #ffffff;
+    --bg-page: #fafafa;
+    --text: #111111;
+    --text-secondary: #555555;
+    --text-muted: #888888;
+    --text-faint: #aaaaaa;
+    --purple: #6c5ce7;
+    --purple-light: #a29bfe;
+    --purple-bg: #f0eeff;
+    --purple-border: #d4d0f7;
+    --border: #e8e8e8;
+    --border-light: #f0f0f0;
+    --card-shadow: 0 1px 3px rgba(0,0,0,0.04), 0 1px 2px rgba(0,0,0,0.03);
+    --card-shadow-hover: 0 4px 12px rgba(0,0,0,0.07);
+    --existence: #7c6dd8;
+    --structure: #5b8fd9;
+    --interpretation: #d4845a;
+  }
+  [data-theme="dark"] {
+    --bg: #111111;
+    --bg-page: #1a1a1a;
+    --text: #e8e8e8;
+    --text-secondary: #aaaaaa;
+    --text-muted: #777777;
+    --text-faint: #555555;
+    --purple: #a29bfe;
+    --purple-light: #6c5ce7;
+    --purple-bg: #1e1a3a;
+    --purple-border: #2d2654;
+    --border: #2a2a2a;
+    --border-light: #222222;
+    --card-shadow: 0 1px 3px rgba(0,0,0,0.2);
+    --card-shadow-hover: 0 4px 12px rgba(0,0,0,0.3);
+    --existence: #a29bfe;
+    --structure: #74b9ff;
+    --interpretation: #ffc078;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html { font-size: 16px; scroll-behavior: smooth; }
+  body {
+    font-family: 'Inter', -apple-system, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.65;
+    min-height: 100vh;
+    transition: background 0.3s, color 0.3s;
+  }
+
+  /* ── Top Nav ── */
+  .topnav {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 0 2rem; height: 56px;
+    border-bottom: 1px solid var(--border);
+    background: var(--bg);
+    position: sticky; top: 0; z-index: 100;
+  }
+  .topnav-left { display: flex; align-items: center; gap: 2rem; }
+  .topnav-brand {
+    display: flex; align-items: center; gap: 0.5rem;
+    font-weight: 700; font-size: 0.95rem; color: var(--text);
+    cursor: pointer; text-decoration: none;
+  }
+  .brand-icon {
+    width: 22px; height: 22px; background: var(--purple);
+    border-radius: 4px; display: flex; align-items: center;
+    justify-content: center; color: white; font-size: 0.7rem; font-weight: 700;
+  }
+  .topnav-links { display: flex; gap: 0.25rem; }
+  .topnav-link {
+    font-size: 0.88rem; color: var(--text-secondary); text-decoration: none;
+    padding: 0.35rem 0.75rem; border-radius: 6px; cursor: pointer;
+    transition: all 0.15s; font-weight: 500;
+  }
+  .topnav-link:hover { background: var(--border-light); color: var(--text); }
+  .topnav-link.active { color: var(--text); background: var(--border-light); }
+  .topnav-right { display: flex; align-items: center; gap: 0.5rem; }
+  .topnav-btn {
+    width: 36px; height: 36px; border-radius: 8px;
+    border: 1px solid var(--border); background: var(--bg);
+    color: var(--text-secondary); cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1rem; transition: all 0.15s;
+  }
+  .topnav-btn:hover { background: var(--border-light); color: var(--text); }
+  .admin-btn {
+    width: auto; padding: 0 0.85rem; background: var(--purple);
+    color: white; border-color: var(--purple);
+    font-size: 0.8rem; font-weight: 600; border-radius: 8px;
+    text-decoration: none; display: none;
+  }
+  .admin-btn:hover { opacity: 0.9; background: var(--purple); color: white; }
+  .admin-btn.visible { display: flex; }
+
+  /* ── Page Container ── */
+  .page { max-width: 980px; margin: 0 auto; padding: 0 2rem; }
+
+  /* ── Home Hero ── */
+  .hero { text-align: center; padding: 5rem 1rem 3rem; }
+  .hero-badge {
+    display: inline-block; padding: 0.35rem 1.1rem;
+    border: 1.5px solid var(--purple-border); border-radius: 50px;
+    font-size: 0.72rem; font-weight: 600; letter-spacing: 0.1em;
+    text-transform: uppercase; color: var(--purple); background: var(--purple-bg);
+    margin-bottom: 1.5rem;
+  }
+  .hero h1 {
+    font-size: 2.6rem; font-weight: 700; line-height: 1.2;
+    letter-spacing: -0.03em; color: var(--text);
+    max-width: 680px; margin: 0 auto 1.2rem;
+  }
+  .hero-sub {
+    font-size: 1.05rem; color: var(--text-muted);
+    max-width: 520px; margin: 0 auto; line-height: 1.65;
+  }
+  .hero-stats {
+    font-size: 0.85rem; color: var(--text-faint);
+    margin-top: 1rem;
+  }
+  .hero-divider {
+    border: none; border-top: 1px solid var(--border);
+    margin: 3rem auto; max-width: 780px;
+  }
+
+  /* ── Home Sections ── */
+  .home-sections { display: flex; gap: 3rem; padding-bottom: 5rem; align-items: flex-start; }
+  .home-left { flex: 1; min-width: 0; }
+  .home-right { flex-shrink: 0; padding-top: 0.5rem; }
+  .home-section { margin-bottom: 2.5rem; }
+  .home-section-title { font-size: 1.3rem; font-weight: 700; margin-bottom: 0.6rem; }
+  .home-section-empty { font-size: 0.92rem; color: var(--text-muted); font-style: italic; }
+
+  /* ── Wiki entry list ── */
+  .wiki-list { display: flex; flex-direction: column; gap: 0.35rem; }
+  .wiki-list-item {
+    display: flex; align-items: center; gap: 0.75rem;
+    padding: 0.6rem 0.85rem; border-radius: 8px; cursor: pointer;
+    transition: all 0.15s; text-decoration: none; color: var(--text);
+  }
+  .wiki-list-item:hover { background: var(--border-light); }
+  .wiki-list-item .item-icon {
+    width: 32px; height: 32px; border-radius: 6px;
+    background: var(--purple-bg); display: flex;
+    align-items: center; justify-content: center;
+    font-size: 0.8rem; color: var(--purple); flex-shrink: 0;
+  }
+  .wiki-list-item .item-title { font-size: 0.92rem; font-weight: 500; }
+  .wiki-list-item .item-meta { font-size: 0.75rem; color: var(--text-faint); }
+  .wiki-list-item .item-tags { display: flex; gap: 0.25rem; flex-wrap: wrap; margin-top: 0.15rem; }
+  .wiki-list-item .tag {
+    font-size: 0.65rem; padding: 0.1rem 0.45rem; border-radius: 999px;
+    background: var(--border-light); color: var(--text-faint);
+    border: 1px solid var(--border);
+  }
+
+  /* ── Operator Grid ── */
+  .op-grid { display: grid; grid-template-columns: repeat(3, 56px); gap: 8px; }
+  .op-cell {
+    width: 56px; height: 56px; border-radius: 10px;
+    border: 1px solid var(--border); display: flex;
+    align-items: center; justify-content: center;
+    font-size: 1.3rem; color: var(--text-secondary);
+    cursor: pointer; transition: all 0.2s;
+    background: var(--bg); position: relative;
+    text-decoration: none;
+  }
+  .op-cell::before {
+    content: ''; position: absolute; left: 0;
+    top: 6px; bottom: 6px; width: 3px;
+    border-radius: 0 2px 2px 0;
+  }
+  .op-cell.triad-e::before { background: var(--existence); }
+  .op-cell.triad-s::before { background: var(--structure); }
+  .op-cell.triad-i::before { background: var(--interpretation); }
+  .op-cell:hover {
+    box-shadow: var(--card-shadow-hover); transform: translateY(-1px);
+    border-color: var(--purple-border); text-decoration: none;
+  }
+  .op-grid-label { text-align: center; margin-top: 0.5rem; opacity: 0.3; font-size: 1.1rem; }
+
+  /* ── Wiki Page View ── */
+  .wiki-page { padding: 3rem 0 6rem; }
+  .wiki-page-meta {
+    font-size: 0.75rem; color: var(--text-faint); letter-spacing: 0.05em;
+    margin-bottom: 0.25rem; text-transform: uppercase; font-weight: 600;
+  }
+  .wiki-page-meta .type-badge { color: var(--purple); }
+  .revision-info {
+    display: flex; align-items: center; gap: 1.5rem;
+    font-size: 0.78rem; color: var(--text-muted);
+    background: var(--bg-page); border: 1px solid var(--border);
+    padding: 0.55rem 1rem; border-radius: 8px; margin-bottom: 2.5rem;
+  }
+  .revision-info strong { font-weight: 600; color: var(--text-secondary); }
+  .back-link {
+    display: inline-flex; align-items: center; gap: 0.35rem;
+    font-size: 0.85rem; color: var(--text-muted); text-decoration: none;
+    cursor: pointer; margin-bottom: 1.5rem; transition: color 0.15s;
+  }
+  .back-link:hover { color: var(--purple); }
+
+  /* ── Wiki Body ── */
+  .wiki-body h1 {
+    font-size: 2.2rem; font-weight: 700; line-height: 1.18;
+    margin-bottom: 1.2rem; letter-spacing: -0.025em;
+  }
+  .wiki-body h2 {
+    font-size: 1.4rem; font-weight: 700; margin: 2.8rem 0 0.8rem;
+    padding-bottom: 0.4rem; border-bottom: 1px solid var(--border);
+  }
+  .wiki-body h3 { font-size: 1.1rem; font-weight: 600; margin: 2rem 0 0.6rem; }
+  .wiki-body h4 { font-size: 1rem; font-weight: 600; margin: 1.5rem 0 0.5rem; }
+  .wiki-body p { margin-bottom: 1rem; color: var(--text-secondary); }
+  .wiki-body ul, .wiki-body ol { margin: 0.8rem 0 1.2rem 1.5rem; color: var(--text-secondary); }
+  .wiki-body li { margin-bottom: 0.45rem; }
+  .wiki-body a {
+    color: var(--purple); text-decoration: none;
+    border-bottom: 1px solid transparent; transition: border-color 0.15s;
+  }
+  .wiki-body a:hover { border-bottom-color: var(--purple-light); }
+  .wiki-body a[data-wiki-link] { cursor: pointer; }
+  .wiki-body blockquote {
+    border-left: 3px solid var(--purple-light); padding: 0.65rem 1.2rem;
+    margin: 1.2rem 0; background: var(--purple-bg); border-radius: 0 8px 8px 0;
+    color: var(--text-secondary); font-family: 'Newsreader', Georgia, serif;
+    font-style: italic; font-size: 1.02rem;
+  }
+  .wiki-body code {
+    font-family: 'JetBrains Mono', monospace; font-size: 0.84em;
+    background: var(--bg-page); border: 1px solid var(--border);
+    padding: 0.12em 0.4em; border-radius: 4px; color: var(--purple);
+  }
+  .wiki-body pre {
+    background: #1a1a2e; color: #e0e0e0;
+    padding: 1.2rem 1.4rem; border-radius: 10px; overflow-x: auto;
+    margin: 1.2rem 0; font-family: 'JetBrains Mono', monospace;
+    font-size: 0.82rem; line-height: 1.6;
+  }
+  .wiki-body pre code { background: none; border: none; padding: 0; color: inherit; }
+  .wiki-body hr { border: none; border-top: 1px solid var(--border); margin: 2.5rem 0; }
+  .wiki-body strong { font-weight: 600; color: var(--text); }
+  .wiki-body table { border-collapse: collapse; width: 100%; margin: 1rem 0; }
+  .wiki-body th, .wiki-body td { border: 1px solid var(--border); padding: 0.5rem 0.75rem; text-align: left; }
+  .wiki-body th { background: var(--bg-page); font-weight: 600; }
+  .wiki-body tr:hover { background: var(--bg-page); }
+  .wiki-body img { max-width: 100%; border-radius: 8px; }
+
+  /* ── Search Overlay ── */
+  .search-overlay {
+    display: none; position: fixed; inset: 0;
+    background: rgba(0,0,0,0.4); z-index: 200;
+    align-items: flex-start; justify-content: center; padding-top: 15vh;
+  }
+  .search-overlay.open { display: flex; }
+  .search-box {
+    width: 520px; max-width: 90vw; background: var(--bg);
+    border-radius: 12px; box-shadow: 0 20px 60px rgba(0,0,0,0.15);
+    overflow: hidden; animation: searchIn 0.2s ease-out;
+  }
+  @keyframes searchIn {
+    from { opacity: 0; transform: translateY(-10px) scale(0.98); }
+    to { opacity: 1; transform: translateY(0) scale(1); }
+  }
+  .search-input {
+    width: 100%; padding: 1rem 1.2rem; border: none; outline: none;
+    font-size: 1rem; font-family: 'Inter', sans-serif; background: transparent;
+    color: var(--text); border-bottom: 1px solid var(--border);
+  }
+  .search-results { max-height: 300px; overflow-y: auto; padding: 0.5rem; }
+  .search-result {
+    padding: 0.6rem 0.8rem; cursor: pointer; border-radius: 6px;
+    transition: background 0.1s; font-size: 0.9rem;
+  }
+  .search-result:hover { background: var(--border-light); }
+  .search-result .sr-type {
+    font-size: 0.7rem; color: var(--purple); text-transform: uppercase;
+    letter-spacing: 0.08em; font-weight: 600;
+  }
+  .search-result .sr-title { font-weight: 500; }
+  .search-empty { padding: 1.5rem; text-align: center; color: var(--text-faint); font-size: 0.88rem; }
+
+  /* ── Footer ── */
+  .site-footer {
+    border-top: 1px solid var(--border);
+    padding: 1.5rem 2rem;
+    background: var(--bg);
+  }
+  .footer-inner {
+    max-width: 980px;
+    margin: 0 auto;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 1rem;
+  }
+  .footer-brand {
+    display: flex; align-items: center; gap: 0.5rem;
+    color: var(--text-faint); font-size: 0.85rem;
+  }
+  .footer-nav {
+    display: flex; gap: 1.25rem; flex-wrap: wrap;
+  }
+  .footer-nav a {
+    color: var(--text-faint); font-size: 0.82rem;
+    text-decoration: none; transition: color 0.15s;
+  }
+  .footer-nav a:hover { color: var(--purple); }
+
+  /* ── Loading ── */
+  .loader {
+    display: flex; flex-direction: column; align-items: center;
+    justify-content: center; min-height: 60vh; color: var(--text-muted); gap: 1rem;
+  }
+  .loader .spin {
+    width: 24px; height: 24px; border: 2.5px solid var(--border);
+    border-top-color: var(--purple); border-radius: 50%;
+    animation: spin 0.7s linear infinite;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .empty { text-align: center; padding: 4rem 2rem; color: var(--text-faint); }
+  .fade-in { animation: fadeIn 0.3s ease-out; }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
+
+  @media (max-width: 768px) {
+    .topnav { padding: 0 1rem; }
+    .topnav-links { display: none; }
+    .page { padding: 0 1rem; }
+    .hero h1 { font-size: 1.8rem; }
+    .hero { padding: 3rem 0.5rem 2rem; }
+    .home-sections { flex-direction: column; }
+    .home-right { align-self: center; }
+    .wiki-page { padding: 2rem 0 4rem; }
+    .wiki-body h1 { font-size: 1.7rem; }
+    .revision-info { flex-wrap: wrap; gap: 0.5rem 1rem; }
+    .footer-inner { flex-direction: column; text-align: center; }
+  }
+</style>
 </head>
 <body>
-  <header class="site-header">
-    <a class="site-logo" href="./" id="site-logo-link">
-      <span class="logo-mark" id="logo-mark" title="Click to cycle operator">⊡</span>
-      <span class="logo-text" id="site-name-header">Emergent Ontology</span>
+
+<nav class="topnav">
+  <div class="topnav-left">
+    <a class="topnav-brand" id="homeBtn">
+      <span class="brand-icon">⊡</span>
+      Emergent Ontology
     </a>
+    <div class="topnav-links" id="navLinks">
+      <a class="topnav-link" data-view="wiki" onclick="showView('wiki')">Wiki</a>
+      <a class="topnav-link" data-view="blog" onclick="showView('blog')">Blog</a>
+      <a class="topnav-link" data-view="experiments" onclick="showView('experiments')">Experiments</a>
+    </div>
+  </div>
+  <div class="topnav-right">
+    <button class="topnav-btn" id="themeBtn" title="Toggle theme">☾</button>
+    <button class="topnav-btn" id="searchBtn" title="Search (⌘K)">⌕</button>
+    <a class="topnav-btn admin-btn" id="adminBtn" href="admin/">Admin</a>
+  </div>
+</nav>
 
-    <nav class="site-nav" aria-label="Main navigation">
-      <ul class="nav-list" id="nav-list">
-        <li class="nav-item has-dropdown">
-          <a href="wiki/" class="nav-link">Wiki <span class="nav-count" id="nav-wiki-count" hidden>0</span></a>
-          <ul class="nav-dropdown" id="nav-wiki-dd"></ul>
-        </li>
-        <li class="nav-item has-dropdown">
-          <a href="blog/" class="nav-link">Blog <span class="nav-count" id="nav-blog-count" hidden>0</span></a>
-          <ul class="nav-dropdown" id="nav-blog-dd"></ul>
-        </li>
-        <li class="nav-item has-dropdown">
-          <a href="exp/" class="nav-link">Experiments <span class="nav-count" id="nav-exp-count" hidden>0</span></a>
-          <ul class="nav-dropdown" id="nav-exp-dd"></ul>
-        </li>
-      </ul>
+<div class="search-overlay" id="searchOverlay">
+  <div class="search-box">
+    <input class="search-input" id="searchInput" placeholder="Search pages…" autocomplete="off">
+    <div class="search-results" id="searchResults"></div>
+  </div>
+</div>
+
+<div class="page" id="app">
+  <div class="loader"><div class="spin"></div><span style="font-size:.88rem">Loading…</span></div>
+</div>
+
+<footer class="site-footer">
+  <div class="footer-inner">
+    <div class="footer-brand">
+      <span>⊡</span>
+      <span>Emergent Ontology</span>
+    </div>
+    <nav class="footer-nav">
+      <a href="#__wiki" onclick="showView('wiki');return false;">Wiki</a>
+      <a href="#__blog" onclick="showView('blog');return false;">Blog</a>
+      <a href="#__experiments" onclick="showView('experiments');return false;">Experiments</a>
     </nav>
-
-    <div class="header-actions">
-      <button class="theme-toggle" id="theme-toggle" aria-label="Toggle light/dark mode" title="Toggle light/dark mode">
-        <i class="ph ph-sun theme-icon-light" aria-hidden="true"></i>
-        <i class="ph ph-moon theme-icon-dark" aria-hidden="true"></i>
-      </button>
-      <button class="search-toggle" id="search-toggle" aria-label="Search">
-        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
-          <circle cx="6.5" cy="6.5" r="5" stroke="currentColor" stroke-width="1.5"/>
-          <path d="M10.5 10.5L14 14" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
-        </svg>
-      </button>
-      <a class="admin-link" href="admin/" hidden id="admin-link">Admin</a>
-    </div>
-  </header>
-
-  <!-- Search overlay -->
-  <div class="search-overlay" id="search-overlay" hidden>
-    <div class="search-modal">
-      <input id="search-input" type="search" placeholder="Search articles, posts, experiments…" aria-label="Search site" autocomplete="off">
-      <div id="search-results" class="search-results" role="list"></div>
-      <button class="search-close" id="search-close" aria-label="Close search">Esc</button>
-    </div>
   </div>
+</footer>
 
-  <!-- Breadcrumbs (populated by JS) -->
-  <nav class="breadcrumbs" id="breadcrumbs" aria-label="Breadcrumb" hidden style="max-width:860px;margin:0 auto;padding:1rem 1.5rem 0;width:100%"></nav>
+<script>
+var API = 'https://n8n.intelechia.com/webhook/81ca952a-3387-4837-8bcd-d18e3d28e758';
+var OPERATORS = [
+  { sym:'\u2205', name:'NUL', triad:'e', slug:'nul', label:'Absence & Nullity' },
+  { sym:'\u22A1', name:'DES', triad:'e', slug:'des', label:'Designation' },
+  { sym:'\u25B3', name:'INS', triad:'e', slug:'ins', label:'Instantiation' },
+  { sym:'\uFF5C', name:'SEG', triad:'s', slug:'seg', label:'Segmentation' },
+  { sym:'\u22C8', name:'CON', triad:'s', slug:'con', label:'Connection' },
+  { sym:'\u2228', name:'SYN', triad:'s', slug:'syn', label:'Synthesis' },
+  { sym:'\u223F', name:'ALT', triad:'i', slug:'alt', label:'Alternation' },
+  { sym:'\u2295', name:'SUP', triad:'i', slug:'sup', label:'Superposition' },
+  { sym:'\u27F3', name:'REC', triad:'i', slug:'rec', label:'Recursion' }
+];
 
-  <!-- Main content area (rendered by app.js) -->
-  <main id="content">
-    <div style="text-align:center;padding:3rem;color:var(--text-dim)">Loading…</div>
-  </main>
+var siteData = {}, siteIndex = null, allPages = [];
 
-  <footer class="site-footer">
-    <div class="footer-inner">
-      <div class="footer-brand">
-        <span class="logo-mark">⊡</span>
-        <span id="site-name-footer">Emergent Ontology</span>
-      </div>
-      <nav class="footer-nav" aria-label="Footer navigation">
-        <a href="wiki/">Wiki</a>
-        <a href="blog/">Blog</a>
-        <a href="exp/">Experiments</a>
-        <a href="all/">All Content</a>
-        <a class="admin-footer-link" href="admin/" hidden>Admin</a>
-      </nav>
-    </div>
-  </footer>
+// ── Data Loading ──────────────────────────────────────────────────────────────
 
-  <!-- Admin preview drawer -->
-  <div class="admin-drawer-overlay" id="admin-drawer-overlay"></div>
-  <div class="admin-drawer" id="admin-drawer">
-    <div class="admin-drawer-header">
-      <span>Admin Editor</span>
-      <button class="admin-drawer-close" id="admin-drawer-close">Close</button>
-    </div>
-    <iframe id="admin-drawer-iframe" title="Admin Editor"></iframe>
-  </div>
+function loadData() {
+  // Try static JSON first, then fall back to API
+  fetchJson('generated/state/index.json')
+    .then(function(staticIndex) {
+      if (staticIndex && staticIndex.entries && staticIndex.entries.length > 0) {
+        siteIndex = staticIndex;
+      }
+      return fetchApiRecords();
+    })
+    .then(function() {
+      buildPageList();
+      navigateFromHash();
+    })
+    .catch(function(e) {
+      document.getElementById('app').innerHTML = '<div class="loader"><span>Failed to load: ' + esc(e.message) + '</span></div>';
+    });
+}
 
-  <script src="https://cdn.jsdelivr.net/npm/marked@14/marked.min.js" defer></script>
-  <script type="module" src="js/app.js"></script>
-  <script src="js/search.js" defer></script>
-  <script src="js/xray.js" defer></script>
+function fetchJson(url) {
+  return fetch(url).then(function(r) {
+    if (!r.ok) return null;
+    return r.json();
+  }).catch(function() { return null; });
+}
+
+function fetchApiRecords() {
+  return fetch(API)
+    .then(function(res) { return res.json(); })
+    .then(function(raw) {
+      var records = Array.isArray(raw) ? raw : (raw.records || raw.items || []);
+      var byId = {};
+      for (var i = 0; i < records.length; i++) {
+        var row = records[i];
+        var rid = row.record_id;
+        if (!rid) continue;
+        if (!byId[rid] || row.lastModified > byId[rid].lastModified) {
+          var vals;
+          try { vals = typeof row.values === 'string' ? JSON.parse(row.values) : row.values; }
+          catch(e) { vals = row.values; }
+          byId[rid] = { record_id: rid, lastModified: row.lastModified, displayName: row.displayName, parsed: vals };
+        }
+      }
+      siteData = byId;
+      if (!siteIndex && byId['site:index']) {
+        siteIndex = byId['site:index'].parsed || null;
+      }
+    });
+}
+
+function buildPageList() {
+  allPages = [];
+  var seen = {};
+
+  // From the site index
+  if (siteIndex && siteIndex.entries) {
+    for (var i = 0; i < siteIndex.entries.length; i++) {
+      var e = siteIndex.entries[i];
+      seen[e.content_id] = true;
+      var rec = siteData[e.content_id];
+      allPages.push({
+        content_id: e.content_id,
+        slug: e.slug,
+        title: e.title,
+        content_type: e.content_type,
+        status: e.status,
+        visibility: e.visibility || 'public',
+        tags: e.tags || [],
+        hasContent: !!(rec && rec.parsed && rec.parsed.current_revision && rec.parsed.current_revision.content),
+        record: rec
+      });
+    }
+  }
+
+  // Discover additional content from API records
+  for (var rid in siteData) {
+    if (seen[rid] || rid === 'site:index') continue;
+    var rec = siteData[rid];
+    var meta = rec.parsed && rec.parsed.meta;
+    if (meta) {
+      seen[rid] = true;
+      allPages.push({
+        content_id: rid,
+        slug: meta.slug,
+        title: meta.title,
+        content_type: meta.content_type,
+        status: meta.status,
+        visibility: meta.visibility || 'public',
+        tags: meta.tags || [],
+        hasContent: !!(rec.parsed.current_revision && rec.parsed.current_revision.content),
+        record: rec
+      });
+    }
+  }
+}
+
+// ── Routing ───────────────────────────────────────────────────────────────────
+
+function navigate(slug) {
+  window.location.hash = slug;
+  renderPage(slug);
+  clearNav();
+}
+
+function showView(v) {
+  window.location.hash = '__' + v;
+  renderSection(v);
+  setNav(v);
+}
+
+function goHome() {
+  window.location.hash = '';
+  renderHome();
+  clearNav();
+}
+
+function navigateFromHash() {
+  var h = window.location.hash.replace('#', '');
+  if (!h) return goHome();
+  if (h.startsWith('__')) return showView(h.slice(2));
+  renderPage(h);
+}
+
+window.addEventListener('hashchange', navigateFromHash);
+document.getElementById('homeBtn').addEventListener('click', goHome);
+
+function clearNav() {
+  var links = document.querySelectorAll('.topnav-link');
+  for (var i = 0; i < links.length; i++) links[i].classList.remove('active');
+}
+
+function setNav(v) {
+  clearNav();
+  var el = document.querySelector('.topnav-link[data-view="' + v + '"]');
+  if (el) el.classList.add('active');
+}
+
+// ── Home Page ─────────────────────────────────────────────────────────────────
+
+function renderHome() {
+  var app = document.getElementById('app');
+  var wiki = filterPages('wiki');
+  var blogs = filterPages('blog');
+  var exps = filterPages('experiment');
+  var total = wiki.length + blogs.length + exps.length;
+
+  var h = '<div class="fade-in">';
+  h += '<div class="hero">';
+  h += '<div class="hero-badge">Emergent Ontology (EO)</div>';
+  h += '<h1>A framework that changes everything about everything that changes</h1>';
+  h += '<p class="hero-sub">Every language encodes the same nine transformations. Every system implements them. Every experience moves through them. EO is a universal grammar of change.</p>';
+  if (total > 0) {
+    h += '<p class="hero-stats">' + total + ' article' + (total !== 1 ? 's' : '');
+    if (wiki.length) h += ' &middot; ' + wiki.length + ' wiki';
+    if (blogs.length) h += ' &middot; ' + blogs.length + ' blog';
+    if (exps.length) h += ' &middot; ' + exps.length + ' experiment' + (exps.length !== 1 ? 's' : '');
+    h += '</p>';
+  }
+  h += '</div>';
+  h += '<hr class="hero-divider">';
+  h += '<div class="home-sections"><div class="home-left">';
+
+  // Wiki
+  h += renderHomeSection('Wiki', wiki, '\u22A1');
+  // Blog
+  h += renderHomeSection('Blog', blogs, '\u270E');
+  // Experiments
+  h += renderHomeSection('Experiments', exps, '\u25C7');
+
+  h += '</div>'; // home-left
+
+  // Operator grid
+  h += '<div class="home-right"><div class="op-grid">';
+  for (var i = 0; i < OPERATORS.length; i++) {
+    var op = OPERATORS[i];
+    h += '<a class="op-cell triad-' + op.triad + '" title="' + op.name + ' \u2014 ' + op.label + '" onclick="navigate(\'' + op.slug + '\')">' + op.sym + '</a>';
+  }
+  h += '</div><div class="op-grid-label">\u223F</div></div>';
+
+  h += '</div></div>'; // home-sections, fade-in
+  app.innerHTML = h;
+  document.title = 'Emergent Ontology';
+  window.scrollTo(0, 0);
+}
+
+function filterPages(type) {
+  return allPages.filter(function(p) {
+    return p.content_type === type && (p.status === 'published' || p.hasContent) && p.visibility !== 'private';
+  });
+}
+
+function renderHomeSection(title, items, icon) {
+  var h = '<div class="home-section"><div class="home-section-title">' + title + '</div>';
+  if (items.length) {
+    h += '<div class="wiki-list">';
+    for (var i = 0; i < items.length; i++) {
+      var p = items[i];
+      h += '<a class="wiki-list-item" onclick="navigate(\'' + escAttr(p.slug) + '\')">';
+      h += '<div class="item-icon">' + icon + '</div>';
+      h += '<div><div class="item-title">' + esc(p.title) + '</div>';
+      h += '<div class="item-meta">' + (p.hasContent ? 'Published' : 'Empty') + '</div>';
+      if (p.tags && p.tags.length) {
+        h += '<div class="item-tags">';
+        for (var j = 0; j < Math.min(p.tags.length, 3); j++) {
+          h += '<span class="tag">' + esc(p.tags[j]) + '</span>';
+        }
+        h += '</div>';
+      }
+      h += '</div></a>';
+    }
+    h += '</div>';
+  } else {
+    h += '<p class="home-section-empty">No ' + title.toLowerCase() + ' entries published yet.</p>';
+  }
+  h += '</div>';
+  return h;
+}
+
+// ── Section View (wiki/blog/experiments list) ─────────────────────────────────
+
+function renderSection(type) {
+  var app = document.getElementById('app');
+  var typeFilter = type;
+  if (type === 'experiments') typeFilter = 'experiment';
+
+  var pages = allPages.filter(function(p) {
+    return p.content_type === typeFilter && p.visibility !== 'private';
+  });
+  var label = type.charAt(0).toUpperCase() + type.slice(1);
+  document.title = label + ' \u2014 Emergent Ontology';
+
+  var h = '<div class="fade-in wiki-page">';
+  h += '<a class="back-link" onclick="goHome()">\u2190 Home</a>';
+  h += '<h1 style="font-size:2rem;font-weight:700;margin-bottom:1.5rem">' + label + '</h1>';
+
+  var pub = pages.filter(function(p) { return p.hasContent || p.status === 'published'; });
+  if (pub.length) {
+    var icon = type === 'blog' ? '\u270E' : type === 'experiments' ? '\u25C7' : '\u22A1';
+    h += '<div class="wiki-list">';
+    for (var i = 0; i < pub.length; i++) {
+      var p = pub[i];
+      h += '<a class="wiki-list-item" onclick="navigate(\'' + escAttr(p.slug) + '\')">';
+      h += '<div class="item-icon">' + icon + '</div>';
+      h += '<div><div class="item-title">' + esc(p.title) + '</div>';
+      h += '<div class="item-meta">' + (p.status || '') + '</div></div>';
+      h += '</a>';
+    }
+    h += '</div>';
+  } else {
+    h += '<p class="home-section-empty">No ' + type + ' entries published yet.</p>';
+  }
+  h += '</div>';
+  app.innerHTML = h;
+  window.scrollTo(0, 0);
+}
+
+// ── Page View ─────────────────────────────────────────────────────────────────
+
+function renderPage(slug) {
+  var app = document.getElementById('app');
+  var record = null;
+
+  // Find by slug_map
+  if (siteIndex && siteIndex.slug_map && siteIndex.slug_map[slug]) {
+    record = siteData[siteIndex.slug_map[slug]] || null;
+  }
+
+  // Search by slug in all data
+  if (!record) {
+    for (var rid in siteData) {
+      var rec = siteData[rid];
+      if (rec.parsed && rec.parsed.meta && rec.parsed.meta.slug === slug) {
+        record = rec;
+        break;
+      }
+    }
+  }
+
+  // Check by content_id patterns
+  if (!record) {
+    var prefixes = ['wiki:', 'blog:', 'experiment:', 'page:'];
+    for (var i = 0; i < prefixes.length; i++) {
+      if (siteData[prefixes[i] + slug]) {
+        record = siteData[prefixes[i] + slug];
+        break;
+      }
+    }
+  }
+
+  if (!record) {
+    app.innerHTML = '<div class="fade-in empty"><p>Page \u201C' + esc(slug) + '\u201D not found.</p>' +
+      '<a style="color:var(--purple);cursor:pointer" onclick="goHome()">\u2190 Back</a></div>';
+    return;
+  }
+
+  var parsed = record.parsed;
+  var meta = (parsed && parsed.meta) || {};
+  var rev = parsed && parsed.current_revision;
+  var revs = (parsed && parsed.revisions) || [];
+
+  document.title = (meta.title || slug) + ' \u2014 Emergent Ontology';
+
+  var h = '<div class="fade-in wiki-page">';
+  h += '<a class="back-link" onclick="goHome()">\u2190 Home</a>';
+  h += '<div class="wiki-page-meta"><span class="type-badge">' + esc(meta.content_type || 'page') + '</span> \u00B7 ' + esc(meta.slug || slug) + '</div>';
+
+  if (rev) {
+    var d = new Date(rev.ts);
+    h += '<div class="revision-info">';
+    h += '<span><strong>Last edited:</strong> ' + d.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }) + '</span>';
+    h += '<span><strong>Revisions:</strong> ' + revs.length + '</span>';
+    h += '<span><strong>Status:</strong> ' + esc(meta.status || '\u2014') + '</span>';
+    h += '</div>';
+  }
+
+  if (rev && rev.content) {
+    var content = rev.content;
+    var fmt = rev.format || 'markdown';
+    if (fmt === 'html') {
+      h += '<div class="wiki-body">' + rewriteLinks(content) + '</div>';
+    } else {
+      h += '<div class="wiki-body">' + rewriteLinks(renderMarkdown(content)) + '</div>';
+    }
+  } else {
+    h += '<div class="wiki-body"><h1>' + esc(meta.title || slug) + '</h1></div>';
+    h += '<div class="empty"><p style="font-style:italic">No content yet.</p></div>';
+  }
+
+  // Tags
+  if (meta.tags && meta.tags.length) {
+    h += '<div style="margin-top:1.5rem;display:flex;gap:0.35rem;flex-wrap:wrap">';
+    for (var i = 0; i < meta.tags.length; i++) {
+      h += '<span style="font-size:0.78rem;padding:0.15rem 0.6rem;border-radius:999px;background:var(--purple-bg);color:var(--purple);border:1px solid var(--purple-border)">' + esc(meta.tags[i]) + '</span>';
+    }
+    h += '</div>';
+  }
+
+  // Revision history
+  if (revs.length > 0) {
+    h += '<div style="margin-top:3rem;border-top:1px solid var(--border);padding-top:1.5rem">';
+    h += '<h2 style="font-size:1.1rem;font-weight:600;margin-bottom:1rem;color:var(--text-secondary)">Revision History</h2>';
+    h += '<div style="display:flex;flex-direction:column;gap:0.4rem">';
+    var showRevs = revs.slice().reverse().slice(0, 6);
+    for (var i = 0; i < showRevs.length; i++) {
+      var r = showRevs[i];
+      var isFirst = r.rev_id === revs[0].rev_id;
+      h += '<div style="display:flex;gap:0.75rem;font-size:0.82rem;color:var(--text-faint);align-items:center">';
+      h += '<span style="font-family:\'JetBrains Mono\',monospace;color:var(--purple);font-weight:600;font-size:0.75rem">' + (isFirst ? 'INS' : 'ALT') + '</span>';
+      h += '<span>' + esc(r.summary || '\u2026') + '</span>';
+      h += '<span style="margin-left:auto;white-space:nowrap">' + new Date(r.ts).toLocaleDateString() + '</span>';
+      h += '</div>';
+    }
+    if (revs.length > 6) {
+      h += '<p style="font-size:0.78rem;color:var(--text-faint);margin-top:0.5rem">\u2026and ' + (revs.length - 6) + ' older revision' + (revs.length - 6 !== 1 ? 's' : '') + '</p>';
+    }
+    h += '</div></div>';
+  }
+
+  h += '</div>';
+  app.innerHTML = h;
+
+  // Wire up wiki links
+  var wikiLinks = app.querySelectorAll('a[data-wiki-link]');
+  for (var i = 0; i < wikiLinks.length; i++) {
+    (function(a) {
+      a.addEventListener('click', function(e) {
+        e.preventDefault();
+        navigate(a.getAttribute('data-wiki-link'));
+      });
+    })(wikiLinks[i]);
+  }
+
+  window.scrollTo(0, 0);
+}
+
+// ── Link Rewriting ────────────────────────────────────────────────────────────
+
+function rewriteLinks(html) {
+  return html.replace(
+    /href="https:\/\/claude\.ai\/wiki\/([^"#]+)(#[^"]*)?"/g,
+    function(m, path, hash) {
+      var slug = path.replace(/\//g, '-').replace(/^-|-$/g, '');
+      return 'href="#' + slug + '" data-wiki-link="' + slug + '"';
+    }
+  );
+}
+
+// ── Markdown Rendering ────────────────────────────────────────────────────────
+
+function renderMarkdown(text) {
+  if (!text) return '';
+  if (window.marked) {
+    try { return window.marked.parse(text); } catch(e) { /* fall through */ }
+  }
+  return text
+    .replace(/^#### (.+)$/gm, '<h4>$1</h4>')
+    .replace(/^### (.+)$/gm, '<h3>$1</h3>')
+    .replace(/^## (.+)$/gm, '<h2>$1</h2>')
+    .replace(/^# (.+)$/gm, '<h1>$1</h1>')
+    .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
+    .replace(/\*(.+?)\*/g, '<em>$1</em>')
+    .replace(/`(.+?)`/g, '<code>$1</code>')
+    .replace(/\[(.+?)\]\((.+?)\)/g, '<a href="$2">$1</a>')
+    .replace(/((?:^\|.+\|[ \t]*\n){2,})/gm, function(tableBlock) {
+      var lines = tableBlock.trim().split('\n');
+      if (lines.length < 2) return tableBlock;
+      if (!/^\|[\s\-:|]+\|$/.test(lines[1].trim())) return tableBlock;
+      function parseRow(line) {
+        return line.trim().replace(/^\|/, '').replace(/\|$/, '').split('|').map(function(c) { return c.trim(); });
+      }
+      var headers = parseRow(lines[0]);
+      var ht = '<table><thead><tr>' + headers.map(function(hd) { return '<th>' + hd + '</th>'; }).join('') + '</tr></thead><tbody>';
+      for (var i = 2; i < lines.length; i++) {
+        if (!lines[i].trim()) continue;
+        var cells = parseRow(lines[i]);
+        ht += '<tr>' + cells.map(function(c) { return '<td>' + c + '</td>'; }).join('') + '</tr>';
+      }
+      return ht + '</tbody></table>';
+    })
+    .replace(/\n\n/g, '</p><p>')
+    .replace(/^(?!<[hulot])(.+)/gm, '<p>$1</p>');
+}
+
+// ── Search ────────────────────────────────────────────────────────────────────
+
+var sOvl = document.getElementById('searchOverlay');
+var sInp = document.getElementById('searchInput');
+var sRes = document.getElementById('searchResults');
+
+document.getElementById('searchBtn').addEventListener('click', function() {
+  sOvl.classList.add('open');
+  sInp.value = '';
+  sInp.focus();
+  doSearch('');
+});
+
+sOvl.addEventListener('click', function(e) {
+  if (e.target === sOvl) sOvl.classList.remove('open');
+});
+
+document.addEventListener('keydown', function(e) {
+  if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
+    e.preventDefault();
+    sOvl.classList.add('open');
+    sInp.focus();
+  }
+  if (e.key === 'Escape' && sOvl.classList.contains('open')) {
+    sOvl.classList.remove('open');
+  }
+});
+
+sInp.addEventListener('input', function(e) {
+  doSearch(e.target.value);
+});
+
+function doSearch(q) {
+  q = q.toLowerCase().trim();
+  if (!q) {
+    sRes.innerHTML = '<div class="search-empty">Type to search\u2026</div>';
+    return;
+  }
+  var m = allPages.filter(function(p) {
+    return (p.title || '').toLowerCase().indexOf(q) >= 0 ||
+           (p.slug || '').indexOf(q) >= 0 ||
+           (p.tags || []).some(function(t) { return t.toLowerCase().indexOf(q) >= 0; });
+  });
+  if (!m.length) {
+    sRes.innerHTML = '<div class="search-empty">No results</div>';
+    return;
+  }
+  sRes.innerHTML = m.map(function(p) {
+    return '<div class="search-result" onclick="sOvl.classList.remove(\'open\');navigate(\'' + escAttr(p.slug) + '\')">' +
+      '<div class="sr-type">' + esc(p.content_type) + '</div>' +
+      '<div class="sr-title">' + esc(p.title) + '</div></div>';
+  }).join('');
+}
+
+// ── Theme Toggle ──────────────────────────────────────────────────────────────
+
+var tBtn = document.getElementById('themeBtn');
+var dk = localStorage.getItem('eo-dark') === '1' || localStorage.getItem('eo-theme') === 'dark';
+if (!localStorage.getItem('eo-dark') && !localStorage.getItem('eo-theme')) {
+  dk = window.matchMedia('(prefers-color-scheme: dark)').matches;
+}
+
+function applyTheme() {
+  document.documentElement.setAttribute('data-theme', dk ? 'dark' : '');
+  tBtn.textContent = dk ? '\u2600' : '\u263E';
+}
+
+tBtn.addEventListener('click', function() {
+  dk = !dk;
+  localStorage.setItem('eo-dark', dk ? '1' : '0');
+  localStorage.setItem('eo-theme', dk ? 'dark' : 'light');
+  applyTheme();
+});
+
+applyTheme();
+
+// ── Admin Reveal (triple Escape) ──────────────────────────────────────────────
+
+var escCount = 0, escTimer = null;
+document.addEventListener('keydown', function(e) {
+  if (e.key !== 'Escape') return;
+  if (sOvl.classList.contains('open')) return;
+  escCount++;
+  clearTimeout(escTimer);
+  escTimer = setTimeout(function() { escCount = 0; }, 800);
+  if (escCount >= 3) {
+    escCount = 0;
+    document.getElementById('adminBtn').classList.add('visible');
+    try { localStorage.setItem('eo_xano_auth', '1'); } catch(ex) {}
+  }
+});
+
+// Show admin if previously revealed
+try {
+  if (localStorage.getItem('eo_xano_auth') === '1') {
+    document.getElementById('adminBtn').classList.add('visible');
+  }
+} catch(e) {}
+
+// ── Utilities ─────────────────────────────────────────────────────────────────
+
+function esc(s) {
+  var d = document.createElement('div');
+  d.textContent = s || '';
+  return d.innerHTML;
+}
+
+function escAttr(s) {
+  return (s || '').replace(/\\/g, '\\\\').replace(/'/g, "\\'");
+}
+
+// ── Legacy URL Support ────────────────────────────────────────────────────────
+// Handle old path-based URLs by converting them to hash-based
+(function() {
+  if (window.location.hash) return; // already has hash, don't override
+  var path = window.location.pathname.replace(/\/$/, '');
+  var parts = path.split('/').filter(Boolean);
+  if (parts.length >= 2) {
+    var section = parts[parts.length - 2];
+    var slug = parts[parts.length - 1];
+    if (['wiki', 'blog', 'exp', 'page'].indexOf(section) >= 0 && slug) {
+      window.location.hash = slug;
+    }
+  }
+})();
+
+// ── Load marked.js for better markdown rendering ──────────────────────────────
+(function() {
+  var s = document.createElement('script');
+  s.src = 'https://cdn.jsdelivr.net/npm/marked@14/marked.min.js';
+  s.defer = true;
+  document.head.appendChild(s);
+})();
+
+// ── Boot ──────────────────────────────────────────────────────────────────────
+loadData();
+</script>
 </body>
 </html>
