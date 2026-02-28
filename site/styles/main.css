@@ -370,6 +370,13 @@ main { flex: 1; max-width: 860px; margin: 0 auto; padding: 2rem 1.5rem; width: 1
 .block-button {
   margin: 1rem 0;
 }
+.block-button button.btn {
+  font-family: inherit;
+}
+.block-button .btn-copied {
+  opacity: .7;
+  pointer-events: none;
+}
 
 /* Columns block */
 .block-columns {

@@ -693,7 +693,14 @@ function renderSubBlockHtml(sub: SubBlock): string {
     case 'spacer': return `<div class="block block-spacer" style="height:${escHtml(String(data.height ?? '2rem'))}"></div>`;
     case 'image': return `<figure class="block block-image"><img src="${escHtml(String(data.src ?? ''))}" alt="${escHtml(String(data.alt ?? ''))}" loading="lazy" />${data.caption ? `<figcaption>${escHtml(String(data.caption))}</figcaption>` : ''}</figure>`;
     case 'code': return `<div class="block block-code"><pre><code${data.lang ? ` class="language-${escHtml(String(data.lang))}"` : ''}>${escHtml(String(data.code ?? ''))}</code></pre></div>`;
-    case 'button': return `<div class="block block-button"><a class="btn btn-${escHtml(String(data.style ?? 'primary'))}" href="#">${escHtml(String(data.text ?? 'Click here'))}</a></div>`;
+    case 'button': {
+      const bText = escHtml(String(data.text ?? 'Click here'));
+      const bStyle = escHtml(String(data.style ?? 'primary'));
+      if (String(data.action ?? 'link') === 'copy') {
+        return `<div class="block block-button"><button class="btn btn-${bStyle}" data-action="copy" data-copy-text="${escHtml(String(data.copyText ?? ''))}">${bText}</button></div>`;
+      }
+      return `<div class="block block-button"><a class="btn btn-${bStyle}" href="#">${bText}</a></div>`;
+    }
     case 'embed': return `<figure class="block block-embed"><iframe src="${escHtml(String(data.src ?? ''))}" title="${escHtml(String(data.title ?? ''))}" loading="lazy" allowfullscreen frameborder="0"></iframe></figure>`;
     case 'video': {
       const src = String(data.src ?? '');
@@ -748,6 +755,9 @@ function renderBlockHtml(block: Block, state: PageState): string {
     case 'button': {
       const text = String(data.text ?? 'Click here');
       const style = String(data.style ?? 'primary');
+      if (String(data.action ?? 'link') === 'copy') {
+        return `<div class="block block-button"><button class="btn btn-${escHtml(style)}" data-action="copy" data-copy-text="${escHtml(String(data.copyText ?? ''))}">${escHtml(text)}</button></div>`;
+      }
       return `<div class="block block-button"><a class="btn btn-${escHtml(style)}" href="#">${escHtml(text)}</a></div>`;
     }
     case 'columns': {
@@ -1011,7 +1021,7 @@ function SubBlockPreview({ sub }: { sub: SubBlock }) {
     case 'divider': return <span>— Divider</span>;
     case 'spacer': return <span>↕ Spacer</span>;
     case 'code': return <span>{'</>'} Code</span>;
-    case 'button': return <span>⊞ {String(data.text ?? 'Button')}</span>;
+    case 'button': return <span>⊞ {String(data.text ?? 'Button')}{String(data.action ?? 'link') === 'copy' ? ' [copy]' : ''}</span>;
     case 'embed': return <span>□ Embed</span>;
     case 'html': return <span>{'<>'} HTML</span>;
     default: return <span>[{block_type}]</span>;
@@ -1040,7 +1050,7 @@ function BlockPreview({ block }: { block: Block }) {
     case 'wiki-embed': return <div style={{ color: '#888', fontSize: '13px' }}>⊂ Wiki: {String(data.slug ?? data.wiki_id ?? '?')}</div>;
     case 'experiment-embed': return <div style={{ color: '#888', fontSize: '13px' }}>⊗ Exp: {String(data.exp_id ?? '?')}</div>;
     case 'code': return <pre style={{ margin: 0, background: '#1a1a2e', color: '#a8ff78', fontSize: '12px', padding: '6px 8px', borderRadius: '4px', overflow: 'hidden', maxHeight: '60px' }}>{String(data.code ?? '').slice(0, 200) || <em style={{ color: '#555' }}>Empty code block</em>}</pre>;
-    case 'button': return <div style={{ color: '#888', fontSize: '13px' }}>⊞ Button: "{String(data.text ?? 'Click here')}"</div>;
+    case 'button': return <div style={{ color: '#888', fontSize: '13px' }}>⊞ Button: "{String(data.text ?? 'Click here')}"{String(data.action ?? 'link') === 'copy' ? ' [copy]' : ''}</div>;
     case 'html': return <div style={{ color: '#888', fontSize: '13px' }}>{'<>'} HTML block ({String(data.html ?? '').length} chars)</div>;
     case 'content-feed': return <div style={{ color: '#888', fontSize: '13px' }}>▤ {String(data.content_type ?? 'wiki')} feed ({String(data.layout ?? 'grid')}, max {String(data.max_items ?? 6)})</div>;
     case 'operator-grid': return <div style={{ color: '#888', fontSize: '13px' }}>⊞ Operator Grid (3x3 with ALT cycling)</div>;
@@ -1128,7 +1138,19 @@ function BlockInspector({ block, onUpdate }: { block: Block | SubBlock; onUpdate
       {block.block_type === 'button' && (
         <>
           <label className="field"><span>Text</span><input value={String(local.text ?? '')} onChange={(e) => set('text', e.target.value)} placeholder="Click here" /></label>
-          <label className="field"><span>URL</span><input value={String(local.url ?? '')} onChange={(e) => set('url', e.target.value)} placeholder="https://..." /></label>
+          <label className="field">
+            <span>Action</span>
+            <select value={String(local.action ?? 'link')} onChange={(e) => set('action', e.target.value)}>
+              <option value="link">Hyperlink</option>
+              <option value="copy">Copy to clipboard</option>
+            </select>
+          </label>
+          {String(local.action ?? 'link') === 'link' && (
+            <label className="field"><span>URL</span><input value={String(local.url ?? '')} onChange={(e) => set('url', e.target.value)} placeholder="https://..." /></label>
+          )}
+          {String(local.action ?? 'link') === 'copy' && (
+            <label className="field"><span>Copy text</span><input value={String(local.copyText ?? '')} onChange={(e) => set('copyText', e.target.value)} placeholder="Text to copy to clipboard" /></label>
+          )}
           <label className="field">
             <span>Style</span>
             <select value={String(local.style ?? 'primary')} onChange={(e) => set('style', e.target.value)}>
@@ -1304,7 +1326,7 @@ function defaultData(type: Block['block_type']): Record<string, unknown> {
     case 'image': return { src: '', alt: '', caption: '' };
     case 'video': return { src: '', caption: '' };
     case 'embed': return { src: '', title: '' };
-    case 'button': return { text: 'Click here', url: '', style: 'primary' };
+    case 'button': return { text: 'Click here', url: '', style: 'primary', action: 'link', copyText: '' };
     case 'columns': return { columns: [{ blocks: [], block_order: [] }, { blocks: [], block_order: [] }], layout: '1fr 1fr' };
     case 'spacer': return { height: '2rem' };
     case 'wiki-embed': return { slug: '', title: '' };

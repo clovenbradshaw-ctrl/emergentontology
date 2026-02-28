@@ -128,8 +128,15 @@ export function renderBlock(block, page) {
         (d.lang ? ' class="language-' + esc(String(d.lang)) + '"' : '') + '>' +
         esc(String(d.code || '')) + '</code></pre></div>';
 
-    case 'button':
-      return '<div class="block block-button"><a class="btn btn-' + esc(String(d.style || 'primary')) + '" href="' + esc(String(d.url || '#')) + '">' + esc(String(d.text || 'Click here')) + '</a></div>';
+    case 'button': {
+      var bText = esc(String(d.text || 'Click here'));
+      var bStyle = esc(String(d.style || 'primary'));
+      var bAction = String(d.action || 'link');
+      if (bAction === 'copy') {
+        return '<div class="block block-button"><button class="btn btn-' + bStyle + '" data-action="copy" data-copy-text="' + esc(String(d.copyText || '')) + '">' + bText + '</button></div>';
+      }
+      return '<div class="block block-button"><a class="btn btn-' + bStyle + '" href="' + esc(String(d.url || '#')) + '">' + bText + '</a></div>';
+    }
 
     case 'embed': {
       var src = String(d.src || '');
