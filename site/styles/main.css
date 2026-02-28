@@ -394,6 +394,10 @@ main { flex: 1; max-width: 860px; margin: 0 auto; padding: 2rem 1.5rem; width: 1
 /* Wiki */
 .wiki-body h1, .wiki-body h2, .wiki-body h3 { margin: 1.5rem 0 .5rem; }
 .wiki-body p { margin-bottom: .75rem; }
+.wiki-body table, .block-text table, .all-article-body table { border-collapse: collapse; width: 100%; margin: 1rem 0; }
+.wiki-body th, .wiki-body td, .block-text th, .block-text td, .all-article-body th, .all-article-body td { border: 1px solid var(--border); padding: .5rem .75rem; text-align: left; }
+.wiki-body th, .block-text th, .all-article-body th { background: var(--bg2); font-weight: 600; }
+.wiki-body tr:hover, .block-text tr:hover, .all-article-body tr:hover { background: color-mix(in srgb, var(--bg2) 50%, var(--bg)); }
 .conflict-banner {
   background: color-mix(in srgb, var(--warn) 15%, var(--bg2));
   border: 1px solid var(--warn);

@@ -10,6 +10,10 @@ import { useEditor, EditorContent } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
 import Placeholder from '@tiptap/extension-placeholder';
 import Image from '@tiptap/extension-image';
+import { Table } from '@tiptap/extension-table';
+import { TableRow } from '@tiptap/extension-table-row';
+import { TableCell } from '@tiptap/extension-table-cell';
+import { TableHeader } from '@tiptap/extension-table-header';
 import { Columns, Column } from './extensions/Columns';
 import { InternalLink } from './extensions/InternalLink';
 
@@ -51,6 +55,10 @@ export default function RichTextEditor({ content, onChange, placeholder, content
           rel: 'noopener noreferrer',
         },
       }),
+      Table.configure({ resizable: true }),
+      TableRow,
+      TableCell,
+      TableHeader,
     ],
     content,
     onUpdate: ({ editor }) => {
@@ -214,6 +222,25 @@ function Toolbar({ editor, onLinkPicker, onColumnMenu, showColumnMenu }: {
           className={`rte-btn ${showColumnMenu ? 'active' : ''}`}
           title="Insert column layout"
         >Columns</button>
+      </div>
+
+      <span className="rte-sep" />
+
+      <div className="rte-toolbar-group">
+        <button
+          onClick={() => editor.chain().focus().insertTable({ rows: 3, cols: 3, withHeaderRow: true }).run()}
+          className="rte-btn"
+          title="Insert table"
+        >Table</button>
+        {editor.isActive('table') && (
+          <>
+            <button onClick={() => editor.chain().focus().addRowAfter().run()} className="rte-btn" title="Add row">+Row</button>
+            <button onClick={() => editor.chain().focus().deleteRow().run()} className="rte-btn" title="Delete row">-Row</button>
+            <button onClick={() => editor.chain().focus().addColumnAfter().run()} className="rte-btn" title="Add column">+Col</button>
+            <button onClick={() => editor.chain().focus().deleteColumn().run()} className="rte-btn" title="Delete column">-Col</button>
+            <button onClick={() => editor.chain().focus().deleteTable().run()} className="rte-btn rte-btn-danger" title="Delete table">Del Table</button>
+          </>
+        )}
       </div>
 
       <span className="rte-sep" />

@@ -10,6 +10,10 @@ import { useEditor, EditorContent } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
 import Link from '@tiptap/extension-link';
 import Placeholder from '@tiptap/extension-placeholder';
+import { Table } from '@tiptap/extension-table';
+import { TableRow } from '@tiptap/extension-table-row';
+import { TableCell } from '@tiptap/extension-table-cell';
+import { TableHeader } from '@tiptap/extension-table-header';
 
 // ── Simple markdown ↔ HTML conversion helpers ─────────────────────────────────
 
@@ -55,6 +59,27 @@ function mdToHtml(md: string): string {
 
   // Links
   html = html.replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2">$1</a>');
+
+  // Tables (pipe syntax)
+  html = html.replace(
+    /((?:^\|.+\|[ \t]*\n){2,})/gm,
+    (tableBlock) => {
+      const lines = tableBlock.trim().split('\n');
+      if (lines.length < 2) return tableBlock;
+      const sepLine = lines[1];
+      if (!/^\|[\s\-:|]+\|$/.test(sepLine.trim())) return tableBlock;
+      const parseRow = (line: string) =>
+        line.trim().replace(/^\|/, '').replace(/\|$/, '').split('|').map(c => c.trim());
+      const headers = parseRow(lines[0]);
+      const headHtml = '<thead><tr>' + headers.map(h => `<th>${h}</th>`).join('') + '</tr></thead>';
+      const bodyRows = lines.slice(2).filter(l => l.trim());
+      const bodyHtml = '<tbody>' + bodyRows.map(line => {
+        const cells = parseRow(line);
+        return '<tr>' + cells.map(c => `<td>${c}</td>`).join('') + '</tr>';
+      }).join('') + '</tbody>';
+      return `<table>${headHtml}${bodyHtml}</table>`;
+    }
+  );
 
   // Paragraphs: wrap remaining plain lines
   html = html.replace(/^(?!<[a-z]).+$/gm, (line) => {
@@ -123,6 +148,36 @@ function htmlToMd(html: string): string {
   // Links
   md = md.replace(/<a[^>]+href="([^"]*)"[^>]*>(.*?)<\/a>/g, '[$2]($1)');
 
+  // Tables
+  md = md.replace(/<table[^>]*>([\s\S]*?)<\/table>/g, (_m, inner) => {
+    const headers: string[] = [];
+    const rows: string[][] = [];
+    const theadMatch = inner.match(/<thead[^>]*>([\s\S]*?)<\/thead>/);
+    if (theadMatch) {
+      theadMatch[1].replace(/<th[^>]*>([\s\S]*?)<\/th>/g, (_: string, cell: string) => {
+        headers.push(cell.replace(/<[^>]+>/g, '').trim());
+        return '';
+      });
+    }
+    const tbodyMatch = inner.match(/<tbody[^>]*>([\s\S]*?)<\/tbody>/);
+    if (tbodyMatch) {
+      tbodyMatch[1].replace(/<tr[^>]*>([\s\S]*?)<\/tr>/g, (_: string, row: string) => {
+        const cells: string[] = [];
+        row.replace(/<td[^>]*>([\s\S]*?)<\/td>/g, (_: string, cell: string) => {
+          cells.push(cell.replace(/<[^>]+>/g, '').trim());
+          return '';
+        });
+        if (cells.length) rows.push(cells);
+        return '';
+      });
+    }
+    if (!headers.length) return inner;
+    const headerLine = '| ' + headers.join(' | ') + ' |';
+    const sepLine = '| ' + headers.map(() => '---').join(' | ') + ' |';
+    const bodyLines = rows.map(r => '| ' + r.join(' | ') + ' |').join('\n');
+    return '\n' + headerLine + '\n' + sepLine + '\n' + bodyLines + '\n';
+  });
+
   // Paragraphs
   md = md.replace(/<p[^>]*>(.*?)<\/p>/g, '$1\n');
 
@@ -158,6 +213,10 @@ export default function RichTextEditor({ value, onChange, placeholder, minHeight
       }),
       Link.configure({ openOnClick: false, HTMLAttributes: { class: 'editor-link' } }),
       Placeholder.configure({ placeholder: placeholder || 'Start typing...' }),
+      Table.configure({ resizable: false }),
+      TableRow,
+      TableCell,
+      TableHeader,
     ],
     content: mdToHtml(value),
     onUpdate: ({ editor: e }) => {
@@ -213,6 +272,8 @@ export default function RichTextEditor({ value, onChange, placeholder, minHeight
         <button type="button" className={`rte-btn ${editor.isActive('codeBlock') ? 'active' : ''}`} onClick={() => editor.chain().focus().toggleCodeBlock().run()} title="Code block">{'{ }'}</button>
         <span className="rte-sep" />
         <button type="button" className="rte-btn" onClick={() => editor.chain().focus().setHorizontalRule().run()} title="Horizontal rule">&#8212;</button>
+        <span className="rte-sep" />
+        <button type="button" className="rte-btn" onClick={() => editor.chain().focus().insertTable({ rows: 3, cols: 3, withHeaderRow: true }).run()} title="Insert table">Table</button>
       </div>
 
       {/* Editor content */}

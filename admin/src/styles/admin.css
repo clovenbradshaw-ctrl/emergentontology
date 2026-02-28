@@ -266,6 +266,11 @@ textarea { resize: vertical; }
 .rich-text-editor .tiptap a, .rich-text-editor .tiptap .editor-link { color: var(--link); text-decoration: underline; cursor: pointer; }
 .rich-text-editor .tiptap hr { border: none; border-top: 1px solid var(--border); margin: .75rem 0; }
 .rich-text-editor .tiptap p.is-editor-empty:first-child::before { content: attr(data-placeholder); color: var(--text-dim); pointer-events: none; float: left; height: 0; }
+.rich-text-editor .tiptap table { border-collapse: collapse; width: 100%; margin: .5rem 0; }
+.rich-text-editor .tiptap th, .rich-text-editor .tiptap td { border: 1px solid var(--border); padding: .35rem .5rem; text-align: left; min-width: 60px; }
+.rich-text-editor .tiptap th { background: var(--bg3); font-weight: 600; font-size: .82rem; }
+.rich-text-editor .tiptap td { font-size: .82rem; }
+.rich-text-editor .tiptap .selectedCell { background: color-mix(in srgb, var(--accent) 15%, var(--bg2)); }
 
 /* Bubble menu */
 .rte-bubble {
@@ -926,6 +931,10 @@ textarea { resize: vertical; }
   min-height: 40px;
 }
 .rich-editor-content .tiptap .editor-column > * + * { margin-top: .5em; }
+.rich-editor-content .tiptap table { border-collapse: collapse; width: 100%; margin: .75rem 0; }
+.rich-editor-content .tiptap th, .rich-editor-content .tiptap td { border: 1px solid var(--border); padding: .45rem .65rem; text-align: left; min-width: 80px; }
+.rich-editor-content .tiptap th { background: var(--bg3); font-weight: 600; }
+.rich-editor-content .tiptap .selectedCell { background: color-mix(in srgb, var(--accent) 15%, var(--bg2)); }
 
 /* Bubble menu */
 .bubble-menu {

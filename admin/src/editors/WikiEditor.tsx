@@ -481,6 +481,27 @@ function simpleMarkdownToHtml(md: string): string {
     return `<ol>${items}</ol>`;
   });
 
+  // Tables (pipe syntax)
+  s = s.replace(
+    /((?:^\|.+\|[ \t]*\n){2,})/gm,
+    (tableBlock) => {
+      const lines = tableBlock.trim().split('\n');
+      if (lines.length < 2) return tableBlock;
+      const sepLine = lines[1];
+      if (!/^\|[\s\-:|]+\|$/.test(sepLine.trim())) return tableBlock;
+      const parseRow = (line: string) =>
+        line.trim().replace(/^\|/, '').replace(/\|$/, '').split('|').map((c: string) => c.trim());
+      const headers = parseRow(lines[0]);
+      const headHtml = '<thead><tr>' + headers.map((h: string) => `<th>${h}</th>`).join('') + '</tr></thead>';
+      const bodyRows = lines.slice(2).filter((l: string) => l.trim());
+      const bodyHtml = '<tbody>' + bodyRows.map((line: string) => {
+        const cells = parseRow(line);
+        return '<tr>' + cells.map((c: string) => `<td>${c}</td>`).join('') + '</tr>';
+      }).join('') + '</tbody>';
+      return `<table>${headHtml}${bodyHtml}</table>`;
+    }
+  );
+
   s = s
     .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
     .replace(/\*(.+?)\*/g, '<em>$1</em>')

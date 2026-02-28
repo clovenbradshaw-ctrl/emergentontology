@@ -66,8 +66,24 @@
       .replace(/\*(.+?)\*/g, '<em>$1</em>')
       .replace(/`(.+?)`/g, '<code>$1</code>')
       .replace(/\[(.+?)\]\((.+?)\)/g, '<a href="$2">$1</a>')
+      .replace(/((?:^\|.+\|[ \t]*\n){2,})/gm, function(tableBlock) {
+        var lines = tableBlock.trim().split('\n');
+        if (lines.length < 2) return tableBlock;
+        if (!/^\|[\s\-:|]+\|$/.test(lines[1].trim())) return tableBlock;
+        function parseRow(line) {
+          return line.trim().replace(/^\|/, '').replace(/\|$/, '').split('|').map(function(c) { return c.trim(); });
+        }
+        var headers = parseRow(lines[0]);
+        var h = '<table><thead><tr>' + headers.map(function(hd) { return '<th>' + hd + '</th>'; }).join('') + '</tr></thead><tbody>';
+        for (var i = 2; i < lines.length; i++) {
+          if (!lines[i].trim()) continue;
+          var cells = parseRow(lines[i]);
+          h += '<tr>' + cells.map(function(c) { return '<td>' + c + '</td>'; }).join('') + '</tr>';
+        }
+        return h + '</tbody></table>';
+      })
       .replace(/\n\n/g, '</p><p>')
-      .replace(/^(?!<[hulo])(.+)/gm, '<p>$1</p>');
+      .replace(/^(?!<[hulot])(.+)/gm, '<p>$1</p>');
   }
 
   function fetchJson(url) {
