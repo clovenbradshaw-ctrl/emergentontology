@@ -1,8 +1,9 @@
 /**
  * matrix/client.ts — Thin Matrix API wrapper for the admin app.
  *
- * Uses the native fetch API (no matrix-js-sdk dependency at runtime for basic ops)
- * for simplicity.  The matrix-js-sdk is used for real-time /sync in live mode.
+ * Uses the native fetch API for basic REST operations (room messages, state,
+ * etc.) for simplicity.  The full matrix-js-sdk (loaded via ./sdk.ts) is
+ * initialised alongside login so it's available for E2EE and /sync.
  *
  * Auth is via Matrix password login; tokens are stored in localStorage
  * (persists across browser sessions).
@@ -10,6 +11,8 @@
  * Multiple editor support: each editor logs in separately; the room power level
  * controls who can write.  Writes are attributed to the Matrix user.
  */
+
+import { createSDKClient, destroySDKClient } from './sdk';
 
 export interface MatrixCredentials {
   access_token: string;
@@ -29,8 +32,17 @@ export function saveCredentials(creds: MatrixCredentials): void {
 export function loadCredentials(): MatrixCredentials | null {
   const raw = localStorage.getItem(STORAGE_KEY);
   if (!raw) return null;
-  try { return JSON.parse(raw) as MatrixCredentials; }
-  catch { return null; }
+  try {
+    const creds = JSON.parse(raw) as MatrixCredentials;
+    // Restore the SDK client for the persisted session
+    createSDKClient({
+      homeserver: creds.homeserver,
+      accessToken: creds.access_token,
+      userId: creds.user_id,
+      deviceId: creds.device_id,
+    });
+    return creds;
+  } catch { return null; }
 }
 
 export function clearCredentials(): void {
@@ -70,6 +82,15 @@ export async function login(
   const data = await resp.json() as { access_token: string; user_id: string; device_id: string };
   const creds: MatrixCredentials = { ...data, homeserver };
   saveCredentials(creds);
+
+  // Initialise the full SDK client so E2EE / sync features are available
+  createSDKClient({
+    homeserver,
+    accessToken: creds.access_token,
+    userId: creds.user_id,
+    deviceId: creds.device_id,
+  });
+
   return creds;
 }
 
@@ -79,6 +100,7 @@ export async function logout(creds: MatrixCredentials): Promise<void> {
     headers: authHeaders(creds),
   }).catch(() => {});
   clearCredentials();
+  destroySDKClient();
 }
 
 function authHeaders(creds: MatrixCredentials): HeadersInit {
