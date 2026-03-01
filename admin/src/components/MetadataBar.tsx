@@ -25,6 +25,7 @@ interface IndexEntry {
   status: ContentStatus;
   visibility: Visibility;
   tags: string[];
+  pinned?: boolean;
 }
 
 interface Props {
@@ -70,7 +71,7 @@ export default function MetadataBar({ contentId, onTitleChange }: Props) {
     load();
   }, [contentId]);
 
-  async function updateField(fields: Partial<{ slug: string; title: string; tags: string[]; status: string; visibility: string }>) {
+  async function updateField(fields: Partial<{ slug: string; title: string; tags: string[]; status: string; visibility: string; pinned: boolean }>) {
     if (!isAuthenticated || !entry) return;
     const agent = settings.displayName || 'editor';
 
@@ -206,6 +207,14 @@ export default function MetadataBar({ contentId, onTitleChange }: Props) {
             disabled={!isAuthenticated}
           >
             {entry.visibility}
+          </button>
+          <button
+            className={`pin-toggle ${entry.pinned ? 'pinned' : ''}`}
+            onClick={() => updateField({ pinned: !entry.pinned })}
+            disabled={!isAuthenticated}
+            title={entry.pinned ? 'Unpin from top of list' : 'Pin to top of list'}
+          >
+            {entry.pinned ? '\uD83D\uDCCC pinned' : 'pin'}
           </button>
           <button
             className="metadata-details-toggle"

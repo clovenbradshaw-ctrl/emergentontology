@@ -134,6 +134,7 @@ export interface SiteIndex {
     status: ContentStatus;
     visibility: Visibility;
     tags: string[];
+    pinned?: boolean;
   }>;
   nav: Array<{
     content_id: string;

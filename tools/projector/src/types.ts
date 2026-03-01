@@ -116,6 +116,7 @@ export interface IndexEntry {
   status: ContentStatus;
   visibility: 'public' | 'private';
   tags: string[];
+  pinned?: boolean;
   event_id: string;
   /** TF-IDF operator classification (computed at build time) */
   operator?: {

@@ -240,19 +240,70 @@ export function renderWikiList(el) {
 
   var h = '<section class="home-section"><h1>Wiki</h1>';
   if (wikis.length > 0) {
-    h += '<ul class="content-list">';
-    wikis.slice(0, COLUMN_LIMIT).forEach(function (w) {
-      h += wikiListItem(w);
+    // Group wikis by tag — entries appear under each of their tags
+    var tagGroups = {};
+    var tagOrder = [];
+    var uncategorized = [];
+
+    wikis.forEach(function (w) {
+      var tags = w.tags && w.tags.length ? w.tags : [];
+      if (tags.length === 0) {
+        uncategorized.push(w);
+      } else {
+        tags.forEach(function (t) {
+          if (!tagGroups[t]) {
+            tagGroups[t] = [];
+            tagOrder.push(t);
+          }
+          tagGroups[t].push(w);
+        });
+      }
     });
-    h += '</ul>';
-    if (wikis.length > COLUMN_LIMIT) {
-      h += '<details class="show-more-wrap"><summary class="show-more-toggle">Show ' + (wikis.length - COLUMN_LIMIT) + ' more</summary>';
-      h += '<ul class="content-list show-more-items">';
-      wikis.slice(COLUMN_LIMIT).forEach(function (w) {
+
+    // Sort tags so numeric-style tags (101, 201, 301) come first in order
+    tagOrder.sort(function (a, b) {
+      var na = parseInt(a, 10);
+      var nb = parseInt(b, 10);
+      var aNum = !isNaN(na);
+      var bNum = !isNaN(nb);
+      if (aNum && bNum) return na - nb;
+      if (aNum) return -1;
+      if (bNum) return 1;
+      return a.localeCompare(b);
+    });
+
+    // Sort pinned items to top, then by updated_at (already sorted)
+    function pinnedFirst(items) {
+      var pinned = items.filter(function (w) { return w.pinned; });
+      var rest = items.filter(function (w) { return !w.pinned; });
+      return pinned.concat(rest);
+    }
+
+    h += '<div class="wiki-tag-columns">';
+    tagOrder.forEach(function (tag) {
+      var items = pinnedFirst(tagGroups[tag]);
+      h += '<div class="wiki-tag-column">';
+      h += '<h2 class="wiki-tag-heading">' + esc(tag) + '</h2>';
+      h += '<ul class="content-list">';
+      items.forEach(function (w) {
         h += wikiListItem(w);
       });
-      h += '</ul></details>';
+      h += '</ul>';
+      h += '</div>';
+    });
+
+    if (uncategorized.length > 0) {
+      var uncatSorted = pinnedFirst(uncategorized);
+      h += '<div class="wiki-tag-column">';
+      h += '<h2 class="wiki-tag-heading">Other</h2>';
+      h += '<ul class="content-list">';
+      uncatSorted.forEach(function (w) {
+        h += wikiListItem(w);
+      });
+      h += '</ul>';
+      h += '</div>';
     }
+    h += '</div>';
   } else {
     h += '<p class="empty-page">No wiki entries yet.</p>';
   }
@@ -266,7 +317,9 @@ function wikiListItem(w) {
   if (w.operator) {
     opHtml = '<span class="list-operator" style="color:' + w.operator.color + '" title="' + w.operator.code + '">' + w.operator.symbol + '</span> ';
   }
-  var h = '<li>' + opHtml + '<a href="' + contentUrl('wiki', w.slug) + '">' + esc(w.title) + '</a>';
+  var pinClass = w.pinned ? ' pinned' : '';
+  var pinHtml = w.pinned ? '<span class="pin-indicator" title="Pinned">\uD83D\uDCCC</span> ' : '';
+  var h = '<li class="' + pinClass + '">' + pinHtml + opHtml + '<a href="' + contentUrl('wiki', w.slug) + '">' + esc(w.title) + '</a>';
   if (w.tags && w.tags.length) {
     h += ' <span class="tags">';
     w.tags.forEach(function (t) { h += '<span class="tag">' + esc(t) + '</span>'; });
