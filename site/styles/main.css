@@ -743,6 +743,8 @@ details[open] > .show-more-toggle::before { content: '\25BE '; }
 .wiki-tag-column .content-list { gap: .5rem; }
 .wiki-tag-column .content-list li { gap: .5rem; }
 .wiki-tag-column .content-list .tags { display: none; }
+.pin-indicator { font-size: .75rem; opacity: .6; }
+.content-list li.pinned { font-weight: 600; }
 @media (max-width: 600px) {
   .wiki-tag-columns { grid-template-columns: 1fr; }
 }

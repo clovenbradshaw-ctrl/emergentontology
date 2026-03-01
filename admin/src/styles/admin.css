@@ -396,6 +396,8 @@ textarea { resize: vertical; }
 .visibility-toggle { background: none; border: 1px solid var(--border); border-radius: 999px; padding: .1rem .5rem; font-size: .78rem; cursor: pointer; transition: .15s; }
 .vis-public { color: var(--link); border-color: var(--link); }
 .vis-private { color: var(--text-dim); border-color: var(--text-dim); }
+.pin-toggle { background: none; border: 1px solid var(--border); border-radius: 999px; padding: .1rem .5rem; font-size: .78rem; cursor: pointer; transition: .15s; color: var(--text-dim); }
+.pin-toggle.pinned { color: var(--warn); border-color: var(--warn); }
 .empty-msg { color: var(--text-dim); }
 
 /* Special pages section — homepage + operator grid */
