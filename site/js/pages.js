@@ -260,15 +260,8 @@ export function renderWikiList(el) {
       }
     });
 
-    // Sort tags so numeric-style tags (101, 201, 301) come first in order
+    // Sort tags alphabetically (case-insensitive)
     tagOrder.sort(function (a, b) {
-      var na = parseInt(a, 10);
-      var nb = parseInt(b, 10);
-      var aNum = !isNaN(na);
-      var bNum = !isNaN(nb);
-      if (aNum && bNum) return na - nb;
-      if (aNum) return -1;
-      if (bNum) return 1;
       return a.localeCompare(b);
     });
 
