@@ -232,7 +232,7 @@ export function renderWikiList(el) {
   var idx = getSiteIndex();
   setTitle('Wiki');
   setBreadcrumbs([{ label: 'Wiki', href: BASE + '/wiki/' }]);
-  el.className = '';
+  el.className = 'wiki-list';
 
   var wikis = sortByUpdated((idx.entries || []).filter(function (e) {
     return e.content_type === 'wiki' && e.visibility === 'public' && e.status !== 'archived';
