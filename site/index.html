@@ -593,7 +593,7 @@ function renderHome() {
   // Hero — read from home.yaml config (generated/home.json), fall back to defaults
   var heroTitle = (homeConfig && homeConfig.hero && homeConfig.hero.title)
     ? esc(homeConfig.hero.title.replace(/\n+$/, '')).replace(/\n/g, '<br>')
-    : 'A framework that changes everything<br>about everything that changes';
+    : 'A theory that changes everything<br>about everything that changes.';
   var heroBadge = (homeConfig && homeConfig.hero && homeConfig.hero.badge)
     ? esc(homeConfig.hero.badge)
     : 'Emergent Ontology (EO)';
