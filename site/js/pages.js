@@ -273,29 +273,29 @@ export function renderWikiList(el) {
       return pinned.concat(rest);
     }
 
-    h += '<div class="wiki-tag-columns">';
+    h += '<div class="wiki-accordion">';
     tagOrder.forEach(function (tag) {
       var items = pinnedFirst(tagGroups[tag]);
-      h += '<div class="wiki-tag-column">';
-      h += '<h2 class="wiki-tag-heading">' + esc(tag) + ' <span class="tag-count">(' + items.length + ')</span></h2>';
-      h += '<ul class="content-list">';
+      h += '<details class="wiki-accordion-group" open>';
+      h += '<summary class="wiki-accordion-header"><span class="accordion-chevron"></span> <span class="accordion-tag">' + esc(tag) + '</span> <span class="tag-count">(' + items.length + ')</span></summary>';
+      h += '<ul class="wiki-accordion-list">';
       items.forEach(function (w) {
         h += wikiListItem(w);
       });
       h += '</ul>';
-      h += '</div>';
+      h += '</details>';
     });
 
     if (uncategorized.length > 0) {
       var uncatSorted = pinnedFirst(uncategorized);
-      h += '<div class="wiki-tag-column">';
-      h += '<h2 class="wiki-tag-heading">Other</h2>';
-      h += '<ul class="content-list">';
+      h += '<details class="wiki-accordion-group" open>';
+      h += '<summary class="wiki-accordion-header"><span class="accordion-chevron"></span> <span class="accordion-tag">Other</span> <span class="tag-count">(' + uncatSorted.length + ')</span></summary>';
+      h += '<ul class="wiki-accordion-list">';
       uncatSorted.forEach(function (w) {
         h += wikiListItem(w);
       });
       h += '</ul>';
-      h += '</div>';
+      h += '</details>';
     }
     h += '</div>';
   } else {
@@ -313,14 +313,20 @@ function wikiListItem(w) {
   }
   var pinClass = w.pinned ? ' pinned' : '';
   var pinHtml = w.pinned ? '<span class="pin-indicator" title="Pinned">\uD83D\uDCCC</span> ' : '';
-  var h = '<li class="' + pinClass + '">' + pinHtml + opHtml + '<a href="' + contentUrl('wiki', w.slug) + '">' + esc(w.title) + '</a>';
-  if (w.tags && w.tags.length) {
-    h += ' <span class="tags">';
-    w.tags.forEach(function (t) { h += '<span class="tag">' + esc(t) + '</span>'; });
-    h += '</span>';
-  }
-  if (w.updated_at) {
-    h += ' <time class="list-updated">' + timeAgo(w.updated_at) + '</time>';
+  var h = '<li class="wiki-accordion-item' + pinClass + '">';
+  h += '<div class="wiki-item-main">' + pinHtml + opHtml + '<a href="' + contentUrl('wiki', w.slug) + '">' + esc(w.title) + '</a></div>';
+  var hasMeta = (w.tags && w.tags.length) || w.updated_at;
+  if (hasMeta) {
+    h += '<div class="wiki-item-meta">';
+    if (w.tags && w.tags.length) {
+      h += '<span class="tags">';
+      w.tags.forEach(function (t) { h += '<span class="tag">' + esc(t) + '</span>'; });
+      h += '</span>';
+    }
+    if (w.updated_at) {
+      h += '<time class="list-updated">' + timeAgo(w.updated_at) + '</time>';
+    }
+    h += '</div>';
   }
   h += '</li>';
   return h;
