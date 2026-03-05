@@ -725,7 +725,7 @@ main.wiki-list { max-width: 1400px; }
 /* Wiki tag columns */
 .wiki-tag-columns {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  grid-template-columns: repeat(3, 1fr);
   gap: 1.5rem;
   align-items: start;
 }
@@ -754,7 +754,7 @@ main.wiki-list { max-width: 1400px; }
 .wiki-tag-column .content-list .list-updated { display: none; }
 .pin-indicator { font-size: .75rem; opacity: .6; }
 .content-list li.pinned { font-weight: 600; }
-@media (max-width: 600px) {
+@media (max-width: 900px) {
   .wiki-tag-columns { grid-template-columns: 1fr; }
 }
 
