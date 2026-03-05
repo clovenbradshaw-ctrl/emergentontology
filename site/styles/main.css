@@ -720,12 +720,12 @@ details[open] > .show-more-toggle::before { content: '\25BE '; }
 .empty-page { color: var(--text-dim); font-style: italic; }
 
 /* Wiki list page */
-main.wiki-list { max-width: 1100px; }
+main.wiki-list { max-width: 1400px; }
 
 /* Wiki tag columns */
 .wiki-tag-columns {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
   gap: 1.5rem;
   align-items: start;
 }
@@ -743,9 +743,15 @@ main.wiki-list { max-width: 1100px; }
   padding-bottom: .5rem;
   border-bottom: 1px solid var(--border);
 }
+.wiki-tag-heading .tag-count {
+  font-weight: 400;
+  opacity: .6;
+  font-size: .85rem;
+}
 .wiki-tag-column .content-list { gap: .5rem; }
-.wiki-tag-column .content-list li { gap: .5rem; }
+.wiki-tag-column .content-list li { gap: .5rem; flex-wrap: nowrap; }
 .wiki-tag-column .content-list .tags { display: none; }
+.wiki-tag-column .content-list .list-updated { display: none; }
 .pin-indicator { font-size: .75rem; opacity: .6; }
 .content-list li.pinned { font-weight: 600; }
 @media (max-width: 600px) {
