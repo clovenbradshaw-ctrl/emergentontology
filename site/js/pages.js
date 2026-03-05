@@ -61,7 +61,7 @@ export function renderHome(el) {
   var home = getHomeConfig();
   var heroTitle = (home && home.hero && home.hero.title)
     ? esc(home.hero.title.replace(/\n+$/, '')).replace(/\n/g, '<br>')
-    : 'A framework that changes everything<br>about everything that changes';
+    : 'A theory that changes everything<br>about everything that changes.';
   var heroBadge = (home && home.hero && home.hero.badge)
     ? esc(home.hero.badge)
     : 'Emergent Ontology (EO)';
