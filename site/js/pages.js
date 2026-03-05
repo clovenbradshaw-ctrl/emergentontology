@@ -6,6 +6,7 @@
  */
 
 import { BASE, OPERATORS } from './config.js';
+import { classifyEntry, classifyText } from './classify.js';
 import { getSiteIndex, getHomeConfig, loadContent } from './api.js';
 import { contentUrl } from './router.js';
 import {
@@ -153,10 +154,9 @@ function sectionHtml(title, type, entries, max, layout) {
 }
 
 function cardHtml(type, e) {
+  var op = classifyEntry(e);
   var h = '<a class="content-card' + (type === 'experiment' ? ' content-card--exp' : '') + '" href="' + contentUrl(type, e.slug) + '">';
-  if (e.operator) {
-    h += '<span class="card-operator" style="color:' + e.operator.color + '" title="' + e.operator.code + '">' + e.operator.symbol + '</span>';
-  }
+  h += '<span class="card-operator" style="color:' + op.color + '" title="' + op.code + '">' + op.symbol + '</span>';
   h += '<h3 class="card-title">' + esc(e.title) + '</h3>';
   if (e.tags && e.tags.length) {
     h += '<div class="card-tags">';
@@ -168,10 +168,9 @@ function cardHtml(type, e) {
 }
 
 function listCardHtml(type, e) {
+  var op = classifyEntry(e);
   var h = '<a class="list-card" href="' + contentUrl(type, e.slug) + '">';
-  if (e.operator) {
-    h += '<span class="list-card-operator" style="color:' + e.operator.color + '" title="' + e.operator.code + '">' + e.operator.symbol + '</span>';
-  }
+  h += '<span class="list-card-operator" style="color:' + op.color + '" title="' + op.code + '">' + op.symbol + '</span>';
   h += '<div class="list-card-body"><h3 class="list-card-title">' + esc(e.title) + '</h3></div>';
   h += '<div class="list-card-arrow">\u2192</div></a>';
   return h;
@@ -307,10 +306,8 @@ export function renderWikiList(el) {
 }
 
 function wikiListItem(w) {
-  var opHtml = '';
-  if (w.operator) {
-    opHtml = '<span class="list-operator" style="color:' + w.operator.color + '" title="' + w.operator.code + '">' + w.operator.symbol + '</span> ';
-  }
+  var op = classifyEntry(w);
+  var opHtml = '<span class="list-operator" style="color:' + op.color + '" title="' + op.code + '">' + op.symbol + '</span> ';
   var pinClass = w.pinned ? ' pinned' : '';
   var pinHtml = w.pinned ? '<span class="pin-indicator" title="Pinned">\uD83D\uDCCC</span> ' : '';
   var h = '<li class="wiki-accordion-item' + pinClass + '">';
@@ -478,12 +475,15 @@ export function renderWiki(el, slug) {
       setTitle(title);
       setBreadcrumbs([{ label: 'Wiki', href: BASE + '/wiki/' }, { label: title, href: BASE + '/wiki/' + slug + '/' }]);
 
-      var entryOp = entry && entry.operator;
-      var opCode = (entryOp && entryOp.code) || 'DES';
-      var opSym = (entryOp && entryOp.symbol) || '\u03B8';
-      var h = '<article class="wiki-content" data-eo-op="' + opCode + '" data-eo-target="' + esc(content.content_id) + '">';
+      var classifyParts = [title, title];
+      (content.meta.tags || []).forEach(function (t) { classifyParts.push(t); });
+      if (content.current_revision && content.current_revision.content) {
+        classifyParts.push(content.current_revision.content);
+      }
+      var op = classifyText(classifyParts.join(' '));
+      var h = '<article class="wiki-content" data-eo-op="' + op.code + '" data-eo-target="' + esc(content.content_id) + '">';
       h += '<header class="content-header"><h1>' + esc(title) + '</h1>';
-      h += '<code class="eo-op"><span class="eo-sym">' + opSym + '</span> <span class="eo-name">' + opCode + '</span>(<span class="eo-target">' + esc(content.content_id) + '</span>)</code>';
+      h += '<code class="eo-op"><span class="eo-sym">' + op.symbol + '</span> <span class="eo-name">' + op.code + '</span>(<span class="eo-target">' + esc(content.content_id) + '</span>)</code>';
       h += '<div class="content-tags">';
       (content.meta.tags || []).forEach(function (t) { h += '<span class="tag">' + esc(t) + '</span>'; });
       h += '</div></header>';
