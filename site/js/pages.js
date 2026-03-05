@@ -239,6 +239,7 @@ export function renderWikiList(el) {
   }));
 
   var h = '<section class="home-section"><h1>Wiki</h1>';
+  h += '<div class="wiki-export-bar"><a class="btn btn-outline wiki-export-btn" href="' + BASE + '/wiki/all/">Export Wiki PDF</a></div>';
   if (wikis.length > 0) {
     // Group wikis by tag — entries appear under each of their tags
     var tagGroups = {};
@@ -323,6 +324,107 @@ function wikiListItem(w) {
   }
   h += '</li>';
   return h;
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// Wiki All (printable PDF export)
+// ═══════════════════════════════════════════════════════════════════════════
+
+export function renderWikiAll(el) {
+  var idx = getSiteIndex();
+  setTitle('Wiki \u2014 Complete Collection');
+  setBreadcrumbs([{ label: 'Wiki', href: BASE + '/wiki/' }, { label: 'Export PDF', href: BASE + '/wiki/all/' }]);
+  el.className = 'all-content';
+
+  var wikis = sortByUpdated((idx.entries || []).filter(function (e) {
+    return e.content_type === 'wiki' && e.visibility === 'public' && e.status !== 'archived';
+  }));
+
+  var loads = wikis.map(function (e) {
+    return loadContent(e.content_id).then(function (content) {
+      return { entry: e, content: content };
+    });
+  });
+
+  el.innerHTML = '<div class="all-loading"><p>Loading all wiki content\u2026</p></div>';
+
+  return Promise.all(loads).then(function (results) {
+    // Group by tag for TOC
+    var tagGroups = {};
+    var tagOrder = [];
+    var uncategorized = [];
+
+    results.forEach(function (r) {
+      var tags = r.entry.tags && r.entry.tags.length ? r.entry.tags : [];
+      if (tags.length === 0) {
+        uncategorized.push(r);
+      } else {
+        tags.forEach(function (t) {
+          if (!tagGroups[t]) { tagGroups[t] = []; tagOrder.push(t); }
+          tagGroups[t].push(r);
+        });
+      }
+    });
+    tagOrder.sort(function (a, b) { return a.localeCompare(b); });
+
+    // Header
+    var h = '<div class="all-header">';
+    h += '<h1>Wiki \u2014 Complete Collection</h1>';
+    h += '<p class="all-stats">' + results.length + ' article' + (results.length !== 1 ? 's' : '') + '</p>';
+    h += '<button class="btn btn-primary all-print-btn" onclick="window.print()">Print / Save as PDF</button>';
+    h += ' <a class="btn btn-outline wiki-all-back" href="' + BASE + '/wiki/">Back to Wiki</a>';
+    h += '</div>';
+
+    // Table of contents grouped by tag
+    h += '<nav class="all-toc"><h2>Table of Contents</h2><ol>';
+    tagOrder.forEach(function (tag) {
+      h += '<li><strong>' + esc(tag) + '</strong><ol>';
+      tagGroups[tag].forEach(function (r) {
+        var anchor = (r.entry.content_id || '').replace(/[^a-z0-9]+/gi, '-');
+        h += '<li><a href="#all-' + anchor + '">' + esc(r.entry.title) + '</a></li>';
+      });
+      h += '</ol></li>';
+    });
+    if (uncategorized.length > 0) {
+      h += '<li><strong>Other</strong><ol>';
+      uncategorized.forEach(function (r) {
+        var anchor = (r.entry.content_id || '').replace(/[^a-z0-9]+/gi, '-');
+        h += '<li><a href="#all-' + anchor + '">' + esc(r.entry.title) + '</a></li>';
+      });
+      h += '</ol></li>';
+    }
+    h += '</ol></nav>';
+
+    // Render each article (flat list, deduplicated)
+    var rendered = {};
+    h += '<section class="all-section"><h2 class="all-section-title">Wiki</h2>';
+    results.forEach(function (r) {
+      if (rendered[r.entry.content_id]) return;
+      rendered[r.entry.content_id] = true;
+
+      var anchor = (r.entry.content_id || '').replace(/[^a-z0-9]+/gi, '-');
+      h += '<article class="all-article" id="all-' + anchor + '">';
+      h += '<header class="all-article-header"><h3>' + esc(r.entry.title) + '</h3>';
+      h += '<a class="all-article-link" href="' + contentUrl('wiki', r.entry.slug) + '">wiki/' + esc(r.entry.slug) + '</a>';
+      if (r.entry.tags && r.entry.tags.length) {
+        h += '<div class="all-article-tags">';
+        r.entry.tags.forEach(function (t) { h += '<span class="tag">' + esc(t) + '</span>'; });
+        h += '</div>';
+      }
+      h += '</header>';
+      h += '<div class="all-article-body">';
+      if (r.content) {
+        h += renderRevisionContent(r.content.current_revision);
+      } else {
+        h += '<p class="empty-page">Content not available.</p>';
+      }
+      h += '</div></article>';
+    });
+    h += '</section>';
+
+    el.innerHTML = h;
+    hydrateHtmlWidgets(el);
+  });
 }
 
 // ═══════════════════════════════════════════════════════════════════════════
