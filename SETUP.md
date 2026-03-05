@@ -137,7 +137,7 @@ Press **Ctrl+Shift+X** (or **Cmd+Shift+X**) on any page to toggle X-Ray mode.
 This overlays each content element with its `op(target, operand)` annotation
 and shows the event stream in a side panel.
 
-The X-ray ⊡ button is visible in the bottom-left corner of every page.
+The X-ray θ button is visible in the bottom-left corner of every page.
 
 ---
 
