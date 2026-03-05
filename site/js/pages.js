@@ -276,7 +276,7 @@ export function renderWikiList(el) {
     tagOrder.forEach(function (tag) {
       var items = pinnedFirst(tagGroups[tag]);
       h += '<div class="wiki-tag-column">';
-      h += '<h2 class="wiki-tag-heading">' + esc(tag) + '</h2>';
+      h += '<h2 class="wiki-tag-heading">' + esc(tag) + ' <span class="tag-count">(' + items.length + ')</span></h2>';
       h += '<ul class="content-list">';
       items.forEach(function (w) {
         h += wikiListItem(w);
