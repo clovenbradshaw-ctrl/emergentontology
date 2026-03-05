@@ -18,5 +18,5 @@ export var OPERATORS = [
   { num: 6, symbol: '\u2228', code: 'SYN', greek: '\u03C8', label: 'Synthesis', color: '#818cf8', slug: 'syn' },
   { num: 7, symbol: '\u223F', code: 'ALT', greek: '\u03B4', label: 'Alternation', color: '#fbbf24', slug: 'alt' },
   { num: 8, symbol: '\u2225', code: 'SUP', greek: '\u03C6', label: 'Superposition', color: '#f472b6', slug: 'sup' },
-  { num: 9, symbol: '\u27F3', code: 'REC', greek: '\u03C1', label: 'Recursion', color: '#fb923c', slug: 'rec' }
+  { num: 9, symbol: '\u21AC', code: 'REC', greek: '\u03C1', label: 'Recursion', color: '#fb923c', slug: 'rec' }
 ];

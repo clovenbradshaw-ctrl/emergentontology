@@ -60,7 +60,7 @@ CON (⋈) — Connection (relating)
 ALT (∿) — Alternation (frame-switching)
 SYN (∨) — Synthesis (merging)
 SUP (⊕) — Superposition (holding contradictions)
-REC (⟳) — Recursion (re-centering)
+REC (↬) — Recursion (re-centering)
 0.2 What EO Enables
 EO provides capabilities impossible in traditional data systems:
 Unified Transformation Semantics
@@ -273,7 +273,7 @@ Hold contradictions
 Maintain multiple truths
 Preserve ambiguity
 Layer contexts
-9. REC (⟳) — Recurse/Re-center
+9. REC (↬) — Recurse/Re-center
 Apply operations to outputs
 Rebuild identity structure
 Pivot perspectives
@@ -756,7 +756,7 @@ Probability distributions
 Multi-value databases (rare)
 Conflict markers in merges
 Key Insight: SUP is the only operator in any system that treats contradiction as meaningful information, not an error. This is EO's most radical departure from traditional systems.
-3.9 REC (⟳) — Recursion / Re-centering
+3.9 REC (↬) — Recursion / Re-centering
 A grammar that cannot speak about itself will never know when it is lying.
 Type: (State, identityPivot) → State
 Definition: REC applies operators to outputs of operators, generating new structure. Re-centers the system around a new identity.
@@ -1666,7 +1666,7 @@ BI tools need manual denormalization
 EO treats self-reference as native and safe.
 7.3 REC: The Self-Application Operator
 Definition (Revisited)
-REC (⟳) applies operator sequences to their own outputs until structure stabilizes.
+REC (↬) applies operator sequences to their own outputs until structure stabilizes.
 REC(pivot) = fixed_point(apply(SEG, CON, SYN) until stable)
 Where:
 pivot = new identity center

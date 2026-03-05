@@ -113,7 +113,7 @@ const OP_SYMBOLS: Record<EOOp | string, string> = {
   CON: '⋈',
   SYN: '∨',
   SUP: '⊕',
-  REC: '⟳',
+  REC: '↬',
   NUL: '∅',
 };
 

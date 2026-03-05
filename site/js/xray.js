@@ -21,7 +21,7 @@
   };
   const OP_SYMBOLS = {
     INS: '△', DES: '⊡', ALT: '∿', SEG: '｜',
-    CON: '⋈', SYN: '∨', SUP: '⊕', REC: '⟳', NUL: '∅',
+    CON: '⋈', SYN: '∨', SUP: '⊕', REC: '↬', NUL: '∅',
   };
 
   // ── Relative timestamp ──────────────────────────────────────────────────────

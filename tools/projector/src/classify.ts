@@ -115,7 +115,7 @@ const OPERATOR_PROFILES: Record<string, OperatorProfile> = {
     ],
   },
   REC: {
-    code: 'REC', symbol: '\u27F3', color: '#fb923c',
+    code: 'REC', symbol: '\u21AC', color: '#fb923c',
     keywords: [
       'recursion', 'recursive', 'self-reference', 'loop', 'fractal',
       'feedback', 'iteration', 'repeat', 'cycle', 'recurrence', 'spiral',
