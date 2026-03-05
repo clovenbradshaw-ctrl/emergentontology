@@ -14,7 +14,7 @@ import { loadIndex, getSiteIndex } from './api.js';
 import { getRoute } from './router.js';
 import { revealAdmin } from './render.js';
 import {
-  renderHome, renderWikiList, renderWiki,
+  renderHome, renderWikiList, renderWikiAll, renderWiki,
   renderBlogList, renderBlog,
   renderExpList, renderExp,
   renderPage, renderAll, render404, updateNav
@@ -41,6 +41,7 @@ function render() {
       switch (route.page) {
         case 'home':      return renderHome(main);
         case 'wiki-list': return renderWikiList(main);
+        case 'wiki-all':  return renderWikiAll(main);
         case 'wiki':      return renderWiki(main, route.slug);
         case 'blog-list': return renderBlogList(main);
         case 'blog':      return renderBlog(main, route.slug);

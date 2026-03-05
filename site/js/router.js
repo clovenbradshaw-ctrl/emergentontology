@@ -21,7 +21,11 @@ export function getRoute() {
   if (path === '/') return { page: 'home' };
 
   var parts = path.split('/').filter(Boolean);
-  if (parts[0] === 'wiki')  return parts[1] ? { page: 'wiki', slug: parts[1] } : { page: 'wiki-list' };
+  if (parts[0] === 'wiki') {
+    if (!parts[1]) return { page: 'wiki-list' };
+    if (parts[1] === 'all') return { page: 'wiki-all' };
+    return { page: 'wiki', slug: parts[1] };
+  }
   if (parts[0] === 'blog')  return parts[1] ? { page: 'blog', slug: parts[1] } : { page: 'blog-list' };
   if (parts[0] === 'exp')   return parts[1] ? { page: 'exp',  slug: parts[1] } : { page: 'exp-list' };
   if (parts[0] === 'page' && parts[1]) return { page: 'page', slug: parts[1] };
