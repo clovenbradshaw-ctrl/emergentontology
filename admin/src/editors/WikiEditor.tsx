@@ -22,6 +22,7 @@ import { loadState, fetchCurrentRecordCached, applyFreshnessUpdate } from '../xa
 import { insRevision } from '../eo/events';
 import type { WikiRevision, ContentMeta } from '../eo/types';
 import { mdToHtml } from '../eo/markdown';
+import { smartDiff, groupDiffChunks, DIFF_DELETE, DIFF_INSERT, DIFF_EQUAL } from '../eo/smartDiff';
 import RichTextEditor from './RichTextEditor';
 import MetadataBar from '../components/MetadataBar';
 
@@ -338,126 +339,38 @@ function RevisionItem({ rev, prevRev, isPublic, onRestore }: {
   );
 }
 
-/** Simple line-level diff with word-level highlighting for changed lines. */
+/**
+ * Character-level diff with semantic cleanup (diff-match-patch).
+ *
+ * Uses `diff_cleanupSemantic()` to shift edit boundaries to natural
+ * word/sentence breaks so that copy-paste-and-tweak workflows produce
+ * meaningful, human-legible diffs instead of a wall of red/green.
+ */
 function RevisionDiff({ oldText, newText }: { oldText: string; newText: string }) {
-  const diff = computeLineDiff(oldText, newText);
-  if (diff.length === 0) return <div className="rev-diff-empty">No changes</div>;
+  const spans = smartDiff(oldText, newText);
+  const hasChanges = spans.some(s => s.op !== DIFF_EQUAL);
+  if (!hasChanges) return <div className="rev-diff-empty">No changes</div>;
+
+  const chunks = groupDiffChunks(spans);
 
   return (
     <div className="rev-diff-content">
-      {diff.map((chunk, i) => {
+      {chunks.map((chunk, i) => {
         if (chunk.type === 'equal') {
-          return <div key={i} className="diff-line diff-ctx">{chunk.line}</div>;
+          return <div key={i} className="diff-line diff-ctx">{chunk.text}</div>;
         }
-        if (chunk.type === 'removed') {
-          return <div key={i} className="diff-line diff-del"><del>{chunk.line}</del></div>;
-        }
-        if (chunk.type === 'added' && i > 0 && diff[i - 1].type === 'removed') {
-          const words = wordDiff(diff[i - 1].line, chunk.line);
-          return (
-            <div key={i} className="diff-line diff-add">
-              {words.map((w, j) =>
-                w.type === 'equal' ? <span key={j}>{w.text}</span>
-                : w.type === 'added' ? <ins key={j}>{w.text}</ins>
-                : null
-              )}
-            </div>
-          );
-        }
-        return <div key={i} className="diff-line diff-add"><ins>{chunk.line}</ins></div>;
+        // 'change' chunk — render each span inline with del/ins markup.
+        return (
+          <div key={i} className="diff-line diff-change">
+            {chunk.spans!.map((s, j) =>
+              s.op === DIFF_DELETE
+                ? <del key={j} className="diff-span-del">{s.text}</del>
+                : <ins key={j} className="diff-span-ins">{s.text}</ins>
+            )}
+          </div>
+        );
       })}
     </div>
   );
-}
-
-function computeLineDiff(oldText: string, newText: string): Array<{ type: 'equal' | 'added' | 'removed'; line: string }> {
-  const oldLines = oldText.split('\n');
-  const newLines = newText.split('\n');
-  const result: Array<{ type: 'equal' | 'added' | 'removed'; line: string }> = [];
-
-  const m = oldLines.length;
-  const n = newLines.length;
-  const dp: number[][] = Array.from({ length: m + 1 }, () => Array(n + 1).fill(0));
-  for (let i = 1; i <= m; i++) {
-    for (let j = 1; j <= n; j++) {
-      dp[i][j] = oldLines[i - 1] === newLines[j - 1] ? dp[i - 1][j - 1] + 1 : Math.max(dp[i - 1][j], dp[i][j - 1]);
-    }
-  }
-
-  const items: Array<{ type: 'equal' | 'added' | 'removed'; line: string }> = [];
-  let i = m, j = n;
-  while (i > 0 || j > 0) {
-    if (i > 0 && j > 0 && oldLines[i - 1] === newLines[j - 1]) {
-      items.push({ type: 'equal', line: oldLines[i - 1] });
-      i--; j--;
-    } else if (j > 0 && (i === 0 || dp[i][j - 1] >= dp[i - 1][j])) {
-      items.push({ type: 'added', line: newLines[j - 1] });
-      j--;
-    } else {
-      items.push({ type: 'removed', line: oldLines[i - 1] });
-      i--;
-    }
-  }
-  items.reverse();
-
-  let lastChange = -1;
-  const changeIndices = new Set<number>();
-  items.forEach((item, idx) => { if (item.type !== 'equal') changeIndices.add(idx); });
-  items.forEach((item, idx) => {
-    if (item.type !== 'equal') {
-      lastChange = idx;
-      result.push(item);
-    } else {
-      const nearChange = changeIndices.has(idx - 1) || changeIndices.has(idx - 2) || changeIndices.has(idx + 1) || changeIndices.has(idx + 2);
-      if (nearChange) {
-        result.push(item);
-      } else if (lastChange >= 0 && result.length > 0 && result[result.length - 1].type !== 'equal') {
-        result.push({ type: 'equal', line: '···' });
-      }
-    }
-  });
-
-  return result;
-}
-
-function wordDiff(oldLine: string, newLine: string): Array<{ type: 'equal' | 'added' | 'removed'; text: string }> {
-  const oldWords = oldLine.split(/(\s+)/);
-  const newWords = newLine.split(/(\s+)/);
-  const result: Array<{ type: 'equal' | 'added' | 'removed'; text: string }> = [];
-
-  const m = oldWords.length;
-  const n = newWords.length;
-  const dp: number[][] = Array.from({ length: m + 1 }, () => Array(n + 1).fill(0));
-  for (let i = 1; i <= m; i++) {
-    for (let j = 1; j <= n; j++) {
-      dp[i][j] = oldWords[i - 1] === newWords[j - 1] ? dp[i - 1][j - 1] + 1 : Math.max(dp[i - 1][j], dp[i][j - 1]);
-    }
-  }
-
-  const items: Array<{ type: 'equal' | 'added' | 'removed'; text: string }> = [];
-  let i = m, j = n;
-  while (i > 0 || j > 0) {
-    if (i > 0 && j > 0 && oldWords[i - 1] === newWords[j - 1]) {
-      items.push({ type: 'equal', text: oldWords[i - 1] });
-      i--; j--;
-    } else if (j > 0 && (i === 0 || dp[i][j - 1] >= dp[i - 1][j])) {
-      items.push({ type: 'added', text: newWords[j - 1] });
-      j--;
-    } else {
-      items.push({ type: 'removed', text: oldWords[i - 1] });
-      i--;
-    }
-  }
-  items.reverse();
-
-  for (const item of items) {
-    if (result.length > 0 && result[result.length - 1].type === item.type) {
-      result[result.length - 1].text += item.text;
-    } else {
-      result.push({ ...item });
-    }
-  }
-
-  return result;
 }
 
