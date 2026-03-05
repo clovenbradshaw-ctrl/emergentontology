@@ -53,9 +53,9 @@ Chapter 0: Preface & Introduction
 This handbook presents Emergent Ontology (EO) — a minimal, universal framework for understanding and implementing data transformations. EO's central insight is that all meaningful structural changes in a data system reduce to nine primitive operators.
 These nine operators are:
 NUL (∅) — Absence & nullity recognition
-DES (⊡) — Designation & definition
-INS (△) — Instantiation (creation)
-SEG (｜) — Segmentation (splitting)
+DES (θ) — Designation & definition
+INS (ι) — Instantiation (creation)
+SEG (|) — Segmentation (splitting)
 CON (⋈) — Connection (relating)
 ALT (∿) — Alternation (frame-switching)
 SYN (∨) — Synthesis (merging)
@@ -235,12 +235,12 @@ Notice what's missing
 Acknowledge gaps
 Identify needed structure
 Mark incompleteness
-2. DES (⊡) — Designate/Define
+2. DES (θ) — Designate/Define
 Name entities
 Assign types
 Define meanings
 Establish constraints
-3. INS (△) — Instantiate/Create
+3. INS (ι) — Instantiate/Create
 Add new observations
 Insert data
 Bring into existence
@@ -268,7 +268,7 @@ Combine many into one
 Aggregate
 Unify identities
 Reconcile
-8. SUP (⊕) — Superpose
+8. SUP (∥) — Superpose
 Hold contradictions
 Maintain multiple truths
 Preserve ambiguity
@@ -519,7 +519,7 @@ Codd's NULL → the limit of representation, still philosophically honest
 SQL's NULL → "missing data" awaiting collection, a clerical backlog
 The mandatory field → pick something, because an empty field triggers an audit finding
 Each step lost something essential: first the ontological weight, then the epistemic humility, then the marker itself, and finally the capacity to recognize that anything was missing. The Large Language Model completes the arc — where silence would be the truthful response, the system generates confident prose instead.
-3.2 DES (⊡) — Designation / Definition
+3.2 DES (θ) — Designation / Definition
 Every name is a conquest that has forgotten there was a war.
 Type: (State, entity, label) → State
 Definition: DES applies definitions, labels, types, or interpretive frames to any component.
@@ -556,7 +556,7 @@ Schema definitions
 Metadata assignment
 Ontology labels
 Key Insight: All typing, schema definition, and constraints are just DES applications. DES is the "semantic backbone" of the system.
-3.3 INS (△) — Instantiation
+3.3 INS (ι) — Instantiation
 What the schema won't hold doesn't stop existing. It just stops being seen.
 Type: (State, new observation) → State
 Definition: INS creates a new observation in the system.
@@ -728,7 +728,7 @@ Deduplication tools
 Merge operations in version control
 Key Insight: Aggregation functions are modes of SYN, not separate operators. This prevents operator explosion.
 Theoretical Note: SYN addresses the relational model's deepest blindness — the inability to hold what exists only while whole. Frantz Fanon saw decomposition from underneath: "Sealed into that crushing objecthood," he wrote of what happens when a system's categories constitute a person rather than describe them. Elinor Ostrom saw synthesis from above: commons governance works precisely because no single authority claims the right to decompose the whole into independently manageable parts. The commons is its governance; the community is its trust; the village is its relationships. These are not attributes of separate entities. They are relational configurations that make the entities what they are. SYN is the operator that holds this — the whole that exceeds decomposition. The relational model's JOIN is not SYN. It is aggregation — recombination of parts stored separately. What it produces looks like a whole from the outside. Inside, the seams show.
-3.8 SUP (⊕) — Superposition
+3.8 SUP (∥) — Superposition
 Something can be in multiple states at once. The demand for resolution is itself a force.
 Type: (State, contradictoryObservations) → State
 Definition: SUP represents multiple co-valid observations simultaneously without forcing resolution.
@@ -1360,7 +1360,7 @@ Question: Which is "correct"?
 Traditional answer: Pick one, delete others → information loss
 EO answer: All three are correct in their contexts → SUP
 6.6 Superposition (SUP): Holding Multiple Truths
-SUP (⊕) is the operator that represents simultaneous co-valid observations:
+SUP (∥) is the operator that represents simultaneous co-valid observations:
 {
  property: "revenue_Q4",
  values: [
@@ -1472,11 +1472,11 @@ Keep SUP if definitions or scales differ critically
 Grid Display
 Revenue (Q4)
  ─────────────
- 4.2M ⊕3
-The ⊕3 badge indicates superposition (3 values).
+ 4.2M ∥3
+The ∥3 badge indicates superposition (3 values).
 Cell Modal (Click Cell)
 Revenue (Q4) — 3 Observations
-⊕ Superposed Values:
+∥ Superposed Values:
  ─────────────────────
  • 4.2M — measured, GAAP, CRM import
  Team-scale, Q4 2024

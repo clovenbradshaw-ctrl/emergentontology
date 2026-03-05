@@ -6,7 +6,7 @@
  *   - Component/module topology (which room → which blocks/revs)
  *   - Highlights each DOM element with its operator annotation
  *
- * Activated by clicking the "⊡ X-Ray" button in the header,
+ * Activated by clicking the "θ X-Ray" button in the header,
  * or pressing Ctrl+Shift+X / Cmd+Shift+X.
  */
 
@@ -106,10 +106,10 @@ const OP_COLORS: Record<EOOp | string, string> = {
 };
 
 const OP_SYMBOLS: Record<EOOp | string, string> = {
-  INS: '△',
-  DES: '⊡',
+  INS: 'ι',
+  DES: 'θ',
   ALT: '∿',
-  SEG: '｜',
+  SEG: '|',
   CON: '⋈',
   SYN: '∨',
   SUP: '⊕',
@@ -152,7 +152,7 @@ export function XRayPanel({ history }: { history?: HistoryEntry[] }) {
     }}>
       {/* Header */}
       <div style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '8px 12px', borderBottom: '1px solid #333', background: '#111' }}>
-        <span style={{ color: '#7c6fcd', fontWeight: 700 }}>⊡ X-Ray</span>
+        <span style={{ color: '#7c6fcd', fontWeight: 700 }}>θ X-Ray</span>
         <button
           style={{ marginLeft: 'auto', ...tabStyle(tab === 'live') }}
           onClick={() => setTab('live')}
@@ -280,7 +280,7 @@ export function XRayToggleButton() {
         fontFamily: 'monospace',
       }}
     >
-      ⊡ {enabled ? 'X-Ray ON' : 'X-Ray'}
+      θ {enabled ? 'X-Ray ON' : 'X-Ray'}
     </button>
   );
 }

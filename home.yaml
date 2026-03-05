@@ -37,25 +37,25 @@ operators:
     slug: nul
 
   - num: 2
-    symbol: "⊡"
+    symbol: "θ"
     code: DES
-    greek: "δ"
+    greek: "θ"
     label: "Designation"
     color: "#60a5fa"
     slug: des
 
   - num: 3
-    symbol: "△"
+    symbol: "ι"
     code: INS
-    greek: "ι"
+    greek: "α"
     label: "Instantiation"
     color: "#4ade80"
     slug: ins
 
   - num: 4
-    symbol: "｜"
+    symbol: "|"
     code: SEG
-    greek: "σ"
+    greek: "κ"
     label: "Segmentation"
     color: "#c084fc"
     slug: seg
@@ -63,7 +63,7 @@ operators:
   - num: 5
     symbol: "⋈"
     code: CON
-    greek: "κ"
+    greek: "ε"
     label: "Connection"
     color: "#34d399"
     slug: con
@@ -71,7 +71,7 @@ operators:
   - num: 6
     symbol: "∨"
     code: SYN
-    greek: "ψ"
+    greek: "η"
     label: "Synthesis"
     color: "#818cf8"
     slug: syn
@@ -85,9 +85,9 @@ operators:
     slug: alt
 
   - num: 8
-    symbol: "∥"
+    symbol: "⊕"
     code: SUP
-    greek: "φ"
+    greek: "ψ"
     label: "Superposition"
     color: "#f472b6"
     slug: sup
@@ -95,7 +95,7 @@ operators:
   - num: 9
     symbol: "↬"
     code: REC
-    greek: "ρ"
+    greek: "Ω"
     label: "Recursion"
     color: "#fb923c"
     slug: rec

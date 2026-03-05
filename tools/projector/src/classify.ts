@@ -39,7 +39,7 @@ const OPERATOR_PROFILES: Record<string, OperatorProfile> = {
     ],
   },
   DES: {
-    code: 'DES', symbol: '\u22A1', color: '#60a5fa',
+    code: 'DES', symbol: '\u03B8', color: '#60a5fa',
     keywords: [
       'designation', 'naming', 'identity', 'label', 'definition',
       'describe', 'classify', 'categorize', 'metadata', 'title',
@@ -50,7 +50,7 @@ const OPERATOR_PROFILES: Record<string, OperatorProfile> = {
     ],
   },
   INS: {
-    code: 'INS', symbol: '\u25B3', color: '#4ade80',
+    code: 'INS', symbol: '\u03B9', color: '#4ade80',
     keywords: [
       'instantiation', 'create', 'new', 'genesis', 'birth', 'origin',
       'begin', 'start', 'initialize', 'generate', 'produce', 'construct',
@@ -60,7 +60,7 @@ const OPERATOR_PROFILES: Record<string, OperatorProfile> = {
     ],
   },
   SEG: {
-    code: 'SEG', symbol: '\uFF5C', color: '#c084fc',
+    code: 'SEG', symbol: '|', color: '#c084fc',
     keywords: [
       'segmentation', 'divide', 'partition', 'separate', 'boundary',
       'section', 'segment', 'split', 'decompose', 'analyze', 'part',
@@ -104,7 +104,7 @@ const OPERATOR_PROFILES: Record<string, OperatorProfile> = {
     ],
   },
   SUP: {
-    code: 'SUP', symbol: '\u2225', color: '#f472b6',
+    code: 'SUP', symbol: '\u2295', color: '#f472b6',
     keywords: [
       'superposition', 'parallel', 'simultaneous', 'concurrent', 'overlay',
       'coexist', 'multiple', 'ambiguity', 'quantum', 'probabilistic',

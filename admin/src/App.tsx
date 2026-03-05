@@ -74,7 +74,7 @@ function LoginForm() {
   return (
     <div className="login-screen">
       <div className="login-card">
-        <div className="login-logo">⊡</div>
+        <div className="login-logo">θ</div>
         <h1>{settings.siteName || 'EO Admin'}</h1>
         <p className="login-sub">Enter the editor password to continue</p>
 
@@ -194,7 +194,7 @@ function AdminShell() {
     <div className="admin-app">
       {/* Header */}
       <header className="admin-header">
-        <button className="admin-logo" onClick={() => navigate('')}>⊡ {settings.siteName || 'EO Admin'}</button>
+        <button className="admin-logo" onClick={() => navigate('')}>θ {settings.siteName || 'EO Admin'}</button>
         <nav className="admin-nav">
           <button className={`nav-btn ${route.type === 'list' ? 'active' : ''}`} onClick={() => navigate('')}>Content</button>
           <button className={`nav-btn ${route.type === 'settings' ? 'active' : ''}`} onClick={() => navigate('settings')}>Settings</button>
