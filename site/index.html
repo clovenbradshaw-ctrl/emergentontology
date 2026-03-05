@@ -346,23 +346,302 @@
   }
 
   /* ── Tag Groups (Wiki section) ── */
-  .tag-group { margin-bottom: 2rem; }
+  .tag-group { margin-bottom: 1.5rem; }
+  .tag-group-header {
+    display: flex; align-items: center; gap: 0.5rem; cursor: pointer;
+    padding: 0.5rem 0; user-select: none;
+  }
+  .tag-group-header:hover .tag-group-title { background: var(--purple); color: #fff; }
+  .tag-group-chevron {
+    font-size: 0.7rem; color: var(--text-faint); transition: transform 0.2s;
+    display: inline-block; width: 1rem; text-align: center;
+  }
+  .tag-group.collapsed .tag-group-chevron { transform: rotate(-90deg); }
+  .tag-group.collapsed .tag-group-body { display: none; }
   .tag-group-title {
     display: inline-flex; align-items: center; gap: 0.4rem;
     font-size: 0.78rem; font-weight: 600; letter-spacing: 0.06em;
     text-transform: uppercase; color: var(--purple);
     padding: 0.2rem 0.75rem; border-radius: 999px;
     background: var(--purple-bg); border: 1px solid var(--purple-border);
-    margin-bottom: 0.6rem;
+    transition: all 0.15s;
   }
   .tag-group-count {
     font-size: 0.68rem; font-weight: 500; color: var(--text-faint);
     letter-spacing: 0; text-transform: none;
   }
 
+  /* ── Wiki Filter Bar ── */
+  .wiki-filter-bar {
+    display: flex; align-items: center; gap: 1rem;
+    margin-bottom: 1.5rem; flex-wrap: wrap;
+  }
+  .wiki-filter-search {
+    flex: 1; min-width: 180px; padding: 0.5rem 0.85rem;
+    border: 1px solid var(--border); border-radius: 8px;
+    background: var(--bg); color: var(--text); font-size: 0.88rem;
+    font-family: 'Inter', sans-serif; outline: none; transition: border-color 0.15s;
+  }
+  .wiki-filter-search:focus { border-color: var(--purple); }
+  .wiki-filter-search::placeholder { color: var(--text-faint); }
+  .wiki-filter-tags {
+    display: flex; gap: 0.35rem; flex-wrap: wrap; align-items: center;
+  }
+  .wiki-tag-pill {
+    font-size: 0.72rem; padding: 0.2rem 0.65rem; border-radius: 999px;
+    background: var(--border-light); color: var(--text-muted);
+    border: 1px solid var(--border); cursor: pointer;
+    transition: all 0.15s; user-select: none; font-weight: 500;
+  }
+  .wiki-tag-pill:hover { border-color: var(--purple-border); color: var(--purple); }
+  .wiki-tag-pill.active {
+    background: var(--purple); color: #fff; border-color: var(--purple);
+  }
+  .wiki-article-count {
+    font-size: 0.78rem; color: var(--text-faint); white-space: nowrap;
+    font-weight: 500;
+  }
+  .wiki-view-toggle {
+    display: flex; gap: 0.25rem; border: 1px solid var(--border);
+    border-radius: 8px; overflow: hidden;
+  }
+  .wiki-view-btn {
+    padding: 0.35rem 0.65rem; font-size: 0.78rem; cursor: pointer;
+    background: var(--bg); color: var(--text-muted); border: none;
+    transition: all 0.15s; font-family: 'Inter', sans-serif;
+  }
+  .wiki-view-btn:hover { color: var(--text); }
+  .wiki-view-btn.active { background: var(--purple-bg); color: var(--purple); font-weight: 600; }
+
+  /* ── Rich Wiki Cards ── */
+  .wiki-card {
+    display: flex; flex-direction: column; gap: 0.35rem;
+    padding: 1rem 1.1rem; border-radius: 10px; cursor: pointer;
+    transition: all 0.2s; text-decoration: none; color: var(--text);
+    border: 1px solid var(--border); background: var(--bg);
+  }
+  .wiki-card:hover {
+    border-color: var(--purple-border); box-shadow: var(--card-shadow-hover);
+    transform: translateY(-1px);
+  }
+  .wiki-card-top { display: flex; align-items: flex-start; gap: 0.75rem; }
+  .wiki-card .item-icon {
+    width: 36px; height: 36px; border-radius: 8px;
+    background: var(--purple-bg); display: flex;
+    align-items: center; justify-content: center;
+    font-size: 0.85rem; color: var(--purple); flex-shrink: 0;
+  }
+  .wiki-card-info { flex: 1; min-width: 0; }
+  .wiki-card-title { font-size: 0.95rem; font-weight: 600; line-height: 1.3; }
+  .wiki-card-meta {
+    display: flex; align-items: center; gap: 0.75rem;
+    font-size: 0.72rem; color: var(--text-faint); margin-top: 0.15rem;
+  }
+  .wiki-card-excerpt {
+    font-size: 0.82rem; color: var(--text-muted); line-height: 1.5;
+    display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+  .wiki-card-tags { display: flex; gap: 0.25rem; flex-wrap: wrap; margin-top: 0.25rem; }
+  .wiki-card-tags .tag {
+    font-size: 0.65rem; padding: 0.1rem 0.45rem; border-radius: 999px;
+    background: var(--border-light); color: var(--text-faint);
+    border: 1px solid var(--border);
+  }
+  .wiki-cards-grid {
+    display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 0.75rem;
+  }
+
+  /* ── Breadcrumbs ── */
+  .breadcrumbs {
+    display: flex; align-items: center; gap: 0.4rem;
+    font-size: 0.82rem; color: var(--text-faint); margin-bottom: 1.5rem;
+    flex-wrap: wrap;
+  }
+  .breadcrumbs a {
+    color: var(--text-muted); text-decoration: none; transition: color 0.15s;
+    cursor: pointer;
+  }
+  .breadcrumbs a:hover { color: var(--purple); }
+  .breadcrumbs .bc-sep { color: var(--text-faint); font-size: 0.7rem; }
+  .breadcrumbs .bc-current { color: var(--text); font-weight: 500; }
+
+  /* ── Reading Progress Bar ── */
+  .reading-progress {
+    position: fixed; top: 56px; left: 0; width: 0%; height: 3px;
+    background: linear-gradient(90deg, var(--purple), var(--purple-light));
+    z-index: 99; transition: width 0.1s linear;
+    border-radius: 0 2px 2px 0;
+  }
+
+  /* ── Table of Contents ── */
+  .article-layout { display: flex; gap: 2.5rem; align-items: flex-start; }
+  .article-main { flex: 1; min-width: 0; }
+  .article-toc {
+    position: sticky; top: 80px; width: 220px; flex-shrink: 0;
+    max-height: calc(100vh - 100px); overflow-y: auto;
+    padding: 1rem; border-left: 2px solid var(--border);
+    font-size: 0.78rem;
+  }
+  .toc-title {
+    font-size: 0.7rem; font-weight: 700; text-transform: uppercase;
+    letter-spacing: 0.08em; color: var(--text-faint); margin-bottom: 0.75rem;
+  }
+  .toc-list { list-style: none; display: flex; flex-direction: column; gap: 0.4rem; }
+  .toc-item a {
+    color: var(--text-muted); text-decoration: none; display: block;
+    padding: 0.15rem 0; transition: color 0.15s; line-height: 1.4;
+  }
+  .toc-item a:hover, .toc-item a.active { color: var(--purple); }
+  .toc-item.toc-h3 { padding-left: 0.85rem; }
+
+  /* Mobile TOC */
+  .toc-mobile {
+    display: none; margin-bottom: 1.5rem; border: 1px solid var(--border);
+    border-radius: 10px; overflow: hidden;
+  }
+  .toc-mobile-toggle {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 0.65rem 1rem; background: var(--bg-page); cursor: pointer;
+    font-size: 0.82rem; font-weight: 600; color: var(--text-secondary);
+    border: none; width: 100%; font-family: 'Inter', sans-serif;
+  }
+  .toc-mobile-toggle:hover { color: var(--text); }
+  .toc-mobile-body { padding: 0.5rem 1rem 0.75rem; display: none; }
+  .toc-mobile.open .toc-mobile-body { display: block; }
+
+  /* ── Next Article Card ── */
+  .next-article {
+    margin-top: 3rem; padding: 1.5rem; border: 1px solid var(--border);
+    border-radius: 12px; cursor: pointer; transition: all 0.2s;
+    background: var(--bg-page);
+  }
+  .next-article:hover { border-color: var(--purple-border); box-shadow: var(--card-shadow-hover); }
+  .next-article-label {
+    font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.08em;
+    color: var(--text-faint); font-weight: 600; margin-bottom: 0.35rem;
+  }
+  .next-article-title { font-size: 1.1rem; font-weight: 600; color: var(--text); }
+  .next-article-excerpt { font-size: 0.82rem; color: var(--text-muted); margin-top: 0.25rem; }
+
+  /* ── Revision History Timeline ── */
+  .rev-timeline { display: flex; flex-direction: column; gap: 0; position: relative; }
+  .rev-timeline::before {
+    content: ''; position: absolute; left: 5px; top: 8px; bottom: 8px;
+    width: 2px; background: var(--border);
+  }
+  .rev-item {
+    display: flex; gap: 0.85rem; font-size: 0.82rem; color: var(--text-faint);
+    align-items: flex-start; padding: 0.4rem 0; position: relative;
+  }
+  .rev-dot {
+    width: 12px; height: 12px; border-radius: 50%;
+    border: 2px solid var(--purple-border); background: var(--bg);
+    flex-shrink: 0; margin-top: 2px; z-index: 1;
+  }
+  .rev-item:first-child .rev-dot { background: var(--purple); border-color: var(--purple); }
+  .rev-content { flex: 1; min-width: 0; }
+  .rev-op {
+    font-family: 'JetBrains Mono', monospace; color: var(--purple);
+    font-weight: 600; font-size: 0.72rem; margin-right: 0.35rem;
+  }
+  .rev-time { margin-left: auto; white-space: nowrap; flex-shrink: 0; }
+
+  /* ── Skeleton Loading ── */
+  .skeleton-list { display: flex; flex-direction: column; gap: 0.75rem; }
+  .skeleton-card {
+    border: 1px solid var(--border); border-radius: 10px;
+    padding: 1rem 1.1rem; background: var(--bg);
+  }
+  .skeleton-line {
+    height: 0.85rem; border-radius: 4px;
+    background: linear-gradient(90deg, var(--border-light) 25%, var(--border) 50%, var(--border-light) 75%);
+    background-size: 200% 100%;
+    animation: shimmer 1.5s infinite;
+  }
+  .skeleton-line.w60 { width: 60%; }
+  .skeleton-line.w80 { width: 80%; }
+  .skeleton-line.w40 { width: 40%; }
+  .skeleton-line + .skeleton-line { margin-top: 0.5rem; }
+  @keyframes shimmer {
+    0% { background-position: 200% 0; }
+    100% { background-position: -200% 0; }
+  }
+
+  /* ── Empty State ── */
+  .empty-state {
+    text-align: center; padding: 4rem 2rem; color: var(--text-faint);
+  }
+  .empty-state-icon {
+    font-size: 3rem; margin-bottom: 1rem; opacity: 0.3;
+  }
+  .empty-state-title {
+    font-size: 1.1rem; font-weight: 600; color: var(--text-muted);
+    margin-bottom: 0.35rem;
+  }
+  .empty-state-desc { font-size: 0.88rem; }
+
+  /* ── Mobile Hamburger Nav ── */
+  .mobile-menu-btn {
+    display: none; width: 36px; height: 36px; border-radius: 8px;
+    border: 1px solid var(--border); background: var(--bg);
+    color: var(--text-secondary); cursor: pointer;
+    align-items: center; justify-content: center; font-size: 1.2rem;
+  }
+  .mobile-nav {
+    display: none; position: fixed; top: 56px; left: 0; right: 0;
+    background: var(--bg); border-bottom: 1px solid var(--border);
+    z-index: 90; padding: 0.5rem;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+    animation: slideDown 0.2s ease-out;
+  }
+  .mobile-nav.open { display: block; }
+  .mobile-nav a {
+    display: block; padding: 0.75rem 1rem; border-radius: 8px;
+    font-size: 0.92rem; color: var(--text-secondary); text-decoration: none;
+    font-weight: 500; cursor: pointer;
+  }
+  .mobile-nav a:hover, .mobile-nav a.active { background: var(--border-light); color: var(--text); }
+  @keyframes slideDown {
+    from { opacity: 0; transform: translateY(-8px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  /* ── Article Header ── */
+  .article-header { margin-bottom: 2rem; }
+  .article-header h1 {
+    font-size: 2.4rem; font-weight: 700; line-height: 1.15;
+    letter-spacing: -0.03em; margin-bottom: 0.75rem;
+  }
+  .article-header-tags { display: flex; gap: 0.35rem; flex-wrap: wrap; margin-bottom: 0.75rem; }
+  .article-header-tags .tag {
+    font-size: 0.72rem; padding: 0.15rem 0.6rem; border-radius: 999px;
+    background: var(--purple-bg); color: var(--purple);
+    border: 1px solid var(--purple-border); font-weight: 500;
+  }
+  .article-meta-bar {
+    display: flex; align-items: center; gap: 1.25rem;
+    font-size: 0.78rem; color: var(--text-muted);
+    padding: 0.55rem 0; border-top: 1px solid var(--border);
+    border-bottom: 1px solid var(--border);
+  }
+  .article-meta-bar strong { font-weight: 600; color: var(--text-secondary); }
+
+  /* ── Print Styles ── */
+  @media print {
+    .topnav, .site-footer, .reading-progress, .article-toc,
+    .toc-mobile, .next-article, .breadcrumbs, .search-overlay { display: none !important; }
+    .page { max-width: 100%; padding: 0; }
+    .wiki-page { padding: 1rem 0; }
+    .article-layout { display: block; }
+    .wiki-body { font-size: 11pt; }
+  }
+
   @media (max-width: 768px) {
     .topnav { padding: 0 1rem; }
     .topnav-links { display: none; }
+    .mobile-menu-btn { display: flex; }
     .page { padding: 0 1rem; }
     .hero h1 { font-size: 1.8rem; }
     .hero { padding: 3rem 0.5rem 2rem; }
@@ -371,8 +650,17 @@
     .home-right { align-self: center; }
     .wiki-page { padding: 2rem 0 4rem; }
     .wiki-body h1 { font-size: 1.7rem; }
-    .revision-info { flex-wrap: wrap; gap: 0.5rem 1rem; }
+    .article-header h1 { font-size: 1.8rem; }
+    .revision-info, .article-meta-bar { flex-wrap: wrap; gap: 0.5rem 1rem; }
     .footer-inner { flex-direction: column; text-align: center; }
+    .article-toc { display: none; }
+    .toc-mobile { display: block; }
+    .article-layout { display: block; }
+    .wiki-filter-bar { flex-direction: column; align-items: stretch; }
+    .wiki-filter-search { min-width: 100%; }
+    .wiki-cards-grid { grid-template-columns: 1fr; }
+    .wiki-card { padding: 0.85rem; }
+    .next-article { padding: 1rem; }
   }
 </style>
 </head>
@@ -393,9 +681,18 @@
   <div class="topnav-right">
     <button class="topnav-btn" id="themeBtn" title="Toggle theme">☾</button>
     <button class="topnav-btn" id="searchBtn" title="Search (⌘K)">⌕</button>
+    <button class="mobile-menu-btn" id="mobileMenuBtn" title="Menu">☰</button>
     <a class="topnav-btn admin-btn" id="adminBtn" href="admin/">Admin</a>
   </div>
 </nav>
+
+<div class="mobile-nav" id="mobileNav">
+  <a data-view="wiki" onclick="showView('wiki');closeMobileNav()">Wiki</a>
+  <a data-view="blog" onclick="showView('blog');closeMobileNav()">Blog</a>
+  <a data-view="experiments" onclick="showView('experiments');closeMobileNav()">Experiments</a>
+</div>
+
+<div class="reading-progress" id="readingProgress"></div>
 
 <div class="search-overlay" id="searchOverlay">
   <div class="search-box">
@@ -405,7 +702,13 @@
 </div>
 
 <div class="page" id="app">
-  <div class="loader"><div class="spin"></div><span style="font-size:.88rem">Loading…</span></div>
+  <div class="fade-in" style="padding:3rem 0">
+    <div class="skeleton-list">
+      <div class="skeleton-card"><div class="skeleton-line w60"></div><div class="skeleton-line w80"></div><div class="skeleton-line w40"></div></div>
+      <div class="skeleton-card"><div class="skeleton-line w80"></div><div class="skeleton-line w60"></div><div class="skeleton-line w40"></div></div>
+      <div class="skeleton-card"><div class="skeleton-line w60"></div><div class="skeleton-line w80"></div></div>
+    </div>
+  </div>
 </div>
 
 <footer class="site-footer">
@@ -559,6 +862,7 @@ function goHome() {
   window.location.hash = '';
   renderHome();
   clearNav();
+  hideReadingProgress();
 }
 
 function navigateFromHash() {
@@ -580,6 +884,12 @@ function setNav(v) {
   clearNav();
   var el = document.querySelector('.topnav-link[data-view="' + v + '"]');
   if (el) el.classList.add('active');
+  // Also highlight mobile nav
+  var mobileLinks = document.querySelectorAll('.mobile-nav a');
+  for (var i = 0; i < mobileLinks.length; i++) {
+    mobileLinks[i].classList.remove('active');
+    if (mobileLinks[i].getAttribute('data-view') === v) mobileLinks[i].classList.add('active');
+  }
 }
 
 // ── Home Page ─────────────────────────────────────────────────────────────────
@@ -677,6 +987,8 @@ function renderHomeSection(title, items, icon) {
 
 // ── Section View (wiki/blog/experiments list) ─────────────────────────────────
 
+var wikiFilterState = { query: '', tag: '', view: 'grouped' };
+
 function renderSection(type) {
   var app = document.getElementById('app');
   var typeFilter = type;
@@ -695,19 +1007,74 @@ function renderSection(type) {
   document.title = label + ' \u2014 Emergent Ontology';
 
   var h = '<div class="fade-in wiki-page">';
-  h += '<a class="back-link" onclick="goHome()">\u2190 Home</a>';
-  h += '<h1 style="font-size:2rem;font-weight:700;margin-bottom:1.5rem">' + label + '</h1>';
+  h += '<div class="breadcrumbs"><a onclick="goHome()">Home</a><span class="bc-sep">/</span><span class="bc-current">' + label + '</span></div>';
 
   var pub = pages.filter(function(p) { return p.hasContent || p.status === 'published'; });
-  if (pub.length) {
-    var icon = type === 'blog' ? '\u270E' : type === 'experiments' ? '\u25C7' : '\u22A1';
 
-    if (type === 'wiki') {
-      // Group wiki entries by tag
+  if (type === 'wiki' && pub.length) {
+    // Collect all tags
+    var allTags = {};
+    for (var i = 0; i < pub.length; i++) {
+      if (pub[i].tags) {
+        for (var j = 0; j < pub[i].tags.length; j++) {
+          allTags[pub[i].tags[j]] = (allTags[pub[i].tags[j]] || 0) + 1;
+        }
+      }
+    }
+    var tagNames = Object.keys(allTags).sort(function(a, b) {
+      return a.toLowerCase().localeCompare(b.toLowerCase());
+    });
+
+    // Filter bar
+    h += '<div class="wiki-filter-bar">';
+    h += '<input class="wiki-filter-search" id="wikiFilterInput" placeholder="Search articles\u2026" value="' + esc(wikiFilterState.query) + '">';
+    h += '<div class="wiki-filter-tags">';
+    for (var i = 0; i < tagNames.length; i++) {
+      var active = wikiFilterState.tag === tagNames[i] ? ' active' : '';
+      h += '<span class="wiki-tag-pill' + active + '" data-tag="' + escAttr(tagNames[i]) + '">' + esc(tagNames[i]) + '</span>';
+    }
+    h += '</div>';
+    h += '<div class="wiki-view-toggle">';
+    h += '<button class="wiki-view-btn' + (wikiFilterState.view === 'grouped' ? ' active' : '') + '" data-wview="grouped">Grouped</button>';
+    h += '<button class="wiki-view-btn' + (wikiFilterState.view === 'all' ? ' active' : '') + '" data-wview="all">All</button>';
+    h += '</div>';
+    h += '</div>';
+
+    // Apply filters
+    var filtered = pub;
+    if (wikiFilterState.query) {
+      var q = wikiFilterState.query.toLowerCase();
+      filtered = filtered.filter(function(p) {
+        return (p.title || '').toLowerCase().indexOf(q) >= 0 ||
+               (p.slug || '').toLowerCase().indexOf(q) >= 0 ||
+               (p.tags || []).some(function(t) { return t.toLowerCase().indexOf(q) >= 0; });
+      });
+    }
+    if (wikiFilterState.tag) {
+      filtered = filtered.filter(function(p) {
+        return (p.tags || []).indexOf(wikiFilterState.tag) >= 0;
+      });
+    }
+
+    h += '<div class="wiki-article-count">' + filtered.length + ' article' + (filtered.length !== 1 ? 's' : '') + '</div>';
+
+    if (filtered.length === 0) {
+      h += '<div class="empty-state"><div class="empty-state-icon">\u22A1</div>';
+      h += '<div class="empty-state-title">No matching articles</div>';
+      h += '<div class="empty-state-desc">Try adjusting your search or filter.</div></div>';
+    } else if (wikiFilterState.view === 'all' || wikiFilterState.query || wikiFilterState.tag) {
+      // Flat card grid
+      h += '<div class="wiki-cards-grid">';
+      for (var i = 0; i < filtered.length; i++) {
+        h += renderWikiCard(filtered[i]);
+      }
+      h += '</div>';
+    } else {
+      // Grouped by tag with collapsible sections
       var tagMap = {};
       var untagged = [];
-      for (var i = 0; i < pub.length; i++) {
-        var p = pub[i];
+      for (var i = 0; i < filtered.length; i++) {
+        var p = filtered[i];
         if (p.tags && p.tags.length) {
           for (var j = 0; j < p.tags.length; j++) {
             var tag = p.tags[j];
@@ -718,55 +1085,138 @@ function renderSection(type) {
           untagged.push(p);
         }
       }
-      var tagNames = Object.keys(tagMap).sort(function(a, b) {
+      var sortedTags = Object.keys(tagMap).sort(function(a, b) {
         return a.toLowerCase().localeCompare(b.toLowerCase());
       });
 
-      for (var ti = 0; ti < tagNames.length; ti++) {
-        var tag = tagNames[ti];
+      for (var ti = 0; ti < sortedTags.length; ti++) {
+        var tag = sortedTags[ti];
         var items = tagMap[tag];
-        h += '<div class="tag-group">';
-        h += '<div class="tag-group-title">' + esc(tag) + ' <span class="tag-group-count">(' + items.length + ')</span></div>';
-        h += '<div class="wiki-list">';
+        h += '<div class="tag-group" data-tg="' + escAttr(tag) + '">';
+        h += '<div class="tag-group-header" onclick="toggleTagGroup(this)">';
+        h += '<span class="tag-group-chevron">\u25BC</span>';
+        h += '<span class="tag-group-title">' + esc(tag) + ' <span class="tag-group-count">(' + items.length + ')</span></span>';
+        h += '</div>';
+        h += '<div class="tag-group-body"><div class="wiki-cards-grid">';
         for (var i = 0; i < items.length; i++) {
-          h += renderSectionItem(items[i], icon);
+          h += renderWikiCard(items[i]);
         }
-        h += '</div></div>';
+        h += '</div></div></div>';
       }
 
       if (untagged.length) {
         h += '<div class="tag-group">';
-        h += '<div class="tag-group-title">Untagged <span class="tag-group-count">(' + untagged.length + ')</span></div>';
-        h += '<div class="wiki-list">';
+        h += '<div class="tag-group-header" onclick="toggleTagGroup(this)">';
+        h += '<span class="tag-group-chevron">\u25BC</span>';
+        h += '<span class="tag-group-title">Uncategorized <span class="tag-group-count">(' + untagged.length + ')</span></span>';
+        h += '</div>';
+        h += '<div class="tag-group-body"><div class="wiki-cards-grid">';
         for (var i = 0; i < untagged.length; i++) {
-          h += renderSectionItem(untagged[i], icon);
+          h += renderWikiCard(untagged[i]);
         }
-        h += '</div></div>';
+        h += '</div></div></div>';
       }
-    } else {
-      // Flat list for blog / experiments
-      h += '<div class="wiki-list">';
-      for (var i = 0; i < pub.length; i++) {
-        h += renderSectionItem(pub[i], icon);
-      }
-      h += '</div>';
     }
+  } else if (pub.length) {
+    var icon = type === 'blog' ? '\u270E' : '\u25C7';
+    h += '<h1 style="font-size:2rem;font-weight:700;margin-bottom:1.5rem">' + label + '</h1>';
+    h += '<div class="wiki-cards-grid">';
+    for (var i = 0; i < pub.length; i++) {
+      h += renderWikiCard(pub[i], icon);
+    }
+    h += '</div>';
   } else {
-    h += '<p class="home-section-empty">No ' + type + ' entries published yet.</p>';
+    h += '<div class="empty-state"><div class="empty-state-icon">\u22A1</div>';
+    h += '<div class="empty-state-title">No ' + type + ' entries yet</div>';
+    h += '<div class="empty-state-desc">Check back soon for new content.</div></div>';
   }
   h += '</div>';
   app.innerHTML = h;
+
+  // Wire up wiki filter events
+  if (type === 'wiki') {
+    setupWikiFilters(type);
+  }
+
+  hideReadingProgress();
   window.scrollTo(0, 0);
 }
 
-function renderSectionItem(p, icon) {
-  var h = '<a class="wiki-list-item" onclick="navigate(\'' + escAttr(p.slug) + '\')">';
+function renderWikiCard(p, icon) {
+  icon = icon || '\u22A1';
+  var excerpt = extractExcerpt(p);
+  var readTime = estimateReadingTime(p);
+  var h = '<a class="wiki-card" onclick="navigate(\'' + escAttr(p.slug) + '\')">';
+  h += '<div class="wiki-card-top">';
   h += '<div class="item-icon">' + icon + '</div>';
-  h += '<div><div class="item-title">' + esc(p.title) + '</div>';
+  h += '<div class="wiki-card-info">';
+  h += '<div class="wiki-card-title">' + esc(p.title) + '</div>';
+  h += '<div class="wiki-card-meta">';
   var ts = relativeTime(p.updated_at);
-  h += '<div class="item-meta">' + (ts || p.status || '') + '</div></div>';
+  if (ts) h += '<span>' + ts + '</span>';
+  if (readTime) h += '<span>' + readTime + '</span>';
+  h += '</div>';
+  h += '</div></div>';
+  if (excerpt) h += '<div class="wiki-card-excerpt">' + esc(excerpt) + '</div>';
+  if (p.tags && p.tags.length) {
+    h += '<div class="wiki-card-tags">';
+    for (var j = 0; j < Math.min(p.tags.length, 4); j++) {
+      h += '<span class="tag">' + esc(p.tags[j]) + '</span>';
+    }
+    h += '</div>';
+  }
   h += '</a>';
   return h;
+}
+
+function setupWikiFilters(type) {
+  var input = document.getElementById('wikiFilterInput');
+  if (input) {
+    input.addEventListener('input', function() {
+      wikiFilterState.query = this.value;
+      renderSection(type);
+      var newInput = document.getElementById('wikiFilterInput');
+      if (newInput) { newInput.focus(); newInput.selectionStart = newInput.selectionEnd = newInput.value.length; }
+    });
+  }
+  document.querySelectorAll('.wiki-tag-pill').forEach(function(pill) {
+    pill.addEventListener('click', function() {
+      var tag = this.getAttribute('data-tag');
+      wikiFilterState.tag = wikiFilterState.tag === tag ? '' : tag;
+      renderSection(type);
+    });
+  });
+  document.querySelectorAll('.wiki-view-btn').forEach(function(btn) {
+    btn.addEventListener('click', function() {
+      wikiFilterState.view = this.getAttribute('data-wview');
+      renderSection(type);
+    });
+  });
+}
+
+function toggleTagGroup(header) {
+  var group = header.parentElement;
+  group.classList.toggle('collapsed');
+}
+
+function extractExcerpt(p) {
+  if (!p.record || !p.record.parsed) return '';
+  var rev = p.record.parsed.current_revision;
+  if (!rev || !rev.content) return '';
+  var text = rev.content.replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim();
+  // Skip the title if content starts with it
+  if (text.indexOf(p.title) === 0) text = text.slice(p.title.length).trim();
+  return text.length > 140 ? text.slice(0, 140) + '\u2026' : text;
+}
+
+function estimateReadingTime(p) {
+  if (!p.record || !p.record.parsed) return '';
+  var rev = p.record.parsed.current_revision;
+  if (!rev || !rev.content) return '';
+  var text = rev.content.replace(/<[^>]+>/g, ' ');
+  var words = text.split(/\s+/).filter(function(w) { return w.length > 0; }).length;
+  var mins = Math.max(1, Math.round(words / 200));
+  return mins + ' min read';
 }
 
 // ── Page View ─────────────────────────────────────────────────────────────────
@@ -803,8 +1253,11 @@ function renderPage(slug) {
   }
 
   if (!record) {
-    app.innerHTML = '<div class="fade-in empty"><p>Page \u201C' + esc(slug) + '\u201D not found.</p>' +
-      '<a style="color:var(--purple);cursor:pointer" onclick="goHome()">\u2190 Back</a></div>';
+    app.innerHTML = '<div class="fade-in empty-state"><div class="empty-state-icon">\u2753</div>' +
+      '<div class="empty-state-title">Page not found</div>' +
+      '<div class="empty-state-desc">\u201C' + esc(slug) + '\u201D doesn\u2019t exist.</div>' +
+      '<a style="color:var(--purple);cursor:pointer;display:inline-block;margin-top:1rem" onclick="goHome()">\u2190 Back home</a></div>';
+    hideReadingProgress();
     return;
   }
 
@@ -812,34 +1265,92 @@ function renderPage(slug) {
   var meta = (parsed && parsed.meta) || {};
   var rev = parsed && parsed.current_revision;
   var revs = (parsed && parsed.revisions) || [];
+  var contentType = meta.content_type || 'page';
+  var isExperiment = (contentType === 'experiment');
 
   document.title = (meta.title || slug) + ' \u2014 Emergent Ontology';
 
-  var h = '<div class="fade-in wiki-page">';
-  h += '<a class="back-link" onclick="goHome()">\u2190 Home</a>';
-  h += '<div class="wiki-page-meta"><span class="type-badge">' + esc(meta.content_type || 'page') + '</span> \u00B7 ' + esc(meta.slug || slug) + '</div>';
-
-  if (rev) {
-    h += '<div class="revision-info">';
-    h += '<span><strong>Last edited:</strong> ' + timeAgo(rev.ts) + '</span>';
-    h += '<span><strong>Revisions:</strong> ' + revs.length + '</span>';
-    h += '<span><strong>Status:</strong> ' + esc(meta.status || '\u2014') + '</span>';
-    h += '</div>';
-  }
-
-  // Revision-based content (wiki, blog, and experiments with a body)
+  // Build rendered content HTML first (for TOC extraction)
+  var bodyHtml = '';
   if (rev && rev.content) {
     var content = rev.content;
     var fmt = rev.format || (looksLikeHtml(content) ? 'html' : 'markdown');
     if (fmt === 'html') {
-      h += '<div class="wiki-body">' + rewriteLinks(content) + '</div>';
+      bodyHtml = rewriteLinks(content);
     } else {
-      h += '<div class="wiki-body">' + rewriteLinks(renderMarkdown(content)) + '</div>';
+      bodyHtml = rewriteLinks(renderMarkdown(content));
     }
   }
 
-  // Experiment entries (log-style: notes, datasets, HTML embeds, etc.)
-  var isExperiment = (meta.content_type === 'experiment');
+  // Extract TOC from headings
+  var tocItems = extractTOC(bodyHtml);
+  var hasToc = tocItems.length >= 2;
+
+  // Calculate reading time
+  var readTime = '';
+  if (rev && rev.content) {
+    var text = rev.content.replace(/<[^>]+>/g, ' ');
+    var words = text.split(/\s+/).filter(function(w) { return w.length > 0; }).length;
+    var mins = Math.max(1, Math.round(words / 200));
+    readTime = mins + ' min read';
+  }
+
+  // Determine section for breadcrumbs
+  var sectionMap = { wiki: 'Wiki', blog: 'Blog', experiment: 'Experiments' };
+  var sectionLabel = sectionMap[contentType] || 'Pages';
+  var sectionView = contentType === 'experiment' ? 'experiments' : contentType;
+
+  var h = '<div class="fade-in wiki-page">';
+
+  // Breadcrumbs
+  h += '<div class="breadcrumbs">';
+  h += '<a onclick="goHome()">Home</a><span class="bc-sep">/</span>';
+  h += '<a onclick="showView(\'' + sectionView + '\')">' + sectionLabel + '</a>';
+  h += '<span class="bc-sep">/</span>';
+  h += '<span class="bc-current">' + esc(meta.title || slug) + '</span>';
+  h += '</div>';
+
+  // Article header
+  h += '<div class="article-header">';
+  h += '<div class="wiki-page-meta"><span class="type-badge">' + esc(contentType) + '</span></div>';
+  h += '<h1>' + esc(meta.title || slug) + '</h1>';
+
+  // Tags right under title
+  if (meta.tags && meta.tags.length) {
+    h += '<div class="article-header-tags">';
+    for (var i = 0; i < meta.tags.length; i++) {
+      h += '<span class="tag">' + esc(meta.tags[i]) + '</span>';
+    }
+    h += '</div>';
+  }
+
+  // Meta bar
+  h += '<div class="article-meta-bar">';
+  if (rev) h += '<span><strong>Edited:</strong> ' + timeAgo(rev.ts) + '</span>';
+  if (revs.length) h += '<span><strong>Revisions:</strong> ' + revs.length + '</span>';
+  if (readTime) h += '<span>' + readTime + '</span>';
+  h += '<span><strong>Status:</strong> ' + esc(meta.status || '\u2014') + '</span>';
+  h += '</div>';
+  h += '</div>'; // article-header
+
+  // Mobile TOC
+  if (hasToc) {
+    h += '<div class="toc-mobile" id="tocMobile">';
+    h += '<button class="toc-mobile-toggle" onclick="document.getElementById(\'tocMobile\').classList.toggle(\'open\')">Table of Contents <span>\u25BC</span></button>';
+    h += '<div class="toc-mobile-body">' + renderTocList(tocItems) + '</div>';
+    h += '</div>';
+  }
+
+  // Article layout with sidebar TOC
+  h += '<div class="article-layout">';
+  h += '<div class="article-main">';
+
+  // Body content
+  if (bodyHtml) {
+    h += '<div class="wiki-body" id="articleBody">' + bodyHtml + '</div>';
+  }
+
+  // Experiment entries
   var expEntries = (parsed && parsed.entries) || [];
   expEntries = expEntries.filter(function(e) { return !e.deleted; });
 
@@ -865,40 +1376,56 @@ function renderPage(slug) {
     h += '</div>';
   } else if (!rev || !rev.content) {
     h += '<div class="wiki-body"><h1>' + esc(meta.title || slug) + '</h1></div>';
-    h += '<div class="empty"><p style="font-style:italic">No content yet.</p></div>';
+    h += '<div class="empty-state"><div class="empty-state-icon">\u270D</div>';
+    h += '<div class="empty-state-title">No content yet</div>';
+    h += '<div class="empty-state-desc">This article hasn\u2019t been written yet.</div></div>';
   }
 
-  // Tags
-  if (meta.tags && meta.tags.length) {
-    h += '<div style="margin-top:1.5rem;display:flex;gap:0.35rem;flex-wrap:wrap">';
-    for (var i = 0; i < meta.tags.length; i++) {
-      h += '<span style="font-size:0.78rem;padding:0.15rem 0.6rem;border-radius:999px;background:var(--purple-bg);color:var(--purple);border:1px solid var(--purple-border)">' + esc(meta.tags[i]) + '</span>';
-    }
-    h += '</div>';
-  }
-
-  // Revision history
+  // Revision history (timeline style)
   if (revs.length > 0) {
     h += '<div style="margin-top:3rem;border-top:1px solid var(--border);padding-top:1.5rem">';
     h += '<h2 style="font-size:1.1rem;font-weight:600;margin-bottom:1rem;color:var(--text-secondary)">Revision History</h2>';
-    h += '<div style="display:flex;flex-direction:column;gap:0.4rem">';
+    h += '<div class="rev-timeline">';
     var showRevs = revs.slice().reverse().slice(0, 6);
     for (var i = 0; i < showRevs.length; i++) {
       var r = showRevs[i];
       var isFirst = r.rev_id === revs[0].rev_id;
-      h += '<div style="display:flex;gap:0.75rem;font-size:0.82rem;color:var(--text-faint);align-items:center">';
-      h += '<span style="font-family:\'JetBrains Mono\',monospace;color:var(--purple);font-weight:600;font-size:0.75rem">' + (isFirst ? 'INS' : 'ALT') + '</span>';
-      h += '<span>' + esc(r.summary || '\u2026') + '</span>';
-      h += '<span style="margin-left:auto;white-space:nowrap">' + timeAgo(r.ts) + '</span>';
+      h += '<div class="rev-item">';
+      h += '<div class="rev-dot"></div>';
+      h += '<div class="rev-content"><span class="rev-op">' + (isFirst ? 'INS' : 'ALT') + '</span>';
+      h += '<span>' + esc(r.summary || '\u2026') + '</span></div>';
+      h += '<span class="rev-time">' + timeAgo(r.ts) + '</span>';
       h += '</div>';
     }
     if (revs.length > 6) {
-      h += '<p style="font-size:0.78rem;color:var(--text-faint);margin-top:0.5rem">\u2026and ' + (revs.length - 6) + ' older revision' + (revs.length - 6 !== 1 ? 's' : '') + '</p>';
+      h += '<p style="font-size:0.78rem;color:var(--text-faint);margin-top:0.5rem;padding-left:1.85rem">\u2026and ' + (revs.length - 6) + ' older revision' + (revs.length - 6 !== 1 ? 's' : '') + '</p>';
     }
     h += '</div></div>';
   }
 
-  h += '</div>';
+  // Next article suggestion
+  var nextArticle = findNextArticle(slug, contentType);
+  if (nextArticle) {
+    var nextExcerpt = extractExcerpt(nextArticle);
+    h += '<div class="next-article" onclick="navigate(\'' + escAttr(nextArticle.slug) + '\')">';
+    h += '<div class="next-article-label">Next article \u2192</div>';
+    h += '<div class="next-article-title">' + esc(nextArticle.title) + '</div>';
+    if (nextExcerpt) h += '<div class="next-article-excerpt">' + esc(nextExcerpt) + '</div>';
+    h += '</div>';
+  }
+
+  h += '</div>'; // article-main
+
+  // Sidebar TOC (desktop)
+  if (hasToc) {
+    h += '<div class="article-toc" id="articleToc">';
+    h += '<div class="toc-title">On this page</div>';
+    h += renderTocList(tocItems);
+    h += '</div>';
+  }
+
+  h += '</div>'; // article-layout
+  h += '</div>'; // wiki-page
   app.innerHTML = h;
 
   // Activate embedded scripts so experiment HTML/JS actually executes
@@ -917,7 +1444,133 @@ function renderPage(slug) {
     })(wikiLinks[i]);
   }
 
+  // Setup reading progress bar
+  if (rev && rev.content) {
+    setupReadingProgress();
+  } else {
+    hideReadingProgress();
+  }
+
+  // Setup TOC active state tracking
+  if (hasToc) {
+    setupTocTracking();
+  }
+
   window.scrollTo(0, 0);
+}
+
+// ── TOC Extraction & Rendering ────────────────────────────────────────────────
+
+function extractTOC(html) {
+  var items = [];
+  var re = /<(h[23])[^>]*(?:\sid="([^"]*)")?[^>]*>([\s\S]*?)<\/\1>/gi;
+  var match;
+  while ((match = re.exec(html)) !== null) {
+    var level = match[1].toLowerCase();
+    var text = match[3].replace(/<[^>]+>/g, '').trim();
+    var id = match[2] || 'toc-' + text.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+    items.push({ level: level, text: text, id: id });
+  }
+  return items;
+}
+
+function renderTocList(items) {
+  var h = '<ul class="toc-list">';
+  for (var i = 0; i < items.length; i++) {
+    var cls = items[i].level === 'h3' ? ' toc-h3' : '';
+    h += '<li class="toc-item' + cls + '"><a href="#" data-toc-id="' + esc(items[i].id) + '">' + esc(items[i].text) + '</a></li>';
+  }
+  h += '</ul>';
+  return h;
+}
+
+function setupTocTracking() {
+  // Add IDs to headings in the article body
+  var body = document.getElementById('articleBody');
+  if (!body) return;
+  var headings = body.querySelectorAll('h2, h3');
+  var tocIdx = 0;
+  var tocLinks = document.querySelectorAll('[data-toc-id]');
+  headings.forEach(function(heading) {
+    if (tocIdx < tocLinks.length) {
+      heading.id = tocLinks[tocIdx].getAttribute('data-toc-id');
+      tocIdx++;
+    }
+  });
+
+  // Click handling for TOC links
+  tocLinks.forEach(function(link) {
+    link.addEventListener('click', function(e) {
+      e.preventDefault();
+      var target = document.getElementById(this.getAttribute('data-toc-id'));
+      if (target) target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    });
+  });
+
+  // Scroll-based active state
+  var observer = new IntersectionObserver(function(entries) {
+    entries.forEach(function(entry) {
+      if (entry.isIntersecting) {
+        tocLinks.forEach(function(l) { l.classList.remove('active'); });
+        var activeLink = document.querySelector('[data-toc-id="' + entry.target.id + '"]');
+        if (activeLink) activeLink.classList.add('active');
+      }
+    });
+  }, { rootMargin: '-80px 0px -60% 0px' });
+
+  headings.forEach(function(heading) {
+    if (heading.id) observer.observe(heading);
+  });
+}
+
+// ── Reading Progress ──────────────────────────────────────────────────────────
+
+var progressHandler = null;
+
+function setupReadingProgress() {
+  var bar = document.getElementById('readingProgress');
+  if (!bar) return;
+  bar.style.display = 'block';
+  if (progressHandler) window.removeEventListener('scroll', progressHandler);
+  progressHandler = function() {
+    var scrollTop = window.scrollY;
+    var docHeight = document.documentElement.scrollHeight - window.innerHeight;
+    var pct = docHeight > 0 ? Math.min(100, (scrollTop / docHeight) * 100) : 0;
+    bar.style.width = pct + '%';
+  };
+  window.addEventListener('scroll', progressHandler, { passive: true });
+  progressHandler();
+}
+
+function hideReadingProgress() {
+  var bar = document.getElementById('readingProgress');
+  if (bar) { bar.style.display = 'none'; bar.style.width = '0%'; }
+  if (progressHandler) {
+    window.removeEventListener('scroll', progressHandler);
+    progressHandler = null;
+  }
+}
+
+// ── Next Article ──────────────────────────────────────────────────────────────
+
+function findNextArticle(currentSlug, contentType) {
+  var pages = allPages.filter(function(p) {
+    return p.content_type === contentType && p.visibility !== 'private' &&
+           (p.hasContent || p.status === 'published') && p.slug !== currentSlug;
+  }).sort(function(a, b) {
+    var ta = a.updated_at || '';
+    var tb = b.updated_at || '';
+    if (tb > ta) return 1;
+    if (tb < ta) return -1;
+    return 0;
+  });
+  if (!pages.length) return null;
+  // Find current position and return next
+  var currentIdx = -1;
+  for (var i = 0; i < pages.length; i++) {
+    if (pages[i].slug === currentSlug) { currentIdx = i; break; }
+  }
+  return pages[(currentIdx + 1) % pages.length] || pages[0];
 }
 
 // ── Link Rewriting ────────────────────────────────────────────────────────────
@@ -1051,6 +1704,26 @@ tBtn.addEventListener('click', function() {
 });
 
 applyTheme();
+
+// ── Mobile Nav ────────────────────────────────────────────────────────────────
+
+var mobileMenuBtn = document.getElementById('mobileMenuBtn');
+var mobileNav = document.getElementById('mobileNav');
+
+function closeMobileNav() {
+  if (mobileNav) mobileNav.classList.remove('open');
+}
+
+if (mobileMenuBtn && mobileNav) {
+  mobileMenuBtn.addEventListener('click', function() {
+    mobileNav.classList.toggle('open');
+  });
+  document.addEventListener('click', function(e) {
+    if (!mobileNav.contains(e.target) && e.target !== mobileMenuBtn) {
+      closeMobileNav();
+    }
+  });
+}
 
 // ── Admin Reveal (triple Escape) ──────────────────────────────────────────────
 
