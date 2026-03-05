@@ -104,7 +104,7 @@ const OPERATOR_PROFILES: Record<string, OperatorProfile> = {
     ],
   },
   SUP: {
-    code: 'SUP', symbol: '\u2225', color: '#f472b6',
+    code: 'SUP', symbol: '\u2295', color: '#f472b6',
     keywords: [
       'superposition', 'parallel', 'simultaneous', 'concurrent', 'overlay',
       'coexist', 'multiple', 'ambiguity', 'quantum', 'probabilistic',

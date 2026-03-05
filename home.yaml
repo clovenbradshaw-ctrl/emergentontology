@@ -85,7 +85,7 @@ operators:
     slug: alt
 
   - num: 8
-    symbol: "∥"
+    symbol: "⊕"
     code: SUP
     greek: "ψ"
     label: "Superposition"

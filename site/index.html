@@ -789,7 +789,7 @@ var OP_KEYWORDS = {
   SUP: ['superposition','parallel','simultaneous','concurrent','overlay','coexist','multiple','ambiguity','quantum','probabilistic','potential','possibility','spectrum','both','duality','superpose','stack','overlap','conflict','tension','paradox','contradiction','pluralism','multiplicity','indeterminate','uncertain'],
   REC: ['recursion','recursive','self-reference','loop','fractal','feedback','iteration','repeat','cycle','recurrence','spiral','meta','self-similar','nested','embed','reflect','mirror','autopoiesis','bootstrap','reentry','strange-loop','self-organize','emergence','complex','recombine','derive','projection']
 };
-var OP_META = { NUL:{sym:'\u2205',color:'#9ca3af'}, DES:{sym:'\u03B8',color:'#60a5fa'}, INS:{sym:'\u03B9',color:'#4ade80'}, SEG:{sym:'|',color:'#c084fc'}, CON:{sym:'\u22C8',color:'#34d399'}, SYN:{sym:'\u2228',color:'#818cf8'}, ALT:{sym:'\u223F',color:'#fbbf24'}, SUP:{sym:'\u2225',color:'#f472b6'}, REC:{sym:'\u27F3',color:'#fb923c'} };
+var OP_META = { NUL:{sym:'\u2205',color:'#9ca3af'}, DES:{sym:'\u03B8',color:'#60a5fa'}, INS:{sym:'\u03B9',color:'#4ade80'}, SEG:{sym:'|',color:'#c084fc'}, CON:{sym:'\u22C8',color:'#34d399'}, SYN:{sym:'\u2228',color:'#818cf8'}, ALT:{sym:'\u223F',color:'#fbbf24'}, SUP:{sym:'\u2295',color:'#f472b6'}, REC:{sym:'\u21AC',color:'#fb923c'} };
 function classifyItem(title, tags) {
   var text = ((title || '') + ' ' + (title || '') + ' ' + (tags || []).join(' ')).toLowerCase().split(/[^a-z0-9-]+/).filter(function(t) { return t.length > 1; });
   var freq = {};
