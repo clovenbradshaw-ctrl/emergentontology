@@ -93,7 +93,7 @@ operators:
     slug: sup
 
   - num: 9
-    symbol: "⟳"
+    symbol: "↬"
     code: REC
     greek: "ρ"
     label: "Recursion"
