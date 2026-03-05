@@ -555,11 +555,10 @@ main.home { max-width: 1100px; }
 /* Home sections */
 .home-section {
   margin-top: 2.5rem;
-  padding-bottom: 1.5rem;
-  border-bottom: 1px solid var(--border);
+  padding-bottom: 2rem;
 }
-.home-section:last-child { border-bottom: none; }
-.home-section--tags { border-bottom: none; }
+.home-section:last-child { padding-bottom: 0; }
+.home-section--tags { padding-bottom: 0; }
 .section-header {
   display: flex;
   align-items: center;
@@ -619,6 +618,7 @@ main.home { max-width: 1100px; }
 .card-title { font-size: 1rem; font-weight: 600; margin-bottom: .4rem; }
 .card-excerpt { font-size: .83rem; color: var(--text-dim); line-height: 1.5; margin: 0 0 .5rem; }
 .card-tags { display: flex; flex-wrap: wrap; gap: .3rem; margin-top: .5rem; }
+.card-meta { display: flex; align-items: center; gap: .5rem; margin-top: .5rem; font-size: .75rem; color: var(--text-dim); }
 
 /* Operator classification badge (grid cards) */
 .card-operator {
@@ -1068,13 +1068,176 @@ html[data-eo-auth] .btn-edit { display: inline-block; }
 /* ── Home Two-Column Layout ── */
 .home-columns {
   display: grid;
-  grid-template-columns: 1fr auto;
-  gap: 2rem;
+  grid-template-columns: 1fr 220px;
+  gap: 3rem;
   align-items: start;
 }
 .home-col-main { min-width: 0; }
 
-/* ── Rune Grid (3x3, right column) ── */
+/* ── Cube Sidebar ── */
+.cube-sidebar {
+  position: sticky;
+  top: 68px;
+  padding-top: 2.5rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.5rem;
+}
+
+/* ── 3D Phase Cube ── */
+.phase-cube-wrap {
+  perspective: 600px;
+  width: 200px;
+  height: 200px;
+}
+.phase-cube {
+  width: 200px;
+  height: 200px;
+  position: relative;
+  transform-style: preserve-3d;
+  transition: transform .7s cubic-bezier(.4, 0, .2, 1);
+}
+.phase-cube.no-transition { transition: none; }
+.cube-face {
+  position: absolute;
+  width: 200px;
+  height: 200px;
+  backface-visibility: hidden;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 3px;
+  padding: 3px;
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+}
+.cube-face--front  { transform: translateZ(100px); }
+.cube-face--right  { transform: rotateY(90deg) translateZ(100px); }
+.cube-face--back   { transform: rotateY(180deg) translateZ(100px); }
+.cube-face--left   { transform: rotateY(-90deg) translateZ(100px); }
+
+/* Cube rotation states */
+.phase-cube[data-face="0"] { transform: rotateY(0deg); }
+.phase-cube[data-face="1"] { transform: rotateY(-90deg); }
+.phase-cube[data-face="2"] { transform: rotateY(-180deg); }
+.phase-cube[data-face="3"] { transform: rotateY(-270deg); }
+
+/* Cube cells */
+.cube-cell {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: var(--bg);
+  border-radius: 6px;
+  border: 1px solid var(--border);
+  gap: 2px;
+  transition: border-color .15s, background .15s;
+  cursor: default;
+}
+.cube-cell:hover {
+  border-color: var(--accent);
+  background: var(--bg3);
+}
+.cube-cell-sym {
+  font-size: 1.3rem;
+  line-height: 1;
+  color: var(--text);
+  opacity: .8;
+}
+.cube-cell-code {
+  font-family: var(--font-mono);
+  font-size: .55rem;
+  font-weight: 600;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  color: var(--text-dim);
+}
+
+/* Row-based left border accents */
+.cube-cell.r0 { border-left: 2px solid #9b8ff5; }
+.cube-cell.r1 { border-left: 2px solid #5f8dd3; }
+.cube-cell.r2 { border-left: 2px solid #c47a5a; }
+
+/* Cube label + nav */
+.cube-label {
+  font-family: var(--font-mono);
+  font-size: .72rem;
+  font-weight: 600;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+  color: var(--text-dim);
+  text-align: center;
+  line-height: 1.4;
+}
+.cube-label-dim {
+  font-weight: 400;
+  color: var(--text-dim);
+  opacity: .6;
+  letter-spacing: .08em;
+}
+.cube-nav {
+  display: flex;
+  align-items: center;
+  gap: .5rem;
+}
+.cube-nav-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-radius: 50%;
+  color: var(--text-dim);
+  font-size: .85rem;
+  cursor: pointer;
+  transition: border-color .15s, color .15s, background .15s;
+  padding: 0;
+}
+.cube-nav-btn:hover {
+  border-color: var(--accent);
+  color: var(--text);
+  background: var(--bg3);
+}
+.cube-dots {
+  display: flex;
+  gap: .35rem;
+}
+.cube-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--border);
+  transition: background .3s;
+}
+.cube-dot.active { background: var(--accent); }
+
+/* Sidebar topics */
+.sidebar-topics {
+  width: 100%;
+}
+.sidebar-label {
+  font-size: .7rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: .08em;
+  color: var(--text-dim);
+  margin-bottom: .5rem;
+}
+.sidebar-tags .tag-cloud {
+  display: flex;
+  flex-wrap: wrap;
+  gap: .3rem;
+}
+.sidebar-tags .tag-lg {
+  font-size: .75rem;
+  padding: .2rem .6rem;
+}
+
+/* ── Rune Grid (kept for non-home pages) ── */
 .rune-grid-aside {
   position: sticky;
   top: 68px;
@@ -1270,6 +1433,20 @@ html[data-eo-auth] .btn-edit { display: inline-block; }
   .hero-title { font-size: 1.8rem; }
   .content-grid { grid-template-columns: 1fr 1fr; }
   .home-columns { grid-template-columns: 1fr; }
+  .cube-sidebar {
+    position: static;
+    padding-top: 0;
+    flex-direction: column;
+    align-items: center;
+  }
+  .phase-cube-wrap { width: 180px; height: 180px; }
+  .phase-cube { width: 180px; height: 180px; }
+  .cube-face { width: 180px; height: 180px; }
+  .cube-face--front  { transform: translateZ(90px); }
+  .cube-face--right  { transform: rotateY(90deg) translateZ(90px); }
+  .cube-face--back   { transform: rotateY(180deg) translateZ(90px); }
+  .cube-face--left   { transform: rotateY(-90deg) translateZ(90px); }
+  .sidebar-topics { display: none; }
   .rune-grid-aside { position: static; flex-direction: row; justify-content: center; padding-top: 0; }
   .rune-grid { width: 140px; }
 }
@@ -1280,6 +1457,13 @@ html[data-eo-auth] .btn-edit { display: inline-block; }
   .ops-bar { gap: .35rem; }
   .ops-pill { padding: .25rem .5rem; font-size: .75rem; }
   .ops-pill-sym { font-size: .85rem; }
+  .phase-cube-wrap { width: 160px; height: 160px; }
+  .phase-cube { width: 160px; height: 160px; }
+  .cube-face { width: 160px; height: 160px; }
+  .cube-face--front  { transform: translateZ(80px); }
+  .cube-face--right  { transform: rotateY(90deg) translateZ(80px); }
+  .cube-face--back   { transform: rotateY(180deg) translateZ(80px); }
+  .cube-face--left   { transform: rotateY(-90deg) translateZ(80px); }
 }
 
 /* ── Wiki export bar ── */
