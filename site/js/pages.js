@@ -478,9 +478,12 @@ export function renderWiki(el, slug) {
       setTitle(title);
       setBreadcrumbs([{ label: 'Wiki', href: BASE + '/wiki/' }, { label: title, href: BASE + '/wiki/' + slug + '/' }]);
 
-      var h = '<article class="wiki-content" data-eo-op="DES" data-eo-target="' + esc(content.content_id) + '">';
+      var entryOp = entry && entry.operator;
+      var opCode = (entryOp && entryOp.code) || 'DES';
+      var opSym = (entryOp && entryOp.symbol) || '\u03B8';
+      var h = '<article class="wiki-content" data-eo-op="' + opCode + '" data-eo-target="' + esc(content.content_id) + '">';
       h += '<header class="content-header"><h1>' + esc(title) + '</h1>';
-      h += '<code class="eo-op"><span class="eo-sym">\u22A1</span> <span class="eo-name">DES</span>(<span class="eo-target">' + esc(content.content_id) + '</span>)</code>';
+      h += '<code class="eo-op"><span class="eo-sym">' + opSym + '</span> <span class="eo-name">' + opCode + '</span>(<span class="eo-target">' + esc(content.content_id) + '</span>)</code>';
       h += '<div class="content-tags">';
       (content.meta.tags || []).forEach(function (t) { h += '<span class="tag">' + esc(t) + '</span>'; });
       h += '</div></header>';

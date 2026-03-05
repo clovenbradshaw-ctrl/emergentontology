@@ -430,8 +430,10 @@ function renderHome() {
     for (var wi = 0; wi < Math.min(wiki.length, MAX); wi++) {
       var p = wiki[wi];
       var ts = relativeTime(p.updated_at);
+      var opSym = (p.operator && p.operator.symbol) || '\u03B8';
+      var opColor = (p.operator && p.operator.color) || '#60a5fa';
       h += `<a class="wiki-list-item" onclick="navigate('${p.slug}')">
-        <div class="item-icon">\u22A1</div>
+        <div class="item-icon" style="color:${opColor}">${opSym}</div>
         <div><div class="item-title">${esc(p.title)}</div>
         <div class="item-meta">${ts || ''}</div></div>
       </a>`;
@@ -507,12 +509,14 @@ function renderSection(type) {
     <h1 style="font-size:2rem;font-weight:700;margin-bottom:1.5rem">${label}</h1>`;
   const pub = pages.filter(p => p.hasContent || p.status==='published');
   if (pub.length) {
-    var icon = type === 'blog' ? '\u270E' : type === 'experiments' ? '\u25C7' : '\u22A1';
+    var defaultIcon = type === 'blog' ? '\u270E' : type === 'experiments' ? '\u25C7' : '\u03B8';
     h += `<div class="wiki-list">`;
     for (const p of pub) {
       var ts = relativeTime(p.updated_at);
+      var itemIcon = (p.operator && p.operator.symbol) || defaultIcon;
+      var itemColor = (p.operator && p.operator.color) || '';
       h += `<a class="wiki-list-item" onclick="navigate('${p.slug}')">
-        <div class="item-icon">${icon}</div>
+        <div class="item-icon"${itemColor ? ' style="color:'+itemColor+'"' : ''}>${itemIcon}</div>
         <div><div class="item-title">${esc(p.title)}</div><div class="item-meta">${ts || p.status || ''}</div></div>
       </a>`;
     }
