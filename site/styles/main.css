@@ -963,6 +963,17 @@ html[data-eo-auth] .btn-edit { display: inline-block; }
 .post-nav-label { font-size: .78rem; text-transform: uppercase; letter-spacing: .06em; color: var(--accent); }
 .post-nav-title { font-size: .92rem; font-weight: 500; color: var(--text); }
 .post-nav a:hover .post-nav-title { color: var(--link); }
+#next-wiki-preview .post-nav-next { text-align: left; }
+.post-nav-snippet {
+  font-size: .85rem;
+  color: var(--text-dim);
+  line-height: 1.5;
+  margin-top: .25rem;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
 
 /* List card meta row */
 .list-card-meta { display: flex; align-items: center; gap: .75rem; font-size: .82rem; color: var(--text-dim); margin-top: .2rem; flex-wrap: wrap; }

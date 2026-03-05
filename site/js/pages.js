@@ -329,6 +329,33 @@ function wikiListItem(w) {
 // Wiki Article
 // ═══════════════════════════════════════════════════════════════════════════
 
+function getNextWikiEntry(currentSlug) {
+  var idx = getSiteIndex();
+  var wikis = sortByUpdated((idx.entries || []).filter(function (e) {
+    return e.content_type === 'wiki' && e.visibility === 'public' && e.status !== 'archived';
+  }));
+  if (wikis.length <= 1) return null;
+  var currentIndex = -1;
+  for (var i = 0; i < wikis.length; i++) {
+    if (wikis[i].slug === currentSlug) { currentIndex = i; break; }
+  }
+  if (currentIndex === -1) return null;
+  return wikis[(currentIndex + 1) % wikis.length];
+}
+
+function extractSnippet(revision, maxLen) {
+  maxLen = maxLen || 150;
+  var html = renderRevisionContent(revision);
+  var tmp = document.createElement('div');
+  tmp.innerHTML = html;
+  var text = (tmp.textContent || tmp.innerText || '').trim();
+  if (text.length <= maxLen) return text;
+  var truncated = text.slice(0, maxLen);
+  var lastSpace = truncated.lastIndexOf(' ');
+  if (lastSpace > maxLen * 0.6) truncated = truncated.slice(0, lastSpace);
+  return truncated + '\u2026';
+}
+
 export function renderWiki(el, slug) {
   var idx = getSiteIndex();
   el.className = '';
@@ -358,6 +385,8 @@ export function renderWiki(el, slug) {
       h += renderRevisionContent(content.current_revision);
       h += '</div>';
 
+      h += '<nav class="post-nav" id="next-wiki-preview"></nav>';
+
       h += revisionHistoryHtml(content);
 
       h += '<div class="content-actions eo-admin-only" hidden>';
@@ -365,6 +394,26 @@ export function renderWiki(el, slug) {
       h += '</article>';
       el.innerHTML = h;
       hydrateHtmlWidgets(el);
+
+      var nextEntry = getNextWikiEntry(slug);
+      if (nextEntry) {
+        loadContent(nextEntry.content_id).then(function (nextContent) {
+          var previewEl = document.getElementById('next-wiki-preview');
+          if (!previewEl) return;
+          if (!nextContent || !nextContent.current_revision) {
+            previewEl.style.display = 'none';
+            return;
+          }
+          var snippet = extractSnippet(nextContent.current_revision, 150);
+          var url = contentUrl('wiki', nextEntry.slug);
+          previewEl.innerHTML =
+            '<a class="post-nav-next" href="' + url + '">' +
+            '<span class="post-nav-label">Next article \u2192</span>' +
+            '<span class="post-nav-title">' + esc(nextEntry.title) + '</span>' +
+            (snippet ? '<span class="post-nav-snippet">' + esc(snippet) + '</span>' : '') +
+            '</a>';
+        });
+      }
     } else if (operator) {
       setTitle(operator.code + ' \u2014 ' + operator.label);
       setBreadcrumbs([{ label: 'Wiki', href: BASE + '/wiki/' }, { label: operator.code + ' \u2014 ' + operator.label, href: BASE + '/wiki/' + slug + '/' }]);
