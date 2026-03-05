@@ -88,7 +88,7 @@ export function renderHome(el) {
     return 0;
   });
   sections.forEach(function (sec) {
-    if (sec.type === 'wiki' && sec.entries.length === 0) return;
+    if (sec.entries.length === 0) return; // hide empty sections
     h += sectionHtml(sec.title, sec.type, sec.entries, COLUMN_LIMIT, sec.layout);
   });
 
@@ -101,25 +101,22 @@ export function renderHome(el) {
     h += '</ul></section>';
   }
 
-  if (allTags.length > 0) {
-    h += '<section class="home-section home-section--tags"><h2 class="section-title">Topics</h2><div class="tag-cloud">';
-    allTags.forEach(function (t) { h += '<span class="tag tag-lg">' + esc(t) + '</span>'; });
-    h += '</div></section>';
-  }
-
   h += '</div>'; // home-col-main
-  h += runeGridHtml();
+
+  // Sidebar: spinning cube + topics
+  h += phaseCubeHtml(allTags);
+
   h += '</div>'; // home-columns
 
   el.innerHTML = h;
-  initRuneGrid(el);
+  initPhaseCube(el);
   return Promise.resolve();
 }
 
 function sectionHtml(title, type, entries, max, layout) {
   var h = '<section class="home-section"><div class="section-header"><h2 class="section-title">' + esc(title) + '</h2></div>';
   if (entries.length === 0) {
-    h += '<p class="empty-note">No ' + type + ' entries published yet.</p>';
+    return ''; // hide empty sections entirely
   } else if (layout === 'grid') {
     h += '<div class="content-grid' + (type === 'experiment' ? ' content-grid--sm' : '') + '">';
     entries.slice(0, max).forEach(function (e) {
@@ -163,6 +160,9 @@ function cardHtml(type, e) {
     e.tags.slice(0, 3).forEach(function (t) { h += '<span class="tag">' + esc(t) + '</span>'; });
     h += '</div>';
   }
+  if (e.updated_at) {
+    h += '<div class="card-meta"><time>' + timeAgo(e.updated_at) + '</time></div>';
+  }
   h += '</a>';
   return h;
 }
@@ -171,15 +171,162 @@ function listCardHtml(type, e) {
   var op = classifyEntry(e);
   var h = '<a class="list-card" href="' + contentUrl(type, e.slug) + '">';
   h += '<span class="list-card-operator" style="color:' + op.color + '" title="' + op.code + '">' + op.symbol + '</span>';
-  h += '<div class="list-card-body"><h3 class="list-card-title">' + esc(e.title) + '</h3></div>';
+  h += '<div class="list-card-body"><h3 class="list-card-title">' + esc(e.title) + '</h3>';
+  if (e.updated_at) {
+    h += '<div class="list-card-meta"><time>' + timeAgo(e.updated_at) + '</time></div>';
+  }
+  h += '</div>';
   h += '<div class="list-card-arrow">\u2192</div></a>';
   return h;
 }
 
 // ═══════════════════════════════════════════════════════════════════════════
-// Rune Grid
+// Phase Cube (3D spinning cube with three faces: Site, Act, Resolution)
 // ═══════════════════════════════════════════════════════════════════════════
 
+var CUBE_FACES = [
+  {
+    name: 'Act',
+    dim: 'Mode \u00d7 Domain',
+    cells: [
+      { sym: '\u2205', code: 'NUL', row: 0 },
+      { sym: '\u22A1', code: 'DES', row: 0 },
+      { sym: '\u25B3', code: 'INS', row: 0 },
+      { sym: '|',      code: 'SEG', row: 1 },
+      { sym: '\u22C8', code: 'CON', row: 1 },
+      { sym: '\u2228', code: 'SYN', row: 1 },
+      { sym: '\u223F', code: 'ALT', row: 2 },
+      { sym: '\u2225', code: 'SUP', row: 2 },
+      { sym: '\u21AC', code: 'REC', row: 2 }
+    ]
+  },
+  {
+    name: 'Site',
+    dim: 'Domain \u00d7 Object',
+    cells: [
+      { sym: '\u25CC', code: 'VOID', row: 0 },
+      { sym: '\u25C6', code: 'ENTITY', row: 0 },
+      { sym: '\u25C7', code: 'KIND', row: 0 },
+      { sym: '\u224B', code: 'FIELD', row: 1 },
+      { sym: '\u2194', code: 'LINK', row: 1 },
+      { sym: '\u2B21', code: 'NETWORK', row: 1 },
+      { sym: '\u2248', code: 'ATMO', row: 2 },
+      { sym: '\u25CE', code: 'LENS', row: 2 },
+      { sym: '\u27D0', code: 'PARA', row: 2 }
+    ]
+  },
+  {
+    name: 'Resolution',
+    dim: 'Mode \u00d7 Object',
+    cells: [
+      { sym: '\u2300', code: 'CLRG', row: 0 },
+      { sym: '\u233F', code: 'CUT', row: 0 },
+      { sym: '\u21AF', code: 'UNRV', row: 0 },
+      { sym: '\u2322', code: 'TEND', row: 1 },
+      { sym: '\u2295', code: 'BIND', row: 1 },
+      { sym: '\u2261', code: 'TRCE', row: 1 },
+      { sym: '\u2299', code: 'CULV', row: 2 },
+      { sym: '\u2726', code: 'FORG', row: 2 },
+      { sym: '\u229E', code: 'COMP', row: 2 }
+    ]
+  }
+];
+
+function cubeFaceHtml(face, cssClass) {
+  var h = '<div class="cube-face ' + cssClass + '">';
+  face.cells.forEach(function (c) {
+    h += '<div class="cube-cell r' + c.row + '">';
+    h += '<span class="cube-cell-sym">' + c.sym + '</span>';
+    h += '<span class="cube-cell-code">' + c.code + '</span>';
+    h += '</div>';
+  });
+  h += '</div>';
+  return h;
+}
+
+function phaseCubeHtml(allTags) {
+  var faceClasses = ['cube-face--front', 'cube-face--right', 'cube-face--back', 'cube-face--left'];
+  var h = '<aside class="cube-sidebar" aria-label="Phase Cube">';
+
+  // Label
+  h += '<div class="cube-label" id="cube-label">';
+  h += '<div>' + CUBE_FACES[0].name + '</div>';
+  h += '<div class="cube-label-dim">' + CUBE_FACES[0].dim + '</div>';
+  h += '</div>';
+
+  // Cube
+  h += '<div class="phase-cube-wrap">';
+  h += '<div class="phase-cube" id="phase-cube" data-face="0">';
+  CUBE_FACES.forEach(function (face, i) {
+    h += cubeFaceHtml(face, faceClasses[i]);
+  });
+  // 4th face (left) — duplicate first face for seamless loop
+  h += cubeFaceHtml(CUBE_FACES[0], faceClasses[3]);
+  h += '</div></div>';
+
+  // Navigation dots + arrows
+  h += '<div class="cube-nav">';
+  h += '<button class="cube-nav-btn" id="cube-prev" title="Previous face">\u2039</button>';
+  h += '<div class="cube-dots" id="cube-dots">';
+  CUBE_FACES.forEach(function (_, i) {
+    h += '<span class="cube-dot' + (i === 0 ? ' active' : '') + '"></span>';
+  });
+  h += '</div>';
+  h += '<button class="cube-nav-btn" id="cube-next" title="Next face">\u203A</button>';
+  h += '</div>';
+
+  // Topics
+  if (allTags.length > 0) {
+    h += '<div class="sidebar-topics sidebar-tags">';
+    h += '<div class="sidebar-label">Topics</div>';
+    h += '<div class="tag-cloud">';
+    allTags.forEach(function (t) { h += '<span class="tag tag-lg">' + esc(t) + '</span>'; });
+    h += '</div></div>';
+  }
+
+  h += '</aside>';
+  return h;
+}
+
+function initPhaseCube(container) {
+  var cube = container.querySelector('#phase-cube');
+  var label = container.querySelector('#cube-label');
+  var dots = container.querySelectorAll('#cube-dots .cube-dot');
+  var prevBtn = container.querySelector('#cube-prev');
+  var nextBtn = container.querySelector('#cube-next');
+  if (!cube) return;
+
+  var current = 0;
+  var total = CUBE_FACES.length;
+
+  function show(index) {
+    current = ((index % total) + total) % total;
+    cube.setAttribute('data-face', String(current));
+    if (label) {
+      label.innerHTML = '<div>' + CUBE_FACES[current].name + '</div><div class="cube-label-dim">' + CUBE_FACES[current].dim + '</div>';
+    }
+    for (var i = 0; i < dots.length; i++) {
+      dots[i].classList.toggle('active', i === current);
+    }
+  }
+
+  if (prevBtn) prevBtn.addEventListener('click', function () { show(current - 1); });
+  if (nextBtn) nextBtn.addEventListener('click', function () { show(current + 1); });
+
+  // Auto-rotate every 6 seconds
+  var autoTimer = setInterval(function () { show(current + 1); }, 6000);
+
+  // Pause auto-rotate on hover
+  var wrap = container.querySelector('.phase-cube-wrap');
+  if (wrap) {
+    wrap.addEventListener('mouseenter', function () { clearInterval(autoTimer); });
+    wrap.addEventListener('mouseleave', function () {
+      autoTimer = setInterval(function () { show(current + 1); }, 6000);
+    });
+  }
+}
+
+// Legacy rune grid functions (kept for non-home pages)
 function runeGridHtml() {
   var h = '<aside class="rune-grid-aside" aria-label="Nine Operators">';
   h += '<div class="rune-grid" id="rune-grid">';
