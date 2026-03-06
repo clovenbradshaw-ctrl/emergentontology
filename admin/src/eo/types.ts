@@ -3,7 +3,7 @@
  * Single canonical event shape: op(target, operand, ctx)
  */
 
-export type EOOp = 'INS' | 'DES' | 'ALT' | 'SEG' | 'CON' | 'SYN' | 'SUP' | 'REC' | 'NUL';
+export type EOOp = 'INS' | 'SIG' | 'ALT' | 'SEG' | 'CON' | 'SYN' | 'SUP' | 'REC' | 'NUL';
 
 export interface EOEvent {
   op: EOOp;
@@ -32,7 +32,7 @@ export interface ContentMeta {
   visibility: Visibility;
   tags: string[];
   updated_at: string;
-  /** ISO timestamp when this content was first DES'd as public (visibility='public') */
+  /** ISO timestamp when this content was first SIG'd as public (visibility='public') */
   first_public_at?: string;
 }
 

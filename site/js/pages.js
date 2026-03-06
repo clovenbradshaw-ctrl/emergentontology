@@ -190,7 +190,7 @@ var CUBE_FACES = [
     dim: 'Mode \u00d7 Domain',
     cells: [
       { sym: '\u2205', code: 'NUL', row: 0 },
-      { sym: '\u22A1', code: 'DES', row: 0 },
+      { sym: '\u22A1', code: 'SIG', row: 0 },
       { sym: '\u25B3', code: 'INS', row: 0 },
       { sym: '|',      code: 'SEG', row: 1 },
       { sym: '\u22C8', code: 'CON', row: 1 },
@@ -744,7 +744,7 @@ export function renderBlog(el, slug) {
     setTitle(title);
     setBreadcrumbs([{ label: 'Blog', href: BASE + '/blog/' }, { label: title, href: BASE + '/blog/' + slug + '/' }]);
 
-    var h = '<article class="wiki-content" data-eo-op="DES" data-eo-target="' + esc(content.content_id) + '">';
+    var h = '<article class="wiki-content" data-eo-op="SIG" data-eo-target="' + esc(content.content_id) + '">';
     h += '<header class="content-header"><h1>' + esc(title) + '</h1>';
     h += '<div class="post-meta">';
     if (content.meta.updated_at) h += '<time>' + timeAgo(content.meta.updated_at) + '</time>';
@@ -828,7 +828,7 @@ export function renderExp(el, slug) {
     var kindIcons = { note: '\uD83D\uDCDD', dataset: '\uD83D\uDCC1', result: '\u2705', chart: '\uD83D\uDCC8', link: '\uD83D\uDD17', decision: '\u2696\uFE0F', html: '\uD83C\uDF10' };
     var entries = (content.entries || []).filter(function (e) { return !e.deleted; });
 
-    var h = '<article class="experiment-article" data-eo-op="DES" data-eo-target="' + esc(content.content_id) + '">';
+    var h = '<article class="experiment-article" data-eo-op="SIG" data-eo-target="' + esc(content.content_id) + '">';
     h += '<header class="content-header"><h1>' + esc(title) + '</h1>';
     h += '<div class="post-meta">';
     if (content.meta.updated_at) h += '<time>' + timeAgo(content.meta.updated_at) + '</time>';
@@ -900,7 +900,7 @@ export function renderPage(el, slug) {
     setTitle(title);
     setBreadcrumbs([{ label: title, href: BASE + '/page/' + slug + '/' }]);
 
-    var h = '<article data-eo-op="DES" data-eo-target="' + esc(content.content_id) + '">';
+    var h = '<article data-eo-op="SIG" data-eo-target="' + esc(content.content_id) + '">';
     h += '<header class="content-header"><h1>' + esc(title) + '</h1></header>';
 
     var blocks = content.blocks || [];

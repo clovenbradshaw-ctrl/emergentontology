@@ -22,7 +22,7 @@ Chapter 4: Operator Algebra & Composition
 Chapter 5: Transformations as EO Programs
 Chapter 6: Context Schemas & Multi-Valued Truth
 Chapter 7: Recursion, Self-Reference & Gödel
-§7.4 The Helix as Spiral: Second-Pass Operators (DES², CLM, spiral staircase)
+§7.4 The Helix as Spiral: Second-Pass Operators (SIG², CLM, spiral staircase)
 Part III: Practical Implementation
 Chapter 8: From Spreadsheet Formulas to Operator Fields
 Chapter 9: Modes: Decomposed, Not Primitive
@@ -53,7 +53,7 @@ Chapter 0: Preface & Introduction
 This handbook presents Emergent Ontology (EO) — a minimal, universal framework for understanding and implementing data transformations. EO's central insight is that all meaningful structural changes in a data system reduce to nine primitive operators.
 These nine operators are:
 NUL (∅) — Absence & nullity recognition
-DES (θ) — Designation & definition
+SIG (σ) — Designation & definition
 INS (ι) — Instantiation (creation)
 SEG (|) — Segmentation (splitting)
 CON (⋈) — Connection (relating)
@@ -119,7 +119,7 @@ So the caseworker approximates. She picks the least wrong option — "unsheltere
 The caseworker's forced choice enters the database as a fact about the person, not as an assertion made about them. The record does not say caseworker interpreted this as unsheltered under HUD's definition on this date, with reservations she noted in a field the system does not query. It says: housing_status = unsheltered. The provenance is gone. The frame is gone. The act of interpretation has disappeared, and what remains looks like a description of reality rather than a decision about how to classify it.
 She writes a note in the comments field that won't make a meaningful difference because the dashboards don't pull from comments. The comments field is the system's confession that its own categories are inadequate — published in a location the system never reads.
 This scene repeats in every institution that aims a relational database at a complex human problem. The emergency room nurse who knows the patient's chest pain is anxiety but must select a billing code. The parole officer who knows the violation was technical but must check a box that triggers a cascade. The teacher who knows the child is gifted but must report a test score that says otherwise. In every case, the same collapse: situated knowledge forced into categorical form, the provenance stripped, the judgment rendered invisible, the output treated as fact.
-Every operator in EO was designed to address a specific failure visible in this scene. NUL: the system cannot hold meaningful absence. DES: names hide their authorship. INS: creation forgets it is a choice. SEG: boundaries masquerade as facts. CON: links don't transform what they connect. SYN: wholes don't survive decomposition. ALT: there's no space between states. SUP: contradiction is treated as error. REC: the grammar cannot speak about itself.
+Every operator in EO was designed to address a specific failure visible in this scene. NUL: the system cannot hold meaningful absence. SIG: names hide their authorship. INS: creation forgets it is a choice. SEG: boundaries masquerade as facts. CON: links don't transform what they connect. SYN: wholes don't survive decomposition. ALT: there's no space between states. SUP: contradiction is treated as error. REC: the grammar cannot speak about itself.
 The rest of this chapter explains how we got here. The rest of this handbook explains what to build instead.
 1.1 The Problem: Accidental Complexity
 Every modern data system evolved its own vocabulary:
@@ -235,7 +235,7 @@ Notice what's missing
 Acknowledge gaps
 Identify needed structure
 Mark incompleteness
-2. DES (θ) — Designate/Define
+2. SIG (σ) — Designate/Define
 Name entities
 Assign types
 Define meanings
@@ -294,7 +294,7 @@ Remove SEG → Cannot filter, group, distinguish
 Remove SYN → Cannot aggregate, merge
 Remove SUP → Cannot represent conflict
 Remove REC → Cannot pivot, refactor identity
-Remove DES → Cannot type or define
+Remove SIG → Cannot type or define
 Remove NUL → Cannot express absence
 Remove CON → Cannot relate entities
 Remove INS → Cannot insert data
@@ -305,7 +305,7 @@ The nine operators form a minimal complete basis for data transformation.
 2.5 Convergent Evidence: Independent Witnesses to the Nine Operators
 EO's operator set is not merely consistent with other formal systems. It is independently corroborated by them. The following are not analogies — they are structural isomorphisms arrived at from different premises.
 The Relational Model as Independent Witness
-Edgar Codd's relational model (1970) independently generates a dependency structure isomorphic to EO's operator lattice. The familiar lifecycle of database development — null handling (NUL), schema design (DES), tuple insertion (INS), selection and projection (SEG), joins (CON), derived views (SYN), value mutation (ALT), multi-valued conflict states (SUP), schema migration (REC) — maps one-to-one onto the nine operators in their helix ordering.
+Edgar Codd's relational model (1970) independently generates a dependency structure isomorphic to EO's operator lattice. The familiar lifecycle of database development — null handling (NUL), schema design (SIG), tuple insertion (INS), selection and projection (SEG), joins (CON), derived views (SYN), value mutation (ALT), multi-valued conflict states (SUP), schema migration (REC) — maps one-to-one onto the nine operators in their helix ordering.
 This is not because EO borrowed from Codd. It is because both systems are constrained by the same requirements on coherent transformation. Codd discovered a particular mathematically tractable representation of a dependency chain that must exist in any system where structured information can arise, evolve, and be reinterpreted. The relational model is a local instantiation of a general transformation grammar. Codd is a validation oracle, not a source.
 The convergence is testable. Every alternative operator ordering — 1,295 of the 1,296 structurally admissible permutations — produces at least one step that is undefined, informationally trivial, or semantically vacuous when implemented as relational algebra operations against a concrete database. The helix is the unique survivor.
 Łukasiewicz's Specification
@@ -319,7 +319,7 @@ Natural Selection as Proof
 The formal elimination of 1,295 orderings and the cross-cultural convergence of forty traditions are, at bottom, the same process that natural selection performs: the elimination of dependency-violating configurations. Any system that tries to connect before differentiating, synthesize before connecting, or reframe before conflict reveals insufficiency fails to sustain itself. It doesn't persist. The helix ordering isn't just mathematically unique — it is the only ordering that survives contact with reality. The non-degeneracy criterion is a selection pressure, formalized.
 Biological Grounding: The Third Independent Witness
 Living systems provide a third independent witness alongside the formal proof and the relational model. Every reversal of adjacent operators in the helix produces not merely logical incoherence but biological impossibility:
-Reversing DES → INS (trying to instantiate before designating) corresponds to a cell dividing before differentiating — producing undifferentiated mass rather than organized tissue.
+Reversing SIG → INS (trying to instantiate before designating) corresponds to a cell dividing before differentiating — producing undifferentiated mass rather than organized tissue.
 Reversing SEG → CON (trying to connect before segmenting) corresponds to signaling pathways forming before cell boundaries exist — producing noise rather than communication.
 Reversing ALT → SUP (trying to hold superposition before alternation) corresponds to a nervous system attempting to maintain multiple simultaneous states before it can switch between them — the definition of seizure.
 The biological witness confirms the 3×3×3 architecture with scale as the third dimension. At the molecular scale, within the cell, across the organism — the same triadic dependency repeats. Developmental biology independently instantiates the helix because embryogenesis is the helix: the sequential emergence of distinction (Existence), organization (Structure), and adaptive response (Interpretation) under selection pressure.
@@ -335,7 +335,7 @@ Thomas Piketty demonstrated through three centuries of tax data that when the ra
 2.6 Why Nine Specifically?
 The number emerges from the 3×3 structure implicit in EO:
 Three axes of transformation (the triads):
-Existence (Being / Identity): NUL → DES → INS
+Existence (Being / Identity): NUL → SIG → INS
 Structure (Space / Relation): SEG → CON → SYN
 Interpretation (Time / Persistence): ALT → SUP → REC
 Three modes within each axis:
@@ -349,7 +349,7 @@ System Level
 Nine operators in three triads: Existence, Structure, Interpretation. The triads themselves form a Ground-Figure-Pattern relationship: Existence is the ground (the condition for anything to appear), Structure is the figure (what emerges from that ground), Interpretation is the pattern (what makes it intelligible and persistent).
 Triad Level
 Within each triad, the three operators play the same roles. The first operator is always the Ground — the condition for anything to happen. In Existence, the ground is void (NUL). In Structure, the ground is boundary (SEG). In Interpretation, the ground is change (ALT). Three different flavors of the same logical function: that without which nothing else can happen.
-The second operator is always the Figure — what emerges from the ground. In Existence, what emerges is a distinction (DES). In Structure, what emerges is connection (CON). In Interpretation, what emerges is simultaneous multiplicity (SUP). Three flavors of: what stands out.
+The second operator is always the Figure — what emerges from the ground. In Existence, what emerges is a distinction (SIG). In Structure, what emerges is connection (CON). In Interpretation, what emerges is simultaneous multiplicity (SUP). Three flavors of: what stands out.
 The third operator is always the Pattern — what makes it stick, what gives it intelligibility. In Existence, it sticks because it's an instance of a type (INS). In Structure, it sticks because elements fuse into a whole (SYN). In Interpretation, it sticks because the system recognizes itself (REC). Three flavors of: what holds.
 Operator Level
 Each individual operator has its own internal dialectic — a negative pole (−1), a positive pole (+1), and a synthesis value. The negative pole is the ground of that operator. The positive pole is the figure. The synthesis is the pattern.
@@ -361,7 +361,7 @@ Triads (the ontological domain): existence/structure/interpretation
 Referent (what the verb points to): particular/relationship/condition
 All three axes are nearly orthogonal (ARI ≈ 0.05), each producing significant geometric separation independently, confirmed across 30,104 verbs in 27 languages spanning 11 families. Together they define a 3 × 3 × 3 = 27-cell phase space — the 27 phaseposts — in which every cell carries genuine differential information. The coordinate system exists in the embedding geometry before any classification is applied: pure vector proximity (cosine similarity to cell centroids) recovers the correct operator 46.2% of the time (chance: 11.1%), with the sparse operators SUP and REC achieving the highest geometric coherence (66.2% and 61.6% respectively).
 The Vocabulary Problem as Evidence
-Multiple valid naming schemes for the triads are not confusion — they are the framework demonstrating its own thesis. Each naming is a DES operation performed from a different context of inquiry:
+Multiple valid naming schemes for the triads are not confusion — they are the framework demonstrating its own thesis. Each naming is a SIG operation performed from a different context of inquiry:
 Context
 Existence
 Structure
@@ -391,16 +391,16 @@ Ingredient
 Recipe
 Technique
 
-Each row is a different DES operation selecting a different vocabulary. The triads don't change. The angle of approach does. If the framework claims that phenomena disclose themselves differently under different designations — and then the framework itself discloses differently under different designations — then the framework is practicing what it preaches.
+Each row is a different SIG operation selecting a different vocabulary. The triads don't change. The angle of approach does. If the framework claims that phenomena disclose themselves differently under different designations — and then the framework itself discloses differently under different designations — then the framework is practicing what it preaches.
 The Six Questions as Fractal Test
 The journalistic rows in the table above deserve special attention because they reveal internal structure within the triads. The six foundational questions of any investigation — What, Where, When, Who, Why, How — split into two orders:
 First-order questions (deictic — pointing at the world): What / Where / When. These map to the three triads as experienced from outside: What exists? Where is it structured? When does it change?
 Second-order questions (reflexive — relating to the observer): Who / Why / How. These map to the same three triads as experienced from the inside: Who is the agent? Why this frame? How does it work?
-The key insight is that within each triad, the three operators recapitulate the What/How/Why structure at a finer grain. In the Existence triad: NUL answers "what is absent?", DES answers "how do we name it?", INS answers "why does this instance exist?" In the Structure triad: SEG answers "what are the boundaries?", CON answers "how are things linked?", SYN answers "why do they form a whole?" The pattern repeats at every level.
+The key insight is that within each triad, the three operators recapitulate the What/How/Why structure at a finer grain. In the Existence triad: NUL answers "what is absent?", SIG answers "how do we name it?", INS answers "why does this instance exist?" In the Structure triad: SEG answers "what are the boundaries?", CON answers "how are things linked?", SYN answers "why do they form a whole?" The pattern repeats at every level.
 This is not metaphor. It is the fractal self-similarity described above, observed through the lens of investigative practice. A good investigation needs all six questions answered. Empty cells in the six-question matrix indicate where to look next.
 2.8 The Helix: Two Views of One Object
 The nine operators compose into a unique dependency ordering called the helix:
-NUL → DES → INS → SEG → CON → SYN → ALT → SUP → REC
+NUL → SIG → INS → SEG → CON → SYN → ALT → SUP → REC
 This helix is the projection of a three-dimensional spiral onto a timeline. Think of a spiral staircase: each full turn passes through the same three positions (Ground, Figure, Pattern), but each turn is higher than the last. The three turns are the three triads — Existence, Structure, Interpretation — and the strict dependency between them means you must complete each turn before beginning the next.
 Within any single turn, the three operators are co-constitutive — they co-arise as aspects of one triadic event, the way a figure cannot exist without a ground and a pattern cannot exist without both. The ordering within a triad is one of logical presupposition, not temporal sequence: ground is the condition for figure, figure is the condition for pattern. This is a logical relationship, like the way syntax presupposes semantics — not a claim that one happens "first."
 Between turns, the dependency is strict. You cannot impose structure on what doesn't exist. You cannot interpret what has no structure. These are hard constraints, computationally verified: every ordering that violates inter-triad sequence produces operations that literally cannot execute because their input relations do not exist.
@@ -422,8 +422,8 @@ The missing dimension is time — the capacity to track becoming, hold trajector
 Three dimensions make new things representable that were literally unrepresentable before: trajectories (not just snapshots), constitutive relationships (not just links between pre-existing things), superposition (coexisting descriptions without forced collapse), and collective sense-making (multiple situated observers contributing overlapping, potentially contradictory observations held in productive tension).
 Power: genuine commons — collective intelligence held in common, governed by the people it describes. Danger: every degree of freedom makes violence subtler. A system that tracks trajectories can model futures, authorizing preemptive action on what hasn't happened yet. A system that maps constitutive relationships can target informal care networks with precision the relational model never achieved. The third degree's violence would be preemptive — action justified by a richer, more convincing representation of the person, convincingly dressed as understanding.
 This is why the conscience is architectural, not optional: provenance as primitive, perspectival barriers, the claim schema, self-examination. Without them, the third degree of freedom is a better surveillance system. With them, it is the first data architecture capable of holding what the caseworker actually knows.
-The εἶναι / γενέσθαι Boundary
-Aristotle's sea-battle passage (On Interpretation, Chapter 9) encodes this distinction in ancient Greek. The first clause uses εἶναι (to be — static, logical, identity space). The second uses γενέσθαι (to come into being — temporal, emergent, property space). Standard translations collapse both into "be," hiding the argument. Aristotle is saying: the logical disjunction holds necessarily (the domain of being), but neither the coming-into-being nor the not-coming-into-being of the event is necessary (the domain of becoming). The relational model lives in εἶναι — the domain where the either/or holds because the either/or is the structure of the space. Temporal freedom means entering γενέσθαι — the domain where the question "what is emerging?" can, by its very structure, return null.
+The εἶναι / γενέσσαι Boundary
+Aristotle's sea-battle passage (On Interpretation, Chapter 9) encodes this distinction in ancient Greek. The first clause uses εἶναι (to be — static, logical, identity space). The second uses γενέσσαι (to come into being — temporal, emergent, property space). Standard translations collapse both into "be," hiding the argument. Aristotle is saying: the logical disjunction holds necessarily (the domain of being), but neither the coming-into-being nor the not-coming-into-being of the event is necessary (the domain of becoming). The relational model lives in εἶναι — the domain where the either/or holds because the either/or is the structure of the space. Temporal freedom means entering γενέσσαι — the domain where the question "what is emerging?" can, by its very structure, return null.
 2.10 The Oracle at Delphi: Triadic Architecture as Diagnostic Tool
 The oracle at Delphi was not a database. It was a three-layer system that kept observation, interpretation, and decision formally separate — and whose collapse teaches what happens when those layers merge.
 Layer 1 — The Pythia generates (Existence). She sits over the fissure, absorbs vapors, enters an altered state, and produces raw utterance. This is the ground — unprocessed, unstructured, situated in a body. The inputs are worldly: petitioners bring real questions about real situations; the temple accumulates knowledge. But the output is not yet interpretation. It is disclosure.
@@ -455,14 +455,14 @@ The simulation instrument is made of what it measures. But this is true of any i
 2.13 Six Questions as Fractal Structure
 Journalism's six canonical questions — What, Where, When, Who, Why, How — exhibit EO's triadic structure at two levels.
 First-order questions (deictic — they point):
-What → Existence triad (NUL/DES/INS): What is present? What is absent? What has been named?
+What → Existence triad (NUL/SIG/INS): What is present? What is absent? What has been named?
 Where → Structure triad (SEG/CON/SYN): Where are the boundaries? Where are the connections? Where do things come together?
 When → Interpretation triad (ALT/SUP/REC): When did things change? When do multiple states coexist? When does the system recognize itself?
 Second-order questions (reflexive — they relate):
 Who → The agent dimension: Who designated? Who instantiated? Who drew the boundary?
 Why → The purpose dimension: Why this segmentation and not another? Why this connection? Why this synthesis?
 How → The mechanism dimension: How did the alternation occur? How are contradictions held? How does the grammar examine itself?
-Within each triad, the three operators recapitulate What/How/Why: NUL is what (what is absent), DES is how (how it is named), INS is why (why it now exists). This is not metaphor. It is the internal structure repeating at every level.
+Within each triad, the three operators recapitulate What/How/Why: NUL is what (what is absent), SIG is how (how it is named), INS is why (why it now exists). This is not metaphor. It is the internal structure repeating at every level.
 A good investigation needs all six questions answered. Empty cells in the six-question matrix indicate where to look next — a practical diagnostic tool for any domain analysis.
 
 Chapter 3: The Operators in Detail
@@ -472,7 +472,7 @@ Invariants
 Algebraic properties
 Canonical examples
 Relationship to traditional operations
-A note on reading these entries. Each operator is presented with both an accessible metaphor and a formal specification. The metaphors are pedagogical; the specifications are load-bearing. The operators are not "nothingness," "classification," "creation" — they are invariants: NUL is the formal recognition of absence as a representable state. DES is the act of carving a domain into stable types. INS is the instantiation of concrete entities under those types. SEG is the establishment of boundaries that allow relational differentiation. CON is the constraint that makes connection meaningful rather than combinatorial. SYN is the production of derived wholes not reducible to their components. ALT is mutation within a stable interpretive frame. SUP is the state in which multiple incompatible values must coexist without collapse. REC is the transformation of the interpretive frame itself. The helix is not a storytelling device. It is a dependency theorem.
+A note on reading these entries. Each operator is presented with both an accessible metaphor and a formal specification. The metaphors are pedagogical; the specifications are load-bearing. The operators are not "nothingness," "classification," "creation" — they are invariants: NUL is the formal recognition of absence as a representable state. SIG is the act of carving a domain into stable types. INS is the instantiation of concrete entities under those types. SEG is the establishment of boundaries that allow relational differentiation. CON is the constraint that makes connection meaningful rather than combinatorial. SYN is the production of derived wholes not reducible to their components. ALT is mutation within a stable interpretive frame. SUP is the state in which multiple incompatible values must coexist without collapse. REC is the transformation of the interpretive frame itself. The helix is not a storytelling device. It is a dependency theorem.
 3.1 NUL (∅) — Nullity / Absence Recognition
 A system that cannot hold nothing will fill every silence with noise.
 Type: State → State
@@ -509,22 +509,22 @@ Key Insight: All deletion in EO is NUL + SEG. Nothing is actually removed; it's 
 The NULL Problem: Three Kinds of Absence
 Database NULL conflates three ontologically distinct operations that EO separates:
 NUL (the void): The value does not exist. The field of absence itself — the condition of possibility for any representation. Codd's original intention: a formal marker for the limit of the system's knowledge.
-DES in its unmarked pole: The value has not been designated. The question applies, but no type or category has been assigned. The schema has a place for this information but has not yet named what goes there.
+SIG in its unmarked pole: The value has not been designated. The question applies, but no type or category has been assigned. The schema has a place for this information but has not yet named what goes there.
 INS in its negative mode: The value has not been instantiated. The type exists, the slot is defined, but no concrete instance has been created. An empty row that could be filled but hasn't been.
 Codd recognized part of this problem. In 1990, he proposed two distinct markers: the A-mark (missing but applicable — we don't know) and the I-mark (missing but inapplicable — the question doesn't apply here). The database industry rejected both, kept a single NULL, and spent four decades writing workarounds.
-EO explains why Codd was right but didn't go far enough. NULL collapsed the entire internal structure of the Existence triad — Ground (NUL), Figure (DES), and Pattern (INS) of absence — into a single undifferentiated token. This is the equivalent of answering What, How, and Why with a single word. The resulting ambiguity propagates through every query, every join, every dashboard built on top of the data.
+EO explains why Codd was right but didn't go far enough. NULL collapsed the entire internal structure of the Existence triad — Ground (NUL), Figure (SIG), and Pattern (INS) of absence — into a single undifferentiated token. This is the equivalent of answering What, How, and Why with a single word. The resulting ambiguity propagates through every query, every join, every dashboard built on top of the data.
 The degradation followed a four-stage sequence:
 Łukasiewicz's genuinely undetermined future → the third truth value as ontological condition
 Codd's NULL → the limit of representation, still philosophically honest
 SQL's NULL → "missing data" awaiting collection, a clerical backlog
 The mandatory field → pick something, because an empty field triggers an audit finding
 Each step lost something essential: first the ontological weight, then the epistemic humility, then the marker itself, and finally the capacity to recognize that anything was missing. The Large Language Model completes the arc — where silence would be the truthful response, the system generates confident prose instead.
-3.2 DES (θ) — Designation / Definition
+3.2 SIG (σ) — Designation / Definition
 Every name is a conquest that has forgotten there was a war.
 Type: (State, entity, label) → State
-Definition: DES applies definitions, labels, types, or interpretive frames to any component.
+Definition: SIG applies definitions, labels, types, or interpretive frames to any component.
 Formal Specification:
-DES(entity, definition)
+SIG(entity, definition)
  adds definition to D
  updates context C
  updates lineage L
@@ -537,10 +537,10 @@ Perspectives (views)
 Modes (transformation strategies)
 Codomain: System with enriched definitions.
 Invariants:
-DES never destroys definitions; it adds or supersedes
-DES is idempotent on identical definitions
+SIG never destroys definitions; it adds or supersedes
+SIG is idempotent on identical definitions
 Multiple definitions can coexist (leads to SUP if conflicting)
-DES is non-commutative with SEG and SYN
+SIG is non-commutative with SEG and SYN
 Examples in Practice:
 Naming a column
 Setting a Property type (string, number, date)
@@ -555,7 +555,7 @@ Excel cell formatting
 Schema definitions
 Metadata assignment
 Ontology labels
-Key Insight: All typing, schema definition, and constraints are just DES applications. DES is the "semantic backbone" of the system.
+Key Insight: All typing, schema definition, and constraints are just SIG applications. SIG is the "semantic backbone" of the system.
 3.3 INS (ι) — Instantiation
 What the schema won't hold doesn't stop existing. It just stops being seen.
 Type: (State, new observation) → State
@@ -798,7 +798,7 @@ Emergent categorization
 
 Chapter 4: Operator Algebra & Composition
 4.1 Operators as Atomic Transformations
-Each EO operator O ∈ {NUL, DES, INS, SEG, CON, ALT, SYN, SUP, REC} is an atomic transformation:
+Each EO operator O ∈ {NUL, SIG, INS, SEG, CON, ALT, SYN, SUP, REC} is an atomic transformation:
 O : S → S'
 Where:
 S = system state (Items, Observations, Relationships, Definitions, Context, Perspectives, Lineage)
@@ -833,7 +833,7 @@ Not all operators compose in the same order safely.
 Associative Operators
 These transformations don't depend on order:
 SEG ∘ SEG (multiple filters)
-DES ∘ DES (multiple definitions)
+SIG ∘ SIG (multiple definitions)
 INS ∘ INS (multiple insertions)
 CON ∘ CON (multiple connections)
 Non-Associative Operators
@@ -849,15 +849,15 @@ Synthesize-then-segment gives different result than segment-then-synthesize.
 EO is a non-commutative algebra — order matters, just like real systems.
 4.5 Operator Triads: Recurring Patterns
 Analysis of real transformations reveals recurring three-operator patterns that handle ~95% of use cases.
-Triad A: SEG → SYN → DES
+Triad A: SEG → SYN → SIG
 Purpose: Aggregations, summaries, rollups
 Pattern:
 Segment the input set (filter/group)
 Synthesize values (aggregate)
 Designate output with definition
 Examples:
-SEG(status=active) → SYN(sum) → DES("Active Revenue")
-SEG(group_by=category) → SYN(avg) → DES("Avg by Category")
+SEG(status=active) → SYN(sum) → SIG("Active Revenue")
+SEG(group_by=category) → SYN(avg) → SIG("Avg by Category")
 Triad B: CON → SEG → SYN
 Purpose: Relationship-based formulas, lookups, parent-child aggregations
 Pattern:
@@ -868,14 +868,14 @@ Examples:
 CON(Projects) → SEG(status=won) → SYN(sum, amount)
 CON(Children) → SEG(active) → SYN(count)
 Replaces: VLOOKUP, SUMIF, JOIN + GROUP BY, RELATED in BI tools
-Triad C: DES → SEG → CON
+Triad C: SIG → SEG → CON
 Purpose: Identity resolution, matching, classification
 Pattern:
 Designate matching criteria
 Segment candidates
 Connect chosen ones
 Examples:
-DES(fuzzy_match_threshold) → SEG(similarity>0.8) → CON(link_as_same)
+SIG(fuzzy_match_threshold) → SEG(similarity>0.8) → CON(link_as_same)
 Triad D: SUP → SEG → SYN
 Purpose: Conflict resolution, multi-truth evaluation
 Pattern:
@@ -913,18 +913,18 @@ Auto-joining schemas
 Dynamic identity resolution
 Tree/graph flattening and reformation
 Critical: REC is not an infinite loop. It's bounded recursion with a stopping criterion.
-4.7 Error Handling via NUL + DES
+4.7 Error Handling via NUL + SIG
 Traditional systems throw errors:
 #DIV/0!
 #N/A
 #VALUE!
 NaN
 Exceptions
-EO instead uses NUL + DES:
+EO instead uses NUL + SIG:
 Example:
-SYN(sum, []) → NUL with DES(reason="empty set")
+SYN(sum, []) → NUL with SIG(reason="empty set")
 Example:
-SYN(avg, non_numeric_values) → NUL with DES(reason="non-numeric input")
+SYN(avg, non_numeric_values) → NUL with SIG(reason="non-numeric input")
 This makes errors:
 Inspectable
 Explainable
@@ -934,7 +934,7 @@ Queryable
 When a transformation receives SUP inputs (multi-valued), it must handle branching:
 INS + SUP
 Creates additional observations, all preserved.
-DES + SUP
+SIG + SUP
 Applies definition to each branch.
 SEG + SUP
 Partitions without collapsing SUP (may create more branches).
@@ -959,7 +959,7 @@ Distribution (selective)
 SYN(SEG(A) ∘ SEG(B)) ≠ SEG(SYN(A) ∘ SYN(B))
 (Not generally distributive)
 Commutativity (limited)
-DES ∘ DES = DES ∘ DES (commutative)
+SIG ∘ SIG = SIG ∘ SIG (commutative)
  SEG ∘ SYN ≠ SYN ∘ SEG (non-commutative)
 4.10 Why This Algebra Matters
 The operator algebra provides:
@@ -989,7 +989,7 @@ Example Program:
  { op: "CON", params: { link: "Projects" } },
  { op: "SEG", params: { status: "active" } },
  { op: "SYN", params: { mode: "sum", property: "amount" } },
- { op: "DES", params: { label: "Active Project Revenue" } }
+ { op: "SIG", params: { label: "Active Project Revenue" } }
  ]
 5.3 Evaluation Model
 Evaluation proceeds left-to-right:
@@ -1082,7 +1082,7 @@ SYN (reduce)
 CON (expand into related items)
 SUP (union with conflict semantics)
 Context Transformations
-DES (label)
+SIG (label)
 ALT (switch)
 REC (rebuild)
 NUL (recognize absence)
@@ -1718,10 +1718,10 @@ System can set max iteration bounds as safety
 A question that recurs in EO discussions: is there a tenth operator? The answer is no — but the reason illuminates something deep about the helix.
 REC Does Not Add Parts. It Changes the Register.
 When the helix completes its first pass (NUL through REC), the system has all nine operators available. On the second pass, every operator encounters itself-plus-trace-of-REC. The operators don't change. Their context changes. Each operator on the second pass is the same operation performed with awareness of the full cycle.
-This is why CLM (the "claim" operation frequently discussed in EO implementation) is not a tenth operator. CLM is DES after REC — designation performed with the full cycle's context available. Call it DES². First-pass DES names naively: "this is a customer." Second-pass DES² names accountably: "this is a customer according to this observer, under this framework, with these reservations." The operation is the same. The register is different.
+This is why CLM (the "claim" operation frequently discussed in EO implementation) is not a tenth operator. CLM is SIG after REC — designation performed with the full cycle's context available. Call it SIG². First-pass SIG names naively: "this is a customer." Second-pass SIG² names accountably: "this is a customer according to this observer, under this framework, with these reservations." The operation is the same. The register is different.
 Every Operator Has a Second-Pass Form
 NUL²: Not mere absence but the capacity to hold absence deliberately. The Buddhist śūnyatā — emptiness as the condition of possibility. The database architect who designs a nullable field because the unknown is meaningful, not because they haven't gotten around to filling it in.
-DES²: Situated assertion. Not just "this is X" but "I am claiming this is X, and I know the claim could be otherwise." The claim schema. Provenance as primitive.
+SIG²: Situated assertion. Not just "this is X" but "I am claiming this is X, and I know the claim could be otherwise." The claim schema. Provenance as primitive.
 INS²: Instantiation with context. Not just "this record exists" but "this record was created by this agent, under these conditions, and the act of creation was itself a choice."
 SEG²: Reflexive boundary. Not just "here is the cut" but "here is the cut, and I know the cut could have been drawn elsewhere."
 CON²: Constitutive connection. Not just "these things are linked" but "this relationship makes the things what they are — remove it and the entities themselves change."
@@ -1735,7 +1735,7 @@ This is why the "tenth operator" question dissolves. There is no tenth operator 
 7.5 Self-Reference Patterns in EO
 Pattern A: Definitional Recursion
 Example: Defining "Active Customer"
-DES(term: "Active Customer", definition: {
+SIG(term: "Active Customer", definition: {
  has_purchase: { within: "30 days" },
  status: "not_churned",
  engagement_score: { computed_via: REC(...) } // recursive!
@@ -1801,16 +1801,16 @@ Given two Items that merged:
 SYN(ItemA, ItemB) → ItemC
 Question: Which is the "true" identity — A, B, or C?
 Answer: Undecidable within EO alone.
-Why: Identity is assigned by DES (definition), which is external to the operator system.
+Why: Identity is assigned by SIG (definition), which is external to the operator system.
 Resolution: User or domain provides definition. EO preserves lineage to all three.
 
 2. Correct Definition
 Given contradictory definitions:
-DES(Revenue, "GAAP_definition")
- DES(Revenue, "Internal_definition")
+SIG(Revenue, "GAAP_definition")
+ SIG(Revenue, "Internal_definition")
 Question: Which is "correct"?
 Answer: Undecidable within EO.
-Why: DES assigns meaning, but cannot evaluate meaning's correctness.
+Why: SIG assigns meaning, but cannot evaluate meaning's correctness.
 Resolution: SUP holds both; user/domain chooses via ALT or SYN.
 
 3. Optimal Perspective
@@ -1829,7 +1829,7 @@ SEG(group_by: ?)
 Question: What is the "natural" or "complete" categorization?
 Answer: Undecidable within EO.
 Why: Categorization depends on ontological commitment (external).
-Resolution: REC can detect emergent patterns, but ultimate categorization requires DES.
+Resolution: REC can detect emergent patterns, but ultimate categorization requires SIG.
 
 5. Final Resolution of SUP
 Given superposed values:
@@ -1859,7 +1859,7 @@ Evaluation semantics
 Cannot self-modify
 Cannot be redefined
 Layer 2: Definitions (Infinite, Emergent)
-Term definitions (DES)
+Term definitions (SIG)
 Modes (operator composites)
 Perspectives (REC outputs)
 Identity interpretations
@@ -1895,7 +1895,7 @@ Level 4: Perspectives
 REC applications of programs
  (made of Level 3, thus Level 2, thus Level 1)
 Level 5: Definitions
-DES applications shaping perspectives
+SIG applications shaping perspectives
  (made of Level 4, thus... Level 1)
 It is turtles all the way down!
 But There's a Bottom
@@ -1945,7 +1945,7 @@ Circular definitions detected during evaluation
 REC terminates at fixed point
 Example:
 // Seemingly paradoxical:
- DES(Category, definition: {
+ SIG(Category, definition: {
  includes: items_in_this_category, // self-reference!
  where: item.category === this
  })
@@ -2058,7 +2058,7 @@ Different goals (EO: data transformation; Haskell: computation)
 7.16 Philosophical Implications
 EO's Position on Truth
 Traditional systems assume: One truth per question.
-EO assumes: Multiple valid truths (SUP), chosen by context (DES).
+EO assumes: Multiple valid truths (SUP), chosen by context (SIG).
 This is:
 Perspectivism: Truth depends on frame of reference
 Pluralism: Multiple valid interpretations coexist
@@ -2122,7 +2122,7 @@ H.3 Two Axes: Positions Primary, Triads Secondary
 The 3 × 3 operator matrix has two axes — positions (columns: ground/figure/pattern, or equivalently differentiate/relate/generate) and triads (rows: existence/structure/interpretation). Both produce significant geometric separation independently.
 Positions are the primary axis, producing stronger separation in 23 of 27 languages. Mean position z-score: −66.1. Mean triad z-score: −48.2. How a verb transforms reality — whether it differentiates, relates, or generates — carves deeper geometric territory than what domain it operates on.
 Cross-linguistic variation runs along the position axis:
-Korean leans toward figure-position (DES = 27%)
+Korean leans toward figure-position (SIG = 27%)
 Wolof leans toward pattern-position (INS = 62%)
 Basque leans toward ground-position (ALT = 25.6%)
 The triads define universal territories; the positions define typological strategies for covering them.

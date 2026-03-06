@@ -7,7 +7,7 @@
  * a deterministic derived state object.  No network calls; pure function.
  *
  * Normal form:  op(target, operand)
- *   op      – one of INS | DES | ALT | SEG | CON | SYN | SUP | REC | NUL
+ *   op      – one of INS | SIG | ALT | SEG | CON | SYN | SUP | REC | NUL
  *   target  – stable address  "wiki:operators/rev:r_10"
  *   operand – op-specific payload
  *   ctx     – provenance (agent, ts, txn, parent, role)
@@ -338,11 +338,11 @@ function replayExperiment(contentId: string, meta: ContentMeta, events: MatrixEv
 }
 
 // ──────────────────────────────────────────────────────────────────────────────
-// Metadata extraction from state events and DES operations
+// Metadata extraction from state events and SIG operations
 // ──────────────────────────────────────────────────────────────────────────────
 
 function extractMeta(contentId: string, events: MatrixEvent[]): ContentMeta {
-  // Start with a default meta and override with DES operations + state events
+  // Start with a default meta and override with SIG operations + state events
   let meta: ContentMeta = {
     content_id: contentId,
     content_type: contentId.startsWith('page:') ? 'page'
@@ -365,11 +365,11 @@ function extractMeta(contentId: string, events: MatrixEvent[]): ContentMeta {
       continue;
     }
 
-    // DES operation: describe / set metadata fields
+    // SIG operation: describe / set metadata fields
     if (mxEvent.type === 'eo.op') {
       const e = mxEvent.content as EOEvent;
       if (!isEOEvent(e)) continue;
-      if (e.op === 'DES') {
+      if (e.op === 'SIG') {
         const o = e.operand as { set: Partial<ContentMeta> };
         if (o.set) meta = { ...meta, ...o.set, updated_at: e.ctx.ts };
       }
@@ -398,7 +398,7 @@ export function replaySiteIndex(events: MatrixEvent[]): SiteIndex {
 
     switch (e.op as EOOp) {
       case 'INS':
-      case 'DES': {
+      case 'SIG': {
         const o = e.operand as Omit<IndexEntry, 'event_id'>;
         const entry: IndexEntry = {
           content_id: childId,

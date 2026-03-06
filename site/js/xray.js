@@ -1,7 +1,7 @@
 /**
  * xray.js — Public site transparency mode.
  *
- * When enabled (Ctrl/Cmd+Shift+X or clicking the θ button),
+ * When enabled (Ctrl/Cmd+Shift+X or clicking the σ button),
  * overlays every content element with its EO operator annotation:
  *   op(target, operand)
  *
@@ -15,12 +15,12 @@
   let panel = null;
 
   const OP_COLORS = {
-    INS: '#4ade80', DES: '#60a5fa', ALT: '#fbbf24',
+    INS: '#4ade80', SIG: '#60a5fa', ALT: '#fbbf24',
     SEG: '#c084fc', CON: '#34d399', SYN: '#818cf8',
     SUP: '#f472b6', REC: '#fb923c', NUL: '#9ca3af',
   };
   const OP_SYMBOLS = {
-    INS: 'ι', DES: 'θ', ALT: '∿', SEG: '|',
+    INS: 'ι', SIG: 'σ', ALT: '∿', SEG: '|',
     CON: '⋈', SYN: '∨', SUP: '⊕', REC: '↬', NUL: '∅',
   };
 
@@ -46,7 +46,7 @@
   const btn = document.createElement('button');
   btn.id = 'xray-toggle';
   btn.title = 'Toggle X-Ray transparency mode (Ctrl+Shift+X)';
-  btn.textContent = 'θ';
+  btn.textContent = 'σ';
   Object.assign(btn.style, {
     position: 'fixed',
     bottom: '1rem',
@@ -175,7 +175,7 @@
       alignItems: 'center',
       gap: '8px',
     });
-    header.innerHTML = '<span style="color:#7c6fcd;font-weight:700">θ X-Ray — Event Stream</span>';
+    header.innerHTML = '<span style="color:#7c6fcd;font-weight:700">σ X-Ray — Event Stream</span>';
     const closeBtn = document.createElement('button');
     closeBtn.textContent = '×';
     Object.assign(closeBtn.style, { marginLeft: 'auto', background: 'none', border: 'none', color: '#888', cursor: 'pointer', fontSize: '14px' });

@@ -13,10 +13,10 @@ function makeCtx(agent: string, txn?: string): EOEvent['ctx'] {
 
 export function desContentMeta(contentId: string, fields: Partial<ContentMeta>, agent: string): EOEvent {
   return {
-    op: 'DES',
+    op: 'SIG',
     target: contentId,
     operand: { set: fields },
-    ctx: makeCtx(agent, `des-meta-${contentId}-${Date.now()}`),
+    ctx: makeCtx(agent, `sig-meta-${contentId}-${Date.now()}`),
   };
 }
 
@@ -41,7 +41,7 @@ export function desIndexEntry(
   agent: string
 ): EOEvent {
   return {
-    op: 'DES',
+    op: 'SIG',
     target: `site:index/index:${contentId}`,
     operand: { set: fields },
     ctx: makeCtx(agent),

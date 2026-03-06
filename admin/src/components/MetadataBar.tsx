@@ -77,7 +77,7 @@ export default function MetadataBar({ contentId, onTitleChange }: Props) {
 
     try {
       const desEvent = desIndexEntry(contentId, fields, agent);
-      const xid = `des-meta-${contentId}-${Date.now()}`;
+      const xid = `sig-meta-${contentId}-${Date.now()}`;
       registerEvent({ id: xid, op: desEvent.op, target: desEvent.target, operand: desEvent.operand, ts: desEvent.ctx.ts, agent: desEvent.ctx.agent, status: 'pending' });
       await addRecord(eventToPayload(desEvent));
       registerEvent({ id: xid, op: desEvent.op, target: desEvent.target, operand: desEvent.operand, ts: desEvent.ctx.ts, agent: desEvent.ctx.agent, status: 'sent' });

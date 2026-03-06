@@ -11,7 +11,7 @@ export var API_TIMEOUT = 15000;
 
 export var OPERATORS = [
   { num: 1, symbol: '\u2205', code: 'NUL', greek: '\u03BD', label: 'Absence & Nullity', color: '#9ca3af', slug: 'nul' },
-  { num: 2, symbol: '\u03B8', code: 'DES', greek: '\u03B8', label: 'Designation', color: '#60a5fa', slug: 'des' },
+  { num: 2, symbol: '\u03C3', code: 'SIG', greek: '\u03C3', label: 'Designation', color: '#60a5fa', slug: 'sig' },
   { num: 3, symbol: '\u03B9', code: 'INS', greek: '\u03B1', label: 'Instantiation', color: '#4ade80', slug: 'ins' },
   { num: 4, symbol: '|', code: 'SEG', greek: '\u03BA', label: 'Segmentation', color: '#c084fc', slug: 'seg' },
   { num: 5, symbol: '\u22C8', code: 'CON', greek: '\u03B5', label: 'Connection', color: '#34d399', slug: 'con' },

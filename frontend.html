@@ -297,7 +297,7 @@
 <nav class="topnav">
   <div class="topnav-left">
     <a class="topnav-brand" id="homeBtn">
-      <span class="brand-icon">θ</span>
+      <span class="brand-icon">σ</span>
       Emergent Ontology
     </a>
     <div class="topnav-links" id="navLinks">
@@ -327,7 +327,7 @@
 <script>
 const API = 'https://n8n.intelechia.com/webhook/81ca952a-3387-4837-8bcd-d18e3d28e758';
 const OPERATORS = [
-  { sym:'∅', name:'NUL', triad:'e' }, { sym:'θ', name:'DES', triad:'e' },
+  { sym:'∅', name:'NUL', triad:'e' }, { sym:'σ', name:'SIG', triad:'e' },
   { sym:'ι', name:'INS', triad:'e' }, { sym:'|', name:'SEG', triad:'s' },
   { sym:'⋈', name:'CON', triad:'s' }, { sym:'∨', name:'SYN', triad:'s' },
   { sym:'∿', name:'ALT', triad:'i' }, { sym:'⊕', name:'SUP', triad:'i' },
@@ -337,7 +337,7 @@ const OPERATORS = [
 // ── Inline classify ─────────────────────────────────────────────────────────
 var OP_KEYWORDS = {
   NUL: ['absence','nothing','void','null','empty','zero','negation','silence','blank','vacuum','lack','missing','removed','deleted','reset','undefined','nil','nul','inactive','disabled','gone','vanish'],
-  DES: ['designation','naming','identity','label','definition','describe','classify','categorize','metadata','title','attribute','property','schema','taxonomy','ontology','designate','identify','specify','declare','name','type','kind','class','tag','annotation','meaning','semantic','concept','term','vocabulary','reference'],
+  SIG: ['designation','naming','identity','label','definition','describe','classify','categorize','metadata','title','attribute','property','schema','taxonomy','ontology','designate','identify','specify','declare','name','type','kind','class','tag','annotation','meaning','semantic','concept','term','vocabulary','reference'],
   INS: ['instantiation','create','new','genesis','birth','origin','begin','start','initialize','generate','produce','construct','build','make','instantiate','emerge','spawn','introduce','launch','found','establish','invent','pioneer','first','prototype','original','novel','fresh','inception'],
   SEG: ['segmentation','divide','partition','separate','boundary','section','segment','split','decompose','analyze','part','component','module','fragment','chunk','slice','layer','hierarchy','structure','organize','breakdown','dissect','differentiate','distinguish','isolate','granular','discrete'],
   CON: ['connection','link','relation','network','graph','bridge','join','connect','associate','bind','couple','attach','integrate','interface','communicate','interact','reference','navigate','route','path','traverse','map','dependency','relationship','correlation','association','together','mutual','exchange'],
@@ -346,12 +346,12 @@ var OP_KEYWORDS = {
   SUP: ['superposition','parallel','simultaneous','concurrent','overlay','coexist','multiple','ambiguity','quantum','probabilistic','potential','possibility','spectrum','both','duality','superpose','stack','overlap','conflict','tension','paradox','contradiction','pluralism','multiplicity','indeterminate','uncertain'],
   REC: ['recursion','recursive','self-reference','loop','fractal','feedback','iteration','repeat','cycle','recurrence','spiral','meta','self-similar','nested','embed','reflect','mirror','autopoiesis','bootstrap','reentry','strange-loop','self-organize','emergence','complex','recombine','derive','projection']
 };
-var OP_META = { NUL:{sym:'∅',color:'#9ca3af'}, DES:{sym:'θ',color:'#60a5fa'}, INS:{sym:'ι',color:'#4ade80'}, SEG:{sym:'|',color:'#c084fc'}, CON:{sym:'⋈',color:'#34d399'}, SYN:{sym:'∨',color:'#818cf8'}, ALT:{sym:'∿',color:'#fbbf24'}, SUP:{sym:'⊕',color:'#f472b6'}, REC:{sym:'↬',color:'#fb923c'} };
+var OP_META = { NUL:{sym:'∅',color:'#9ca3af'}, SIG:{sym:'σ',color:'#60a5fa'}, INS:{sym:'ι',color:'#4ade80'}, SEG:{sym:'|',color:'#c084fc'}, CON:{sym:'⋈',color:'#34d399'}, SYN:{sym:'∨',color:'#818cf8'}, ALT:{sym:'∿',color:'#fbbf24'}, SUP:{sym:'⊕',color:'#f472b6'}, REC:{sym:'↬',color:'#fb923c'} };
 function classifyItem(title, tags) {
   var text = ((title || '') + ' ' + (title || '') + ' ' + (tags || []).join(' ')).toLowerCase().split(/[^a-z0-9-]+/).filter(t => t.length > 1);
   var freq = {};
   text.forEach(t => { freq[t] = (freq[t] || 0) + 1; });
-  var best = 'DES', bestScore = 0;
+  var best = 'SIG', bestScore = 0;
   for (var code in OP_KEYWORDS) {
     var score = 0;
     OP_KEYWORDS[code].forEach(k => { score += freq[k] || 0; });

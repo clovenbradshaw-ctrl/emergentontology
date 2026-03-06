@@ -38,8 +38,8 @@ const OPERATOR_PROFILES: Record<string, OperatorProfile> = {
       'inactive', 'disabled', 'gone', 'vanish',
     ],
   },
-  DES: {
-    code: 'DES', symbol: '\u03B8', color: '#60a5fa',
+  SIG: {
+    code: 'SIG', symbol: '\u03C3', color: '#60a5fa',
     keywords: [
       'designation', 'naming', 'identity', 'label', 'definition',
       'describe', 'classify', 'categorize', 'metadata', 'title',
@@ -276,7 +276,7 @@ export function classifyAll(
 
   // 3. For each document, compute TF-IDF score for each operator
   const results = new Map<string, OperatorClassification>();
-  const defaultOp = OPERATOR_PROFILES['DES'];
+  const defaultOp = OPERATOR_PROFILES['SIG'];
 
   for (const doc of docTokens) {
     const tf = termFrequency(doc.tokens);
