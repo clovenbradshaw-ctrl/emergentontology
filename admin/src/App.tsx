@@ -21,6 +21,7 @@ import ContentManager from './editors/ContentManager';
 import WikiEditor from './editors/WikiEditor';
 import PageBuilder from './editors/PageBuilder';
 import ExperimentEditor from './editors/ExperimentEditor';
+import GlobalSearchReplace from './editors/GlobalSearchReplace';
 import type { ContentType } from './eo/types';
 import { upsertCurrentRecord } from './xano/client';
 import { fetchCurrentRecordCached } from './xano/stateCache';
@@ -114,12 +115,14 @@ type Route =
   | { type: 'blog'; slug: string }
   | { type: 'page'; slug: string }
   | { type: 'exp'; slug: string }
+  | { type: 'search-replace' }
   | { type: 'settings' };
 
 function parseHash(hash: string): Route {
   const h = hash.replace('#', '');
   if (!h) return { type: 'list' };
   if (h === 'settings') return { type: 'settings' };
+  if (h === 'search-replace') return { type: 'search-replace' };
   const [section, ...rest] = h.split('/');
   const slug = rest.join('/');
   if (section === 'wiki' && slug) return { type: 'wiki', slug };
@@ -179,6 +182,7 @@ function AdminShell() {
   }
 
   const routeTitle = route.type === 'list' ? 'Content'
+    : route.type === 'search-replace' ? 'Search & Replace'
     : route.type === 'settings' ? 'Settings'
     : (() => {
         const slug = 'slug' in route ? route.slug : '';
@@ -197,6 +201,7 @@ function AdminShell() {
         <button className="admin-logo" onClick={() => navigate('')}>θ {settings.siteName || 'EO Admin'}</button>
         <nav className="admin-nav">
           <button className={`nav-btn ${route.type === 'list' ? 'active' : ''}`} onClick={() => navigate('')}>Content</button>
+          <button className={`nav-btn ${route.type === 'search-replace' ? 'active' : ''}`} onClick={() => navigate('search-replace')}>Search &amp; Replace</button>
           <button className={`nav-btn ${route.type === 'settings' ? 'active' : ''}`} onClick={() => navigate('settings')}>Settings</button>
         </nav>
         <div className="admin-header-right">
@@ -233,6 +238,9 @@ function AdminShell() {
         )}
         {route.type === 'exp' && (
           <ExperimentEditor contentId={`experiment:${route.slug}`} siteBase={SITE_BASE} />
+        )}
+        {route.type === 'search-replace' && (
+          <GlobalSearchReplace siteBase={SITE_BASE} />
         )}
         {route.type === 'settings' && <SettingsPanel />}
       </main>
