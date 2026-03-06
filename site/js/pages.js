@@ -235,7 +235,7 @@ var CUBE_FACES = [
 function cubeFaceHtml(face, cssClass) {
   var h = '<div class="cube-face ' + cssClass + '">';
   face.cells.forEach(function (c) {
-    h += '<div class="cube-cell r' + c.row + '">';
+    h += '<div class="cube-cell r' + c.row + '" data-code="' + c.code + '">';
     h += '<span class="cube-cell-sym">' + c.sym + '</span>';
     h += '<span class="cube-cell-code">' + c.code + '</span>';
     h += '</div>';
@@ -298,6 +298,7 @@ function initPhaseCube(container) {
 
   var current = 0;
   var total = CUBE_FACES.length;
+  var wrap = container.querySelector('.phase-cube-wrap');
 
   function show(index) {
     current = ((index % total) + total) % total;
@@ -316,14 +317,161 @@ function initPhaseCube(container) {
   // Auto-rotate every 6 seconds
   var autoTimer = setInterval(function () { show(current + 1); }, 6000);
 
-  // Pause auto-rotate on hover
-  var wrap = container.querySelector('.phase-cube-wrap');
+  function pauseAuto() { clearInterval(autoTimer); }
+  function resumeAuto() {
+    clearInterval(autoTimer);
+    autoTimer = setInterval(function () { show(current + 1); }, 6000);
+  }
+
+  // ── Swipe / drag to rotate ──
+  var dragStartX = 0;
+  var dragging = false;
+  var swipeThreshold = 40;
+
+  function onPointerDown(e) {
+    // Ignore if it's a button click
+    if (e.target.closest('.cube-nav-btn')) return;
+    dragging = true;
+    dragStartX = e.clientX || (e.touches && e.touches[0].clientX) || 0;
+    pauseAuto();
+    cube.classList.add('no-transition');
+  }
+
+  function onPointerMove(e) {
+    if (!dragging) return;
+    e.preventDefault();
+  }
+
+  function onPointerEnd(e) {
+    if (!dragging) return;
+    dragging = false;
+    cube.classList.remove('no-transition');
+    var endX = e.clientX || (e.changedTouches && e.changedTouches[0].clientX) || 0;
+    var dx = endX - dragStartX;
+    if (Math.abs(dx) > swipeThreshold) {
+      show(dx < 0 ? current + 1 : current - 1);
+    }
+    resumeAuto();
+  }
+
   if (wrap) {
-    wrap.addEventListener('mouseenter', function () { clearInterval(autoTimer); });
+    // Touch events
+    wrap.addEventListener('touchstart', onPointerDown, { passive: true });
+    wrap.addEventListener('touchmove', onPointerMove, { passive: false });
+    wrap.addEventListener('touchend', onPointerEnd);
+    // Mouse drag
+    wrap.addEventListener('mousedown', onPointerDown);
+    document.addEventListener('mousemove', onPointerMove);
+    document.addEventListener('mouseup', onPointerEnd);
+
+    // Pause auto-rotate on hover
+    wrap.addEventListener('mouseenter', pauseAuto);
     wrap.addEventListener('mouseleave', function () {
-      autoTimer = setInterval(function () { show(current + 1); }, 6000);
+      if (!dragging) resumeAuto();
+    });
+
+    // ── Multi-axis tilt (parallax hover) ──
+    wrap.addEventListener('mousemove', function (e) {
+      if (dragging) return;
+      var rect = wrap.getBoundingClientRect();
+      var x = (e.clientX - rect.left) / rect.width - 0.5;  // -0.5 to 0.5
+      var y = (e.clientY - rect.top) / rect.height - 0.5;
+      var tiltX = y * -12; // degrees
+      var tiltY = x * 12;
+      // Compose with current face rotation
+      var faceY = current * -90;
+      cube.style.transition = 'none';
+      cube.style.transform = 'rotateX(' + tiltX + 'deg) rotateY(' + (faceY + tiltY) + 'deg)';
+    });
+
+    wrap.addEventListener('mouseleave', function () {
+      // Snap back to face rotation
+      cube.style.transition = '';
+      cube.style.transform = '';
     });
   }
+
+  // ── Click to expand face detail ──
+  cube.addEventListener('click', function (e) {
+    if (dragging) return;
+    // Don't expand if the swipe was significant
+    var cell = e.target.closest('.cube-cell');
+    openCubeDetail(current, cell ? cell.getAttribute('data-code') : null);
+  });
+}
+
+// ── Cube Detail Overlay ──
+function openCubeDetail(faceIndex, highlightCode) {
+  // Remove existing overlay if any
+  var existing = document.querySelector('.cube-detail-overlay');
+  if (existing) existing.remove();
+
+  var face = CUBE_FACES[faceIndex];
+  var rowLabels = ['Mode', 'Domain', 'Object'];
+  var rowColors = ['#9b8ff5', '#5f8dd3', '#c47a5a'];
+
+  var h = '<div class="cube-detail-overlay" role="dialog" aria-label="' + face.name + ' face detail">';
+  h += '<div class="cube-detail-backdrop"></div>';
+  h += '<div class="cube-detail-panel">';
+
+  // Header
+  h += '<div class="cube-detail-header">';
+  h += '<div class="cube-detail-title">' + face.name + '</div>';
+  h += '<div class="cube-detail-dim">' + face.dim + '</div>';
+  h += '<button class="cube-detail-close" aria-label="Close">&times;</button>';
+  h += '</div>';
+
+  // Grid
+  h += '<div class="cube-detail-grid">';
+  face.cells.forEach(function (c, i) {
+    var rowIdx = c.row;
+    var isHighlighted = highlightCode && c.code === highlightCode;
+    h += '<div class="cube-detail-cell' + (isHighlighted ? ' highlighted' : '') + '" style="--row-color: ' + rowColors[rowIdx] + '">';
+    h += '<div class="cube-detail-cell-sym">' + c.sym + '</div>';
+    h += '<div class="cube-detail-cell-code">' + c.code + '</div>';
+    h += '</div>';
+  });
+  h += '</div>';
+
+  // Face indicator
+  h += '<div class="cube-detail-nav">';
+  CUBE_FACES.forEach(function (f, i) {
+    h += '<button class="cube-detail-nav-btn' + (i === faceIndex ? ' active' : '') + '" data-face="' + i + '">' + f.name + '</button>';
+  });
+  h += '</div>';
+
+  h += '</div></div>';
+
+  document.body.insertAdjacentHTML('beforeend', h);
+
+  var overlay = document.querySelector('.cube-detail-overlay');
+  // Trigger enter animation
+  requestAnimationFrame(function () {
+    overlay.classList.add('open');
+  });
+
+  // Close handlers
+  function close() {
+    overlay.classList.remove('open');
+    overlay.addEventListener('transitionend', function () { overlay.remove(); }, { once: true });
+    // Fallback removal
+    setTimeout(function () { if (overlay.parentNode) overlay.remove(); }, 400);
+  }
+
+  overlay.querySelector('.cube-detail-backdrop').addEventListener('click', close);
+  overlay.querySelector('.cube-detail-close').addEventListener('click', close);
+  document.addEventListener('keydown', function onKey(e) {
+    if (e.key === 'Escape') { close(); document.removeEventListener('keydown', onKey); }
+  });
+
+  // Face switching within overlay
+  overlay.querySelectorAll('.cube-detail-nav-btn').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      var idx = parseInt(btn.getAttribute('data-face'), 10);
+      close();
+      setTimeout(function () { openCubeDetail(idx, null); }, 300);
+    });
+  });
 }
 
 // Legacy rune grid functions (kept for non-home pages)
