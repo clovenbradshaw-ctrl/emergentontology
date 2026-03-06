@@ -1090,6 +1090,7 @@ html[data-eo-auth] .btn-edit { display: inline-block; }
   perspective: 600px;
   width: 200px;
   height: 200px;
+  overflow: visible;
 }
 .phase-cube {
   width: 200px;
@@ -1121,10 +1122,10 @@ html[data-eo-auth] .btn-edit { display: inline-block; }
 .cube-face--left   { transform: rotateY(-90deg) translateZ(100px); }
 .cube-face--bottom { transform: rotateX(90deg) translateZ(100px); }
 
-/* Cube rotation states */
-.phase-cube[data-face="0"] { transform: rotateX(0deg) rotateY(0deg); }
-.phase-cube[data-face="1"] { transform: rotateX(0deg) rotateY(-90deg); }
-.phase-cube[data-face="2"] { transform: rotateX(90deg) rotateY(0deg); }
+/* Cube rotation states – isometric tilt + spin around (1,1,1) diagonal */
+.phase-cube[data-face="0"] { transform: rotateX(-25deg) rotateY(35deg); }
+.phase-cube[data-face="1"] { transform: rotateX(-25deg) rotateY(35deg) rotate3d(1, 1, 1, -120deg); }
+.phase-cube[data-face="2"] { transform: rotateX(-25deg) rotateY(35deg) rotate3d(1, 1, 1, -240deg); }
 
 /* Cube cells */
 .cube-cell {
@@ -1174,6 +1175,9 @@ html[data-eo-auth] .btn-edit { display: inline-block; }
   text-align: center;
   line-height: 1.4;
   transition: opacity .3s ease;
+  position: relative;
+  z-index: 1;
+  margin-bottom: .5rem;
 }
 .cube-label.fading {
   opacity: 0;
@@ -1598,8 +1602,10 @@ html[data-eo-auth] .btn-edit { display: inline-block; }
   .cube-face { width: 180px; height: 180px; }
   .cube-face--front  { transform: translateZ(90px); }
   .cube-face--right  { transform: rotateY(90deg) translateZ(90px); }
+  .cube-face--top    { transform: rotateX(-90deg) translateZ(90px); }
   .cube-face--back   { transform: rotateY(180deg) translateZ(90px); }
   .cube-face--left   { transform: rotateY(-90deg) translateZ(90px); }
+  .cube-face--bottom { transform: rotateX(90deg) translateZ(90px); }
   .sidebar-topics { display: none; }
   .rune-grid-aside { position: static; flex-direction: row; justify-content: center; padding-top: 0; }
   .rune-grid { width: 140px; }
@@ -1616,8 +1622,10 @@ html[data-eo-auth] .btn-edit { display: inline-block; }
   .cube-face { width: 160px; height: 160px; }
   .cube-face--front  { transform: translateZ(80px); }
   .cube-face--right  { transform: rotateY(90deg) translateZ(80px); }
+  .cube-face--top    { transform: rotateX(-90deg) translateZ(80px); }
   .cube-face--back   { transform: rotateY(180deg) translateZ(80px); }
   .cube-face--left   { transform: rotateY(-90deg) translateZ(80px); }
+  .cube-face--bottom { transform: rotateX(90deg) translateZ(80px); }
 }
 
 /* ── Wiki export bar ── */
