@@ -317,7 +317,7 @@ function initPhaseCube(container) {
 
   function applyTransform(transition) {
     var spin = CUBE_SPIN[current] || 0;
-    cube.style.transition = transition ? '' : 'none';
+    cube.style.transition = transition ? 'all 0.6s ease' : 'none';
     cube.style.transform = 'rotateX(' + (baseX + userX) + 'deg) rotateY(' + (baseY + userY) + 'deg) rotate3d(1, 1, 1, ' + spin + 'deg)';
   }
 
