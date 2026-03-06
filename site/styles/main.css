@@ -1173,6 +1173,10 @@ html[data-eo-auth] .btn-edit { display: inline-block; }
   color: var(--text-dim);
   text-align: center;
   line-height: 1.4;
+  transition: opacity .3s ease;
+}
+.cube-label.fading {
+  opacity: 0;
 }
 .cube-label-dim {
   font-weight: 400;

@@ -307,7 +307,11 @@ function initPhaseCube(container) {
     current = ((index % total) + total) % total;
     cube.setAttribute('data-face', String(current));
     if (label) {
-      label.innerHTML = '<div>' + CUBE_FACES[current].name + '</div><div class="cube-label-dim">' + CUBE_FACES[current].dim + '</div>';
+      label.classList.add('fading');
+      setTimeout(function () {
+        label.innerHTML = '<div>' + CUBE_FACES[current].name + '</div><div class="cube-label-dim">' + CUBE_FACES[current].dim + '</div>';
+        label.classList.remove('fading');
+      }, 300);
     }
     for (var i = 0; i < dots.length; i++) {
       dots[i].classList.toggle('active', i === current);
@@ -317,13 +321,13 @@ function initPhaseCube(container) {
   if (prevBtn) prevBtn.addEventListener('click', function () { show(current - 1); });
   if (nextBtn) nextBtn.addEventListener('click', function () { show(current + 1); });
 
-  // Auto-rotate every 6 seconds
-  var autoTimer = setInterval(function () { show(current + 1); }, 6000);
+  // Auto-rotate every 15 seconds
+  var autoTimer = setInterval(function () { show(current + 1); }, 15000);
 
   function pauseAuto() { clearInterval(autoTimer); }
   function resumeAuto() {
     clearInterval(autoTimer);
-    autoTimer = setInterval(function () { show(current + 1); }, 6000);
+    autoTimer = setInterval(function () { show(current + 1); }, 15000);
   }
 
   // ── Swipe / drag to rotate ──
