@@ -377,12 +377,8 @@ function initPhaseCube(container) {
       if (!dragging) resumeAuto();
     });
 
-    // Base rotations for each face (X, Y)
-    var CUBE_ROTATIONS = [
-      { x: 0, y: 0 },    // face 0: front (Act)
-      { x: 0, y: -90 },  // face 1: right/side (Site)
-      { x: 90, y: 0 }    // face 2: top (Resolution)
-    ];
+    // Base spin angles around the (1,1,1) diagonal axis
+    var CUBE_SPIN = [0, -120, -240]; // face 0: front, face 1: right, face 2: top
 
     // ── Multi-axis tilt (parallax hover) ──
     wrap.addEventListener('mousemove', function (e) {
@@ -392,10 +388,9 @@ function initPhaseCube(container) {
       var y = (e.clientY - rect.top) / rect.height - 0.5;
       var tiltX = y * -12; // degrees
       var tiltY = x * 12;
-      // Compose with current face rotation
-      var rot = CUBE_ROTATIONS[current] || { x: 0, y: 0 };
+      var spin = CUBE_SPIN[current] || 0;
       cube.style.transition = 'none';
-      cube.style.transform = 'rotateX(' + (rot.x + tiltX) + 'deg) rotateY(' + (rot.y + tiltY) + 'deg)';
+      cube.style.transform = 'rotateX(' + (-25 + tiltX) + 'deg) rotateY(' + (35 + tiltY) + 'deg) rotate3d(1, 1, 1, ' + spin + 'deg)';
     });
 
     wrap.addEventListener('mouseleave', function () {
