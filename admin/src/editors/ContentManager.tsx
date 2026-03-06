@@ -21,7 +21,7 @@ import {
   eventToPayload,
   type XanoCurrentRecord,
 } from '../xano/client';
-import { loadState, fetchCurrentRecordCached } from '../xano/stateCache';
+import { loadState, fetchCurrentRecordCached, fetchAllCurrentRecordsCached } from '../xano/stateCache';
 import { insIndexEntry, desContentMeta, desIndexEntry, nulIndexEntry } from '../eo/events';
 import type { ContentType, ContentStatus, Visibility } from '../eo/types';
 import { SPECIAL_PAGES } from '../eo/constants';
@@ -112,7 +112,46 @@ export default function ContentManager({ siteBase, onOpen }: Props) {
       );
 
       if (result.record) indexRecordRef.current = result.record;
-      if (result.state) setEntries(result.state.entries ?? []);
+      let indexEntries = result.state?.entries ?? [];
+
+      // Discover orphan records in Xano that aren't in site:index
+      try {
+        const allRecords = await fetchAllCurrentRecordsCached();
+        const CONTENT_PREFIXES = ['wiki:', 'blog:', 'experiment:', 'page:'];
+        const knownIds = new Set(indexEntries.map(e => e.content_id));
+
+        for (const rec of allRecords) {
+          const rid = rec.record_id;
+          if (knownIds.has(rid)) continue;
+          if (!CONTENT_PREFIXES.some(p => rid.startsWith(p))) continue;
+
+          // Parse the record to extract meta
+          let parsed: Record<string, unknown> | null = null;
+          try { parsed = JSON.parse(rec.values); } catch { continue; }
+          if (!parsed) continue;
+
+          const meta = (parsed.meta ?? {}) as Record<string, unknown>;
+          const parts = rid.split(':');
+          const prefix = parts[0];
+          const slug = String(meta.slug ?? parts.slice(1).join(':'));
+          const contentType = String(meta.content_type ?? prefix) as ContentType;
+
+          indexEntries = [...indexEntries, {
+            content_id: rid,
+            slug,
+            title: String(meta.title ?? slug),
+            content_type: contentType,
+            status: (meta.status as ContentStatus) ?? 'draft',
+            visibility: (meta.visibility as Visibility) ?? 'public',
+            tags: (meta.tags as string[]) ?? [],
+          }];
+          knownIds.add(rid);
+        }
+      } catch (err) {
+        console.warn('[ContentManager] Orphan record discovery failed:', err);
+      }
+
+      setEntries(indexEntries);
       setLoading(false);
     }
 
