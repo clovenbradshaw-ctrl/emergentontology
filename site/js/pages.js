@@ -245,7 +245,9 @@ function cubeFaceHtml(face, cssClass) {
 }
 
 function phaseCubeHtml(allTags) {
-  var faceClasses = ['cube-face--front', 'cube-face--right', 'cube-face--back', 'cube-face--left'];
+  // Front/Right/Top faces + mirrored Back/Left/Bottom faces
+  var mainClasses = ['cube-face--front', 'cube-face--right', 'cube-face--top'];
+  var backClasses = ['cube-face--back',  'cube-face--left',  'cube-face--bottom'];
   var h = '<aside class="cube-sidebar" aria-label="Phase Cube">';
 
   // Label
@@ -258,10 +260,11 @@ function phaseCubeHtml(allTags) {
   h += '<div class="phase-cube-wrap">';
   h += '<div class="phase-cube" id="phase-cube" data-face="0">';
   CUBE_FACES.forEach(function (face, i) {
-    h += cubeFaceHtml(face, faceClasses[i]);
+    // Main face (front, right, top)
+    h += cubeFaceHtml(face, mainClasses[i]);
+    // Mirrored back face (back, left, bottom)
+    h += cubeFaceHtml(face, backClasses[i]);
   });
-  // 4th face (left) — duplicate first face for seamless loop
-  h += cubeFaceHtml(CUBE_FACES[0], faceClasses[3]);
   h += '</div></div>';
 
   // Navigation dots + arrows
@@ -370,6 +373,13 @@ function initPhaseCube(container) {
       if (!dragging) resumeAuto();
     });
 
+    // Base rotations for each face (X, Y)
+    var CUBE_ROTATIONS = [
+      { x: 0, y: 0 },    // face 0: front (Act)
+      { x: 0, y: -90 },  // face 1: right/side (Site)
+      { x: 90, y: 0 }    // face 2: top (Resolution)
+    ];
+
     // ── Multi-axis tilt (parallax hover) ──
     wrap.addEventListener('mousemove', function (e) {
       if (dragging) return;
@@ -379,9 +389,9 @@ function initPhaseCube(container) {
       var tiltX = y * -12; // degrees
       var tiltY = x * 12;
       // Compose with current face rotation
-      var faceY = current * -90;
+      var rot = CUBE_ROTATIONS[current] || { x: 0, y: 0 };
       cube.style.transition = 'none';
-      cube.style.transform = 'rotateX(' + tiltX + 'deg) rotateY(' + (faceY + tiltY) + 'deg)';
+      cube.style.transform = 'rotateX(' + (rot.x + tiltX) + 'deg) rotateY(' + (rot.y + tiltY) + 'deg)';
     });
 
     wrap.addEventListener('mouseleave', function () {

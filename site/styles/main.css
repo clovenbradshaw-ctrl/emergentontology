@@ -1112,16 +1112,19 @@ html[data-eo-auth] .btn-edit { display: inline-block; }
   border: 1px solid var(--border);
   border-radius: 10px;
 }
+/* Main faces */
 .cube-face--front  { transform: translateZ(100px); }
 .cube-face--right  { transform: rotateY(90deg) translateZ(100px); }
+.cube-face--top    { transform: rotateX(-90deg) translateZ(100px); }
+/* Back faces (mirrored) */
 .cube-face--back   { transform: rotateY(180deg) translateZ(100px); }
 .cube-face--left   { transform: rotateY(-90deg) translateZ(100px); }
+.cube-face--bottom { transform: rotateX(90deg) translateZ(100px); }
 
 /* Cube rotation states */
-.phase-cube[data-face="0"] { transform: rotateY(0deg); }
-.phase-cube[data-face="1"] { transform: rotateY(-90deg); }
-.phase-cube[data-face="2"] { transform: rotateY(-180deg); }
-.phase-cube[data-face="3"] { transform: rotateY(-270deg); }
+.phase-cube[data-face="0"] { transform: rotateX(0deg) rotateY(0deg); }
+.phase-cube[data-face="1"] { transform: rotateX(0deg) rotateY(-90deg); }
+.phase-cube[data-face="2"] { transform: rotateX(90deg) rotateY(0deg); }
 
 /* Cube cells */
 .cube-cell {
