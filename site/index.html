@@ -1383,6 +1383,7 @@ function renderPage(slug) {
 
   // Build rendered content HTML first (for TOC extraction)
   var bodyHtml = '';
+  var hasBlocks = parsed && parsed.blocks && parsed.blocks.length > 0 && parsed.block_order && parsed.block_order.length > 0;
   if (rev && rev.content) {
     var content = rev.content;
     var fmt = rev.format || (looksLikeHtml(content) ? 'html' : 'markdown');
@@ -1391,6 +1392,8 @@ function renderPage(slug) {
     } else {
       bodyHtml = rewriteLinks(renderMarkdown(content));
     }
+  } else if (hasBlocks) {
+    bodyHtml = renderBlocks(parsed);
   }
 
   // Extract TOC from headings
@@ -1485,7 +1488,7 @@ function renderPage(slug) {
       h += '</div></div>';
     }
     h += '</div>';
-  } else if (!rev || !rev.content) {
+  } else if ((!rev || !rev.content) && !hasBlocks) {
     h += '<div class="wiki-body"><h1>' + esc(meta.title || slug) + '</h1></div>';
     h += '<div class="empty-state"><div class="empty-state-icon">\u270D</div>';
     h += '<div class="empty-state-title">No content yet</div>';
@@ -1738,6 +1741,150 @@ function renderMarkdown(text) {
     })
     .replace(/\n\n/g, '</p><p>')
     .replace(/^(?!<[hulot])(.+)/gm, '<p>$1</p>');
+}
+
+// ── Block Renderer ───────────────────────────────────────────────────────────
+
+function renderBlock(block, page) {
+  if (block.deleted) return '';
+  var d = block.data || {};
+  switch (block.block_type) {
+    case 'text':
+      return renderMarkdown(String(d.md || d.text || ''));
+
+    case 'heading':
+      var hText = String(d.text || '');
+      var hLevel = Math.min(Math.max(Number(d.level || 2), 1), 6);
+      var hSlug = hText.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
+      return '<h' + hLevel + ' id="' + hSlug + '" class="block block-heading">' + esc(hText) + '</h' + hLevel + '>';
+
+    case 'callout':
+      return '<aside class="block block-callout callout-' + (d.kind || 'info') + '"><div>' + renderMarkdown(String(d.text || '')) + '</div></aside>';
+
+    case 'quote':
+      return '<blockquote class="block block-quote"><p>' + esc(String(d.text || '')) + '</p>' +
+        (d.attribution ? '<cite>\u2014 ' + esc(String(d.attribution)) + '</cite>' : '') + '</blockquote>';
+
+    case 'divider':
+      return '<hr class="block block-divider">';
+
+    case 'spacer':
+      return '<div class="block block-spacer" style="height:' + esc(String(d.height || '2rem')) + '"></div>';
+
+    case 'image':
+      return '<figure class="block block-image"><img src="' + esc(String(d.src || '')) + '" alt="' + esc(String(d.alt || '')) + '" loading="lazy">' +
+        (d.caption ? '<figcaption>' + esc(String(d.caption)) + '</figcaption>' : '') + '</figure>';
+
+    case 'code':
+      return '<div class="block block-code"><pre><code' +
+        (d.lang ? ' class="language-' + esc(String(d.lang)) + '"' : '') + '>' +
+        esc(String(d.code || '')) + '</code></pre></div>';
+
+    case 'button':
+      var bText = esc(String(d.text || 'Click here'));
+      var bStyle = esc(String(d.style || 'primary'));
+      var bAction = String(d.action || 'link');
+      if (bAction === 'copy') {
+        return '<div class="block block-button"><button class="btn btn-' + bStyle + '" data-action="copy" data-copy-text="' + esc(String(d.copyText || '')) + '">' + bText + '</button></div>';
+      }
+      return '<div class="block block-button"><a class="btn btn-' + bStyle + '" href="' + esc(String(d.url || '#')) + '">' + bText + '</a></div>';
+
+    case 'embed':
+      var eSrc = String(d.src || '');
+      if (!eSrc) return '';
+      var eTitle = String(d.title || '');
+      return '<figure class="block block-embed"><iframe src="' + esc(eSrc) + '" title="' + esc(eTitle) + '" loading="lazy" allowfullscreen frameborder="0"></iframe>' +
+        (eTitle ? '<figcaption>' + esc(eTitle) + '</figcaption>' : '') + '</figure>';
+
+    case 'video':
+      var vsrc = String(d.src || '');
+      if (!vsrc) return '';
+      var embedSrc = vsrc;
+      var yt = vsrc.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/)([a-zA-Z0-9_-]+)/);
+      if (yt) embedSrc = 'https://www.youtube.com/embed/' + yt[1];
+      var vim = vsrc.match(/vimeo\.com\/(\d+)/);
+      if (vim) embedSrc = 'https://player.vimeo.com/video/' + vim[1];
+      var vCap = String(d.caption || '');
+      return '<figure class="block block-video"><iframe src="' + esc(embedSrc) + '" title="' + esc(vCap || 'Video') + '" loading="lazy" allowfullscreen frameborder="0"></iframe>' +
+        (vCap ? '<figcaption>' + esc(vCap) + '</figcaption>' : '') + '</figure>';
+
+    case 'columns':
+      var colRaw = Array.isArray(d.columns) ? d.columns : [];
+      var isNewCol = colRaw.length > 0 && typeof colRaw[0] === 'object' && colRaw[0] !== null && colRaw[0].blocks;
+      var colsHtml;
+      if (isNewCol) {
+        colsHtml = colRaw.map(function (col) {
+          var inner = (col.block_order || []).map(function (id) {
+            return (col.blocks || []).find(function (b) { return b.block_id === id; });
+          }).filter(Boolean).map(function (sub) {
+            return renderBlock(sub, page);
+          }).join('');
+          return '<div class="column">' + (inner || '') + '</div>';
+        }).join('');
+      } else {
+        colsHtml = colRaw.map(function (c) { return '<div class="column">' + renderMarkdown(String(c)) + '</div>'; }).join('');
+      }
+      return '<div class="block block-columns block-columns-' + colRaw.length + '">' + colsHtml + '</div>';
+
+    case 'wiki-embed':
+      var wSlug = String(d.slug || d.wiki_id || '');
+      if (!wSlug) return '';
+      return '<div class="block block-wiki-embed"><a href="#' + esc(wSlug) + '" class="wiki-embed-link">Linked wiki: ' + esc(wSlug) + '</a></div>';
+
+    case 'experiment-embed':
+      var expId = String(d.exp_id || '');
+      if (!expId) return '';
+      var expSlug = expId.replace('experiment:', '');
+      return '<div class="block block-experiment-embed"><a href="#' + esc(expSlug) + '" class="exp-embed-link">Linked experiment: ' + esc(expSlug) + '</a></div>';
+
+    case 'toc':
+      var tocHeadings = [];
+      var tocBlockMap = {};
+      (page.blocks || []).forEach(function (b) { tocBlockMap[b.block_id] = b; });
+      (page.block_order || []).forEach(function (id) {
+        var b = tocBlockMap[id];
+        if (!b || b.deleted) return;
+        if (b.block_type === 'text') {
+          (String(b.data.md || b.data.text || '')).split('\n').forEach(function (line) {
+            var m = line.match(/^(#{1,4})\s+(.+)$/);
+            if (m) {
+              var lvl = m[1].length;
+              var txt = m[2];
+              var s = txt.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
+              tocHeadings.push('<li class="toc-level-' + lvl + '"><a href="#' + s + '">' + esc(txt) + '</a></li>');
+            }
+          });
+        }
+        if (b.block_type === 'heading') {
+          var htxt = String(b.data.text || '');
+          var hs = htxt.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
+          tocHeadings.push('<li class="toc-level-' + (b.data.level || 2) + '"><a href="#' + hs + '">' + esc(htxt) + '</a></li>');
+        }
+      });
+      if (!tocHeadings.length) return '';
+      return '<nav class="block block-toc"><div class="toc-title">Contents</div><ol>' + tocHeadings.join('') + '</ol></nav>';
+
+    case 'html':
+      return '<div class="block block-html">' + String(d.html || '') + '</div>';
+
+    default:
+      return '<div class="block block-' + block.block_type + '">[' + block.block_type + ']</div>';
+  }
+}
+
+function renderBlocks(parsed) {
+  var blocks = parsed.blocks || [];
+  var order = parsed.block_order || [];
+  if (!blocks.length || !order.length) return '';
+  var blockMap = {};
+  for (var i = 0; i < blocks.length; i++) { blockMap[blocks[i].block_id] = blocks[i]; }
+  var h = '';
+  for (var j = 0; j < order.length; j++) {
+    var block = blockMap[order[j]];
+    if (!block || block.deleted) continue;
+    h += renderBlock(block, parsed);
+  }
+  return h;
 }
 
 // ── Search ────────────────────────────────────────────────────────────────────
