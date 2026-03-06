@@ -1122,10 +1122,10 @@ html[data-eo-auth] .btn-edit { display: inline-block; }
 .cube-face--left   { transform: rotateY(-90deg) translateZ(100px); }
 .cube-face--bottom { transform: rotateX(90deg) translateZ(100px); }
 
-/* Cube rotation states – isometric tilt + spin around (1,1,1) diagonal */
-.phase-cube[data-face="0"] { transform: rotateX(-25deg) rotateY(35deg); }
-.phase-cube[data-face="1"] { transform: rotateX(-25deg) rotateY(35deg) rotate3d(1, 1, 1, -120deg); }
-.phase-cube[data-face="2"] { transform: rotateX(-25deg) rotateY(35deg) rotate3d(1, 1, 1, -240deg); }
+/* Cube rotation states – per-face rotations keeping text right-side up */
+.phase-cube[data-face="0"] { transform: rotateX(-15deg) rotateY(25deg); }
+.phase-cube[data-face="1"] { transform: rotateX(-15deg) rotateY(-65deg); }
+.phase-cube[data-face="2"] { transform: rotateX(75deg) rotateY(25deg); }
 
 /* Cube cells */
 .cube-cell {
@@ -1167,7 +1167,7 @@ html[data-eo-auth] .btn-edit { display: inline-block; }
 /* Cube label + nav */
 .cube-label {
   font-family: var(--font-mono);
-  font-size: .72rem;
+  font-size: 1rem;
   font-weight: 600;
   letter-spacing: .06em;
   text-transform: uppercase;
@@ -1177,7 +1177,7 @@ html[data-eo-auth] .btn-edit { display: inline-block; }
   transition: opacity .3s ease;
   position: relative;
   z-index: 1;
-  margin-bottom: .5rem;
+  margin-bottom: 1rem;
 }
 .cube-label.fading {
   opacity: 0;

@@ -310,20 +310,24 @@ function initPhaseCube(container) {
   var wrap = container.querySelector('.phase-cube-wrap');
 
   // ── Free rotation state ──
-  var CUBE_SPIN = [0, -120, -240];
-  var baseX = -25, baseY = 35;
+  var FACE_RX = [-15, -15, 75];   // per-face rotateX (keeps text right-side up)
+  var FACE_RY = [25, -65, 25];    // per-face rotateY
   var userX = 0, userY = 0; // accumulated user rotation offsets
   var STEP = 30; // degrees per button press / arrow key
 
   function applyTransform(transition) {
-    var spin = CUBE_SPIN[current] || 0;
+    var rx = FACE_RX[current] + userX;
+    var ry = FACE_RY[current] + userY;
     cube.style.transition = transition ? 'all 0.6s ease' : 'none';
-    cube.style.transform = 'rotateX(' + (baseX + userX) + 'deg) rotateY(' + (baseY + userY) + 'deg) rotate3d(1, 1, 1, ' + spin + 'deg)';
+    cube.style.transform = 'rotateX(' + rx + 'deg) rotateY(' + ry + 'deg)';
   }
 
   function showFace(index) {
     current = ((index % total) + total) % total;
     cube.setAttribute('data-face', String(current));
+    // Reset drag offsets so face snaps to clean readable orientation
+    userX = 0;
+    userY = 0;
     if (label) {
       label.classList.add('fading');
       setTimeout(function () {
@@ -382,9 +386,10 @@ function initPhaseCube(container) {
     // Live preview rotation during drag
     var previewY = userY + dx * 0.5;
     var previewX = userX - dy * 0.5;
-    var spin = CUBE_SPIN[current] || 0;
+    var rx = FACE_RX[current] + previewX;
+    var ry = FACE_RY[current] + previewY;
     cube.style.transition = 'none';
-    cube.style.transform = 'rotateX(' + (baseX + previewX) + 'deg) rotateY(' + (baseY + previewY) + 'deg) rotate3d(1, 1, 1, ' + spin + 'deg)';
+    cube.style.transform = 'rotateX(' + rx + 'deg) rotateY(' + ry + 'deg)';
   }
 
   function onPointerEnd(e) {
@@ -433,9 +438,10 @@ function initPhaseCube(container) {
       var y = (e.clientY - rect.top) / rect.height - 0.5;
       var tiltX = y * -12;
       var tiltY = x * 12;
-      var spin = CUBE_SPIN[current] || 0;
+      var rx = FACE_RX[current] + userX + tiltX;
+      var ry = FACE_RY[current] + userY + tiltY;
       cube.style.transition = 'none';
-      cube.style.transform = 'rotateX(' + (baseX + userX + tiltX) + 'deg) rotateY(' + (baseY + userY + tiltY) + 'deg) rotate3d(1, 1, 1, ' + spin + 'deg)';
+      cube.style.transform = 'rotateX(' + rx + 'deg) rotateY(' + ry + 'deg)';
     });
 
     wrap.addEventListener('mouseleave', function () {
