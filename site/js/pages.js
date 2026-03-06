@@ -267,15 +267,19 @@ function phaseCubeHtml(allTags) {
   });
   h += '</div></div>';
 
-  // Navigation dots + arrows
+  // Navigation dots + arrows (horizontal + vertical)
+  h += '<div class="cube-controls">';
+  h += '<button class="cube-nav-btn cube-nav-up" id="cube-up" title="Tilt up (&#8593;)">\u25B5</button>';
   h += '<div class="cube-nav">';
-  h += '<button class="cube-nav-btn" id="cube-prev" title="Previous face">\u2039</button>';
+  h += '<button class="cube-nav-btn" id="cube-prev" title="Previous face (&#8592;)">\u2039</button>';
   h += '<div class="cube-dots" id="cube-dots">';
   CUBE_FACES.forEach(function (_, i) {
     h += '<span class="cube-dot' + (i === 0 ? ' active' : '') + '"></span>';
   });
   h += '</div>';
-  h += '<button class="cube-nav-btn" id="cube-next" title="Next face">\u203A</button>';
+  h += '<button class="cube-nav-btn" id="cube-next" title="Next face (&#8594;)">\u203A</button>';
+  h += '</div>';
+  h += '<button class="cube-nav-btn cube-nav-down" id="cube-down" title="Tilt down (&#8595;)">\u25BF</button>';
   h += '</div>';
 
   // Topics
@@ -297,13 +301,27 @@ function initPhaseCube(container) {
   var dots = container.querySelectorAll('#cube-dots .cube-dot');
   var prevBtn = container.querySelector('#cube-prev');
   var nextBtn = container.querySelector('#cube-next');
+  var upBtn = container.querySelector('#cube-up');
+  var downBtn = container.querySelector('#cube-down');
   if (!cube) return;
 
   var current = 0;
   var total = CUBE_FACES.length;
   var wrap = container.querySelector('.phase-cube-wrap');
 
-  function show(index) {
+  // ── Free rotation state ──
+  var CUBE_SPIN = [0, -120, -240];
+  var baseX = -25, baseY = 35;
+  var userX = 0, userY = 0; // accumulated user rotation offsets
+  var STEP = 30; // degrees per button press / arrow key
+
+  function applyTransform(transition) {
+    var spin = CUBE_SPIN[current] || 0;
+    cube.style.transition = transition ? '' : 'none';
+    cube.style.transform = 'rotateX(' + (baseX + userX) + 'deg) rotateY(' + (baseY + userY) + 'deg) rotate3d(1, 1, 1, ' + spin + 'deg)';
+  }
+
+  function showFace(index) {
     current = ((index % total) + total) % total;
     cube.setAttribute('data-face', String(current));
     if (label) {
@@ -316,30 +334,39 @@ function initPhaseCube(container) {
     for (var i = 0; i < dots.length; i++) {
       dots[i].classList.toggle('active', i === current);
     }
+    applyTransform(true);
   }
 
-  if (prevBtn) prevBtn.addEventListener('click', function () { show(current - 1); });
-  if (nextBtn) nextBtn.addEventListener('click', function () { show(current + 1); });
+  function tiltUp()    { userX += STEP; applyTransform(true); pauseAuto(); resumeAuto(); }
+  function tiltDown()  { userX -= STEP; applyTransform(true); pauseAuto(); resumeAuto(); }
+  function spinLeft()  { showFace(current - 1); }
+  function spinRight() { showFace(current + 1); }
+
+  if (prevBtn) prevBtn.addEventListener('click', function () { spinLeft(); });
+  if (nextBtn) nextBtn.addEventListener('click', function () { spinRight(); });
+  if (upBtn)   upBtn.addEventListener('click', function () { tiltUp(); });
+  if (downBtn) downBtn.addEventListener('click', function () { tiltDown(); });
 
   // Auto-rotate every 15 seconds
-  var autoTimer = setInterval(function () { show(current + 1); }, 15000);
+  var autoTimer = setInterval(function () { showFace(current + 1); }, 15000);
 
   function pauseAuto() { clearInterval(autoTimer); }
   function resumeAuto() {
     clearInterval(autoTimer);
-    autoTimer = setInterval(function () { show(current + 1); }, 15000);
+    autoTimer = setInterval(function () { showFace(current + 1); }, 15000);
   }
 
-  // ── Swipe / drag to rotate ──
-  var dragStartX = 0;
+  // ── Swipe / drag to rotate (2D) ──
+  var dragStartX = 0, dragStartY = 0;
   var dragging = false;
   var swipeThreshold = 40;
 
   function onPointerDown(e) {
-    // Ignore if it's a button click
     if (e.target.closest('.cube-nav-btn')) return;
     dragging = true;
-    dragStartX = e.clientX || (e.touches && e.touches[0].clientX) || 0;
+    var touch = e.touches && e.touches[0];
+    dragStartX = e.clientX || (touch && touch.clientX) || 0;
+    dragStartY = e.clientY || (touch && touch.clientY) || 0;
     pauseAuto();
     cube.classList.add('no-transition');
   }
@@ -347,6 +374,17 @@ function initPhaseCube(container) {
   function onPointerMove(e) {
     if (!dragging) return;
     e.preventDefault();
+    var touch = e.touches && e.touches[0];
+    var cx = e.clientX || (touch && touch.clientX) || 0;
+    var cy = e.clientY || (touch && touch.clientY) || 0;
+    var dx = cx - dragStartX;
+    var dy = cy - dragStartY;
+    // Live preview rotation during drag
+    var previewY = userY + dx * 0.5;
+    var previewX = userX - dy * 0.5;
+    var spin = CUBE_SPIN[current] || 0;
+    cube.style.transition = 'none';
+    cube.style.transform = 'rotateX(' + (baseX + previewX) + 'deg) rotateY(' + (baseY + previewY) + 'deg) rotate3d(1, 1, 1, ' + spin + 'deg)';
   }
 
   function onPointerEnd(e) {
@@ -354,9 +392,19 @@ function initPhaseCube(container) {
     dragging = false;
     cube.classList.remove('no-transition');
     var endX = e.clientX || (e.changedTouches && e.changedTouches[0].clientX) || 0;
+    var endY = e.clientY || (e.changedTouches && e.changedTouches[0].clientY) || 0;
     var dx = endX - dragStartX;
-    if (Math.abs(dx) > swipeThreshold) {
-      show(dx < 0 ? current + 1 : current - 1);
+    var dy = endY - dragStartY;
+
+    // Commit the drag rotation
+    userY += dx * 0.5;
+    userX -= dy * 0.5;
+
+    // If horizontal swipe is dominant and exceeds threshold, also cycle face
+    if (Math.abs(dx) > swipeThreshold && Math.abs(dx) > Math.abs(dy)) {
+      showFace(dx < 0 ? current + 1 : current - 1);
+    } else {
+      applyTransform(true);
     }
     resumeAuto();
   }
@@ -377,33 +425,41 @@ function initPhaseCube(container) {
       if (!dragging) resumeAuto();
     });
 
-    // Base spin angles around the (1,1,1) diagonal axis
-    var CUBE_SPIN = [0, -120, -240]; // face 0: front, face 1: right, face 2: top
-
     // ── Multi-axis tilt (parallax hover) ──
     wrap.addEventListener('mousemove', function (e) {
       if (dragging) return;
       var rect = wrap.getBoundingClientRect();
-      var x = (e.clientX - rect.left) / rect.width - 0.5;  // -0.5 to 0.5
+      var x = (e.clientX - rect.left) / rect.width - 0.5;
       var y = (e.clientY - rect.top) / rect.height - 0.5;
-      var tiltX = y * -12; // degrees
+      var tiltX = y * -12;
       var tiltY = x * 12;
       var spin = CUBE_SPIN[current] || 0;
       cube.style.transition = 'none';
-      cube.style.transform = 'rotateX(' + (-25 + tiltX) + 'deg) rotateY(' + (35 + tiltY) + 'deg) rotate3d(1, 1, 1, ' + spin + 'deg)';
+      cube.style.transform = 'rotateX(' + (baseX + userX + tiltX) + 'deg) rotateY(' + (baseY + userY + tiltY) + 'deg) rotate3d(1, 1, 1, ' + spin + 'deg)';
     });
 
     wrap.addEventListener('mouseleave', function () {
-      // Snap back to face rotation
-      cube.style.transition = '';
-      cube.style.transform = '';
+      applyTransform(true);
     });
   }
+
+  // ── Keyboard controls ──
+  document.addEventListener('keydown', function (e) {
+    // Only respond when cube is visible
+    if (!cube.offsetParent) return;
+    // Don't hijack input fields
+    if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
+    switch (e.key) {
+      case 'ArrowLeft':  e.preventDefault(); spinLeft(); break;
+      case 'ArrowRight': e.preventDefault(); spinRight(); break;
+      case 'ArrowUp':    e.preventDefault(); tiltUp(); break;
+      case 'ArrowDown':  e.preventDefault(); tiltDown(); break;
+    }
+  });
 
   // ── Click to expand face detail ──
   cube.addEventListener('click', function (e) {
     if (dragging) return;
-    // Don't expand if the swipe was significant
     var cell = e.target.closest('.cube-cell');
     openCubeDetail(current, cell ? cell.getAttribute('data-code') : null);
   });
