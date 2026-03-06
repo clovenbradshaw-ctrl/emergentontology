@@ -153,67 +153,76 @@
     border: 1px solid var(--border);
   }
 
-  /* ── Three Faces Widget ── */
-  .faces-layout { display: inline-flex; flex-direction: column; align-items: flex-start; font-family: 'DM Mono', monospace; transform-origin: top right; }
-  .faces-row    { display: flex; align-items: flex-end; }
-
-  .face-label {
-    font-size: 6.5px; font-weight: 500; letter-spacing: 0.18em;
-    text-transform: uppercase; color: #bbb; margin-bottom: 4px; padding-left: 1px;
+  /* ── Phase Cube Widget (Homepage) ── */
+  .home-cube {
+    display: flex; flex-direction: column; align-items: center; gap: 1rem;
+    font-family: 'DM Mono', monospace; position: sticky; top: 68px; padding-top: 1rem;
   }
-  .face-label span { color: #ccc; font-weight: 400; letter-spacing: 0.10em; }
-
-  .face {
-    padding: 7px; border: 1.5px solid #d0cbc4; background: #fff;
+  .home-cube-label {
+    font-size: 0.72rem; font-weight: 600; letter-spacing: 0.06em;
+    text-transform: uppercase; color: #999; text-align: center; line-height: 1.4;
   }
-  .face-site { border-radius: 12px 12px 0 0; border-bottom: none; }
-  .face-act  { border-radius: 0 0 0 12px;   border-right: none; }
-  .face-res  { border-radius: 0 0 12px 0; }
-
-  .faces-grid {
-    display: grid;
-    grid-template-columns: repeat(3, 52px);
-    grid-template-rows:    repeat(3, 52px);
-    gap: 4px;
+  .home-cube-label-dim {
+    font-weight: 400; color: #999; opacity: 0.6; letter-spacing: 0.08em;
   }
+  .home-cube-wrap {
+    perspective: 600px; width: 200px; height: 200px;
+    cursor: grab; user-select: none; -webkit-user-select: none;
+  }
+  .home-cube-wrap:active { cursor: grabbing; }
+  .home-phase-cube {
+    width: 200px; height: 200px; position: relative;
+    transform-style: preserve-3d;
+    transition: transform 0.7s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+  .home-phase-cube.no-transition { transition: none; }
+  .hcube-face {
+    position: absolute; width: 200px; height: 200px;
+    backface-visibility: hidden;
+    display: grid; grid-template-columns: repeat(3, 1fr); gap: 4px; padding: 4px;
+    background: #fff; border: 1.5px solid #d0cbc4; border-radius: 12px;
+  }
+  .hcube-face--front  { transform: translateZ(100px); }
+  .hcube-face--right  { transform: rotateY(90deg) translateZ(100px); }
+  .hcube-face--back   { transform: rotateY(180deg) translateZ(100px); }
+  .hcube-face--left   { transform: rotateY(-90deg) translateZ(100px); }
+  .home-phase-cube[data-face="0"] { transform: rotateY(0deg); }
+  .home-phase-cube[data-face="1"] { transform: rotateY(-90deg); }
+  .home-phase-cube[data-face="2"] { transform: rotateY(-180deg); }
 
-  .faces-cell {
-    width: 52px; height: 52px; border-radius: 8px;
+  .hcube-cell {
     display: flex; flex-direction: column; align-items: center;
     justify-content: center; gap: 5px;
-    border-left: 3px solid transparent; background: #fafafa;
+    border-radius: 8px; border-left: 3px solid transparent;
+    background: #fafafa; transition: border-color 0.15s, background 0.15s;
   }
-  .face-act .faces-cell { background: #fff; box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
+  .hcube-cell:hover { background: #f0f0f2; }
+  .hcube-cell.r0 { border-left-color: #9b8ff5; }
+  .hcube-cell.r1 { border-left-color: #5f8dd3; }
+  .hcube-cell.r2 { border-left-color: #c47a5a; }
+  .hcube-cell.cG { background-color: rgba(180,160,140,0.09); }
+  .hcube-cell.cF { background-color: rgba(240,240,245,0.5); }
+  .hcube-cell.cP { background-color: rgba(100,130,180,0.07); }
+  .hcube-cell.cE { background-color: rgba(155,143,245,0.07); }
+  .hcube-cell.cS { background-color: rgba(95,141,211,0.07); }
+  .hcube-cell.cI { background-color: rgba(196,122,90,0.07); }
+  .hcube-cell .g { font-size: 15px; line-height: 1; color: #1a1a1a; font-weight: 400; }
+  .hcube-cell .n { font-size: 6.5px; font-weight: 500; letter-spacing: 0.11em; text-transform: uppercase; color: #999; line-height: 1; }
 
-  .faces-cell.r0 { border-left-color: #9b8ff5; }
-  .faces-cell.r1 { border-left-color: #5f8dd3; }
-  .faces-cell.r2 { border-left-color: #c47a5a; }
-
-  .faces-cell.cG { background-color: rgba(180,160,140,0.09); }
-  .faces-cell.cF { background-color: rgba(240,240,245,0.5); }
-  .faces-cell.cP { background-color: rgba(100,130,180,0.07); }
-
-  .faces-cell.cE { background-color: rgba(155,143,245,0.07); }
-  .faces-cell.cS { background-color: rgba( 95,141,211,0.07); }
-  .faces-cell.cI { background-color: rgba(196,122, 90,0.07); }
-
-  .face-act .faces-cell.cE { background-color: rgba(155,143,245,0.06); }
-  .face-act .faces-cell.cS { background-color: rgba( 95,141,211,0.06); }
-  .face-act .faces-cell.cI { background-color: rgba(196,122, 90,0.06); }
-
-  .faces-cell .g {
-    font-size: 15px; line-height: 1; color: #1a1a1a; font-weight: 400;
+  /* Nav dots + arrows */
+  .home-cube-nav { display: flex; align-items: center; gap: 0.5rem; }
+  .home-cube-nav-btn {
+    display: flex; align-items: center; justify-content: center;
+    width: 28px; height: 28px; background: #fff; border: 1px solid #e5e5e5;
+    border-radius: 50%; color: #999; font-size: 0.85rem; cursor: pointer;
+    transition: border-color 0.15s, color 0.15s;
   }
-  .face-act .faces-cell .g { font-size: 16px; }
-
-  .faces-cell .n {
-    font-size: 6px; font-weight: 500; letter-spacing: 0.11em;
-    text-transform: uppercase; color: #bbb; line-height: 1;
+  .home-cube-nav-btn:hover { border-color: #7c5cfc; color: #333; }
+  .home-cube-dots { display: flex; gap: 0.35rem; }
+  .home-cube-dot {
+    width: 6px; height: 6px; border-radius: 50%; background: #ddd; transition: background 0.3s;
   }
-  .face-act .faces-cell .n { color: #999; font-size: 6.5px; }
-
-  .faces-corner { width: 179px; flex-shrink: 0; }
-  .face-wrap { display: flex; flex-direction: column; }
+  .home-cube-dot.active { background: #7c5cfc; }
 
   /* ── Wiki Page View ── */
   .wiki-page { padding: 3rem 0 6rem; }
@@ -685,7 +694,14 @@
     .home-sections { flex-direction: column; }
     .home-left { grid-template-columns: 1fr; }
     .home-right { align-self: center; overflow-x: auto; max-width: 100%; }
-    .faces-layout { transform: scale(0.75); transform-origin: top center; }
+    .home-cube { position: static; padding-top: 0; }
+    .home-cube-wrap { width: 180px; height: 180px; }
+    .home-phase-cube { width: 180px; height: 180px; }
+    .hcube-face { width: 180px; height: 180px; }
+    .hcube-face--front  { transform: translateZ(90px); }
+    .hcube-face--right  { transform: rotateY(90deg) translateZ(90px); }
+    .hcube-face--back   { transform: rotateY(180deg) translateZ(90px); }
+    .hcube-face--left   { transform: rotateY(-90deg) translateZ(90px); }
     .wiki-page { padding: 2rem 0 4rem; }
     .wiki-body h1 { font-size: 1.7rem; }
     .article-header h1 { font-size: 1.8rem; }
@@ -989,63 +1005,137 @@ function renderHome() {
 
   h += '</div>'; // home-left
 
-  // Three Faces widget
-  h += '<div class="home-right"><div class="faces-layout">';
-
-  // ROW 1: spacer + SITE
-  h += '<div class="faces-row">';
-  h += '<div class="faces-corner"></div>';
-  h += '<div class="face-wrap">';
-  h += '<div class="face-label">Site <span>\u00b7 Domain \u00d7 Object</span></div>';
-  h += '<div class="face face-site"><div class="faces-grid">';
-  h += '<div class="faces-cell r0 cG"><span class="g">\u25CC</span><span class="n">Void</span></div>';
-  h += '<div class="faces-cell r0 cF"><span class="g">\u25C6</span><span class="n">Entity</span></div>';
-  h += '<div class="faces-cell r0 cP"><span class="g">\u25C7</span><span class="n">Kind</span></div>';
-  h += '<div class="faces-cell r1 cG"><span class="g">\u224B</span><span class="n">Field</span></div>';
-  h += '<div class="faces-cell r1 cF"><span class="g">\u2194</span><span class="n">Link</span></div>';
-  h += '<div class="faces-cell r1 cP"><span class="g">\u2B21</span><span class="n">Network</span></div>';
-  h += '<div class="faces-cell r2 cG"><span class="g">\u2248</span><span class="n">Atmo</span></div>';
-  h += '<div class="faces-cell r2 cF"><span class="g">\u25CE</span><span class="n">Lens</span></div>';
-  h += '<div class="faces-cell r2 cP"><span class="g">\u27D0</span><span class="n">Para</span></div>';
-  h += '</div></div></div></div>';
-
-  // ROW 2: ACT + RESOLUTION
-  h += '<div class="faces-row">';
-  h += '<div class="face-wrap">';
-  h += '<div class="face-label">Act <span>\u00b7 Mode \u00d7 Domain</span></div>';
-  h += '<div class="face face-act"><div class="faces-grid">';
-  h += '<div class="faces-cell r0 cE"><span class="g">\u2205</span><span class="n">NUL</span></div>';
-  h += '<div class="faces-cell r0 cS"><span class="g">\u22A1</span><span class="n">SIG</span></div>';
-  h += '<div class="faces-cell r0 cI"><span class="g">\u25B3</span><span class="n">INS</span></div>';
-  h += '<div class="faces-cell r1 cE"><span class="g">|</span><span class="n">SEG</span></div>';
-  h += '<div class="faces-cell r1 cS"><span class="g">\u22C8</span><span class="n">CON</span></div>';
-  h += '<div class="faces-cell r1 cI"><span class="g">\u2228</span><span class="n">SYN</span></div>';
-  h += '<div class="faces-cell r2 cE"><span class="g">\u223F</span><span class="n">ALT</span></div>';
-  h += '<div class="faces-cell r2 cS"><span class="g">\u2225</span><span class="n">SUP</span></div>';
-  h += '<div class="faces-cell r2 cI"><span class="g">\u21AC</span><span class="n">REC</span></div>';
-  h += '</div></div></div>';
-
-  h += '<div class="face-wrap">';
-  h += '<div class="face-label">Resolution <span>\u00b7 Mode \u00d7 Object</span></div>';
-  h += '<div class="face face-res"><div class="faces-grid">';
-  h += '<div class="faces-cell r0 cG"><span class="g">\u2300</span><span class="n">CLRG</span></div>';
-  h += '<div class="faces-cell r0 cF"><span class="g">\u233F</span><span class="n">CUT</span></div>';
-  h += '<div class="faces-cell r0 cP"><span class="g">\u21AF</span><span class="n">UNRV</span></div>';
-  h += '<div class="faces-cell r1 cG"><span class="g">\u2322</span><span class="n">TEND</span></div>';
-  h += '<div class="faces-cell r1 cF"><span class="g">\u2295</span><span class="n">BIND</span></div>';
-  h += '<div class="faces-cell r1 cP"><span class="g">\u2261</span><span class="n">TRCE</span></div>';
-  h += '<div class="faces-cell r2 cG"><span class="g">\u2299</span><span class="n">CULV</span></div>';
-  h += '<div class="faces-cell r2 cF"><span class="g">\u2726</span><span class="n">FORG</span></div>';
-  h += '<div class="faces-cell r2 cP"><span class="g">\u229E</span><span class="n">COMP</span></div>';
-  h += '</div></div></div>';
-
-  h += '</div>'; // faces-row
-  h += '</div></div>'; // faces-layout, home-right
+  // Phase Cube widget (3D rotating)
+  var HCUBE_FACES = [
+    { name: 'Site', dim: 'Domain \u00d7 Object', cells: [
+      { sym: '\u25CC', code: 'Void',    r: 0, c: 'cG' }, { sym: '\u25C6', code: 'Entity',  r: 0, c: 'cF' }, { sym: '\u25C7', code: 'Kind',    r: 0, c: 'cP' },
+      { sym: '\u224B', code: 'Field',   r: 1, c: 'cG' }, { sym: '\u2194', code: 'Link',    r: 1, c: 'cF' }, { sym: '\u2B21', code: 'Network', r: 1, c: 'cP' },
+      { sym: '\u2248', code: 'Atmo',    r: 2, c: 'cG' }, { sym: '\u25CE', code: 'Lens',    r: 2, c: 'cF' }, { sym: '\u27D0', code: 'Para',    r: 2, c: 'cP' }
+    ]},
+    { name: 'Act', dim: 'Mode \u00d7 Domain', cells: [
+      { sym: '\u2205', code: 'NUL', r: 0, c: 'cE' }, { sym: '\u22A1', code: 'SIG', r: 0, c: 'cS' }, { sym: '\u25B3', code: 'INS', r: 0, c: 'cI' },
+      { sym: '|',      code: 'SEG', r: 1, c: 'cE' }, { sym: '\u22C8', code: 'CON', r: 1, c: 'cS' }, { sym: '\u2228', code: 'SYN', r: 1, c: 'cI' },
+      { sym: '\u223F', code: 'ALT', r: 2, c: 'cE' }, { sym: '\u2225', code: 'SUP', r: 2, c: 'cS' }, { sym: '\u21AC', code: 'REC', r: 2, c: 'cI' }
+    ]},
+    { name: 'Resolution', dim: 'Mode \u00d7 Object', cells: [
+      { sym: '\u2300', code: 'CLRG', r: 0, c: 'cG' }, { sym: '\u233F', code: 'CUT',  r: 0, c: 'cF' }, { sym: '\u21AF', code: 'UNRV', r: 0, c: 'cP' },
+      { sym: '\u2322', code: 'TEND', r: 1, c: 'cG' }, { sym: '\u2295', code: 'BIND', r: 1, c: 'cF' }, { sym: '\u2261', code: 'TRCE', r: 1, c: 'cP' },
+      { sym: '\u2299', code: 'CULV', r: 2, c: 'cG' }, { sym: '\u2726', code: 'FORG', r: 2, c: 'cF' }, { sym: '\u229E', code: 'COMP', r: 2, c: 'cP' }
+    ]}
+  ];
+  var faceClasses = ['hcube-face--front', 'hcube-face--right', 'hcube-face--back'];
+  h += '<div class="home-right"><div class="home-cube">';
+  // Label
+  h += '<div class="home-cube-label" id="hcube-label"><div>' + HCUBE_FACES[0].name + '</div><div class="home-cube-label-dim">' + HCUBE_FACES[0].dim + '</div></div>';
+  // Cube viewport
+  h += '<div class="home-cube-wrap" id="hcube-wrap"><div class="home-phase-cube" id="hcube" data-face="0">';
+  HCUBE_FACES.forEach(function(face, i) {
+    h += '<div class="hcube-face ' + faceClasses[i] + '">';
+    face.cells.forEach(function(cl) {
+      h += '<div class="hcube-cell r' + cl.r + ' ' + cl.c + '"><span class="g">' + cl.sym + '</span><span class="n">' + cl.code + '</span></div>';
+    });
+    h += '</div>';
+  });
+  // Duplicate first face as left for seamless loop
+  h += '<div class="hcube-face hcube-face--left">';
+  HCUBE_FACES[0].cells.forEach(function(cl) {
+    h += '<div class="hcube-cell r' + cl.r + ' ' + cl.c + '"><span class="g">' + cl.sym + '</span><span class="n">' + cl.code + '</span></div>';
+  });
+  h += '</div>';
+  h += '</div></div>';
+  // Nav
+  h += '<div class="home-cube-nav">';
+  h += '<button class="home-cube-nav-btn" id="hcube-prev" title="Previous face">\u2039</button>';
+  h += '<div class="home-cube-dots" id="hcube-dots">';
+  HCUBE_FACES.forEach(function(_, i) { h += '<span class="home-cube-dot' + (i === 0 ? ' active' : '') + '"></span>'; });
+  h += '</div>';
+  h += '<button class="home-cube-nav-btn" id="hcube-next" title="Next face">\u203A</button>';
+  h += '</div>';
+  h += '</div></div>'; // home-cube, home-right
 
   h += '</div></div>'; // home-sections, fade-in
   app.innerHTML = h;
   document.title = 'Emergent Ontology';
   window.scrollTo(0, 0);
+
+  // ── Initialize Phase Cube ──
+  (function() {
+    var cube = document.getElementById('hcube');
+    var label = document.getElementById('hcube-label');
+    var dots = document.querySelectorAll('#hcube-dots .home-cube-dot');
+    var prevBtn = document.getElementById('hcube-prev');
+    var nextBtn = document.getElementById('hcube-next');
+    var wrap = document.getElementById('hcube-wrap');
+    if (!cube) return;
+
+    var current = 0;
+    var total = HCUBE_FACES.length;
+
+    function show(index) {
+      current = ((index % total) + total) % total;
+      cube.setAttribute('data-face', String(current));
+      if (label) {
+        label.innerHTML = '<div>' + HCUBE_FACES[current].name + '</div><div class="home-cube-label-dim">' + HCUBE_FACES[current].dim + '</div>';
+      }
+      for (var i = 0; i < dots.length; i++) {
+        dots[i].classList.toggle('active', i === current);
+      }
+    }
+
+    if (prevBtn) prevBtn.addEventListener('click', function() { show(current - 1); });
+    if (nextBtn) nextBtn.addEventListener('click', function() { show(current + 1); });
+
+    // Auto-rotate every 6 seconds
+    var autoTimer = setInterval(function() { show(current + 1); }, 6000);
+    function pauseAuto() { clearInterval(autoTimer); }
+    function resumeAuto() { clearInterval(autoTimer); autoTimer = setInterval(function() { show(current + 1); }, 6000); }
+
+    // ── Swipe / drag to rotate ──
+    var dragStartX = 0, dragging = false, swipeThreshold = 40;
+    function onPointerDown(e) {
+      if (e.target.closest('.home-cube-nav-btn')) return;
+      dragging = true;
+      dragStartX = e.clientX || (e.touches && e.touches[0].clientX) || 0;
+      pauseAuto();
+      cube.classList.add('no-transition');
+    }
+    function onPointerMove(e) { if (dragging) e.preventDefault(); }
+    function onPointerEnd(e) {
+      if (!dragging) return;
+      dragging = false;
+      cube.classList.remove('no-transition');
+      var endX = e.clientX || (e.changedTouches && e.changedTouches[0].clientX) || 0;
+      var dx = endX - dragStartX;
+      if (Math.abs(dx) > swipeThreshold) show(dx < 0 ? current + 1 : current - 1);
+      resumeAuto();
+    }
+
+    wrap.addEventListener('touchstart', onPointerDown, { passive: true });
+    wrap.addEventListener('touchmove', onPointerMove, { passive: false });
+    wrap.addEventListener('touchend', onPointerEnd);
+    wrap.addEventListener('mousedown', onPointerDown);
+    document.addEventListener('mousemove', onPointerMove);
+    document.addEventListener('mouseup', onPointerEnd);
+    wrap.addEventListener('mouseenter', pauseAuto);
+    wrap.addEventListener('mouseleave', function() { if (!dragging) resumeAuto(); });
+
+    // ── Multi-axis parallax tilt ──
+    wrap.addEventListener('mousemove', function(e) {
+      if (dragging) return;
+      var rect = wrap.getBoundingClientRect();
+      var x = (e.clientX - rect.left) / rect.width - 0.5;
+      var y = (e.clientY - rect.top) / rect.height - 0.5;
+      var tiltX = y * -12;
+      var tiltY = x * 12;
+      var faceY = current * -90;
+      cube.style.transition = 'none';
+      cube.style.transform = 'rotateX(' + tiltX + 'deg) rotateY(' + (faceY + tiltY) + 'deg)';
+    });
+    wrap.addEventListener('mouseleave', function() {
+      cube.style.transition = '';
+      cube.style.transform = '';
+    });
+  })();
 }
 
 function filterPages(type) {
