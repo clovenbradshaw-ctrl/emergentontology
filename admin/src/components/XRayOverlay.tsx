@@ -152,7 +152,7 @@ export function XRayPanel({ history }: { history?: HistoryEntry[] }) {
     }}>
       {/* Header */}
       <div style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '8px 12px', borderBottom: '1px solid #333', background: '#111' }}>
-        <span style={{ color: '#7c6fcd', fontWeight: 700 }}>σ X-Ray</span>
+        <span style={{ color: '#7c6fcd', fontWeight: 700 }}>◎ X-Ray</span>
         <button
           style={{ marginLeft: 'auto', ...tabStyle(tab === 'live') }}
           onClick={() => setTab('live')}

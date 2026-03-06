@@ -46,7 +46,7 @@
   const btn = document.createElement('button');
   btn.id = 'xray-toggle';
   btn.title = 'Toggle X-Ray transparency mode (Ctrl+Shift+X)';
-  btn.textContent = 'σ';
+  btn.textContent = '◎';
   Object.assign(btn.style, {
     position: 'fixed',
     bottom: '1rem',
@@ -175,7 +175,7 @@
       alignItems: 'center',
       gap: '8px',
     });
-    header.innerHTML = '<span style="color:#7c6fcd;font-weight:700">σ X-Ray — Event Stream</span>';
+    header.innerHTML = '<span style="color:#7c6fcd;font-weight:700">◎ X-Ray — Event Stream</span>';
     const closeBtn = document.createElement('button');
     closeBtn.textContent = '×';
     Object.assign(closeBtn.style, { marginLeft: 'auto', background: 'none', border: 'none', color: '#888', cursor: 'pointer', fontSize: '14px' });
