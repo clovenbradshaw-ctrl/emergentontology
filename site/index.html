@@ -123,9 +123,9 @@
     max-width: 520px; margin: 0 auto; line-height: 1.65;
   }
   /* ── Home Sections ── */
-  .home-sections { display: flex; gap: 3rem; padding-bottom: 5rem; align-items: flex-start; }
+  .home-sections { display: flex; gap: 2rem; padding-bottom: 5rem; align-items: flex-start; }
   .home-left { flex: 1; min-width: 0; display: grid; grid-template-columns: repeat(3, 1fr); gap: 2rem; }
-  .home-right { flex-shrink: 0; padding-top: 0.5rem; }
+  .home-right { flex-shrink: 0; padding-top: 0.5rem; margin-left: auto; }
   .home-section { margin-bottom: 0; }
   .home-section-title { font-size: 1.3rem; font-weight: 700; margin-bottom: 0.6rem; }
   .home-section-empty { font-size: 0.92rem; color: var(--text-muted); font-style: italic; }
@@ -154,17 +154,17 @@
   }
 
   /* ── Three Faces Widget ── */
-  .faces-layout { display: inline-flex; flex-direction: column; align-items: flex-start; font-family: 'DM Mono', monospace; }
+  .faces-layout { display: inline-flex; flex-direction: column; align-items: flex-start; font-family: 'DM Mono', monospace; transform-origin: top right; }
   .faces-row    { display: flex; align-items: flex-end; }
 
   .face-label {
-    font-size: 8px; font-weight: 500; letter-spacing: 0.18em;
-    text-transform: uppercase; color: #bbb; margin-bottom: 5px; padding-left: 1px;
+    font-size: 6.5px; font-weight: 500; letter-spacing: 0.18em;
+    text-transform: uppercase; color: #bbb; margin-bottom: 4px; padding-left: 1px;
   }
   .face-label span { color: #ccc; font-weight: 400; letter-spacing: 0.10em; }
 
   .face {
-    padding: 10px; border: 1.5px solid #d0cbc4; background: #fff;
+    padding: 7px; border: 1.5px solid #d0cbc4; background: #fff;
   }
   .face-site { border-radius: 12px 12px 0 0; border-bottom: none; }
   .face-act  { border-radius: 0 0 0 12px;   border-right: none; }
@@ -172,13 +172,13 @@
 
   .faces-grid {
     display: grid;
-    grid-template-columns: repeat(3, 76px);
-    grid-template-rows:    repeat(3, 76px);
-    gap: 5px;
+    grid-template-columns: repeat(3, 52px);
+    grid-template-rows:    repeat(3, 52px);
+    gap: 4px;
   }
 
   .faces-cell {
-    width: 76px; height: 76px; border-radius: 10px;
+    width: 52px; height: 52px; border-radius: 8px;
     display: flex; flex-direction: column; align-items: center;
     justify-content: center; gap: 5px;
     border-left: 3px solid transparent; background: #fafafa;
@@ -202,17 +202,17 @@
   .face-act .faces-cell.cI { background-color: rgba(196,122, 90,0.06); }
 
   .faces-cell .g {
-    font-size: 21px; line-height: 1; color: #1a1a1a; font-weight: 400;
+    font-size: 15px; line-height: 1; color: #1a1a1a; font-weight: 400;
   }
-  .face-act .faces-cell .g { font-size: 23px; }
+  .face-act .faces-cell .g { font-size: 16px; }
 
   .faces-cell .n {
-    font-size: 7.5px; font-weight: 500; letter-spacing: 0.11em;
+    font-size: 6px; font-weight: 500; letter-spacing: 0.11em;
     text-transform: uppercase; color: #bbb; line-height: 1;
   }
-  .face-act .faces-cell .n { color: #999; font-size: 8px; }
+  .face-act .faces-cell .n { color: #999; font-size: 6.5px; }
 
-  .faces-corner { width: 259.5px; flex-shrink: 0; }
+  .faces-corner { width: 179px; flex-shrink: 0; }
   .face-wrap { display: flex; flex-direction: column; }
 
   /* ── Wiki Page View ── */
