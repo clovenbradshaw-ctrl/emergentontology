@@ -1226,6 +1226,20 @@ html[data-eo-auth] .btn-edit { display: inline-block; }
 }
 .cube-dot.active { background: var(--accent); }
 
+/* Cube controls wrapper (vertical + horizontal) */
+.cube-controls {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: .25rem;
+}
+.cube-nav-up,
+.cube-nav-down {
+  font-size: .65rem;
+  width: 26px;
+  height: 22px;
+}
+
 /* Drag cursor */
 .phase-cube-wrap { cursor: grab; user-select: none; -webkit-user-select: none; }
 .phase-cube-wrap:active { cursor: grabbing; }
