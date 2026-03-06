@@ -10,10 +10,14 @@ import React, { useState, useCallback, useRef } from 'react';
 import { useAuth } from '../auth/AuthContext';
 import { useSettings } from '../settings/SettingsContext';
 import {
+  addRecord,
   upsertCurrentRecord,
+  eventToPayload,
   type XanoCurrentRecord,
 } from '../xano/client';
 import { fetchAllCurrentRecordsCached, invalidateCurrentCache } from '../xano/stateCache';
+import { desContentMeta, insRevision, altBlock, altExpEntry } from '../eo/events';
+import type { EOEvent } from '../eo/types';
 
 // ── Types ──────────────────────────────────────────────────────────────────
 
@@ -69,6 +73,29 @@ function replaceAll(text: string, search: string, replacement: string, caseSensi
   const flags = caseSensitive ? 'g' : 'gi';
   const escaped = search.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
   return text.replace(new RegExp(escaped, flags), replacement);
+}
+
+/** Build JSON Patch operations for top-level fields that differ between old and new data. */
+function buildDataPatch(
+  oldData: Record<string, unknown>,
+  newData: Record<string, unknown>,
+): Array<{ op: string; path: string; value?: unknown }> {
+  const patch: Array<{ op: string; path: string; value?: unknown }> = [];
+  const allKeys = new Set([...Object.keys(oldData), ...Object.keys(newData)]);
+  for (const key of allKeys) {
+    const oldVal = JSON.stringify(oldData[key]);
+    const newVal = JSON.stringify(newData[key]);
+    if (oldVal !== newVal) {
+      if (key in oldData && key in newData) {
+        patch.push({ op: 'replace', path: `/data/${key}`, value: newData[key] });
+      } else if (!(key in oldData)) {
+        patch.push({ op: 'add', path: `/data/${key}`, value: newData[key] });
+      } else {
+        patch.push({ op: 'remove', path: `/data/${key}` });
+      }
+    }
+  }
+  return patch;
 }
 
 // ── Component ──────────────────────────────────────────────────────────────
@@ -280,6 +307,7 @@ export default function GlobalSearchReplace({ siteBase }: Props) {
     }
 
     const agent = settings.displayName || 'editor';
+    const replaceSummary = `Global replace: "${searchTerm}" → "${replaceTerm}"`;
 
     for (const [recordId, recordMatches] of byRecord) {
       const rec = recordsRef.current.get(recordId);
@@ -289,37 +317,50 @@ export default function GlobalSearchReplace({ siteBase }: Props) {
       }
 
       try {
-        let snapshot: Record<string, unknown> = JSON.parse(rec.values);
-        const contentType = recordId.split(':')[0];
+        const snapshot: Record<string, unknown> = JSON.parse(rec.values);
+        // Collect all EO events to append to the event log for this record
+        const events: EOEvent[] = [];
 
         for (const match of recordMatches) {
           if (match.field === 'meta.title') {
+            // ── DES event for metadata title change ──────────────────────
             const meta = (snapshot.meta || {}) as Record<string, unknown>;
             if (typeof meta.title === 'string') {
-              meta.title = replaceAll(meta.title, searchTerm, replaceTerm, caseSensitive);
+              const newTitle = replaceAll(meta.title, searchTerm, replaceTerm, caseSensitive);
+              meta.title = newTitle;
               snapshot.meta = meta;
+              events.push(desContentMeta(recordId, { title: newTitle } as never, agent));
             }
           } else if (match.field === 'current_revision.content') {
-            // For wiki/blog/experiment: update the current revision content
-            // and add a new revision to the revisions array
+            // ── INS revision event for wiki/blog/experiment content ───────
             const rev = snapshot.current_revision as Record<string, unknown> | null;
             if (rev && typeof rev.content === 'string') {
               const newContent = replaceAll(rev.content, searchTerm, replaceTerm, caseSensitive);
               const newRevId = `r_${Date.now()}`;
+              const ts = new Date().toISOString();
+              const format = (rev.format as string) || 'html';
               const newRev = {
                 ...rev,
                 rev_id: newRevId,
                 content: newContent,
-                summary: `Global replace: "${searchTerm}" → "${replaceTerm}"`,
-                ts: new Date().toISOString(),
+                summary: replaceSummary,
+                ts,
               };
               snapshot.current_revision = newRev;
               const revisions = (snapshot.revisions || []) as Array<Record<string, unknown>>;
               revisions.push(newRev);
               snapshot.revisions = revisions;
+
+              events.push(insRevision(recordId, {
+                rev_id: newRevId,
+                format: format as 'markdown' | 'html',
+                content: newContent,
+                summary: replaceSummary,
+                ts,
+              }, agent));
             }
           } else if (match.field.startsWith('blocks.')) {
-            // Page blocks
+            // ── ALT event for page block changes ─────────────────────────
             const parts = match.field.split('.');
             const blockId = parts[1];
             const blocks = (snapshot.blocks || []) as Array<Record<string, unknown>>;
@@ -330,30 +371,45 @@ export default function GlobalSearchReplace({ siteBase }: Props) {
                 // Deep replace on entire JSON data
                 const replaced = replaceAll(JSON.stringify(data), searchTerm, replaceTerm, caseSensitive);
                 try {
-                  block.data = JSON.parse(replaced);
+                  const newData = JSON.parse(replaced);
+                  // Build JSON Patch operations for changed fields
+                  const patch = buildDataPatch(data, newData);
+                  block.data = newData;
+                  if (patch.length > 0) {
+                    events.push(altBlock(recordId, blockId, patch, agent));
+                  }
                 } catch {
-                  // If JSON parse fails after replace, skip
                   replaceResults.push({ recordId, location: match.location, success: false, error: 'JSON replacement produced invalid data' });
                   continue;
                 }
               } else {
                 const fieldKey = parts[3];
                 if (typeof data[fieldKey] === 'string') {
-                  data[fieldKey] = replaceAll(data[fieldKey] as string, searchTerm, replaceTerm, caseSensitive);
+                  const newVal = replaceAll(data[fieldKey] as string, searchTerm, replaceTerm, caseSensitive);
+                  data[fieldKey] = newVal;
                   block.data = data;
+                  events.push(altBlock(recordId, blockId, [
+                    { op: 'replace', path: `/data/${fieldKey}`, value: newVal },
+                  ], agent));
                 }
               }
             }
           } else if (match.field.startsWith('entries.')) {
-            // Experiment entries
+            // ── ALT event for experiment entry changes ───────────────────
             const parts = match.field.split('.');
             const entryId = parts[1];
             const entries = (snapshot.entries || []) as Array<Record<string, unknown>>;
             const entry = entries.find(e => e.entry_id === entryId);
             if (entry) {
-              const replaced = replaceAll(JSON.stringify(entry.data), searchTerm, replaceTerm, caseSensitive);
+              const oldData = entry.data as Record<string, unknown>;
+              const replaced = replaceAll(JSON.stringify(oldData), searchTerm, replaceTerm, caseSensitive);
               try {
-                entry.data = JSON.parse(replaced);
+                const newData = JSON.parse(replaced);
+                const patch = buildDataPatch(oldData, newData);
+                entry.data = newData;
+                if (patch.length > 0) {
+                  events.push(altExpEntry(recordId, entryId, patch, agent));
+                }
               } catch {
                 replaceResults.push({ recordId, location: match.location, success: false, error: 'JSON replacement produced invalid data' });
                 continue;
@@ -367,7 +423,12 @@ export default function GlobalSearchReplace({ siteBase }: Props) {
         meta.updated_at = new Date().toISOString();
         snapshot.meta = meta;
 
-        // Upsert the updated snapshot
+        // 1. Append all EO events to the event log
+        for (const event of events) {
+          await addRecord(eventToPayload(event));
+        }
+
+        // 2. Upsert the updated current-state snapshot
         await upsertCurrentRecord(recordId, snapshot, agent, rec);
 
         for (const match of recordMatches) {
