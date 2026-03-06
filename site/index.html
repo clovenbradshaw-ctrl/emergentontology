@@ -167,7 +167,7 @@
   }
   .home-cube-wrap {
     perspective: 600px; width: 200px; height: 200px;
-    cursor: grab; user-select: none; -webkit-user-select: none;
+    overflow: visible; cursor: grab; user-select: none; -webkit-user-select: none;
   }
   .home-cube-wrap:active { cursor: grabbing; }
   .home-phase-cube {
@@ -184,11 +184,13 @@
   }
   .hcube-face--front  { transform: translateZ(100px); }
   .hcube-face--right  { transform: rotateY(90deg) translateZ(100px); }
+  .hcube-face--top    { transform: rotateX(-90deg) translateZ(100px); }
   .hcube-face--back   { transform: rotateY(180deg) translateZ(100px); }
   .hcube-face--left   { transform: rotateY(-90deg) translateZ(100px); }
-  .home-phase-cube[data-face="0"] { transform: rotateY(0deg); }
-  .home-phase-cube[data-face="1"] { transform: rotateY(-90deg); }
-  .home-phase-cube[data-face="2"] { transform: rotateY(-180deg); }
+  .hcube-face--bottom { transform: rotateX(90deg) translateZ(100px); }
+  .home-phase-cube[data-face="0"] { transform: rotateX(-25deg) rotateY(35deg); }
+  .home-phase-cube[data-face="1"] { transform: rotateX(-25deg) rotateY(35deg) rotate3d(1, 1, 1, -120deg); }
+  .home-phase-cube[data-face="2"] { transform: rotateX(-25deg) rotateY(35deg) rotate3d(1, 1, 1, -240deg); }
 
   .hcube-cell {
     display: flex; flex-direction: column; align-items: center;
@@ -1023,7 +1025,7 @@ function renderHome() {
       { sym: '\u2299', code: 'CULV', r: 2, c: 'cG' }, { sym: '\u2726', code: 'FORG', r: 2, c: 'cF' }, { sym: '\u229E', code: 'COMP', r: 2, c: 'cP' }
     ]}
   ];
-  var faceClasses = ['hcube-face--front', 'hcube-face--right', 'hcube-face--back'];
+  var faceClasses = ['hcube-face--front', 'hcube-face--right', 'hcube-face--top'];
   h += '<div class="home-right"><div class="home-cube">';
   // Label
   h += '<div class="home-cube-label" id="hcube-label"><div>' + HCUBE_FACES[0].name + '</div><div class="home-cube-label-dim">' + HCUBE_FACES[0].dim + '</div></div>';
@@ -1036,12 +1038,15 @@ function renderHome() {
     });
     h += '</div>';
   });
-  // Duplicate first face as left for seamless loop
-  h += '<div class="hcube-face hcube-face--left">';
-  HCUBE_FACES[0].cells.forEach(function(cl) {
-    h += '<div class="hcube-cell r' + cl.r + ' ' + cl.c + '"><span class="g">' + cl.sym + '</span><span class="n">' + cl.code + '</span></div>';
+  // Mirrored back faces (back, left, bottom) so cube is solid from all angles
+  var backClasses = ['hcube-face--back', 'hcube-face--left', 'hcube-face--bottom'];
+  HCUBE_FACES.forEach(function(face, i) {
+    h += '<div class="hcube-face ' + backClasses[i] + '">';
+    face.cells.forEach(function(cl) {
+      h += '<div class="hcube-cell r' + cl.r + ' ' + cl.c + '"><span class="g">' + cl.sym + '</span><span class="n">' + cl.code + '</span></div>';
+    });
+    h += '</div>';
   });
-  h += '</div>';
   h += '</div></div>';
   // Nav
   h += '<div class="home-cube-nav">';
@@ -1070,6 +1075,14 @@ function renderHome() {
 
     var current = 0;
     var total = HCUBE_FACES.length;
+    var CUBE_SPIN = [0, -120, -240];
+    var baseX = -25, baseY = 35;
+
+    function applyTransform(transition) {
+      var spin = CUBE_SPIN[current] || 0;
+      cube.style.transition = transition ? 'transform 0.7s cubic-bezier(0.4, 0, 0.2, 1)' : 'none';
+      cube.style.transform = 'rotateX(' + baseX + 'deg) rotateY(' + baseY + 'deg) rotate3d(1, 1, 1, ' + spin + 'deg)';
+    }
 
     function show(index) {
       current = ((index % total) + total) % total;
@@ -1080,6 +1093,7 @@ function renderHome() {
       for (var i = 0; i < dots.length; i++) {
         dots[i].classList.toggle('active', i === current);
       }
+      applyTransform(true);
     }
 
     if (prevBtn) prevBtn.addEventListener('click', function() { show(current - 1); });
@@ -1127,13 +1141,12 @@ function renderHome() {
       var y = (e.clientY - rect.top) / rect.height - 0.5;
       var tiltX = y * -12;
       var tiltY = x * 12;
-      var faceY = current * -90;
+      var spin = CUBE_SPIN[current] || 0;
       cube.style.transition = 'none';
-      cube.style.transform = 'rotateX(' + tiltX + 'deg) rotateY(' + (faceY + tiltY) + 'deg)';
+      cube.style.transform = 'rotateX(' + (baseX + tiltX) + 'deg) rotateY(' + (baseY + tiltY) + 'deg) rotate3d(1, 1, 1, ' + spin + 'deg)';
     });
     wrap.addEventListener('mouseleave', function() {
-      cube.style.transition = '';
-      cube.style.transform = '';
+      applyTransform(true);
     });
   })();
 }
