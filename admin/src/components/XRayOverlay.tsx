@@ -6,7 +6,7 @@
  *   - Component/module topology (which room → which blocks/revs)
  *   - Highlights each DOM element with its operator annotation
  *
- * Activated by clicking the "θ X-Ray" button in the header,
+ * Activated by clicking the "σ X-Ray" button in the header,
  * or pressing Ctrl+Shift+X / Cmd+Shift+X.
  */
 
@@ -95,7 +95,7 @@ function timeAgo(ts: string): string {
 
 const OP_COLORS: Record<EOOp | string, string> = {
   INS: '#4ade80',
-  DES: '#60a5fa',
+  SIG: '#60a5fa',
   ALT: '#fbbf24',
   SEG: '#c084fc',
   CON: '#34d399',
@@ -107,7 +107,7 @@ const OP_COLORS: Record<EOOp | string, string> = {
 
 const OP_SYMBOLS: Record<EOOp | string, string> = {
   INS: 'ι',
-  DES: 'θ',
+  SIG: 'σ',
   ALT: '∿',
   SEG: '|',
   CON: '⋈',
@@ -152,7 +152,7 @@ export function XRayPanel({ history }: { history?: HistoryEntry[] }) {
     }}>
       {/* Header */}
       <div style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '8px 12px', borderBottom: '1px solid #333', background: '#111' }}>
-        <span style={{ color: '#7c6fcd', fontWeight: 700 }}>θ X-Ray</span>
+        <span style={{ color: '#7c6fcd', fontWeight: 700 }}>σ X-Ray</span>
         <button
           style={{ marginLeft: 'auto', ...tabStyle(tab === 'live') }}
           onClick={() => setTab('live')}
@@ -280,7 +280,7 @@ export function XRayToggleButton() {
         fontFamily: 'monospace',
       }}
     >
-      θ {enabled ? 'X-Ray ON' : 'X-Ray'}
+      σ {enabled ? 'X-Ray ON' : 'X-Ray'}
     </button>
   );
 }

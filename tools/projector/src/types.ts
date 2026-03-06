@@ -12,7 +12,7 @@
 
 export type EOOp =
   | 'INS' // Insert / create a new entity
-  | 'DES' // Describe / set metadata fields  (replaces separate "publish" events)
+  | 'SIG' // Describe / set metadata fields  (replaces separate "publish" events)
   | 'ALT' // Alter / apply a JSON-Patch to existing entity
   | 'SEG' // Segment / establish a reference/embed relationship
   | 'CON' // Connect / navigation / routing relation

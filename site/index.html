@@ -707,7 +707,7 @@
 <nav class="topnav">
   <div class="topnav-left">
     <a class="topnav-brand" id="homeBtn">
-      <span class="brand-icon">θ</span>
+      <span class="brand-icon">σ</span>
       Emergent Ontology
     </a>
     <div class="topnav-links" id="navLinks">
@@ -752,7 +752,7 @@
 <footer class="site-footer">
   <div class="footer-inner">
     <div class="footer-brand">
-      <span>θ</span>
+      <span>σ</span>
       <span>Emergent Ontology</span>
     </div>
     <nav class="footer-nav">
@@ -767,7 +767,7 @@
 var API = 'https://n8n.intelechia.com/webhook/81ca952a-3387-4837-8bcd-d18e3d28e758';
 var OPERATORS = [
   { sym:'\u2205', name:'NUL', triad:'e', slug:'nul', label:'Absence & Nullity' },
-  { sym:'\u03B8', name:'DES', triad:'e', slug:'des', label:'Designation' },
+  { sym:'\u03C3', name:'SIG', triad:'e', slug:'sig', label:'Designation' },
   { sym:'\u03B9', name:'INS', triad:'e', slug:'ins', label:'Instantiation' },
   { sym:'|', name:'SEG', triad:'s', slug:'seg', label:'Segmentation' },
   { sym:'\u22C8', name:'CON', triad:'s', slug:'con', label:'Connection' },
@@ -780,7 +780,7 @@ var OPERATORS = [
 // ── Inline classify ─────────────────────────────────────────────────────────
 var OP_KEYWORDS = {
   NUL: ['absence','nothing','void','null','empty','zero','negation','silence','blank','vacuum','lack','missing','removed','deleted','reset','undefined','nil','nul','inactive','disabled','gone','vanish'],
-  DES: ['designation','naming','identity','label','definition','describe','classify','categorize','metadata','title','attribute','property','schema','taxonomy','ontology','designate','identify','specify','declare','name','type','kind','class','tag','annotation','meaning','semantic','concept','term','vocabulary','reference'],
+  SIG: ['designation','naming','identity','label','definition','describe','classify','categorize','metadata','title','attribute','property','schema','taxonomy','ontology','designate','identify','specify','declare','name','type','kind','class','tag','annotation','meaning','semantic','concept','term','vocabulary','reference'],
   INS: ['instantiation','create','new','genesis','birth','origin','begin','start','initialize','generate','produce','construct','build','make','instantiate','emerge','spawn','introduce','launch','found','establish','invent','pioneer','first','prototype','original','novel','fresh','inception'],
   SEG: ['segmentation','divide','partition','separate','boundary','section','segment','split','decompose','analyze','part','component','module','fragment','chunk','slice','layer','hierarchy','structure','organize','breakdown','dissect','differentiate','distinguish','isolate','granular','discrete'],
   CON: ['connection','link','relation','network','graph','bridge','join','connect','associate','bind','couple','attach','integrate','interface','communicate','interact','reference','navigate','route','path','traverse','map','dependency','relationship','correlation','association','together','mutual','exchange'],
@@ -789,12 +789,12 @@ var OP_KEYWORDS = {
   SUP: ['superposition','parallel','simultaneous','concurrent','overlay','coexist','multiple','ambiguity','quantum','probabilistic','potential','possibility','spectrum','both','duality','superpose','stack','overlap','conflict','tension','paradox','contradiction','pluralism','multiplicity','indeterminate','uncertain'],
   REC: ['recursion','recursive','self-reference','loop','fractal','feedback','iteration','repeat','cycle','recurrence','spiral','meta','self-similar','nested','embed','reflect','mirror','autopoiesis','bootstrap','reentry','strange-loop','self-organize','emergence','complex','recombine','derive','projection']
 };
-var OP_META = { NUL:{sym:'\u2205',color:'#9ca3af'}, DES:{sym:'\u03B8',color:'#60a5fa'}, INS:{sym:'\u03B9',color:'#4ade80'}, SEG:{sym:'|',color:'#c084fc'}, CON:{sym:'\u22C8',color:'#34d399'}, SYN:{sym:'\u2228',color:'#818cf8'}, ALT:{sym:'\u223F',color:'#fbbf24'}, SUP:{sym:'\u2295',color:'#f472b6'}, REC:{sym:'\u21AC',color:'#fb923c'} };
+var OP_META = { NUL:{sym:'\u2205',color:'#9ca3af'}, SIG:{sym:'\u03C3',color:'#60a5fa'}, INS:{sym:'\u03B9',color:'#4ade80'}, SEG:{sym:'|',color:'#c084fc'}, CON:{sym:'\u22C8',color:'#34d399'}, SYN:{sym:'\u2228',color:'#818cf8'}, ALT:{sym:'\u223F',color:'#fbbf24'}, SUP:{sym:'\u2295',color:'#f472b6'}, REC:{sym:'\u21AC',color:'#fb923c'} };
 function classifyItem(title, tags) {
   var text = ((title || '') + ' ' + (title || '') + ' ' + (tags || []).join(' ')).toLowerCase().split(/[^a-z0-9-]+/).filter(function(t) { return t.length > 1; });
   var freq = {};
   for (var i = 0; i < text.length; i++) { freq[text[i]] = (freq[text[i]] || 0) + 1; }
-  var best = 'DES', bestScore = 0;
+  var best = 'SIG', bestScore = 0;
   for (var code in OP_KEYWORDS) {
     var kws = OP_KEYWORDS[code]; var score = 0;
     for (var k = 0; k < kws.length; k++) { score += freq[kws[k]] || 0; }
@@ -1015,7 +1015,7 @@ function renderHome() {
   h += '<div class="face-label">Act <span>\u00b7 Mode \u00d7 Domain</span></div>';
   h += '<div class="face face-act"><div class="faces-grid">';
   h += '<div class="faces-cell r0 cE"><span class="g">\u2205</span><span class="n">NUL</span></div>';
-  h += '<div class="faces-cell r0 cS"><span class="g">\u22A1</span><span class="n">DES</span></div>';
+  h += '<div class="faces-cell r0 cS"><span class="g">\u22A1</span><span class="n">SIG</span></div>';
   h += '<div class="faces-cell r0 cI"><span class="g">\u25B3</span><span class="n">INS</span></div>';
   h += '<div class="faces-cell r1 cE"><span class="g">|</span><span class="n">SEG</span></div>';
   h += '<div class="faces-cell r1 cS"><span class="g">\u22C8</span><span class="n">CON</span></div>';
@@ -1170,7 +1170,7 @@ function renderSection(type) {
     h += '<div class="wiki-article-count">' + filtered.length + ' article' + (filtered.length !== 1 ? 's' : '') + '</div>';
 
     if (filtered.length === 0) {
-      h += '<div class="empty-state"><div class="empty-state-icon">\u03B8</div>';
+      h += '<div class="empty-state"><div class="empty-state-icon">\u03C3</div>';
       h += '<div class="empty-state-title">No matching articles</div>';
       h += '<div class="empty-state-desc">Try adjusting your search or filter.</div></div>';
     } else if (wikiFilterState.view === 'all' || wikiFilterState.query || wikiFilterState.tag) {

@@ -18,7 +18,7 @@ var PROFILES = {
     'default', 'undefined', 'nil', 'nul', 'nullity', 'tombstone',
     'inactive', 'disabled', 'gone', 'vanish'
   ],
-  DES: [
+  SIG: [
     'designation', 'naming', 'identity', 'label', 'definition',
     'describe', 'classify', 'categorize', 'metadata', 'title',
     'attribute', 'property', 'schema', 'taxonomy', 'ontology',
@@ -128,7 +128,7 @@ export function classifyText(text) {
     freq[t] = (freq[t] || 0) + 1;
   }
 
-  var bestCode = 'DES';
+  var bestCode = 'SIG';
   var bestScore = 0;
   var codes = Object.keys(PROFILES);
   for (var ci = 0; ci < codes.length; ci++) {

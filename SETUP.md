@@ -73,7 +73,7 @@ All operations use a single canonical shape:
 
 ```json
 {
-  "op": "INS|DES|ALT|SEG|CON|SYN|SUP|REC|NUL",
+  "op": "INS|SIG|ALT|SEG|CON|SYN|SUP|REC|NUL",
   "target": "wiki:operators/rev:r_10",
   "operand": { "...": "op-specific data" },
   "ctx": { "agent": "@alice:example.com", "ts": "2026-02-25T00:00:00Z" }
@@ -137,7 +137,7 @@ Press **Ctrl+Shift+X** (or **Cmd+Shift+X**) on any page to toggle X-Ray mode.
 This overlays each content element with its `op(target, operand)` annotation
 and shows the event stream in a side panel.
 
-The X-ray θ button is visible in the bottom-left corner of every page.
+The X-ray σ button is visible in the bottom-left corner of every page.
 
 ---
 

@@ -323,7 +323,7 @@ export default function GlobalSearchReplace({ siteBase }: Props) {
 
         for (const match of recordMatches) {
           if (match.field === 'meta.title') {
-            // ── DES event for metadata title change ──────────────────────
+            // ── SIG event for metadata title change ──────────────────────
             const meta = (snapshot.meta || {}) as Record<string, unknown>;
             if (typeof meta.title === 'string') {
               const newTitle = replaceAll(meta.title, searchTerm, replaceTerm, caseSensitive);

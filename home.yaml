@@ -37,12 +37,12 @@ operators:
     slug: nul
 
   - num: 2
-    symbol: "θ"
-    code: DES
-    greek: "θ"
+    symbol: "σ"
+    code: SIG
+    greek: "σ"
     label: "Designation"
     color: "#60a5fa"
-    slug: des
+    slug: sig
 
   - num: 3
     symbol: "ι"

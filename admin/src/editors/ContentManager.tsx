@@ -7,7 +7,7 @@
  *   Create → POST /eowiki (INS index event)
  *            UPSERT /eowikicurrent record_id="site:index" with updated list
  *            POST /eowikicurrent record_id=<contentId> (empty initial state)
- *   Toggle → POST /eowiki (DES status/visibility event)
+ *   Toggle → POST /eowiki (SIG status/visibility event)
  *            PATCH /eowikicurrent record_id="site:index" with updated status/visibility
  */
 
@@ -34,7 +34,7 @@ interface IndexEntry {
   status: ContentStatus;
   visibility: Visibility;
   tags: string[];
-  /** ISO timestamp when this content was first DES'd as public */
+  /** ISO timestamp when this content was first SIG'd as public */
   first_public_at?: string;
   /** Whether this page appears in site navigation (pages only) */
   show_in_nav?: boolean;
@@ -145,7 +145,7 @@ export default function ContentManager({ siteBase, onOpen }: Props) {
       await addRecord(eventToPayload(insEvent));
       registerEvent({ id: xid, op: insEvent.op, target: insEvent.target, operand: insEvent.operand, ts: insEvent.ctx.ts, agent: insEvent.ctx.agent, status: 'sent' });
 
-      // 2. Emit DES content meta event
+      // 2. Emit SIG content meta event
       const desEvent = desContentMeta(contentId, {
         content_id: contentId,
         content_type: newType,
@@ -216,9 +216,9 @@ export default function ContentManager({ siteBase, onOpen }: Props) {
     const agent = settings.displayName || 'editor';
 
     try {
-      // 1. Emit DES index event
+      // 1. Emit SIG index event
       const desEvent = desIndexEntry(contentId, { status: newStatus }, agent);
-      const xid = `des-status-${contentId}`;
+      const xid = `sig-status-${contentId}`;
       registerEvent({ id: xid, op: desEvent.op, target: desEvent.target, operand: desEvent.operand, ts: desEvent.ctx.ts, agent: desEvent.ctx.agent, status: 'pending' });
       await addRecord(eventToPayload(desEvent));
       registerEvent({ id: xid, op: desEvent.op, target: desEvent.target, operand: desEvent.operand, ts: desEvent.ctx.ts, agent: desEvent.ctx.agent, status: 'sent' });
@@ -261,14 +261,14 @@ export default function ContentManager({ siteBase, onOpen }: Props) {
     const agent = settings.displayName || 'editor';
 
     try {
-      // 1. Emit DES index event
+      // 1. Emit SIG index event
       const desEvent = desIndexEntry(contentId, { visibility: newVisibility }, agent);
-      const xid = `des-visibility-${contentId}`;
+      const xid = `sig-visibility-${contentId}`;
       registerEvent({ id: xid, op: desEvent.op, target: desEvent.target, operand: desEvent.operand, ts: desEvent.ctx.ts, agent: desEvent.ctx.agent, status: 'pending' });
       await addRecord(eventToPayload(desEvent));
       registerEvent({ id: xid, op: desEvent.op, target: desEvent.target, operand: desEvent.operand, ts: desEvent.ctx.ts, agent: desEvent.ctx.agent, status: 'sent' });
 
-      // 2. Update site:index current state — track first_public_at on initial DES as public
+      // 2. Update site:index current state — track first_public_at on initial SIG as public
       const entry = entries.find((e) => e.content_id === contentId);
       const isFirstPublic = newVisibility === 'public' && entry && !entry.first_public_at;
       const firstPublicTs = isFirstPublic ? desEvent.ctx.ts : undefined;
@@ -369,7 +369,7 @@ export default function ContentManager({ siteBase, onOpen }: Props) {
       await addRecord(eventToPayload(nulEvent));
       registerEvent({ id: xid, op: nulEvent.op, target: nulEvent.target, operand: nulEvent.operand, ts: nulEvent.ctx.ts, agent: nulEvent.ctx.agent, status: 'sent' });
 
-      // 2. Emit DES event to set content meta status to 'archived'
+      // 2. Emit SIG event to set content meta status to 'archived'
       const metaEvent = desContentMeta(contentId, {
         status: 'archived' as ContentStatus,
         updated_at: ts,
@@ -409,14 +409,14 @@ export default function ContentManager({ siteBase, onOpen }: Props) {
     const ts = new Date().toISOString();
 
     try {
-      // 1. Emit DES index event to set status back to 'draft'
+      // 1. Emit SIG index event to set status back to 'draft'
       const desEvent = desIndexEntry(contentId, { status: 'draft' }, agent);
-      const xid = `des-restore-${contentId}`;
+      const xid = `sig-restore-${contentId}`;
       registerEvent({ id: xid, op: desEvent.op, target: desEvent.target, operand: desEvent.operand, ts: desEvent.ctx.ts, agent: desEvent.ctx.agent, status: 'pending' });
       await addRecord(eventToPayload(desEvent));
       registerEvent({ id: xid, op: desEvent.op, target: desEvent.target, operand: desEvent.operand, ts: desEvent.ctx.ts, agent: desEvent.ctx.agent, status: 'sent' });
 
-      // 2. Emit DES content meta event
+      // 2. Emit SIG content meta event
       const metaEvent = desContentMeta(contentId, {
         status: 'draft' as ContentStatus,
         updated_at: ts,
@@ -457,9 +457,9 @@ export default function ContentManager({ siteBase, onOpen }: Props) {
     const agent = settings.displayName || 'editor';
 
     try {
-      // 1. Emit DES index event
+      // 1. Emit SIG index event
       const desEvent = desIndexEntry(contentId, fields, agent);
-      const xid = `des-field-${contentId}-${Date.now()}`;
+      const xid = `sig-field-${contentId}-${Date.now()}`;
       registerEvent({ id: xid, op: desEvent.op, target: desEvent.target, operand: desEvent.operand, ts: desEvent.ctx.ts, agent: desEvent.ctx.agent, status: 'pending' });
       await addRecord(eventToPayload(desEvent));
       registerEvent({ id: xid, op: desEvent.op, target: desEvent.target, operand: desEvent.operand, ts: desEvent.ctx.ts, agent: desEvent.ctx.agent, status: 'sent' });
