@@ -159,7 +159,7 @@
     font-family: 'DM Mono', monospace; position: sticky; top: 68px; padding-top: 1rem;
   }
   .home-cube-label {
-    font-size: 0.72rem; font-weight: 600; letter-spacing: 0.06em;
+    font-size: 1rem; font-weight: 600; letter-spacing: 0.06em;
     text-transform: uppercase; color: #999; text-align: center; line-height: 1.4;
   }
   .home-cube-label-dim {
@@ -188,9 +188,9 @@
   .hcube-face--back   { transform: rotateY(180deg) translateZ(100px); }
   .hcube-face--left   { transform: rotateY(-90deg) translateZ(100px); }
   .hcube-face--bottom { transform: rotateX(90deg) translateZ(100px); }
-  .home-phase-cube[data-face="0"] { transform: rotateX(-25deg) rotateY(35deg); }
-  .home-phase-cube[data-face="1"] { transform: rotateX(-25deg) rotateY(35deg) rotate3d(1, 1, 1, -120deg); }
-  .home-phase-cube[data-face="2"] { transform: rotateX(-25deg) rotateY(35deg) rotate3d(1, 1, 1, -240deg); }
+  .home-phase-cube[data-face="0"] { transform: rotateX(-15deg) rotateY(25deg); }
+  .home-phase-cube[data-face="1"] { transform: rotateX(-15deg) rotateY(-65deg); }
+  .home-phase-cube[data-face="2"] { transform: rotateX(75deg) rotateY(25deg); }
 
   .hcube-cell {
     display: flex; flex-direction: column; align-items: center;
@@ -1075,13 +1075,14 @@ function renderHome() {
 
     var current = 0;
     var total = HCUBE_FACES.length;
-    var CUBE_SPIN = [0, -120, -240];
-    var baseX = -25, baseY = 35;
+    var FACE_RX = [-15, -15, 75];
+    var FACE_RY = [25, -65, 25];
 
     function applyTransform(transition) {
-      var spin = CUBE_SPIN[current] || 0;
+      var rx = FACE_RX[current];
+      var ry = FACE_RY[current];
       cube.style.transition = transition ? 'transform 0.7s cubic-bezier(0.4, 0, 0.2, 1)' : 'none';
-      cube.style.transform = 'rotateX(' + baseX + 'deg) rotateY(' + baseY + 'deg) rotate3d(1, 1, 1, ' + spin + 'deg)';
+      cube.style.transform = 'rotateX(' + rx + 'deg) rotateY(' + ry + 'deg)';
     }
 
     function show(index) {
@@ -1141,9 +1142,10 @@ function renderHome() {
       var y = (e.clientY - rect.top) / rect.height - 0.5;
       var tiltX = y * -12;
       var tiltY = x * 12;
-      var spin = CUBE_SPIN[current] || 0;
+      var rx = FACE_RX[current] + tiltX;
+      var ry = FACE_RY[current] + tiltY;
       cube.style.transition = 'none';
-      cube.style.transform = 'rotateX(' + (baseX + tiltX) + 'deg) rotateY(' + (baseY + tiltY) + 'deg) rotate3d(1, 1, 1, ' + spin + 'deg)';
+      cube.style.transform = 'rotateX(' + rx + 'deg) rotateY(' + ry + 'deg)';
     });
     wrap.addEventListener('mouseleave', function() {
       applyTransform(true);
