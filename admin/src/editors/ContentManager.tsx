@@ -106,6 +106,7 @@ export default function ContentManager({ siteBase, onOpen }: Props) {
 
   // Bulk download
   const [downloading, setDownloading] = useState(false);
+  const [downloadProgress, setDownloadProgress] = useState('');
 
   // ── Load index ─────────────────────────────────────────────────────────────
 
@@ -854,15 +855,17 @@ export default function ContentManager({ siteBase, onOpen }: Props) {
 
   async function downloadAllAsMd() {
     setDownloading(true);
+    setDownloadProgress('Loading content\u2026');
     try {
-      const sections: string[] = [];
-      for (const entry of entries) {
-        if (entry.status === 'archived') continue;
+      // Pre-warm: single bulk API call loads all records into cache
+      await fetchAllCurrentRecordsCached();
 
-        const result = await loadState<ProjectedWiki | ProjectedBlog | ProjectedPage | ProjectedExperiment>(
-          entry.content_id, siteBase,
-        );
-        const state = result.state;
+      const sections: string[] = [];
+      const nonArchived = entries.filter(e => e.status !== 'archived');
+
+      for (let i = 0; i < nonArchived.length; i++) {
+        const entry = nonArchived[i];
+        setDownloadProgress(`Processing ${i + 1} of ${nonArchived.length}: ${entry.title}`);
 
         // Frontmatter
         const frontmatter = [
@@ -878,36 +881,46 @@ export default function ContentManager({ siteBase, onOpen }: Props) {
 
         let body = '';
 
-        if (!state) {
-          body = '*No content available.*';
-        } else if (state.content_type === 'wiki' || state.content_type === 'blog') {
-          const wikiState = state as ProjectedWiki | ProjectedBlog;
-          const rev = wikiState.current_revision;
-          if (rev) {
-            body = rev.format === 'html' ? htmlToMd(rev.content) : rev.content;
-          } else {
-            body = '*No revision.*';
+        try {
+          const result = await loadState<ProjectedWiki | ProjectedBlog | ProjectedPage | ProjectedExperiment>(
+            entry.content_id, siteBase,
+          );
+          const state = result.state;
+
+          if (!state) {
+            body = '*No content available.*';
+          } else if (state.content_type === 'wiki' || state.content_type === 'blog') {
+            const wikiState = state as ProjectedWiki | ProjectedBlog;
+            const rev = wikiState.current_revision;
+            if (rev) {
+              body = rev.format === 'html' ? htmlToMd(rev.content) : rev.content;
+            } else {
+              body = '*No revision.*';
+            }
+          } else if (state.content_type === 'page') {
+            const pageState = state as ProjectedPage;
+            const blocks = pageState.blocks.filter(b => !b.deleted);
+            // Order blocks by block_order if available
+            const ordered = pageState.block_order?.length
+              ? pageState.block_order.map(id => blocks.find(b => b.block_id === id)).filter(Boolean) as Block[]
+              : blocks;
+            body = ordered.map(b => blockToMd(b)).filter(Boolean).join('\n\n');
+          } else if (state.content_type === 'experiment') {
+            const expState = state as ProjectedExperiment;
+            const parts: string[] = [];
+            if (expState.current_revision) {
+              const rev = expState.current_revision;
+              parts.push(rev.format === 'html' ? htmlToMd(rev.content) : rev.content);
+            }
+            const activeEntries = expState.entries?.filter(e => !e.deleted) ?? [];
+            for (const e of activeEntries) {
+              parts.push(experimentEntryToMd(e));
+            }
+            body = parts.filter(Boolean).join('\n\n');
           }
-        } else if (state.content_type === 'page') {
-          const pageState = state as ProjectedPage;
-          const blocks = pageState.blocks.filter(b => !b.deleted);
-          // Order blocks by block_order if available
-          const ordered = pageState.block_order?.length
-            ? pageState.block_order.map(id => blocks.find(b => b.block_id === id)).filter(Boolean) as Block[]
-            : blocks;
-          body = ordered.map(b => blockToMd(b)).filter(Boolean).join('\n\n');
-        } else if (state.content_type === 'experiment') {
-          const expState = state as ProjectedExperiment;
-          const parts: string[] = [];
-          if (expState.current_revision) {
-            const rev = expState.current_revision;
-            parts.push(rev.format === 'html' ? htmlToMd(rev.content) : rev.content);
-          }
-          const activeEntries = expState.entries?.filter(e => !e.deleted) ?? [];
-          for (const e of activeEntries) {
-            parts.push(experimentEntryToMd(e));
-          }
-          body = parts.filter(Boolean).join('\n\n');
+        } catch (err) {
+          console.warn(`[downloadAllAsMd] Failed to load ${entry.content_id}:`, err);
+          body = '*Failed to load content.*';
         }
 
         sections.push(`${frontmatter}\n\n# ${entry.title}\n\n${body}`);
@@ -927,6 +940,7 @@ export default function ContentManager({ siteBase, onOpen }: Props) {
       setError(err instanceof Error ? err.message : String(err));
     }
     setDownloading(false);
+    setDownloadProgress('');
   }
 
   // ── Derived data ───────────────────────────────────────────────────────
@@ -1074,19 +1088,9 @@ export default function ContentManager({ siteBase, onOpen }: Props) {
 
       {/* Content list */}
       <section className="content-list-section">
-        <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-          <h2 style={{ margin: 0 }}>All Content ({activeEntries.length})</h2>
-          <button
-            className="btn btn-sm"
-            onClick={downloadAllAsMd}
-            disabled={downloading || entries.length === 0}
-            title="Download all articles as a single Markdown file"
-          >
-            {downloading ? 'Downloading…' : 'Download All as .md'}
-          </button>
-        </div>
+        <h2>All Content ({activeEntries.length})</h2>
 
-        {/* Search & filter bar (Issue 5) */}
+        {/* Search, filter & actions bar */}
         <div className="content-filter-bar">
           <input
             className="content-search"
@@ -1106,6 +1110,14 @@ export default function ContentManager({ siteBase, onOpen }: Props) {
               </button>
             ))}
           </div>
+          <button
+            className="btn btn-download"
+            onClick={downloadAllAsMd}
+            disabled={downloading || entries.length === 0}
+            title="Download all articles as a single Markdown file"
+          >
+            {downloading ? (downloadProgress || 'Downloading…') : '\u2193 Download All .md'}
+          </button>
         </div>
 
         {sortedEntries.length === 0
