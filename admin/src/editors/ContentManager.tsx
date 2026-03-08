@@ -23,7 +23,8 @@ import {
 } from '../xano/client';
 import { loadState, fetchCurrentRecordCached, fetchAllCurrentRecordsCached } from '../xano/stateCache';
 import { insIndexEntry, desContentMeta, desIndexEntry, nulIndexEntry } from '../eo/events';
-import type { ContentType, ContentStatus, Visibility } from '../eo/types';
+import type { ContentType, ContentStatus, Visibility, ProjectedWiki, ProjectedBlog, ProjectedPage, ProjectedExperiment, Block, ExperimentEntry } from '../eo/types';
+import { htmlToMd } from '../eo/markdown';
 import { SPECIAL_PAGES } from '../eo/constants';
 
 interface IndexEntry {
@@ -102,6 +103,9 @@ export default function ContentManager({ siteBase, onOpen }: Props) {
 
   // Special page creation (Issues 1 & 2)
   const [creatingSpecial, setCreatingSpecial] = useState<string | null>(null);
+
+  // Bulk download
+  const [downloading, setDownloading] = useState(false);
 
   // ── Load index ─────────────────────────────────────────────────────────────
 
@@ -797,6 +801,134 @@ export default function ContentManager({ siteBase, onOpen }: Props) {
     setDetectingKeywords(null);
   }
 
+  // ── Bulk download all articles as single .md ─────────────────────────────
+
+  function blockToMd(block: Block): string {
+    const d = block.data as Record<string, unknown>;
+    switch (block.block_type) {
+      case 'heading': {
+        const level = Math.min(Math.max(Number(d.level) || 2, 1), 6);
+        const text = String(d.text || d.md || '');
+        return '#'.repeat(level) + ' ' + text;
+      }
+      case 'text':
+        if (d.md) return String(d.md);
+        if (d.html) return htmlToMd(String(d.html));
+        return '';
+      case 'image':
+        return `![${String(d.alt || '')}](${String(d.img_url || d.url || '')})`;
+      case 'code':
+        return '```' + String(d.language || '') + '\n' + String(d.code || '') + '\n```';
+      case 'quote':
+      case 'callout':
+        return String(d.text || d.md || d.html ? htmlToMd(String(d.html || '')) : '').split('\n').map(l => `> ${l}`).join('\n');
+      case 'divider':
+        return '---';
+      case 'embed':
+      case 'video':
+        return `[${block.block_type}](${String(d.url || '')})`;
+      case 'button':
+        return `[${String(d.label || d.text || 'button')}](${String(d.url || '')})`;
+      case 'html':
+        return htmlToMd(String(d.html || ''));
+      default:
+        return '';
+    }
+  }
+
+  function experimentEntryToMd(entry: ExperimentEntry): string {
+    const d = entry.data as Record<string, unknown>;
+    switch (entry.kind) {
+      case 'note':
+        return String(d.md || d.text || (d.html ? htmlToMd(String(d.html)) : ''));
+      case 'decision':
+        return `**Decision:** ${String(d.text || d.md || '')}`;
+      case 'link':
+        return `[${String(d.label || d.title || 'link')}](${String(d.url || '')})`;
+      case 'html':
+        return htmlToMd(String(d.html || ''));
+      default:
+        return String(d.text || d.md || d.summary || JSON.stringify(d));
+    }
+  }
+
+  async function downloadAllAsMd() {
+    setDownloading(true);
+    try {
+      const sections: string[] = [];
+      for (const entry of entries) {
+        if (entry.status === 'archived') continue;
+
+        const result = await loadState<ProjectedWiki | ProjectedBlog | ProjectedPage | ProjectedExperiment>(
+          entry.content_id, siteBase,
+        );
+        const state = result.state;
+
+        // Frontmatter
+        const frontmatter = [
+          '---',
+          `title: ${entry.title}`,
+          `slug: ${entry.slug}`,
+          `type: ${entry.content_type}`,
+          `status: ${entry.status}`,
+          `visibility: ${entry.visibility}`,
+          ...(entry.tags.length ? [`tags: [${entry.tags.join(', ')}]`] : []),
+          '---',
+        ].join('\n');
+
+        let body = '';
+
+        if (!state) {
+          body = '*No content available.*';
+        } else if (state.content_type === 'wiki' || state.content_type === 'blog') {
+          const wikiState = state as ProjectedWiki | ProjectedBlog;
+          const rev = wikiState.current_revision;
+          if (rev) {
+            body = rev.format === 'html' ? htmlToMd(rev.content) : rev.content;
+          } else {
+            body = '*No revision.*';
+          }
+        } else if (state.content_type === 'page') {
+          const pageState = state as ProjectedPage;
+          const blocks = pageState.blocks.filter(b => !b.deleted);
+          // Order blocks by block_order if available
+          const ordered = pageState.block_order?.length
+            ? pageState.block_order.map(id => blocks.find(b => b.block_id === id)).filter(Boolean) as Block[]
+            : blocks;
+          body = ordered.map(b => blockToMd(b)).filter(Boolean).join('\n\n');
+        } else if (state.content_type === 'experiment') {
+          const expState = state as ProjectedExperiment;
+          const parts: string[] = [];
+          if (expState.current_revision) {
+            const rev = expState.current_revision;
+            parts.push(rev.format === 'html' ? htmlToMd(rev.content) : rev.content);
+          }
+          const activeEntries = expState.entries?.filter(e => !e.deleted) ?? [];
+          for (const e of activeEntries) {
+            parts.push(experimentEntryToMd(e));
+          }
+          body = parts.filter(Boolean).join('\n\n');
+        }
+
+        sections.push(`${frontmatter}\n\n# ${entry.title}\n\n${body}`);
+      }
+
+      const fullMd = sections.join('\n\n---\n\n');
+      const blob = new Blob([fullMd], { type: 'text/markdown' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `all-articles-${new Date().toISOString().slice(0, 10)}.md`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : String(err));
+    }
+    setDownloading(false);
+  }
+
   // ── Derived data ───────────────────────────────────────────────────────
 
   const activeEntries = entries.filter(e => e.status !== 'archived');
@@ -942,7 +1074,17 @@ export default function ContentManager({ siteBase, onOpen }: Props) {
 
       {/* Content list */}
       <section className="content-list-section">
-        <h2>All Content ({activeEntries.length})</h2>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+          <h2 style={{ margin: 0 }}>All Content ({activeEntries.length})</h2>
+          <button
+            className="btn btn-sm"
+            onClick={downloadAllAsMd}
+            disabled={downloading || entries.length === 0}
+            title="Download all articles as a single Markdown file"
+          >
+            {downloading ? 'Downloading…' : 'Download All as .md'}
+          </button>
+        </div>
 
         {/* Search & filter bar (Issue 5) */}
         <div className="content-filter-bar">
