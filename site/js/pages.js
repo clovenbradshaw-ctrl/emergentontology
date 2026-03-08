@@ -116,13 +116,20 @@ export function renderHome(el) {
 
   h += '</div>'; // home-col-main
 
-  // Sidebar: spinning cube + topics
-  h += phaseCubeHtml(allTags);
+  // Sidebar: topics only (cube disabled until ready)
+  if (allTags.length > 0) {
+    h += '<aside class="cube-sidebar" aria-label="Topics">';
+    h += '<div class="sidebar-topics sidebar-tags">';
+    h += '<div class="sidebar-label">Topics</div>';
+    h += '<div class="tag-cloud">';
+    allTags.forEach(function (t) { h += '<span class="tag tag-lg">' + esc(t) + '</span>'; });
+    h += '</div></div>';
+    h += '</aside>';
+  }
 
   h += '</div>'; // home-columns
 
   el.innerHTML = h;
-  initPhaseCube(el);
   return Promise.resolve();
 }
 
