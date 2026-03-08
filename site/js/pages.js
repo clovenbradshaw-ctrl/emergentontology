@@ -29,6 +29,19 @@ function sortByUpdated(entries) {
 
 var COLUMN_LIMIT = 6;
 
+var SKIP_WORDS = ['the', 'a', 'an'];
+
+function titleLetter(title) {
+  if (!title) return '?';
+  var words = title.trim().split(/\s+/);
+  for (var i = 0; i < words.length; i++) {
+    if (SKIP_WORDS.indexOf(words[i].toLowerCase()) === -1) {
+      return words[i].charAt(0).toUpperCase();
+    }
+  }
+  return words[0].charAt(0).toUpperCase();
+}
+
 // ═══════════════════════════════════════════════════════════════════════════
 // Home
 // ═══════════════════════════════════════════════════════════════════════════
@@ -152,8 +165,9 @@ function sectionHtml(title, type, entries, max, layout) {
 
 function cardHtml(type, e) {
   var op = classifyEntry(e);
+  var icon = (type === 'blog' || type === 'wiki') ? titleLetter(e.title) : op.symbol;
   var h = '<a class="content-card' + (type === 'experiment' ? ' content-card--exp' : '') + '" href="' + contentUrl(type, e.slug) + '">';
-  h += '<span class="card-operator" style="color:' + op.color + '" title="' + op.code + '">' + op.symbol + '</span>';
+  h += '<span class="card-operator" style="color:' + op.color + '" title="' + op.code + '">' + icon + '</span>';
   h += '<h3 class="card-title">' + esc(e.title) + '</h3>';
   if (e.tags && e.tags.length) {
     h += '<div class="card-tags">';
@@ -169,8 +183,9 @@ function cardHtml(type, e) {
 
 function listCardHtml(type, e) {
   var op = classifyEntry(e);
+  var icon = (type === 'blog' || type === 'wiki') ? titleLetter(e.title) : op.symbol;
   var h = '<a class="list-card" href="' + contentUrl(type, e.slug) + '">';
-  h += '<span class="list-card-operator" style="color:' + op.color + '" title="' + op.code + '">' + op.symbol + '</span>';
+  h += '<span class="list-card-operator" style="color:' + op.color + '" title="' + op.code + '">' + icon + '</span>';
   h += '<div class="list-card-body"><h3 class="list-card-title">' + esc(e.title) + '</h3>';
   if (e.updated_at) {
     h += '<div class="list-card-meta"><time>' + timeAgo(e.updated_at) + '</time></div>';
