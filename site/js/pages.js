@@ -313,12 +313,16 @@ function initPhaseCube(container) {
   var FACE_RX = [-15, -15, 75];   // per-face rotateX (keeps text right-side up)
   var FACE_RY = [25, -65, 25];    // per-face rotateY
   var userX = 0, userY = 0; // accumulated user rotation offsets
-  var STEP = 30; // degrees per button press / arrow key
+  var TILT_MAX = 22; // max degrees of drag/tilt offset
+  var PARALLAX = 5;  // hover tilt intensity (degrees)
 
-  function applyTransform(transition) {
+  function clamp(v, lo, hi) { return v < lo ? lo : v > hi ? hi : v; }
+
+  function applyTransform(transition, duration) {
     var rx = FACE_RX[current] + userX;
     var ry = FACE_RY[current] + userY;
-    cube.style.transition = transition ? 'all 0.6s ease' : 'none';
+    var dur = duration || '0.6s';
+    cube.style.transition = transition ? 'transform ' + dur + ' cubic-bezier(.4, 0, .2, 1)' : 'none';
     cube.style.transform = 'rotateX(' + rx + 'deg) rotateY(' + ry + 'deg)';
   }
 
@@ -341,8 +345,18 @@ function initPhaseCube(container) {
     applyTransform(true);
   }
 
-  function tiltUp()    { userX += STEP; applyTransform(true); pauseAuto(); resumeAuto(); }
-  function tiltDown()  { userX -= STEP; applyTransform(true); pauseAuto(); resumeAuto(); }
+  function tiltUp() {
+    userX = TILT_MAX;
+    applyTransform(true);
+    pauseAuto();
+    setTimeout(function () { userX = 0; applyTransform(true, '0.35s'); resumeAuto(); }, 800);
+  }
+  function tiltDown() {
+    userX = -TILT_MAX;
+    applyTransform(true);
+    pauseAuto();
+    setTimeout(function () { userX = 0; applyTransform(true, '0.35s'); resumeAuto(); }, 800);
+  }
   function spinLeft()  { showFace(current - 1); }
   function spinRight() { showFace(current + 1); }
 
@@ -383,9 +397,9 @@ function initPhaseCube(container) {
     var cy = e.clientY || (touch && touch.clientY) || 0;
     var dx = cx - dragStartX;
     var dy = cy - dragStartY;
-    // Live preview rotation during drag
-    var previewY = userY + dx * 0.5;
-    var previewX = userX - dy * 0.5;
+    // Live preview rotation during drag (clamped to tilt range)
+    var previewY = clamp(dx * 0.5, -TILT_MAX, TILT_MAX);
+    var previewX = clamp(-dy * 0.5, -TILT_MAX, TILT_MAX);
     var rx = FACE_RX[current] + previewX;
     var ry = FACE_RY[current] + previewY;
     cube.style.transition = 'none';
@@ -401,15 +415,14 @@ function initPhaseCube(container) {
     var dx = endX - dragStartX;
     var dy = endY - dragStartY;
 
-    // Commit the drag rotation
-    userY += dx * 0.5;
-    userX -= dy * 0.5;
-
-    // If horizontal swipe is dominant and exceeds threshold, also cycle face
+    // If horizontal swipe is dominant and exceeds threshold, cycle face
     if (Math.abs(dx) > swipeThreshold && Math.abs(dx) > Math.abs(dy)) {
       showFace(dx < 0 ? current + 1 : current - 1);
     } else {
-      applyTransform(true);
+      // Snap back to base orientation
+      userX = 0;
+      userY = 0;
+      applyTransform(true, '0.35s');
     }
     resumeAuto();
   }
@@ -436,10 +449,10 @@ function initPhaseCube(container) {
       var rect = wrap.getBoundingClientRect();
       var x = (e.clientX - rect.left) / rect.width - 0.5;
       var y = (e.clientY - rect.top) / rect.height - 0.5;
-      var tiltX = y * -12;
-      var tiltY = x * 12;
-      var rx = FACE_RX[current] + userX + tiltX;
-      var ry = FACE_RY[current] + userY + tiltY;
+      var tiltX = y * -PARALLAX;
+      var tiltY = x * PARALLAX;
+      var rx = FACE_RX[current] + tiltX;
+      var ry = FACE_RY[current] + tiltY;
       cube.style.transition = 'none';
       cube.style.transform = 'rotateX(' + rx + 'deg) rotateY(' + ry + 'deg)';
     });
