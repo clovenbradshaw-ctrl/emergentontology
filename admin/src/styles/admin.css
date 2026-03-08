@@ -379,8 +379,8 @@ textarea { resize: vertical; }
 .create-section h2, .content-list-section h2 { font-size: 1.1rem; margin-bottom: .75rem; }
 .create-form { display: flex; gap: .65rem; flex-wrap: wrap; align-items: flex-end; }
 .create-form input, .create-form select { flex: 1; min-width: 140px; }
-.content-table { width: 100%; border-collapse: collapse; font-size: .9rem; }
-.content-table th, .content-table td { padding: .6rem .75rem; border-bottom: 1px solid var(--border); text-align: left; }
+.content-table { width: 100%; border-collapse: collapse; font-size: .9rem; table-layout: auto; }
+.content-table th, .content-table td { padding: .6rem .75rem; border-bottom: 1px solid var(--border); text-align: left; white-space: nowrap; vertical-align: top; }
 .content-table th { color: var(--text-dim); font-weight: 500; font-size: .82rem; }
 .content-table tbody tr:hover { background: var(--bg2); }
 .slug-cell { font-family: var(--font-mono); font-size: .85rem; color: var(--text-dim); }
@@ -545,7 +545,7 @@ textarea { resize: vertical; }
 }
 
 /* Inline tags (Issue 4) */
-.tags-cell { max-width: 200px; }
+.tags-cell, .keywords-cell { white-space: normal !important; min-width: 160px; }
 .inline-tags {
   display: flex;
   flex-wrap: wrap;
@@ -593,6 +593,48 @@ textarea { resize: vertical; }
   padding: .1rem .35rem;
   border-radius: 999px;
 }
+
+/* Keywords */
+.keyword-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: .15rem;
+  background: color-mix(in srgb, #60a5fa 15%, transparent);
+  border-radius: 999px;
+  padding: .05rem .45rem;
+  font-size: .75rem;
+  color: #60a5fa;
+}
+.keyword-suggested {
+  background: color-mix(in srgb, var(--warn) 15%, transparent);
+  color: var(--warn);
+  border: 1px dashed color-mix(in srgb, var(--warn) 40%, transparent);
+}
+.keyword-approve {
+  background: none;
+  border: none;
+  color: var(--success);
+  font-size: .85rem;
+  cursor: pointer;
+  padding: 0 .1rem;
+  line-height: 1;
+}
+.keyword-approve:hover { color: #6eff6e; }
+.keyword-detect-btn {
+  background: none;
+  border: 1px dashed var(--border);
+  border-radius: 999px;
+  width: 1.4rem;
+  height: 1.4rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: .75rem;
+  color: var(--text-dim);
+  cursor: pointer;
+  transition: .15s;
+}
+.keyword-detect-btn:hover { border-color: #60a5fa; color: #60a5fa; }
 
 /* MetadataBar (Issue 10) */
 .metadata-bar {

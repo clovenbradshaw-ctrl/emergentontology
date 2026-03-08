@@ -34,6 +34,7 @@ interface IndexEntry {
   status: ContentStatus;
   visibility: Visibility;
   tags: string[];
+  keywords: string[];
   /** ISO timestamp when this content was first SIG'd as public */
   first_public_at?: string;
   /** Whether this page appears in site navigation (pages only) */
@@ -83,7 +84,7 @@ export default function ContentManager({ siteBase, onOpen }: Props) {
   // Search, filter, sort (Issues 5 & 9)
   const [searchTerm, setSearchTerm] = useState('');
   const [typeFilter, setTypeFilter] = useState<ContentType | 'all'>('all');
-  const [sortField, setSortField] = useState<'title' | 'type' | 'status' | 'slug'>('title');
+  const [sortField, setSortField] = useState<'title' | 'type' | 'status' | 'slug' | 'tags' | 'keywords' | 'visibility' | 'nav'>('title');
   const [sortDir, setSortDir] = useState<'asc' | 'desc'>('asc');
 
   // Inline editing (Issues 3 & 4)
@@ -94,6 +95,10 @@ export default function ContentManager({ siteBase, onOpen }: Props) {
   const [editSlugError, setEditSlugError] = useState('');
   const [editingTags, setEditingTags] = useState<string | null>(null);
   const [tagInput, setTagInput] = useState('');
+  const [editingKeywords, setEditingKeywords] = useState<string | null>(null);
+  const [keywordInput, setKeywordInput] = useState('');
+  const [suggestedKeywords, setSuggestedKeywords] = useState<Record<string, string[]>>({});
+  const [detectingKeywords, setDetectingKeywords] = useState<string | null>(null);
 
   // Special page creation (Issues 1 & 2)
   const [creatingSpecial, setCreatingSpecial] = useState<string | null>(null);
@@ -144,6 +149,7 @@ export default function ContentManager({ siteBase, onOpen }: Props) {
             status: (meta.status as ContentStatus) ?? 'draft',
             visibility: (meta.visibility as Visibility) ?? 'public',
             tags: (meta.tags as string[]) ?? [],
+            keywords: (meta.keywords as string[]) ?? [],
           }];
           knownIds.add(rid);
         }
@@ -206,6 +212,7 @@ export default function ContentManager({ siteBase, onOpen }: Props) {
         status: settings.defaultStatus,
         visibility: newVisibility,
         tags: [],
+        keywords: [],
         ...(newVisibility === 'public' ? { first_public_at: ts } : {}),
       };
       const updatedEntries = [...entries, newEntry];
@@ -491,7 +498,7 @@ export default function ContentManager({ siteBase, onOpen }: Props) {
 
   // ── Update index entry fields (shared utility for title, tags, etc.) ─────
 
-  async function updateIndexField(contentId: string, fields: Partial<{ slug: string; title: string; tags: string[] }>) {
+  async function updateIndexField(contentId: string, fields: Partial<{ slug: string; title: string; tags: string[]; keywords: string[] }>) {
     if (!isAuthenticated) return;
     const agent = settings.displayName || 'editor';
 
@@ -579,6 +586,7 @@ export default function ContentManager({ siteBase, onOpen }: Props) {
         status: settings.defaultStatus,
         visibility: 'public',
         tags: [],
+        keywords: [],
         first_public_at: ts,
       };
       const updatedEntries = [...entries, newEntry];
@@ -664,6 +672,131 @@ export default function ContentManager({ siteBase, onOpen }: Props) {
     updateIndexField(contentId, { tags: entry.tags.filter(t => t !== tag) });
   }
 
+  // ── Inline keyword operations ──────────────────────────────────────────
+
+  function addKeyword(contentId: string) {
+    const kw = keywordInput.trim().toLowerCase();
+    if (!kw) return;
+    const entry = entries.find(e => e.content_id === contentId);
+    if (!entry || (entry.keywords || []).includes(kw)) { setKeywordInput(''); return; }
+    updateIndexField(contentId, { keywords: [...(entry.keywords || []), kw] });
+    setKeywordInput('');
+  }
+
+  function removeKeyword(contentId: string, kw: string) {
+    const entry = entries.find(e => e.content_id === contentId);
+    if (!entry) return;
+    updateIndexField(contentId, { keywords: (entry.keywords || []).filter(k => k !== kw) });
+  }
+
+  function approveKeyword(contentId: string, kw: string) {
+    const entry = entries.find(e => e.content_id === contentId);
+    if (!entry || (entry.keywords || []).includes(kw)) return;
+    updateIndexField(contentId, { keywords: [...(entry.keywords || []), kw] });
+    // Remove from suggestions
+    setSuggestedKeywords(prev => ({
+      ...prev,
+      [contentId]: (prev[contentId] || []).filter(k => k !== kw),
+    }));
+  }
+
+  function dismissKeyword(contentId: string, kw: string) {
+    setSuggestedKeywords(prev => ({
+      ...prev,
+      [contentId]: (prev[contentId] || []).filter(k => k !== kw),
+    }));
+  }
+
+  /** Extract keywords from the content body text by loading the content state. */
+  async function detectKeywords(contentId: string) {
+    setDetectingKeywords(contentId);
+    try {
+      const result = await loadState<{ meta?: Record<string, unknown>; current_revision?: { content?: string }; blocks?: Array<{ data?: Record<string, unknown> }> }>(
+        contentId,
+        siteBase,
+        `/generated/state/content/${contentId.replace(':', '/')}.json`,
+      );
+      const state = result.state;
+      if (!state) { setDetectingKeywords(null); return; }
+
+      // Extract text from content body
+      let bodyText = '';
+
+      // Wiki/Blog: use current_revision content (markdown/html)
+      if (state.current_revision?.content) {
+        bodyText = state.current_revision.content
+          .replace(/<[^>]+>/g, ' ')  // strip HTML tags
+          .replace(/[#*_`~\[\]()>|\\-]/g, ' ');  // strip markdown syntax
+      }
+
+      // Page: concatenate text from blocks
+      if (state.blocks && Array.isArray(state.blocks)) {
+        for (const block of state.blocks) {
+          if (block.data) {
+            const text = block.data.text || block.data.content || block.data.html || '';
+            if (typeof text === 'string') {
+              bodyText += ' ' + text.replace(/<[^>]+>/g, ' ');
+            }
+          }
+        }
+      }
+
+      if (!bodyText.trim()) { setDetectingKeywords(null); return; }
+
+      // Simple keyword extraction: find frequently occurring meaningful words
+      const stopWords = new Set([
+        'the', 'a', 'an', 'and', 'or', 'but', 'in', 'on', 'at', 'to', 'for',
+        'of', 'with', 'by', 'from', 'is', 'are', 'was', 'were', 'be', 'been',
+        'being', 'have', 'has', 'had', 'do', 'does', 'did', 'will', 'would',
+        'could', 'should', 'may', 'might', 'shall', 'can', 'need', 'must',
+        'it', 'its', 'this', 'that', 'these', 'those', 'i', 'you', 'he', 'she',
+        'we', 'they', 'me', 'him', 'her', 'us', 'them', 'my', 'your', 'his',
+        'our', 'their', 'not', 'no', 'nor', 'as', 'if', 'then', 'than',
+        'when', 'where', 'how', 'what', 'which', 'who', 'whom', 'so', 'up',
+        'out', 'about', 'into', 'over', 'after', 'also', 'just', 'more',
+        'some', 'such', 'all', 'each', 'every', 'both', 'few', 'most', 'other',
+        'new', 'old', 'one', 'two', 'first', 'last', 'long', 'great', 'same',
+        'own', 'still', 'back', 'even', 'here', 'there', 'way', 'many', 'very',
+        'make', 'like', 'well', 'only', 'much', 'get', 'see', 'know', 'take',
+        'come', 'think', 'say', 'use', 'find', 'give', 'tell', 'work', 'call',
+        'try', 'ask', 'seem', 'feel', 'leave', 'keep', 'let', 'begin', 'show',
+        'hear', 'play', 'run', 'move', 'live', 'believe', 'happen', 'include',
+        'while', 'through', 'between', 'before', 'since', 'because', 'nbsp',
+      ]);
+
+      const words = bodyText.toLowerCase().split(/\s+/).filter(w => w.length > 2);
+      const freq: Record<string, number> = {};
+      for (const word of words) {
+        const clean = word.replace(/[^a-z0-9-]/g, '');
+        if (clean.length < 3 || stopWords.has(clean)) continue;
+        freq[clean] = (freq[clean] || 0) + 1;
+      }
+
+      // Also extract two-word phrases
+      for (let i = 0; i < words.length - 1; i++) {
+        const w1 = words[i].replace(/[^a-z0-9-]/g, '');
+        const w2 = words[i + 1].replace(/[^a-z0-9-]/g, '');
+        if (w1.length < 3 || w2.length < 3 || stopWords.has(w1) || stopWords.has(w2)) continue;
+        const phrase = `${w1} ${w2}`;
+        freq[phrase] = (freq[phrase] || 0) + 1;
+      }
+
+      const entry = entries.find(e => e.content_id === contentId);
+      const existing = new Set([...(entry?.keywords || []), ...(entry?.tags || [])]);
+
+      const candidates = Object.entries(freq)
+        .filter(([kw, count]) => count >= 2 && !existing.has(kw))
+        .sort((a, b) => b[1] - a[1])
+        .slice(0, 10)
+        .map(([kw]) => kw);
+
+      setSuggestedKeywords(prev => ({ ...prev, [contentId]: candidates }));
+    } catch (err) {
+      console.warn('[ContentManager] keyword detection failed:', err);
+    }
+    setDetectingKeywords(null);
+  }
+
   // ── Derived data ───────────────────────────────────────────────────────
 
   const activeEntries = entries.filter(e => e.status !== 'archived');
@@ -688,6 +821,15 @@ export default function ContentManager({ siteBase, onOpen }: Props) {
       case 'type': cmp = a.content_type.localeCompare(b.content_type); break;
       case 'status': cmp = a.status.localeCompare(b.status); break;
       case 'slug': cmp = a.slug.localeCompare(b.slug); break;
+      case 'tags': cmp = (a.tags.join(',')).localeCompare(b.tags.join(',')); break;
+      case 'keywords': cmp = ((a.keywords || []).join(',')).localeCompare((b.keywords || []).join(',')); break;
+      case 'visibility': cmp = a.visibility.localeCompare(b.visibility); break;
+      case 'nav': {
+        const aNav = a.content_type === 'page' ? (a.show_in_nav ? 'in nav' : 'hidden') : '';
+        const bNav = b.content_type === 'page' ? (b.show_in_nav ? 'in nav' : 'hidden') : '';
+        cmp = aNav.localeCompare(bNav);
+        break;
+      }
     }
     return sortDir === 'asc' ? cmp : -cmp;
   });
@@ -833,10 +975,11 @@ export default function ContentManager({ siteBase, onOpen }: Props) {
                   <th className="sortable-th" onClick={() => handleSort('type')}>Type{sortIndicator('type')}</th>
                   <th className="sortable-th" onClick={() => handleSort('title')}>Title{sortIndicator('title')}</th>
                   <th className="sortable-th" onClick={() => handleSort('slug')}>Slug{sortIndicator('slug')}</th>
-                  <th>Tags</th>
+                  <th className="sortable-th" onClick={() => handleSort('tags')}>Tags{sortIndicator('tags')}</th>
+                  <th className="sortable-th" onClick={() => handleSort('keywords')}>Keywords{sortIndicator('keywords')}</th>
                   <th className="sortable-th" onClick={() => handleSort('status')}>Status{sortIndicator('status')}</th>
-                  <th>Visibility</th>
-                  <th>Nav</th>
+                  <th className="sortable-th" onClick={() => handleSort('visibility')}>Visibility{sortIndicator('visibility')}</th>
+                  <th className="sortable-th" onClick={() => handleSort('nav')}>Nav{sortIndicator('nav')}</th>
                   <th>Actions</th>
                 </tr>
               </thead>
@@ -930,6 +1073,65 @@ export default function ContentManager({ siteBase, onOpen }: Props) {
                             disabled={!isAuthenticated}
                             title="Add tag"
                           >+</button>
+                        )}
+                      </div>
+                    </td>
+                    <td className="keywords-cell">
+                      <div className="inline-tags">
+                        {(entry.keywords || []).map((kw) => (
+                          <span key={kw} className="keyword-pill">
+                            {kw}
+                            <button
+                              className="tag-remove"
+                              onClick={() => removeKeyword(entry.content_id, kw)}
+                              disabled={!isAuthenticated}
+                              title="Remove keyword"
+                            >{'\u00D7'}</button>
+                          </span>
+                        ))}
+                        {(suggestedKeywords[entry.content_id] || []).map((kw) => (
+                          <span key={`s-${kw}`} className="keyword-pill keyword-suggested">
+                            {kw}
+                            <button
+                              className="keyword-approve"
+                              onClick={() => approveKeyword(entry.content_id, kw)}
+                              title="Approve keyword"
+                            >{'\u2713'}</button>
+                            <button
+                              className="tag-remove"
+                              onClick={() => dismissKeyword(entry.content_id, kw)}
+                              title="Dismiss"
+                            >{'\u00D7'}</button>
+                          </span>
+                        ))}
+                        {editingKeywords === entry.content_id ? (
+                          <input
+                            className="tag-add-input"
+                            value={keywordInput}
+                            onChange={(e) => setKeywordInput(e.target.value)}
+                            onKeyDown={(e) => {
+                              if (e.key === 'Enter' || e.key === ',') { e.preventDefault(); addKeyword(entry.content_id); }
+                              if (e.key === 'Escape') { setEditingKeywords(null); setKeywordInput(''); }
+                            }}
+                            onBlur={() => { if (keywordInput.trim()) addKeyword(entry.content_id); setEditingKeywords(null); setKeywordInput(''); }}
+                            placeholder="add keyword…"
+                            autoFocus
+                          />
+                        ) : (
+                          <span style={{ display: 'inline-flex', gap: '.2rem' }}>
+                            <button
+                              className="tag-add-btn"
+                              onClick={() => { setEditingKeywords(entry.content_id); setKeywordInput(''); }}
+                              disabled={!isAuthenticated}
+                              title="Add keyword"
+                            >+</button>
+                            <button
+                              className="keyword-detect-btn"
+                              onClick={() => detectKeywords(entry.content_id)}
+                              disabled={!isAuthenticated || detectingKeywords === entry.content_id}
+                              title="Auto-detect keywords from content"
+                            >{detectingKeywords === entry.content_id ? '…' : '\u2728'}</button>
+                          </span>
                         )}
                       </div>
                     </td>
