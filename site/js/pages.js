@@ -701,7 +701,7 @@ export function renderWikiList(el) {
 
 function wikiListItem(w) {
   var op = classifyEntry(w);
-  var opHtml = '<span class="list-operator" style="color:' + op.color + '" title="' + op.code + '">' + op.symbol + '</span> ';
+  var opHtml = '<span class="list-operator" style="color:' + op.color + '" title="' + op.code + '">' + titleLetter(w.title) + '</span> ';
   var pinClass = w.pinned ? ' pinned' : '';
   var pinHtml = w.pinned ? '<span class="pin-indicator" title="Pinned">\uD83D\uDCCC</span> ' : '';
   var h = '<li class="wiki-accordion-item' + pinClass + '">';
