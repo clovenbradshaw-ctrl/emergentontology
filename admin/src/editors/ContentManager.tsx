@@ -889,7 +889,7 @@ export default function ContentManager({ siteBase, onOpen }: Props) {
 
           if (!state) {
             body = '*No content available.*';
-          } else if (state.content_type === 'wiki' || state.content_type === 'blog') {
+          } else if (entry.content_type === 'wiki' || entry.content_type === 'blog') {
             const wikiState = state as ProjectedWiki | ProjectedBlog;
             const rev = wikiState.current_revision;
             if (rev) {
@@ -897,7 +897,7 @@ export default function ContentManager({ siteBase, onOpen }: Props) {
             } else {
               body = '*No revision.*';
             }
-          } else if (state.content_type === 'page') {
+          } else if (entry.content_type === 'page') {
             const pageState = state as ProjectedPage;
             const blocks = pageState.blocks.filter(b => !b.deleted);
             // Order blocks by block_order if available
@@ -905,7 +905,7 @@ export default function ContentManager({ siteBase, onOpen }: Props) {
               ? pageState.block_order.map(id => blocks.find(b => b.block_id === id)).filter(Boolean) as Block[]
               : blocks;
             body = ordered.map(b => blockToMd(b)).filter(Boolean).join('\n\n');
-          } else if (state.content_type === 'experiment') {
+          } else if (entry.content_type === 'experiment') {
             const expState = state as ProjectedExperiment;
             const parts: string[] = [];
             if (expState.current_revision) {
