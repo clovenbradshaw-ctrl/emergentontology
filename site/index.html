@@ -695,7 +695,7 @@
     .hero { padding: 3rem 0.5rem 2rem; }
     .home-sections { flex-direction: column; }
     .home-left { grid-template-columns: 1fr; }
-    .home-right { align-self: center; overflow-x: auto; max-width: 100%; }
+    .home-right { align-self: center; overflow: visible; max-width: 100%; }
     .home-cube { position: static; padding-top: 0; }
     .home-cube-wrap { width: 180px; height: 180px; }
     .home-phase-cube { width: 180px; height: 180px; }
@@ -704,6 +704,8 @@
     .hcube-face--right  { transform: rotateY(90deg) translateZ(90px); }
     .hcube-face--back   { transform: rotateY(180deg) translateZ(90px); }
     .hcube-face--left   { transform: rotateY(-90deg) translateZ(90px); }
+    .hcube-face--top    { transform: rotateX(-90deg) translateZ(90px); }
+    .hcube-face--bottom { transform: rotateX(90deg) translateZ(90px); }
     .wiki-page { padding: 2rem 0 4rem; }
     .wiki-body h1 { font-size: 1.7rem; }
     .article-header h1 { font-size: 1.8rem; }
@@ -1064,6 +1066,8 @@ function renderHome() {
   window.scrollTo(0, 0);
 
   // ── Initialize Phase Cube ──
+  // Clean up previous document-level listeners if re-rendering
+  if (window._hcubeCleanup) window._hcubeCleanup();
   (function() {
     var cube = document.getElementById('hcube');
     var label = document.getElementById('hcube-label');
@@ -1077,6 +1081,7 @@ function renderHome() {
     var total = HCUBE_FACES.length;
     var FACE_RX = [-15, -15, 75];
     var FACE_RY = [25, -65, 25];
+    var transitioning = false;
 
     function applyTransform(transition) {
       var rx = FACE_RX[current];
@@ -1094,7 +1099,9 @@ function renderHome() {
       for (var i = 0; i < dots.length; i++) {
         dots[i].classList.toggle('active', i === current);
       }
+      transitioning = true;
       applyTransform(true);
+      setTimeout(function() { transitioning = false; }, 750);
     }
 
     if (prevBtn) prevBtn.addEventListener('click', function() { show(current - 1); });
@@ -1122,6 +1129,7 @@ function renderHome() {
       var endX = e.clientX || (e.changedTouches && e.changedTouches[0].clientX) || 0;
       var dx = endX - dragStartX;
       if (Math.abs(dx) > swipeThreshold) show(dx < 0 ? current + 1 : current - 1);
+      else applyTransform(true);
       resumeAuto();
     }
 
@@ -1136,12 +1144,12 @@ function renderHome() {
 
     // ── Multi-axis parallax tilt ──
     wrap.addEventListener('mousemove', function(e) {
-      if (dragging) return;
+      if (dragging || transitioning) return;
       var rect = wrap.getBoundingClientRect();
       var x = (e.clientX - rect.left) / rect.width - 0.5;
       var y = (e.clientY - rect.top) / rect.height - 0.5;
-      var tiltX = y * -12;
-      var tiltY = x * 12;
+      var tiltX = y * -5;
+      var tiltY = x * 5;
       var rx = FACE_RX[current] + tiltX;
       var ry = FACE_RY[current] + tiltY;
       cube.style.transition = 'none';
@@ -1150,6 +1158,13 @@ function renderHome() {
     wrap.addEventListener('mouseleave', function() {
       applyTransform(true);
     });
+
+    // Cleanup function for document-level listeners on re-render
+    window._hcubeCleanup = function() {
+      document.removeEventListener('mousemove', onPointerMove);
+      document.removeEventListener('mouseup', onPointerEnd);
+      clearInterval(autoTimer);
+    };
   })();
 }
 
