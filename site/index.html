@@ -734,6 +734,7 @@
       <a class="topnav-link" data-view="wiki" onclick="showView('wiki')">Wiki</a>
       <a class="topnav-link" data-view="blog" onclick="showView('blog')">Blog</a>
       <a class="topnav-link" data-view="experiments" onclick="showView('experiments')">Experiments</a>
+      <a class="topnav-link" data-view="documents" onclick="showView('documents')">Documents</a>
     </div>
   </div>
   <div class="topnav-right">
@@ -748,6 +749,7 @@
   <a data-view="wiki" onclick="showView('wiki');closeMobileNav()">Wiki</a>
   <a data-view="blog" onclick="showView('blog');closeMobileNav()">Blog</a>
   <a data-view="experiments" onclick="showView('experiments');closeMobileNav()">Experiments</a>
+  <a data-view="documents" onclick="showView('documents');closeMobileNav()">Documents</a>
 </div>
 
 <div class="reading-progress" id="readingProgress"></div>
@@ -779,6 +781,7 @@
       <a href="#__wiki" onclick="showView('wiki');return false;">Wiki</a>
       <a href="#__blog" onclick="showView('blog');return false;">Blog</a>
       <a href="#__experiments" onclick="showView('experiments');return false;">Experiments</a>
+      <a href="#__documents" onclick="showView('documents');return false;">Documents</a>
     </nav>
   </div>
 </footer>
@@ -984,6 +987,7 @@ function renderHome() {
   var wiki = filterPages('wiki');
   var blogs = filterPages('blog');
   var exps = filterPages('experiment');
+  var docs = filterPages('document');
 
   // Hero — read from home.yaml config (generated/home.json), fall back to defaults
   var heroTitle = (homeConfig && homeConfig.hero && homeConfig.hero.title)
@@ -1006,6 +1010,8 @@ function renderHome() {
   h += renderHomeSection('Blog', blogs);
   // Experiments
   h += renderHomeSection('Experiments', exps);
+  // Documents & Assets
+  h += renderHomeSection('Documents & Assets', docs);
 
   h += '</div>'; // home-left
 
@@ -1056,7 +1062,7 @@ function renderHomeSection(title, items) {
     }
     h += '</div>';
     if (items.length > MAX) {
-      var viewMap = { 'Wiki': 'wiki', 'Blog': 'blog', 'Experiments': 'experiments' };
+      var viewMap = { 'Wiki': 'wiki', 'Blog': 'blog', 'Experiments': 'experiments', 'Documents & Assets': 'documents' };
       var viewKey = viewMap[title] || title.toLowerCase();
       h += '<a class="show-more-link" onclick="showView(\'' + viewKey + '\')" style="display:inline-block;margin-top:0.5rem;font-size:0.82rem;color:var(--purple);cursor:pointer;font-weight:500">+ ' + (items.length - MAX) + ' more</a>';
     }
@@ -1075,6 +1081,7 @@ function renderSection(type) {
   var app = document.getElementById('app');
   var typeFilter = type;
   if (type === 'experiments') typeFilter = 'experiment';
+  if (type === 'documents') typeFilter = 'document';
 
   var pages = allPages.filter(function(p) {
     return p.content_type === typeFilter && p.visibility !== 'private';
@@ -1381,9 +1388,10 @@ function renderPage(slug) {
   }
 
   // Determine section for breadcrumbs
-  var sectionMap = { wiki: 'Wiki', blog: 'Blog', experiment: 'Experiments' };
+  var sectionMap = { wiki: 'Wiki', blog: 'Blog', experiment: 'Experiments', document: 'Documents & Assets' };
   var sectionLabel = sectionMap[contentType] || 'Pages';
-  var sectionView = contentType === 'experiment' ? 'experiments' : contentType;
+  var sectionViewMap = { experiment: 'experiments', document: 'documents' };
+  var sectionView = sectionViewMap[contentType] || contentType;
 
   var h = '<div class="fade-in wiki-page">';
 

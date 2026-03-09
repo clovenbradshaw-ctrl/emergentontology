@@ -1429,6 +1429,7 @@ export function updateNav() {
   fillDropdown('nav-wiki-dd', 'nav-wiki-count', sortByUpdated(nav.filter(function (e) { return e.content_type === 'wiki'; })), 'wiki', 8);
   fillDropdown('nav-blog-dd', 'nav-blog-count', sortByUpdated(nav.filter(function (e) { return e.content_type === 'blog'; })), 'blog', 6);
   fillDropdown('nav-exp-dd', 'nav-exp-count', sortByUpdated(nav.filter(function (e) { return e.content_type === 'experiment'; })), 'experiment', 6);
+  fillDropdown('nav-doc-dd', 'nav-doc-count', sortByUpdated(nav.filter(function (e) { return e.content_type === 'document'; })), 'document', 6);
 
   var siteName = (idx.site_settings && idx.site_settings.siteName) || 'Emergent Ontology';
   var hEl = document.getElementById('site-name-header');
