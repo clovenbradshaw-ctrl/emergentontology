@@ -304,6 +304,7 @@
       <a class="topnav-link" data-view="wiki" onclick="showView('wiki')">Wiki</a>
       <a class="topnav-link" data-view="blog" onclick="showView('blog')">Blog</a>
       <a class="topnav-link" data-view="experiments" onclick="showView('experiments')">Experiments</a>
+      <a class="topnav-link" data-view="documents" onclick="showView('documents')">Documents</a>
     </div>
   </div>
   <div class="topnav-right">
@@ -510,6 +511,28 @@ function renderHome() {
   } else h += `<p class="home-section-empty">No experiment entries published yet.</p>`;
   h += `</div>`;
 
+  // Documents
+  const docs = sortByUpdated(allPages.filter(p => p.content_type==='document' && (p.status==='published' || p.hasContent)));
+  h += `<div class="home-section"><div class="home-section-title">Documents</div>`;
+  if (docs.length) {
+    h += `<div class="wiki-list">`;
+    for (var di = 0; di < Math.min(docs.length, MAX); di++) {
+      var dp = docs[di];
+      var dts = relativeTime(dp.updated_at);
+      var dcls = classifyItem(dp.title, dp.tags);
+      h += `<a class="wiki-list-item" onclick="navigate('${dp.slug}')">
+        <div class="item-icon" style="color:${dcls.color}">${dcls.sym}</div>
+        <div><div class="item-title">${esc(dp.title)}</div>
+        <div class="item-meta">${dts || ''}</div></div>
+      </a>`;
+    }
+    h += `</div>`;
+    if (docs.length > MAX) {
+      h += `<a class="show-more-link" onclick="showView('documents')" style="display:inline-block;margin-top:0.5rem;font-size:0.82rem;color:var(--purple);cursor:pointer;font-weight:500">+ ${docs.length - MAX} more</a>`;
+    }
+  } else h += `<p class="home-section-empty">No document entries published yet.</p>`;
+  h += `</div>`;
+
   h += `</div>`; // home-left
 
   // Operator grid
@@ -527,6 +550,7 @@ function renderSection(type) {
   const app = document.getElementById('app');
   var typeFilter = type;
   if (type === 'experiments') typeFilter = 'experiment';
+  if (type === 'documents') typeFilter = 'document';
   const pages = sortByUpdated(allPages.filter(p => p.content_type === typeFilter));
   const label = type.charAt(0).toUpperCase() + type.slice(1);
   let h = `<div class="fade-in wiki-page">
