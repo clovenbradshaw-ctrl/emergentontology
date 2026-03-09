@@ -1081,7 +1081,7 @@ export function renderExp(el, slug) {
     setBreadcrumbs([{ label: 'Experiments', href: BASE + '/exp/' }, { label: title, href: BASE + '/exp/' + slug + '/' }]);
 
     var rev = content.current_revision;
-    var isHtmlCanvas = rev && rev.content && (rev.format === 'html' || (!rev.format && /^<[a-z][\s\S]*>/i.test((rev.content || '').trim())));
+    var isHtmlCanvas = rev && rev.content && (rev.format === 'html' || (!rev.format && /^<!doctype\s|^<[a-z][\s\S]*>/i.test((rev.content || '').trim())));
     var kindIcons = { note: '\uD83D\uDCDD', dataset: '\uD83D\uDCC1', result: '\u2705', chart: '\uD83D\uDCC8', link: '\uD83D\uDD17', decision: '\u2696\uFE0F', html: '\uD83C\uDF10' };
     var entries = (content.entries || []).filter(function (e) { return !e.deleted; });
 
