@@ -17,6 +17,7 @@ import {
   renderHome, renderWikiList, renderWikiAll, renderWiki,
   renderBlogList, renderBlog,
   renderExpList, renderExp,
+  renderDocList, renderDoc,
   renderPage, renderAll, render404, updateNav
 } from './pages.js';
 import { setupUI } from './ui.js';
@@ -47,6 +48,8 @@ function render() {
         case 'blog':      return renderBlog(main, route.slug);
         case 'exp-list':  return renderExpList(main);
         case 'exp':       return renderExp(main, route.slug);
+        case 'doc-list':  return renderDocList(main);
+        case 'doc':       return renderDoc(main, route.slug);
         case 'page':      return renderPage(main, route.slug);
         case 'all':       return renderAll(main);
         default:          render404(main); return Promise.resolve();

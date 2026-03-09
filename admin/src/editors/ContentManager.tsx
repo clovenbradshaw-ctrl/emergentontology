@@ -23,7 +23,7 @@ import {
 } from '../xano/client';
 import { loadState, fetchCurrentRecordCached, fetchAllCurrentRecordsCached } from '../xano/stateCache';
 import { insIndexEntry, desContentMeta, desIndexEntry, nulIndexEntry } from '../eo/events';
-import type { ContentType, ContentStatus, Visibility, ProjectedWiki, ProjectedBlog, ProjectedPage, ProjectedExperiment, Block, ExperimentEntry } from '../eo/types';
+import type { ContentType, ContentStatus, Visibility, ProjectedWiki, ProjectedBlog, ProjectedPage, ProjectedExperiment, ProjectedDocument, Block, ExperimentEntry, DocumentAsset } from '../eo/types';
 import { htmlToMd } from '../eo/markdown';
 import { SPECIAL_PAGES } from '../eo/constants';
 
@@ -61,6 +61,7 @@ const TYPE_LABELS: Partial<Record<ContentType, string>> = {
   wiki: 'Wiki Page',
   blog: 'Blog Post',
   experiment: 'Experiment',
+  document: 'Document',
 };
 
 export default function ContentManager({ siteBase, onOpen }: Props) {
@@ -127,7 +128,7 @@ export default function ContentManager({ siteBase, onOpen }: Props) {
       // Discover orphan records in Xano that aren't in site:index
       try {
         const allRecords = await fetchAllCurrentRecordsCached();
-        const CONTENT_PREFIXES = ['wiki:', 'blog:', 'experiment:', 'page:'];
+        const CONTENT_PREFIXES = ['wiki:', 'blog:', 'experiment:', 'page:', 'document:'];
         const knownIds = new Set(indexEntries.map(e => e.content_id));
 
         for (const rec of allRecords) {
@@ -882,7 +883,7 @@ export default function ContentManager({ siteBase, onOpen }: Props) {
         let body = '';
 
         try {
-          const result = await loadState<ProjectedWiki | ProjectedBlog | ProjectedPage | ProjectedExperiment>(
+          const result = await loadState<ProjectedWiki | ProjectedBlog | ProjectedPage | ProjectedExperiment | ProjectedDocument>(
             entry.content_id, siteBase,
           );
           const state = result.state;
@@ -915,6 +916,21 @@ export default function ContentManager({ siteBase, onOpen }: Props) {
             const activeEntries = expState.entries?.filter(e => !e.deleted) ?? [];
             for (const e of activeEntries) {
               parts.push(experimentEntryToMd(e));
+            }
+            body = parts.filter(Boolean).join('\n\n');
+          } else if (entry.content_type === 'document') {
+            const docState = state as ProjectedDocument;
+            const parts: string[] = [];
+            if (docState.current_revision) {
+              const rev = docState.current_revision;
+              parts.push(rev.format === 'html' ? htmlToMd(rev.content) : rev.content);
+            }
+            const activeAssets = (docState.assets ?? []).filter((a: DocumentAsset) => !a.deleted);
+            if (activeAssets.length > 0) {
+              parts.push('## Attachments\n');
+              for (const a of activeAssets) {
+                parts.push(`- [${a.title}](${a.url})${a.description ? ' — ' + a.description : ''}`);
+              }
             }
             body = parts.filter(Boolean).join('\n\n');
           }
@@ -1100,7 +1116,7 @@ export default function ContentManager({ siteBase, onOpen }: Props) {
             placeholder="Search by title or slug\u2026"
           />
           <div className="content-type-filters">
-            {(['all', 'wiki', 'blog', 'page', 'experiment'] as const).map((t) => (
+            {(['all', 'wiki', 'blog', 'page', 'experiment', 'document'] as const).map((t) => (
               <button
                 key={t}
                 className={`type-filter-btn ${typeFilter === t ? 'active' : ''}`}

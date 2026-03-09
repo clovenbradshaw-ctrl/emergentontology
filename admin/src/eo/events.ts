@@ -3,7 +3,7 @@
  * Every edit emits one of these; they are appended to the Xano EOwiki event log.
  */
 
-import type { EOEvent, EOOp, ContentMeta, Block, WikiRevision, ExperimentEntry } from './types';
+import type { EOEvent, EOOp, ContentMeta, Block, WikiRevision, ExperimentEntry, DocumentAsset } from './types';
 
 function makeCtx(agent: string, txn?: string): EOEvent['ctx'] {
   return { agent, ts: new Date().toISOString(), txn };
@@ -169,6 +169,49 @@ export function nulExpEntry(expId: string, entryId: string, agent: string): EOEv
   return {
     op: 'NUL',
     target: `${expId}/entry:${entryId}`,
+    operand: { reason: 'user_deleted' },
+    ctx: makeCtx(agent),
+  };
+}
+
+// ── Document assets ─────────────────────────────────────────────────────────
+
+export function insDocAsset(
+  docId: string,
+  asset: Omit<DocumentAsset, 'deleted' | '_event_id'>,
+  agent: string
+): EOEvent {
+  return {
+    op: 'INS',
+    target: `${docId}/asset:${asset.asset_id}`,
+    operand: {
+      title: asset.title,
+      url: asset.url,
+      file_type: asset.file_type,
+      description: asset.description,
+    },
+    ctx: makeCtx(agent, `ins-asset-${asset.asset_id}`),
+  };
+}
+
+export function altDocAsset(
+  docId: string,
+  assetId: string,
+  patch: Array<{ op: string; path: string; value?: unknown }>,
+  agent: string
+): EOEvent {
+  return {
+    op: 'ALT',
+    target: `${docId}/asset:${assetId}`,
+    operand: { patch },
+    ctx: makeCtx(agent, `alt-asset-${assetId}-${Date.now()}`),
+  };
+}
+
+export function nulDocAsset(docId: string, assetId: string, agent: string): EOEvent {
+  return {
+    op: 'NUL',
+    target: `${docId}/asset:${assetId}`,
     operand: { reason: 'user_deleted' },
     ctx: makeCtx(agent),
   };

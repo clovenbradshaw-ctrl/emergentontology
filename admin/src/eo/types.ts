@@ -19,7 +19,7 @@ export interface EOEvent {
   };
 }
 
-export type ContentType = 'page' | 'blog' | 'wiki' | 'experiment';
+export type ContentType = 'page' | 'blog' | 'wiki' | 'experiment' | 'document';
 export type ContentStatus = 'draft' | 'published' | 'archived';
 export type Visibility = 'public' | 'private';
 
@@ -58,6 +58,21 @@ export interface ExperimentEntry {
   entry_id: string;
   kind: 'note' | 'dataset' | 'result' | 'chart' | 'link' | 'decision' | 'html';
   data: Record<string, unknown>;
+  ts: string;
+  deleted: boolean;
+  _event_id?: string;
+}
+
+export interface DocumentAsset {
+  asset_id: string;
+  /** Display label for the asset */
+  title: string;
+  /** External URL where the file is hosted */
+  url: string;
+  /** Optional MIME type or file category (e.g. 'pdf', 'spreadsheet', 'image', 'video', 'archive', 'other') */
+  file_type: string;
+  /** Optional description */
+  description: string;
   ts: string;
   deleted: boolean;
   _event_id?: string;
@@ -114,7 +129,17 @@ export interface ProjectedExperiment {
   history: HistoryEntry[];
 }
 
-export type ProjectedContent = ProjectedPage | ProjectedWiki | ProjectedBlog | ProjectedExperiment;
+export interface ProjectedDocument {
+  content_type: 'document';
+  content_id: string;
+  meta: ContentMeta;
+  assets: DocumentAsset[];
+  current_revision: WikiRevision | null;
+  revisions: WikiRevision[];
+  history: HistoryEntry[];
+}
+
+export type ProjectedContent = ProjectedPage | ProjectedWiki | ProjectedBlog | ProjectedExperiment | ProjectedDocument;
 
 export interface HistoryEntry {
   event_id: string;

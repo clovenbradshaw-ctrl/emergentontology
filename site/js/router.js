@@ -28,6 +28,7 @@ export function getRoute() {
   }
   if (parts[0] === 'blog')  return parts[1] ? { page: 'blog', slug: parts[1] } : { page: 'blog-list' };
   if (parts[0] === 'exp')   return parts[1] ? { page: 'exp',  slug: parts[1] } : { page: 'exp-list' };
+  if (parts[0] === 'doc')   return parts[1] ? { page: 'doc',  slug: parts[1] } : { page: 'doc-list' };
   if (parts[0] === 'page' && parts[1]) return { page: 'page', slug: parts[1] };
   if (parts[0] === 'all') return { page: 'all' };
   if (parts[0] === 'admin') return { page: 'admin' };
@@ -39,6 +40,6 @@ export function getRoute() {
  * Build a content URL for a given type and slug.
  */
 export function contentUrl(type, slug) {
-  var prefix = { wiki: 'wiki', blog: 'blog', experiment: 'exp', page: 'page' };
+  var prefix = { wiki: 'wiki', blog: 'blog', experiment: 'exp', page: 'page', document: 'doc' };
   return BASE + '/' + (prefix[type] || type) + '/' + slug + '/';
 }

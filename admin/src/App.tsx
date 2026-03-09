@@ -7,6 +7,7 @@
  *   /admin/#blog/<slug>          Blog editor
  *   /admin/#page/<slug>          Page builder
  *   /admin/#exp/<slug>           Experiment editor
+ *   /admin/#doc/<slug>           Document editor
  *   /admin/#settings             Settings
  *
  * Auth: password-only (verified client-side via SHA-256 against hardcoded hash).
@@ -21,6 +22,7 @@ import ContentManager from './editors/ContentManager';
 import WikiEditor from './editors/WikiEditor';
 import PageBuilder from './editors/PageBuilder';
 import ExperimentEditor from './editors/ExperimentEditor';
+import DocumentEditor from './editors/DocumentEditor';
 import GlobalSearchReplace from './editors/GlobalSearchReplace';
 import type { ContentType } from './eo/types';
 import { upsertCurrentRecord } from './xano/client';
@@ -115,6 +117,7 @@ type Route =
   | { type: 'blog'; slug: string }
   | { type: 'page'; slug: string }
   | { type: 'exp'; slug: string }
+  | { type: 'doc'; slug: string }
   | { type: 'search-replace' }
   | { type: 'settings' };
 
@@ -129,6 +132,7 @@ function parseHash(hash: string): Route {
   if (section === 'blog' && slug) return { type: 'blog', slug };
   if (section === 'page' && slug) return { type: 'page', slug };
   if (section === 'exp' && slug) return { type: 'exp', slug };
+  if (section === 'doc' && slug) return { type: 'doc', slug };
   return { type: 'list' };
 }
 
@@ -166,7 +170,7 @@ function AdminShell() {
 
   function openContent(contentId: string, type: ContentType) {
     const slug = contentId.split(':')[1] ?? contentId;
-    const prefix = type === 'experiment' ? 'exp' : type;
+    const prefix = type === 'experiment' ? 'exp' : type === 'document' ? 'doc' : type;
     navigate(`${prefix}/${slug}`);
   }
 
@@ -238,6 +242,9 @@ function AdminShell() {
         )}
         {route.type === 'exp' && (
           <ExperimentEditor contentId={`experiment:${route.slug}`} siteBase={SITE_BASE} />
+        )}
+        {route.type === 'doc' && (
+          <DocumentEditor contentId={`document:${route.slug}`} siteBase={SITE_BASE} />
         )}
         {route.type === 'search-replace' && (
           <GlobalSearchReplace siteBase={SITE_BASE} />

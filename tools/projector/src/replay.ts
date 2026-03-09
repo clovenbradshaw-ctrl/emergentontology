@@ -21,11 +21,13 @@ import type {
   Block,
   WikiRevision,
   ExperimentEntry,
+  DocumentAsset,
   IndexEntry,
   ProjectedPage,
   ProjectedWiki,
   ProjectedBlog,
   ProjectedExperiment,
+  ProjectedDocument,
   ProjectedContent,
   SiteIndex,
 } from './types.js';
@@ -338,6 +340,95 @@ function replayExperiment(contentId: string, meta: ContentMeta, events: MatrixEv
 }
 
 // ──────────────────────────────────────────────────────────────────────────────
+// Document replay
+// ──────────────────────────────────────────────────────────────────────────────
+
+function replayDocument(contentId: string, meta: ContentMeta, events: MatrixEvent[]): ProjectedDocument {
+  const assets = new Map<string, DocumentAsset>();
+  const revisions = new Map<string, WikiRevision>();
+  const history: ProjectedDocument['history'] = [];
+
+  for (const mxEvent of events) {
+    if (mxEvent.type !== 'eo.op') continue;
+    const e = mxEvent.content as EOEvent;
+    if (!isEOEvent(e)) continue;
+
+    const { childType, childId } = parseTarget(e.target);
+    if (!childId) continue;
+
+    // ── Revision targets (document body) ──────────────────────────────
+    if (childType === 'rev') {
+      history.push({ event_id: mxEvent.event_id, op: e.op, ts: e.ctx.ts, agent: e.ctx.agent });
+      if (e.op === 'INS') {
+        const o = e.operand as { format: 'markdown' | 'html'; content: string; summary: string };
+        revisions.set(childId, {
+          rev_id: childId,
+          format: o.format ?? 'html',
+          content: o.content ?? '',
+          summary: o.summary ?? '',
+          ts: e.ctx.ts,
+          event_id: mxEvent.event_id,
+        });
+      }
+      continue;
+    }
+
+    // ── Asset targets ─────────────────────────────────────────────────
+    if (childType !== 'asset') continue;
+
+    history.push({ event_id: mxEvent.event_id, op: e.op, ts: e.ctx.ts, agent: e.ctx.agent });
+
+    switch (e.op as EOOp) {
+      case 'INS': {
+        const o = e.operand as { title: string; url: string; file_type: string; description: string };
+        assets.set(childId, {
+          asset_id: childId,
+          title: o.title ?? '',
+          url: o.url ?? '',
+          file_type: o.file_type ?? 'other',
+          description: o.description ?? '',
+          ts: e.ctx.ts,
+          deleted: false,
+          event_id: mxEvent.event_id,
+        });
+        break;
+      }
+      case 'ALT': {
+        const existing = assets.get(childId);
+        if (!existing) break;
+        const o = e.operand as { patch: Array<{ op: string; path: string; value?: unknown }> };
+        const patched = applyJsonPatch(existing as unknown as Record<string, unknown>, o.patch ?? []);
+        assets.set(childId, {
+          ...existing,
+          ...patched,
+          asset_id: childId,
+          event_id: mxEvent.event_id,
+        } as unknown as DocumentAsset);
+        break;
+      }
+      case 'NUL': {
+        const existing = assets.get(childId);
+        if (!existing) break;
+        assets.set(childId, { ...existing, deleted: true, event_id: mxEvent.event_id });
+        break;
+      }
+    }
+  }
+
+  const sortedRevisions = Array.from(revisions.values()).sort((a, b) => a.ts.localeCompare(b.ts));
+
+  return {
+    content_type: 'document',
+    content_id: contentId,
+    meta,
+    assets: Array.from(assets.values()).filter((a) => !a.deleted),
+    current_revision: sortedRevisions.at(-1) ?? null,
+    revisions: sortedRevisions,
+    history,
+  };
+}
+
+// ──────────────────────────────────────────────────────────────────────────────
 // Metadata extraction from state events and SIG operations
 // ──────────────────────────────────────────────────────────────────────────────
 
@@ -348,6 +439,7 @@ function extractMeta(contentId: string, events: MatrixEvent[]): ContentMeta {
     content_type: contentId.startsWith('page:') ? 'page'
       : contentId.startsWith('blog:') ? 'blog'
       : contentId.startsWith('wiki:') ? 'wiki'
+      : contentId.startsWith('document:') ? 'document'
       : 'experiment',
     slug: contentId.split(':')[1] ?? contentId,
     title: contentId.split(':')[1] ?? contentId,
@@ -460,6 +552,7 @@ export function replayRoom(
   if (contentId.startsWith('blog:')) return replayBlog(contentId, meta, events);
   if (contentId.startsWith('wiki:')) return replayWiki(contentId, meta, events);
   if (contentId.startsWith('exp:')) return replayExperiment(contentId, meta, events);
+  if (contentId.startsWith('document:')) return replayDocument(contentId, meta, events);
 
   return null;
 }
