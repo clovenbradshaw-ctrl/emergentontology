@@ -16,6 +16,7 @@ import type {
   ProjectedWiki,
   ProjectedBlog,
   ProjectedPage,
+  ProjectedDocument,
   SiteIndex,
   BuildConfig,
 } from './types.js';
@@ -51,6 +52,7 @@ export function renderSearchIndex(contents: ProjectedContent[], cfg: BuildConfig
   const items = contents.map((proj) => {
     const typeDir = proj.content_type === 'page' ? 'page'
       : proj.content_type === 'experiment' ? 'exp'
+      : proj.content_type === 'document' ? 'doc'
       : proj.content_type;
 
     let excerpt = '';
@@ -58,6 +60,8 @@ export function renderSearchIndex(contents: ProjectedContent[], cfg: BuildConfig
       excerpt = (proj as ProjectedWiki).current_revision!.content.slice(0, 200);
     } else if (proj.content_type === 'blog' && (proj as ProjectedBlog).current_revision) {
       excerpt = (proj as ProjectedBlog).current_revision!.content.slice(0, 200);
+    } else if (proj.content_type === 'document' && (proj as ProjectedDocument).current_revision) {
+      excerpt = (proj as ProjectedDocument).current_revision!.content.slice(0, 200);
     } else if (proj.content_type === 'page' && (proj as ProjectedPage).blocks.length > 0) {
       const first = (proj as ProjectedPage).blocks.find((b) => b.block_type === 'text' && !b.deleted);
       if (first) excerpt = String(first.data.md ?? first.data.text ?? '').slice(0, 200);

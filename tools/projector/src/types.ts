@@ -61,7 +61,7 @@ export interface MatrixEvent {
 // Only used for discovery; canonical truth lives in the eo.op event stream.
 // ──────────────────────────────────────────────────────────────────────────────
 
-export type ContentType = 'page' | 'blog' | 'wiki' | 'experiment';
+export type ContentType = 'page' | 'blog' | 'wiki' | 'experiment' | 'document';
 export type ContentStatus = 'draft' | 'published' | 'archived';
 
 export interface ContentMeta {
@@ -103,6 +103,17 @@ export interface ExperimentEntry {
   entry_id: string;
   kind: 'note' | 'dataset' | 'result' | 'chart' | 'link' | 'decision' | 'html';
   data: Record<string, unknown>;
+  ts: string;
+  deleted: boolean;
+  event_id: string;
+}
+
+export interface DocumentAsset {
+  asset_id: string;
+  title: string;
+  url: string;
+  file_type: string;
+  description: string;
   ts: string;
   deleted: boolean;
   event_id: string;
@@ -160,11 +171,19 @@ export interface ProjectedExperiment extends BaseProjected {
   revisions: WikiRevision[];
 }
 
+export interface ProjectedDocument extends BaseProjected {
+  content_type: 'document';
+  assets: DocumentAsset[];
+  current_revision: WikiRevision | null;
+  revisions: WikiRevision[];
+}
+
 export type ProjectedContent =
   | ProjectedPage
   | ProjectedWiki
   | ProjectedBlog
-  | ProjectedExperiment;
+  | ProjectedExperiment
+  | ProjectedDocument;
 
 // ──────────────────────────────────────────────────────────────────────────────
 // Site index (output of projecting site:index room)

@@ -23,6 +23,8 @@ import type {
   ProjectedBlog,
   ProjectedPage,
   ProjectedExperiment,
+  ProjectedDocument,
+  DocumentAsset,
   SiteIndex,
   WikiRevision,
   Block,
@@ -73,6 +75,13 @@ interface PageSnapshot {
 interface ExpSnapshot {
   meta: Partial<ContentMeta>;
   entries: Array<Partial<ExperimentEntry>>;
+}
+
+interface DocSnapshot {
+  meta: Partial<ContentMeta>;
+  assets: Array<Partial<DocumentAsset>>;
+  current_revision: Partial<WikiRevision> | null;
+  revisions: Array<Partial<WikiRevision>>;
 }
 
 // ──────────────────────────────────────────────────────────────────────────────
@@ -229,6 +238,55 @@ function buildExperiment(
   };
 }
 
+function buildDocument(
+  entry: IndexSnapshot['entries'][number],
+  snap: DocSnapshot,
+): ProjectedDocument {
+  const assets: DocumentAsset[] = (snap.assets ?? [])
+    .map((a) => ({
+      asset_id: a.asset_id ?? '',
+      title: a.title ?? '',
+      url: a.url ?? '',
+      file_type: a.file_type ?? 'other',
+      description: a.description ?? '',
+      ts: a.ts ?? '',
+      deleted: a.deleted ?? false,
+      event_id: a.event_id ?? a.asset_id ?? '',
+    }))
+    .filter((a) => !a.deleted);
+
+  const revisions: WikiRevision[] = (snap.revisions ?? []).map((r) => ({
+    rev_id: r.rev_id ?? '',
+    format: r.format ?? 'html',
+    content: r.content ?? '',
+    summary: r.summary ?? '',
+    ts: r.ts ?? '',
+    event_id: r.event_id ?? r.rev_id ?? '',
+  }));
+
+  const cur = snap.current_revision;
+  const current_revision: WikiRevision | null = cur
+    ? {
+        rev_id: cur.rev_id ?? '',
+        format: cur.format ?? 'html',
+        content: cur.content ?? '',
+        summary: cur.summary ?? '',
+        ts: cur.ts ?? '',
+        event_id: cur.event_id ?? cur.rev_id ?? '',
+      }
+    : revisions.at(-1) ?? null;
+
+  return {
+    content_type: 'document',
+    content_id: entry.content_id,
+    meta: buildMeta(entry, snap),
+    assets,
+    current_revision,
+    revisions,
+    history: [],
+  };
+}
+
 // ──────────────────────────────────────────────────────────────────────────────
 
 async function main() {
@@ -336,6 +394,9 @@ async function main() {
       } else if (entry.content_type === 'experiment') {
         const snap = parseJson<ExpSnapshot>(record.values, { meta: {}, entries: [] });
         proj = buildExperiment(entry, snap);
+      } else if (entry.content_type === 'document') {
+        const snap = parseJson<DocSnapshot>(record.values, { meta: {}, assets: [], current_revision: null, revisions: [] });
+        proj = buildDocument(entry, snap);
       }
 
       if (proj) {

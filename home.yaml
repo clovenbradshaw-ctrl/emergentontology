@@ -127,6 +127,11 @@ sections:
     max_items: 4
     layout: grid
 
+  documents:
+    enabled: true
+    max_items: 6
+    layout: list
+
   pages:
     enabled: true
     layout: list

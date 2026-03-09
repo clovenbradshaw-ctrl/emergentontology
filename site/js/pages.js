@@ -58,6 +58,7 @@ export function renderHome(el) {
   var wikis = sortByUpdated(publicEntries.filter(function (e) { return e.content_type === 'wiki'; }));
   var blogs = sortByUpdated(publicEntries.filter(function (e) { return e.content_type === 'blog'; }));
   var exps  = sortByUpdated(publicEntries.filter(function (e) { return e.content_type === 'experiment'; }));
+  var docs  = sortByUpdated(publicEntries.filter(function (e) { return e.content_type === 'document'; }));
   var pages = sortByUpdated(publicEntries.filter(function (e) { return e.content_type === 'page'; }));
 
   var allTags = [];
@@ -91,7 +92,8 @@ export function renderHome(el) {
   var sections = [
     { title: 'Wiki', type: 'wiki', entries: wikis, layout: 'grid' },
     { title: 'Blog', type: 'blog', entries: blogs, layout: 'list' },
-    { title: 'Experiments', type: 'experiment', entries: exps, layout: 'grid' }
+    { title: 'Experiments', type: 'experiment', entries: exps, layout: 'grid' },
+    { title: 'Documents & Assets', type: 'document', entries: docs, layout: 'list' }
   ];
   sections.sort(function (a, b) {
     var ta = (a.entries.length > 0 && a.entries[0].updated_at) || '';
@@ -1138,6 +1140,114 @@ export function renderExp(el, slug) {
 }
 
 // ═══════════════════════════════════════════════════════════════════════════
+// Document List
+// ═══════════════════════════════════════════════════════════════════════════
+
+export function renderDocList(el) {
+  var idx = getSiteIndex();
+  setTitle('Documents & Assets');
+  setBreadcrumbs([{ label: 'Documents', href: BASE + '/doc/' }]);
+  el.className = '';
+
+  var docs = sortByUpdated((idx.entries || []).filter(function (e) {
+    return e.content_type === 'document' && e.visibility === 'public' && e.status !== 'archived';
+  }));
+
+  var h = '<section class="home-section"><h1>Documents &amp; Assets</h1>';
+  if (docs.length > 0) {
+    h += '<div class="content-list-cards">';
+    docs.forEach(function (d) {
+      h += '<a class="content-card content-card--doc" href="' + contentUrl('document', d.slug) + '">';
+      h += '<span class="card-icon">\uD83D\uDCC4</span>';
+      h += '<h3 class="card-title">' + esc(d.title) + '</h3>';
+      if (d.tags && d.tags.length) {
+        h += '<div class="card-tags">';
+        d.tags.forEach(function (t) { h += '<span class="tag">' + esc(t) + '</span>'; });
+        h += '</div>';
+      }
+      h += '</a>';
+    });
+    h += '</div>';
+  } else {
+    h += '<p class="empty-page">No documents yet.</p>';
+  }
+  h += '</section>';
+  el.innerHTML = h;
+  return Promise.resolve();
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// Document Detail
+// ═══════════════════════════════════════════════════════════════════════════
+
+var FILE_TYPE_ICONS = {
+  pdf: '\uD83D\uDCC4', spreadsheet: '\uD83D\uDCCA', image: '\uD83D\uDDBC\uFE0F',
+  video: '\uD83C\uDFA5', archive: '\uD83D\uDCE6', code: '\uD83D\uDCBB', other: '\uD83D\uDCCE'
+};
+
+export function renderDoc(el, slug) {
+  var idx = getSiteIndex();
+  el.className = '';
+  var entry = (idx.entries || []).find(function (e) { return e.content_type === 'document' && e.slug === slug; });
+  var contentId = entry ? entry.content_id : 'document:' + slug;
+
+  return loadContent(contentId).then(function (content) {
+    if (!content || !content.meta || content.meta.status === 'archived') { render404(el); return; }
+
+    var title = content.meta.title;
+    setTitle(title);
+    setBreadcrumbs([{ label: 'Documents', href: BASE + '/doc/' }, { label: title, href: BASE + '/doc/' + slug + '/' }]);
+
+    var assets = (content.assets || []).filter(function (a) { return !a.deleted; });
+    var rev = content.current_revision;
+
+    var h = '<article class="document-article" data-eo-op="SIG" data-eo-target="' + esc(content.content_id) + '">';
+    h += '<header class="content-header"><h1>' + esc(title) + '</h1>';
+    h += '<div class="post-meta">';
+    if (content.meta.updated_at) h += '<time>' + timeAgo(content.meta.updated_at) + '</time>';
+    h += '</div>';
+    h += '<div class="content-tags">';
+    (content.meta.tags || []).forEach(function (t) { h += '<span class="tag">' + esc(t) + '</span>'; });
+    h += '</div></header>';
+
+    // Assets / attachments list
+    if (assets.length > 0) {
+      h += '<section class="doc-assets"><h2>Attachments &amp; Links</h2>';
+      h += '<div class="doc-assets-grid">';
+      assets.forEach(function (asset) {
+        var icon = FILE_TYPE_ICONS[asset.file_type] || FILE_TYPE_ICONS.other;
+        h += '<a class="doc-asset-link" href="' + esc(asset.url) + '" target="_blank" rel="noopener noreferrer">';
+        h += '<span class="doc-asset-icon">' + icon + '</span>';
+        h += '<span class="doc-asset-name">' + esc(asset.title) + '</span>';
+        h += '<span class="doc-asset-type">' + esc(asset.file_type) + '</span>';
+        if (asset.description) h += '<span class="doc-asset-desc">' + esc(asset.description) + '</span>';
+        h += '</a>';
+      });
+      h += '</div></section>';
+    }
+
+    // Document body
+    if (rev && rev.content) {
+      h += '<div class="wiki-body doc-body">';
+      h += renderRevisionContent(rev);
+      h += '</div>';
+    } else if (assets.length === 0) {
+      h += '<p class="empty-page">No content yet.</p>';
+    }
+
+    if (rev) h += revisionHistoryHtml(content);
+
+    h += '<div class="content-actions eo-admin-only" hidden>';
+    h += '<a class="btn btn-edit" href="' + BASE + '/admin/#doc/' + esc(slug) + '">Edit in Admin</a></div>';
+    h += '</article>';
+    el.innerHTML = h;
+
+    hydrateHtmlWidgets(el);
+    revealAdmin();
+  });
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
 // Page
 // ═══════════════════════════════════════════════════════════════════════════
 
@@ -1195,9 +1305,10 @@ export function renderAll(el) {
 
   var wikis = entries.filter(function (e) { return e.content_type === 'wiki'; });
   var blogs = entries.filter(function (e) { return e.content_type === 'blog'; });
+  var docsAll = entries.filter(function (e) { return e.content_type === 'document'; });
   var pages = entries.filter(function (e) { return e.content_type === 'page'; });
 
-  var allEntries = wikis.concat(blogs).concat(pages);
+  var allEntries = wikis.concat(blogs).concat(docsAll).concat(pages);
   var loads = allEntries.map(function (e) {
     return loadContent(e.content_id).then(function (content) {
       return { entry: e, content: content };
@@ -1216,6 +1327,7 @@ export function renderAll(el) {
     var groups = [
       { label: 'Wiki', items: results.filter(function (r) { return r.entry.content_type === 'wiki'; }) },
       { label: 'Blog', items: results.filter(function (r) { return r.entry.content_type === 'blog'; }) },
+      { label: 'Documents', items: results.filter(function (r) { return r.entry.content_type === 'document'; }) },
       { label: 'Pages', items: results.filter(function (r) { return r.entry.content_type === 'page'; }) }
     ];
 
@@ -1252,6 +1364,8 @@ export function renderAll(el) {
 
         if (r.content) {
           if (r.entry.content_type === 'wiki' || r.entry.content_type === 'blog') {
+            h += renderRevisionContent(r.content.current_revision);
+          } else if (r.entry.content_type === 'document') {
             h += renderRevisionContent(r.content.current_revision);
           } else if (r.entry.content_type === 'page') {
             var blocks = r.content.blocks || [];

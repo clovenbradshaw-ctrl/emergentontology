@@ -313,7 +313,7 @@ function emptyIndex() {
  * Each content record has a record_id like "wiki:operators", "page:about", etc.
  */
 function synthesizeIndex(map) {
-  var CONTENT_PREFIXES = ['wiki:', 'blog:', 'experiment:', 'page:'];
+  var CONTENT_PREFIXES = ['wiki:', 'blog:', 'experiment:', 'page:', 'document:'];
   var entries = [];
 
   var ids = Object.keys(map);

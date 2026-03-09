@@ -1441,10 +1441,44 @@ textarea { resize: vertical; }
 .gsr-status-err { font-size: .7rem; font-weight: 700; color: var(--danger); font-family: var(--font-mono); }
 .gsr-result-error { color: var(--danger); font-size: .8rem; }
 
+/* ── Document Editor ────────────────────────────────────────────────────── */
+
+.document-editor { max-width: 960px; margin: 0 auto; }
+
+.doc-assets-section { margin-bottom: 2rem; }
+.doc-assets-section h3 { font-size: 1rem; margin-bottom: .75rem; color: var(--text-dim); }
+
+.doc-assets-list { display: flex; flex-direction: column; gap: .5rem; margin-bottom: 1rem; }
+
+.doc-asset-card {
+  display: flex; align-items: flex-start; gap: .75rem;
+  background: var(--bg2); border: 1px solid var(--border); border-radius: var(--radius);
+  padding: .75rem 1rem;
+}
+.doc-asset-icon { font-size: 1.5rem; flex-shrink: 0; }
+.doc-asset-info { flex: 1; display: flex; flex-direction: column; gap: .15rem; min-width: 0; }
+.doc-asset-title { font-weight: 600; color: var(--link); word-break: break-word; }
+.doc-asset-type { font-size: .75rem; color: var(--text-dim); text-transform: uppercase; letter-spacing: .04em; }
+.doc-asset-desc { font-size: .85rem; color: var(--text-dim); }
+.doc-asset-url { font-size: .75rem; color: var(--text-dim); font-family: var(--font-mono); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+.doc-asset-form {
+  display: flex; flex-wrap: wrap; gap: .5rem; align-items: center;
+  padding: .75rem; background: var(--bg2); border: 1px dashed var(--border); border-radius: var(--radius);
+}
+.doc-asset-input { flex: 1; min-width: 140px; }
+.doc-asset-input-wide { min-width: 200px; }
+
+.doc-body-section { margin-bottom: 2rem; }
+.doc-body-section h3 { font-size: 1rem; margin-bottom: .5rem; color: var(--text-dim); }
+
+.type-badge.type-document { background: #2563eb; }
+
 /* Responsive */
 @media (max-width: 900px) {
   .builder-layout { grid-template-columns: 1fr; }
   .editor-split { grid-template-columns: 1fr; }
   .create-form { flex-direction: column; }
   .gsr-inputs { grid-template-columns: 1fr; }
+  .doc-asset-form { flex-direction: column; }
 }

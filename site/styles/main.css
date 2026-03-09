@@ -1677,6 +1677,36 @@ html[data-eo-auth] .btn-edit { display: inline-block; }
 .all-loading { text-align: center; padding: 4rem 0; color: var(--text-dim); }
 
 /* ── Print styles ── */
+/* ── Documents & Assets ─────────────────────────────────────────────────── */
+
+.content-card--doc { border-left: 3px solid #2563eb; }
+.content-card--doc .card-icon { font-size: 1.5rem; }
+
+.doc-assets { margin-bottom: 2rem; }
+.doc-assets h2 { font-size: 1.15rem; margin-bottom: .75rem; color: var(--text-dim); }
+
+.doc-assets-grid {
+  display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: .75rem;
+}
+
+.doc-asset-link {
+  display: flex; flex-direction: column; gap: .25rem;
+  padding: 1rem; border-radius: var(--radius, 6px);
+  background: var(--card-bg, rgba(255,255,255,.04)); border: 1px solid var(--border, #333);
+  text-decoration: none; color: inherit; transition: border-color .15s;
+}
+.doc-asset-link:hover { border-color: #2563eb; text-decoration: none; }
+.doc-asset-link .doc-asset-icon { font-size: 1.75rem; }
+.doc-asset-link .doc-asset-name { font-weight: 600; color: var(--link, #9b8fd4); }
+.doc-asset-link .doc-asset-type {
+  font-size: .7rem; text-transform: uppercase; letter-spacing: .04em;
+  color: var(--text-dim, #888);
+}
+.doc-asset-link .doc-asset-desc { font-size: .85rem; color: var(--text-dim, #888); }
+
+.document-article { max-width: 800px; margin: 0 auto; }
+
 @media print {
   *, *::before, *::after { color: #000 !important; background: #fff !important; box-shadow: none !important; }
   body { font-size: 11pt; line-height: 1.5; }
