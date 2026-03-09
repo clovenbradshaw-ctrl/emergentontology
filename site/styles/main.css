@@ -464,6 +464,35 @@ details[open] > .rev-expand-toggle::before { content: '▾ '; }
   overflow: auto;
 }
 .exp-body { margin-bottom: 2rem; }
+
+/* Experiment HTML canvas — full-page HTML rendering mode */
+.exp-canvas { display: flex; flex-direction: column; min-height: 60vh; }
+.exp-canvas-header {
+  display: flex; align-items: center; gap: 1rem;
+  padding: .5rem 0; margin-bottom: 1rem;
+  border-bottom: 1px solid var(--border);
+  font-size: .85rem;
+}
+.exp-canvas-back {
+  color: var(--text-dim);
+  text-decoration: none;
+  white-space: nowrap;
+}
+.exp-canvas-back:hover { color: var(--purple); }
+.exp-canvas-title {
+  font-weight: 600;
+  color: var(--text);
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.exp-canvas-body {
+  flex: 1;
+  width: 100%;
+  /* No .wiki-body — injected HTML renders with its own styles */
+}
 .exp-entries-section { display: flex; flex-direction: column; gap: 1.25rem; margin-top: 1.5rem; }
 .exp-entry-card {
   border: 1px solid var(--border);

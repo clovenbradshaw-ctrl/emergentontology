@@ -1081,55 +1081,73 @@ export function renderExp(el, slug) {
     setBreadcrumbs([{ label: 'Experiments', href: BASE + '/exp/' }, { label: title, href: BASE + '/exp/' + slug + '/' }]);
 
     var rev = content.current_revision;
+    var isHtmlCanvas = rev && rev.content && (rev.format === 'html' || (!rev.format && /^<[a-z][\s\S]*>/i.test((rev.content || '').trim())));
     var kindIcons = { note: '\uD83D\uDCDD', dataset: '\uD83D\uDCC1', result: '\u2705', chart: '\uD83D\uDCC8', link: '\uD83D\uDD17', decision: '\u2696\uFE0F', html: '\uD83C\uDF10' };
     var entries = (content.entries || []).filter(function (e) { return !e.deleted; });
 
-    var h = '<article class="experiment-article" data-eo-op="SIG" data-eo-target="' + esc(content.content_id) + '">';
-    h += '<header class="content-header"><h1>' + esc(title) + '</h1>';
-    h += '<div class="post-meta">';
-    if (content.meta.updated_at) h += '<time>' + timeAgo(content.meta.updated_at) + '</time>';
-    h += '</div>';
-    h += '<div class="content-tags">';
-    (content.meta.tags || []).forEach(function (t) { h += '<span class="tag">' + esc(t) + '</span>'; });
-    h += '</div></header>';
+    var h = '';
 
-    // Revision-based body (like a blog post — supports full HTML/JS)
-    if (rev && rev.content) {
-      h += '<div class="wiki-body exp-body">';
-      h += renderRevisionContent(rev);
+    if (isHtmlCanvas) {
+      // ── HTML canvas mode: injected HTML takes over the page ──
+      h += '<div class="exp-canvas" data-eo-op="SIG" data-eo-target="' + esc(content.content_id) + '">';
+      h += '<div class="exp-canvas-header">';
+      h += '<a class="exp-canvas-back" href="' + BASE + '/exp/">&larr; Experiments</a>';
+      h += '<span class="exp-canvas-title">' + esc(title) + '</span>';
+      h += '<div class="content-actions eo-admin-only" hidden>';
+      h += '<a class="btn btn-edit btn-sm" href="' + BASE + '/admin/#exp/' + esc(slug) + '">Edit</a></div>';
       h += '</div>';
-    }
+      h += '<div class="exp-canvas-body">' + rev.content + '</div>';
+      h += '</div>';
+      el.innerHTML = h;
+    } else {
+      // ── Standard mode: article chrome with entries ──
+      h += '<article class="experiment-article" data-eo-op="SIG" data-eo-target="' + esc(content.content_id) + '">';
+      h += '<header class="content-header"><h1>' + esc(title) + '</h1>';
+      h += '<div class="post-meta">';
+      if (content.meta.updated_at) h += '<time>' + timeAgo(content.meta.updated_at) + '</time>';
+      h += '</div>';
+      h += '<div class="content-tags">';
+      (content.meta.tags || []).forEach(function (t) { h += '<span class="tag">' + esc(t) + '</span>'; });
+      h += '</div></header>';
 
-    // Entry-based log (experiment entries)
-    if (entries.length > 0) {
-      h += '<ul class="exp-entries">';
-      entries.forEach(function (entry) {
-        var icon = kindIcons[entry.kind] || '\uD83D\uDCDD';
-        h += '<li class="exp-entry" data-eo-op="INS" data-eo-target="' + esc(content.content_id) + '/entry:' + esc(entry.entry_id) + '">';
-        h += '<span class="entry-kind">' + icon + '</span>';
-        h += '<div class="entry-body">';
-        if (entry.kind === 'html') {
-          h += '<div class="exp-html-sandbox">' + String((entry.data && entry.data.html) || '') + '</div>';
-        } else {
-          if (entry.data && entry.data.text) h += md(String(entry.data.text));
-          if (entry.data && entry.data.title) h += '<strong>' + esc(String(entry.data.title)) + '</strong>';
-          if (entry.data && entry.data.url) h += '<p><a href="' + esc(String(entry.data.url)) + '">' + esc(String(entry.data.url)) + '</a></p>';
-        }
+      // Revision-based body (markdown or plain text)
+      if (rev && rev.content) {
+        h += '<div class="wiki-body exp-body">';
+        h += renderRevisionContent(rev);
         h += '</div>';
-        h += '<time class="entry-ts">' + timeAgo(entry.ts) + '</time>';
-        h += '</li>';
-      });
-      h += '</ul>';
-    } else if (!rev || !rev.content) {
-      h += '<p class="empty-page">No content yet.</p>';
+      }
+
+      // Entry-based log (experiment entries)
+      if (entries.length > 0) {
+        h += '<ul class="exp-entries">';
+        entries.forEach(function (entry) {
+          var icon = kindIcons[entry.kind] || '\uD83D\uDCDD';
+          h += '<li class="exp-entry" data-eo-op="INS" data-eo-target="' + esc(content.content_id) + '/entry:' + esc(entry.entry_id) + '">';
+          h += '<span class="entry-kind">' + icon + '</span>';
+          h += '<div class="entry-body">';
+          if (entry.kind === 'html') {
+            h += '<div class="exp-html-sandbox">' + String((entry.data && entry.data.html) || '') + '</div>';
+          } else {
+            if (entry.data && entry.data.text) h += md(String(entry.data.text));
+            if (entry.data && entry.data.title) h += '<strong>' + esc(String(entry.data.title)) + '</strong>';
+            if (entry.data && entry.data.url) h += '<p><a href="' + esc(String(entry.data.url)) + '">' + esc(String(entry.data.url)) + '</a></p>';
+          }
+          h += '</div>';
+          h += '<time class="entry-ts">' + timeAgo(entry.ts) + '</time>';
+          h += '</li>';
+        });
+        h += '</ul>';
+      } else if (!rev || !rev.content) {
+        h += '<p class="empty-page">No content yet.</p>';
+      }
+
+      if (rev) h += revisionHistoryHtml(content);
+
+      h += '<div class="content-actions eo-admin-only" hidden>';
+      h += '<a class="btn btn-edit" href="' + BASE + '/admin/#exp/' + esc(slug) + '">Edit in Admin</a></div>';
+      h += '</article>';
+      el.innerHTML = h;
     }
-
-    if (rev) h += revisionHistoryHtml(content);
-
-    h += '<div class="content-actions eo-admin-only" hidden>';
-    h += '<a class="btn btn-edit" href="' + BASE + '/admin/#exp/' + esc(slug) + '">Edit in Admin</a></div>';
-    h += '</article>';
-    el.innerHTML = h;
 
     // Hydrate HTML widgets so their content renders instead of showing source
     hydrateHtmlWidgets(el);
