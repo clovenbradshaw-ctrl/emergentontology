@@ -1,37 +1,37 @@
 [
   {
     "type": "edit",
-    "record_id": "wiki:influences",
+    "record_id": "wiki:influences-and-lineage",
     "find": "- The Formal Proof\n- Cross-Linguistic Findings",
     "replace": "- The Dependency Argument\n- Cross-Linguistic Findings"
   },
   {
     "type": "edit",
-    "record_id": "wiki:operator-naming",
+    "record_id": "wiki:operator-naming-in-emergent-ontology",
     "find": "[The Nine Operators] — full specifications, formal mappings, biological grounding\n- [The Three Faces] — Act, Resolution, and Site projections of the 27-cell cube\n- [The 27 Phaseposts] — complete phase-space addressing with phenomenological names\n- [Notation Systems] — practitioner glyphs, Greek letters, three-face notation\n- [Cross-Linguistic Findings] — 27-language verb classification, population data, universal patterns",
     "replace": "The Nine Operators — full specifications, formal mappings, biological grounding\n- The Three Faces — Act, Resolution, and Site projections of the 27-cell cube\n- The 27 Phaseposts — complete phase-space addressing with phenomenological names\n- Notation Systems — practitioner glyphs, Greek letters, three-face notation\n- Cross-Linguistic Findings — 27-language verb classification, population data, universal patterns"
   },
   {
     "type": "edit",
-    "record_id": "wiki:emergent-ontology",
+    "record_id": "wiki:emergent-ontology-eo",
     "find": "<a href=\"/wiki/nul\">NUL</a>",
     "replace": "NUL"
   },
   {
     "type": "edit",
-    "record_id": "wiki:influences",
+    "record_id": "wiki:influences-and-lineage",
     "find": "<a href=\"/wiki/nul\">NUL</a>",
     "replace": "NUL"
   },
   {
     "type": "edit",
-    "record_id": "wiki:triadic-minimum",
+    "record_id": "wiki:the-triadic-minimum",
     "find": "<a href=\"/wiki/nul\">NUL</a>",
     "replace": "NUL"
   },
   {
     "type": "edit",
-    "record_id": "wiki:three-triads",
+    "record_id": "wiki:the-three-triads",
     "find": "<a href=\"/wiki/nul\">NUL</a>",
     "replace": "NUL"
   },
@@ -43,13 +43,13 @@
   },
   {
     "type": "edit",
-    "record_id": "wiki:operators",
+    "record_id": "wiki:the-nine-operators",
     "find": "<a href=\"/wiki/nul\">NUL</a>",
     "replace": "NUL"
   },
   {
     "type": "edit",
-    "record_id": "wiki:integral-theory",
+    "record_id": "wiki:the-integral-lineage",
     "find": "<a href=\"/wiki/nul\">NUL</a>",
     "replace": "NUL"
   },
@@ -61,19 +61,19 @@
   },
   {
     "type": "edit",
-    "record_id": "wiki:sig-inflation",
+    "record_id": "wiki:eo-on-platonic-forms",
     "find": "<a href=\"/wiki/nul\">NUL</a>",
     "replace": "NUL"
   },
   {
     "type": "edit",
-    "record_id": "wiki:phase-space-cube",
+    "record_id": "wiki:the-eo-phase-space-cube",
     "find": "<a href=\"/wiki/nul\">NUL</a>",
     "replace": "NUL"
   },
   {
     "type": "edit",
-    "record_id": "wiki:phaseposts",
+    "record_id": "wiki:the-27-phase-posts",
     "find": "<a href=\"/wiki/nul\">NUL</a>",
     "replace": "NUL"
   },
@@ -91,13 +91,13 @@
   },
   {
     "type": "edit",
-    "record_id": "wiki:operator-naming",
+    "record_id": "wiki:operator-naming-in-emergent-ontology",
     "find": "<a href=\"/wiki/nul\">NUL</a>",
     "replace": "NUL"
   },
   {
     "type": "edit",
-    "record_id": "wiki:bivalent-compression",
+    "record_id": "wiki:bivalent-compression-and-dimensional-poverty",
     "find": "<a href=\"/wiki/nul\">NUL</a>",
     "replace": "NUL"
   },
@@ -109,31 +109,31 @@
   },
   {
     "type": "edit",
-    "record_id": "wiki:handbook",
+    "record_id": "document:eo-handbook",
     "find": "<a href=\"/wiki/nul\">NUL</a>",
     "replace": "NUL"
   },
   {
     "type": "edit",
-    "record_id": "wiki:emergent-ontology",
+    "record_id": "wiki:emergent-ontology-eo",
     "find": "<a href=\"/wiki/nul\" data-content-id=\"wiki:nul\">NUL</a>",
     "replace": "NUL"
   },
   {
     "type": "edit",
-    "record_id": "wiki:influences",
+    "record_id": "wiki:influences-and-lineage",
     "find": "<a href=\"/wiki/nul\" data-content-id=\"wiki:nul\">NUL</a>",
     "replace": "NUL"
   },
   {
     "type": "edit",
-    "record_id": "wiki:triadic-minimum",
+    "record_id": "wiki:the-triadic-minimum",
     "find": "<a href=\"/wiki/nul\" data-content-id=\"wiki:nul\">NUL</a>",
     "replace": "NUL"
   },
   {
     "type": "edit",
-    "record_id": "wiki:three-triads",
+    "record_id": "wiki:the-three-triads",
     "find": "<a href=\"/wiki/nul\" data-content-id=\"wiki:nul\">NUL</a>",
     "replace": "NUL"
   },
@@ -145,13 +145,13 @@
   },
   {
     "type": "edit",
-    "record_id": "wiki:operators",
+    "record_id": "wiki:the-nine-operators",
     "find": "<a href=\"/wiki/nul\" data-content-id=\"wiki:nul\">NUL</a>",
     "replace": "NUL"
   },
   {
     "type": "edit",
-    "record_id": "wiki:integral-theory",
+    "record_id": "wiki:the-integral-lineage",
     "find": "<a href=\"/wiki/nul\" data-content-id=\"wiki:nul\">NUL</a>",
     "replace": "NUL"
   },
@@ -163,19 +163,19 @@
   },
   {
     "type": "edit",
-    "record_id": "wiki:sig-inflation",
+    "record_id": "wiki:eo-on-platonic-forms",
     "find": "<a href=\"/wiki/nul\" data-content-id=\"wiki:nul\">NUL</a>",
     "replace": "NUL"
   },
   {
     "type": "edit",
-    "record_id": "wiki:phase-space-cube",
+    "record_id": "wiki:the-eo-phase-space-cube",
     "find": "<a href=\"/wiki/nul\" data-content-id=\"wiki:nul\">NUL</a>",
     "replace": "NUL"
   },
   {
     "type": "edit",
-    "record_id": "wiki:phaseposts",
+    "record_id": "wiki:the-27-phase-posts",
     "find": "<a href=\"/wiki/nul\" data-content-id=\"wiki:nul\">NUL</a>",
     "replace": "NUL"
   },
@@ -193,13 +193,13 @@
   },
   {
     "type": "edit",
-    "record_id": "wiki:operator-naming",
+    "record_id": "wiki:operator-naming-in-emergent-ontology",
     "find": "<a href=\"/wiki/nul\" data-content-id=\"wiki:nul\">NUL</a>",
     "replace": "NUL"
   },
   {
     "type": "edit",
-    "record_id": "wiki:bivalent-compression",
+    "record_id": "wiki:bivalent-compression-and-dimensional-poverty",
     "find": "<a href=\"/wiki/nul\" data-content-id=\"wiki:nul\">NUL</a>",
     "replace": "NUL"
   },
@@ -211,31 +211,31 @@
   },
   {
     "type": "edit",
-    "record_id": "wiki:handbook",
+    "record_id": "document:eo-handbook",
     "find": "<a href=\"/wiki/nul\" data-content-id=\"wiki:nul\">NUL</a>",
     "replace": "NUL"
   },
   {
     "type": "edit",
-    "record_id": "wiki:emergent-ontology",
+    "record_id": "wiki:emergent-ontology-eo",
     "find": "<a href=\"/wiki/sup\">SUP</a>",
     "replace": "SUP"
   },
   {
     "type": "edit",
-    "record_id": "wiki:influences",
+    "record_id": "wiki:influences-and-lineage",
     "find": "<a href=\"/wiki/sup\">SUP</a>",
     "replace": "SUP"
   },
   {
     "type": "edit",
-    "record_id": "wiki:triadic-minimum",
+    "record_id": "wiki:the-triadic-minimum",
     "find": "<a href=\"/wiki/sup\">SUP</a>",
     "replace": "SUP"
   },
   {
     "type": "edit",
-    "record_id": "wiki:three-triads",
+    "record_id": "wiki:the-three-triads",
     "find": "<a href=\"/wiki/sup\">SUP</a>",
     "replace": "SUP"
   },
@@ -247,13 +247,13 @@
   },
   {
     "type": "edit",
-    "record_id": "wiki:operators",
+    "record_id": "wiki:the-nine-operators",
     "find": "<a href=\"/wiki/sup\">SUP</a>",
     "replace": "SUP"
   },
   {
     "type": "edit",
-    "record_id": "wiki:integral-theory",
+    "record_id": "wiki:the-integral-lineage",
     "find": "<a href=\"/wiki/sup\">SUP</a>",
     "replace": "SUP"
   },
@@ -265,19 +265,19 @@
   },
   {
     "type": "edit",
-    "record_id": "wiki:sig-inflation",
+    "record_id": "wiki:eo-on-platonic-forms",
     "find": "<a href=\"/wiki/sup\">SUP</a>",
     "replace": "SUP"
   },
   {
     "type": "edit",
-    "record_id": "wiki:phase-space-cube",
+    "record_id": "wiki:the-eo-phase-space-cube",
     "find": "<a href=\"/wiki/sup\">SUP</a>",
     "replace": "SUP"
   },
   {
     "type": "edit",
-    "record_id": "wiki:phaseposts",
+    "record_id": "wiki:the-27-phase-posts",
     "find": "<a href=\"/wiki/sup\">SUP</a>",
     "replace": "SUP"
   },
@@ -295,13 +295,13 @@
   },
   {
     "type": "edit",
-    "record_id": "wiki:operator-naming",
+    "record_id": "wiki:operator-naming-in-emergent-ontology",
     "find": "<a href=\"/wiki/sup\">SUP</a>",
     "replace": "SUP"
   },
   {
     "type": "edit",
-    "record_id": "wiki:bivalent-compression",
+    "record_id": "wiki:bivalent-compression-and-dimensional-poverty",
     "find": "<a href=\"/wiki/sup\">SUP</a>",
     "replace": "SUP"
   },
@@ -313,31 +313,31 @@
   },
   {
     "type": "edit",
-    "record_id": "wiki:handbook",
+    "record_id": "document:eo-handbook",
     "find": "<a href=\"/wiki/sup\">SUP</a>",
     "replace": "SUP"
   },
   {
     "type": "edit",
-    "record_id": "wiki:emergent-ontology",
+    "record_id": "wiki:emergent-ontology-eo",
     "find": "<a href=\"/wiki/sup\" data-content-id=\"wiki:sup\">SUP</a>",
     "replace": "SUP"
   },
   {
     "type": "edit",
-    "record_id": "wiki:influences",
+    "record_id": "wiki:influences-and-lineage",
     "find": "<a href=\"/wiki/sup\" data-content-id=\"wiki:sup\">SUP</a>",
     "replace": "SUP"
   },
   {
     "type": "edit",
-    "record_id": "wiki:triadic-minimum",
+    "record_id": "wiki:the-triadic-minimum",
     "find": "<a href=\"/wiki/sup\" data-content-id=\"wiki:sup\">SUP</a>",
     "replace": "SUP"
   },
   {
     "type": "edit",
-    "record_id": "wiki:three-triads",
+    "record_id": "wiki:the-three-triads",
     "find": "<a href=\"/wiki/sup\" data-content-id=\"wiki:sup\">SUP</a>",
     "replace": "SUP"
   },
@@ -349,13 +349,13 @@
   },
   {
     "type": "edit",
-    "record_id": "wiki:operators",
+    "record_id": "wiki:the-nine-operators",
     "find": "<a href=\"/wiki/sup\" data-content-id=\"wiki:sup\">SUP</a>",
     "replace": "SUP"
   },
   {
     "type": "edit",
-    "record_id": "wiki:integral-theory",
+    "record_id": "wiki:the-integral-lineage",
     "find": "<a href=\"/wiki/sup\" data-content-id=\"wiki:sup\">SUP</a>",
     "replace": "SUP"
   },
@@ -367,19 +367,19 @@
   },
   {
     "type": "edit",
-    "record_id": "wiki:sig-inflation",
+    "record_id": "wiki:eo-on-platonic-forms",
     "find": "<a href=\"/wiki/sup\" data-content-id=\"wiki:sup\">SUP</a>",
     "replace": "SUP"
   },
   {
     "type": "edit",
-    "record_id": "wiki:phase-space-cube",
+    "record_id": "wiki:the-eo-phase-space-cube",
     "find": "<a href=\"/wiki/sup\" data-content-id=\"wiki:sup\">SUP</a>",
     "replace": "SUP"
   },
   {
     "type": "edit",
-    "record_id": "wiki:phaseposts",
+    "record_id": "wiki:the-27-phase-posts",
     "find": "<a href=\"/wiki/sup\" data-content-id=\"wiki:sup\">SUP</a>",
     "replace": "SUP"
   },
@@ -397,13 +397,13 @@
   },
   {
     "type": "edit",
-    "record_id": "wiki:operator-naming",
+    "record_id": "wiki:operator-naming-in-emergent-ontology",
     "find": "<a href=\"/wiki/sup\" data-content-id=\"wiki:sup\">SUP</a>",
     "replace": "SUP"
   },
   {
     "type": "edit",
-    "record_id": "wiki:bivalent-compression",
+    "record_id": "wiki:bivalent-compression-and-dimensional-poverty",
     "find": "<a href=\"/wiki/sup\" data-content-id=\"wiki:sup\">SUP</a>",
     "replace": "SUP"
   },
@@ -415,31 +415,31 @@
   },
   {
     "type": "edit",
-    "record_id": "wiki:handbook",
+    "record_id": "document:eo-handbook",
     "find": "<a href=\"/wiki/sup\" data-content-id=\"wiki:sup\">SUP</a>",
     "replace": "SUP"
   },
   {
     "type": "edit",
-    "record_id": "wiki:emergent-ontology",
+    "record_id": "wiki:emergent-ontology-eo",
     "find": "<a href=\"/wiki/rec\">REC</a>",
     "replace": "REC"
   },
   {
     "type": "edit",
-    "record_id": "wiki:influences",
+    "record_id": "wiki:influences-and-lineage",
     "find": "<a href=\"/wiki/rec\">REC</a>",
     "replace": "REC"
   },
   {
     "type": "edit",
-    "record_id": "wiki:triadic-minimum",
+    "record_id": "wiki:the-triadic-minimum",
     "find": "<a href=\"/wiki/rec\">REC</a>",
     "replace": "REC"
   },
   {
     "type": "edit",
-    "record_id": "wiki:three-triads",
+    "record_id": "wiki:the-three-triads",
     "find": "<a href=\"/wiki/rec\">REC</a>",
     "replace": "REC"
   },
@@ -451,13 +451,13 @@
   },
   {
     "type": "edit",
-    "record_id": "wiki:operators",
+    "record_id": "wiki:the-nine-operators",
     "find": "<a href=\"/wiki/rec\">REC</a>",
     "replace": "REC"
   },
   {
     "type": "edit",
-    "record_id": "wiki:integral-theory",
+    "record_id": "wiki:the-integral-lineage",
     "find": "<a href=\"/wiki/rec\">REC</a>",
     "replace": "REC"
   },
@@ -469,19 +469,19 @@
   },
   {
     "type": "edit",
-    "record_id": "wiki:sig-inflation",
+    "record_id": "wiki:eo-on-platonic-forms",
     "find": "<a href=\"/wiki/rec\">REC</a>",
     "replace": "REC"
   },
   {
     "type": "edit",
-    "record_id": "wiki:phase-space-cube",
+    "record_id": "wiki:the-eo-phase-space-cube",
     "find": "<a href=\"/wiki/rec\">REC</a>",
     "replace": "REC"
   },
   {
     "type": "edit",
-    "record_id": "wiki:phaseposts",
+    "record_id": "wiki:the-27-phase-posts",
     "find": "<a href=\"/wiki/rec\">REC</a>",
     "replace": "REC"
   },
@@ -499,13 +499,13 @@
   },
   {
     "type": "edit",
-    "record_id": "wiki:operator-naming",
+    "record_id": "wiki:operator-naming-in-emergent-ontology",
     "find": "<a href=\"/wiki/rec\">REC</a>",
     "replace": "REC"
   },
   {
     "type": "edit",
-    "record_id": "wiki:bivalent-compression",
+    "record_id": "wiki:bivalent-compression-and-dimensional-poverty",
     "find": "<a href=\"/wiki/rec\">REC</a>",
     "replace": "REC"
   },
@@ -517,31 +517,31 @@
   },
   {
     "type": "edit",
-    "record_id": "wiki:handbook",
+    "record_id": "document:eo-handbook",
     "find": "<a href=\"/wiki/rec\">REC</a>",
     "replace": "REC"
   },
   {
     "type": "edit",
-    "record_id": "wiki:emergent-ontology",
+    "record_id": "wiki:emergent-ontology-eo",
     "find": "<a href=\"/wiki/rec\" data-content-id=\"wiki:rec\">REC</a>",
     "replace": "REC"
   },
   {
     "type": "edit",
-    "record_id": "wiki:influences",
+    "record_id": "wiki:influences-and-lineage",
     "find": "<a href=\"/wiki/rec\" data-content-id=\"wiki:rec\">REC</a>",
     "replace": "REC"
   },
   {
     "type": "edit",
-    "record_id": "wiki:triadic-minimum",
+    "record_id": "wiki:the-triadic-minimum",
     "find": "<a href=\"/wiki/rec\" data-content-id=\"wiki:rec\">REC</a>",
     "replace": "REC"
   },
   {
     "type": "edit",
-    "record_id": "wiki:three-triads",
+    "record_id": "wiki:the-three-triads",
     "find": "<a href=\"/wiki/rec\" data-content-id=\"wiki:rec\">REC</a>",
     "replace": "REC"
   },
@@ -553,13 +553,13 @@
   },
   {
     "type": "edit",
-    "record_id": "wiki:operators",
+    "record_id": "wiki:the-nine-operators",
     "find": "<a href=\"/wiki/rec\" data-content-id=\"wiki:rec\">REC</a>",
     "replace": "REC"
   },
   {
     "type": "edit",
-    "record_id": "wiki:integral-theory",
+    "record_id": "wiki:the-integral-lineage",
     "find": "<a href=\"/wiki/rec\" data-content-id=\"wiki:rec\">REC</a>",
     "replace": "REC"
   },
@@ -571,19 +571,19 @@
   },
   {
     "type": "edit",
-    "record_id": "wiki:sig-inflation",
+    "record_id": "wiki:eo-on-platonic-forms",
     "find": "<a href=\"/wiki/rec\" data-content-id=\"wiki:rec\">REC</a>",
     "replace": "REC"
   },
   {
     "type": "edit",
-    "record_id": "wiki:phase-space-cube",
+    "record_id": "wiki:the-eo-phase-space-cube",
     "find": "<a href=\"/wiki/rec\" data-content-id=\"wiki:rec\">REC</a>",
     "replace": "REC"
   },
   {
     "type": "edit",
-    "record_id": "wiki:phaseposts",
+    "record_id": "wiki:the-27-phase-posts",
     "find": "<a href=\"/wiki/rec\" data-content-id=\"wiki:rec\">REC</a>",
     "replace": "REC"
   },
@@ -601,13 +601,13 @@
   },
   {
     "type": "edit",
-    "record_id": "wiki:operator-naming",
+    "record_id": "wiki:operator-naming-in-emergent-ontology",
     "find": "<a href=\"/wiki/rec\" data-content-id=\"wiki:rec\">REC</a>",
     "replace": "REC"
   },
   {
     "type": "edit",
-    "record_id": "wiki:bivalent-compression",
+    "record_id": "wiki:bivalent-compression-and-dimensional-poverty",
     "find": "<a href=\"/wiki/rec\" data-content-id=\"wiki:rec\">REC</a>",
     "replace": "REC"
   },
@@ -619,31 +619,31 @@
   },
   {
     "type": "edit",
-    "record_id": "wiki:handbook",
+    "record_id": "document:eo-handbook",
     "find": "<a href=\"/wiki/rec\" data-content-id=\"wiki:rec\">REC</a>",
     "replace": "REC"
   },
   {
     "type": "edit",
-    "record_id": "wiki:emergent-ontology",
+    "record_id": "wiki:emergent-ontology-eo",
     "find": "<a href=\"/wiki/con\">CON</a>",
     "replace": "CON"
   },
   {
     "type": "edit",
-    "record_id": "wiki:influences",
+    "record_id": "wiki:influences-and-lineage",
     "find": "<a href=\"/wiki/con\">CON</a>",
     "replace": "CON"
   },
   {
     "type": "edit",
-    "record_id": "wiki:triadic-minimum",
+    "record_id": "wiki:the-triadic-minimum",
     "find": "<a href=\"/wiki/con\">CON</a>",
     "replace": "CON"
   },
   {
     "type": "edit",
-    "record_id": "wiki:three-triads",
+    "record_id": "wiki:the-three-triads",
     "find": "<a href=\"/wiki/con\">CON</a>",
     "replace": "CON"
   },
@@ -655,13 +655,13 @@
   },
   {
     "type": "edit",
-    "record_id": "wiki:operators",
+    "record_id": "wiki:the-nine-operators",
     "find": "<a href=\"/wiki/con\">CON</a>",
     "replace": "CON"
   },
   {
     "type": "edit",
-    "record_id": "wiki:integral-theory",
+    "record_id": "wiki:the-integral-lineage",
     "find": "<a href=\"/wiki/con\">CON</a>",
     "replace": "CON"
   },
@@ -673,19 +673,19 @@
   },
   {
     "type": "edit",
-    "record_id": "wiki:sig-inflation",
+    "record_id": "wiki:eo-on-platonic-forms",
     "find": "<a href=\"/wiki/con\">CON</a>",
     "replace": "CON"
   },
   {
     "type": "edit",
-    "record_id": "wiki:phase-space-cube",
+    "record_id": "wiki:the-eo-phase-space-cube",
     "find": "<a href=\"/wiki/con\">CON</a>",
     "replace": "CON"
   },
   {
     "type": "edit",
-    "record_id": "wiki:phaseposts",
+    "record_id": "wiki:the-27-phase-posts",
     "find": "<a href=\"/wiki/con\">CON</a>",
     "replace": "CON"
   },
@@ -703,13 +703,13 @@
   },
   {
     "type": "edit",
-    "record_id": "wiki:operator-naming",
+    "record_id": "wiki:operator-naming-in-emergent-ontology",
     "find": "<a href=\"/wiki/con\">CON</a>",
     "replace": "CON"
   },
   {
     "type": "edit",
-    "record_id": "wiki:bivalent-compression",
+    "record_id": "wiki:bivalent-compression-and-dimensional-poverty",
     "find": "<a href=\"/wiki/con\">CON</a>",
     "replace": "CON"
   },
@@ -721,31 +721,31 @@
   },
   {
     "type": "edit",
-    "record_id": "wiki:handbook",
+    "record_id": "document:eo-handbook",
     "find": "<a href=\"/wiki/con\">CON</a>",
     "replace": "CON"
   },
   {
     "type": "edit",
-    "record_id": "wiki:emergent-ontology",
+    "record_id": "wiki:emergent-ontology-eo",
     "find": "<a href=\"/wiki/con\" data-content-id=\"wiki:con\">CON</a>",
     "replace": "CON"
   },
   {
     "type": "edit",
-    "record_id": "wiki:influences",
+    "record_id": "wiki:influences-and-lineage",
     "find": "<a href=\"/wiki/con\" data-content-id=\"wiki:con\">CON</a>",
     "replace": "CON"
   },
   {
     "type": "edit",
-    "record_id": "wiki:triadic-minimum",
+    "record_id": "wiki:the-triadic-minimum",
     "find": "<a href=\"/wiki/con\" data-content-id=\"wiki:con\">CON</a>",
     "replace": "CON"
   },
   {
     "type": "edit",
-    "record_id": "wiki:three-triads",
+    "record_id": "wiki:the-three-triads",
     "find": "<a href=\"/wiki/con\" data-content-id=\"wiki:con\">CON</a>",
     "replace": "CON"
   },
@@ -757,13 +757,13 @@
   },
   {
     "type": "edit",
-    "record_id": "wiki:operators",
+    "record_id": "wiki:the-nine-operators",
     "find": "<a href=\"/wiki/con\" data-content-id=\"wiki:con\">CON</a>",
     "replace": "CON"
   },
   {
     "type": "edit",
-    "record_id": "wiki:integral-theory",
+    "record_id": "wiki:the-integral-lineage",
     "find": "<a href=\"/wiki/con\" data-content-id=\"wiki:con\">CON</a>",
     "replace": "CON"
   },
@@ -775,19 +775,19 @@
   },
   {
     "type": "edit",
-    "record_id": "wiki:sig-inflation",
+    "record_id": "wiki:eo-on-platonic-forms",
     "find": "<a href=\"/wiki/con\" data-content-id=\"wiki:con\">CON</a>",
     "replace": "CON"
   },
   {
     "type": "edit",
-    "record_id": "wiki:phase-space-cube",
+    "record_id": "wiki:the-eo-phase-space-cube",
     "find": "<a href=\"/wiki/con\" data-content-id=\"wiki:con\">CON</a>",
     "replace": "CON"
   },
   {
     "type": "edit",
-    "record_id": "wiki:phaseposts",
+    "record_id": "wiki:the-27-phase-posts",
     "find": "<a href=\"/wiki/con\" data-content-id=\"wiki:con\">CON</a>",
     "replace": "CON"
   },
@@ -805,13 +805,13 @@
   },
   {
     "type": "edit",
-    "record_id": "wiki:operator-naming",
+    "record_id": "wiki:operator-naming-in-emergent-ontology",
     "find": "<a href=\"/wiki/con\" data-content-id=\"wiki:con\">CON</a>",
     "replace": "CON"
   },
   {
     "type": "edit",
-    "record_id": "wiki:bivalent-compression",
+    "record_id": "wiki:bivalent-compression-and-dimensional-poverty",
     "find": "<a href=\"/wiki/con\" data-content-id=\"wiki:con\">CON</a>",
     "replace": "CON"
   },
@@ -823,31 +823,31 @@
   },
   {
     "type": "edit",
-    "record_id": "wiki:handbook",
+    "record_id": "document:eo-handbook",
     "find": "<a href=\"/wiki/con\" data-content-id=\"wiki:con\">CON</a>",
     "replace": "CON"
   },
   {
     "type": "edit",
-    "record_id": "wiki:emergent-ontology",
+    "record_id": "wiki:emergent-ontology-eo",
     "find": "<a href=\"/wiki/seg\">SEG</a>",
     "replace": "SEG"
   },
   {
     "type": "edit",
-    "record_id": "wiki:influences",
+    "record_id": "wiki:influences-and-lineage",
     "find": "<a href=\"/wiki/seg\">SEG</a>",
     "replace": "SEG"
   },
   {
     "type": "edit",
-    "record_id": "wiki:triadic-minimum",
+    "record_id": "wiki:the-triadic-minimum",
     "find": "<a href=\"/wiki/seg\">SEG</a>",
     "replace": "SEG"
   },
   {
     "type": "edit",
-    "record_id": "wiki:three-triads",
+    "record_id": "wiki:the-three-triads",
     "find": "<a href=\"/wiki/seg\">SEG</a>",
     "replace": "SEG"
   },
@@ -859,13 +859,13 @@
   },
   {
     "type": "edit",
-    "record_id": "wiki:operators",
+    "record_id": "wiki:the-nine-operators",
     "find": "<a href=\"/wiki/seg\">SEG</a>",
     "replace": "SEG"
   },
   {
     "type": "edit",
-    "record_id": "wiki:integral-theory",
+    "record_id": "wiki:the-integral-lineage",
     "find": "<a href=\"/wiki/seg\">SEG</a>",
     "replace": "SEG"
   },
@@ -877,19 +877,19 @@
   },
   {
     "type": "edit",
-    "record_id": "wiki:sig-inflation",
+    "record_id": "wiki:eo-on-platonic-forms",
     "find": "<a href=\"/wiki/seg\">SEG</a>",
     "replace": "SEG"
   },
   {
     "type": "edit",
-    "record_id": "wiki:phase-space-cube",
+    "record_id": "wiki:the-eo-phase-space-cube",
     "find": "<a href=\"/wiki/seg\">SEG</a>",
     "replace": "SEG"
   },
   {
     "type": "edit",
-    "record_id": "wiki:phaseposts",
+    "record_id": "wiki:the-27-phase-posts",
     "find": "<a href=\"/wiki/seg\">SEG</a>",
     "replace": "SEG"
   },
@@ -907,13 +907,13 @@
   },
   {
     "type": "edit",
-    "record_id": "wiki:operator-naming",
+    "record_id": "wiki:operator-naming-in-emergent-ontology",
     "find": "<a href=\"/wiki/seg\">SEG</a>",
     "replace": "SEG"
   },
   {
     "type": "edit",
-    "record_id": "wiki:bivalent-compression",
+    "record_id": "wiki:bivalent-compression-and-dimensional-poverty",
     "find": "<a href=\"/wiki/seg\">SEG</a>",
     "replace": "SEG"
   },
@@ -925,31 +925,31 @@
   },
   {
     "type": "edit",
-    "record_id": "wiki:handbook",
+    "record_id": "document:eo-handbook",
     "find": "<a href=\"/wiki/seg\">SEG</a>",
     "replace": "SEG"
   },
   {
     "type": "edit",
-    "record_id": "wiki:emergent-ontology",
+    "record_id": "wiki:emergent-ontology-eo",
     "find": "<a href=\"/wiki/seg\" data-content-id=\"wiki:seg\">SEG</a>",
     "replace": "SEG"
   },
   {
     "type": "edit",
-    "record_id": "wiki:influences",
+    "record_id": "wiki:influences-and-lineage",
     "find": "<a href=\"/wiki/seg\" data-content-id=\"wiki:seg\">SEG</a>",
     "replace": "SEG"
   },
   {
     "type": "edit",
-    "record_id": "wiki:triadic-minimum",
+    "record_id": "wiki:the-triadic-minimum",
     "find": "<a href=\"/wiki/seg\" data-content-id=\"wiki:seg\">SEG</a>",
     "replace": "SEG"
   },
   {
     "type": "edit",
-    "record_id": "wiki:three-triads",
+    "record_id": "wiki:the-three-triads",
     "find": "<a href=\"/wiki/seg\" data-content-id=\"wiki:seg\">SEG</a>",
     "replace": "SEG"
   },
@@ -961,13 +961,13 @@
   },
   {
     "type": "edit",
-    "record_id": "wiki:operators",
+    "record_id": "wiki:the-nine-operators",
     "find": "<a href=\"/wiki/seg\" data-content-id=\"wiki:seg\">SEG</a>",
     "replace": "SEG"
   },
   {
     "type": "edit",
-    "record_id": "wiki:integral-theory",
+    "record_id": "wiki:the-integral-lineage",
     "find": "<a href=\"/wiki/seg\" data-content-id=\"wiki:seg\">SEG</a>",
     "replace": "SEG"
   },
@@ -979,19 +979,19 @@
   },
   {
     "type": "edit",
-    "record_id": "wiki:sig-inflation",
+    "record_id": "wiki:eo-on-platonic-forms",
     "find": "<a href=\"/wiki/seg\" data-content-id=\"wiki:seg\">SEG</a>",
     "replace": "SEG"
   },
   {
     "type": "edit",
-    "record_id": "wiki:phase-space-cube",
+    "record_id": "wiki:the-eo-phase-space-cube",
     "find": "<a href=\"/wiki/seg\" data-content-id=\"wiki:seg\">SEG</a>",
     "replace": "SEG"
   },
   {
     "type": "edit",
-    "record_id": "wiki:phaseposts",
+    "record_id": "wiki:the-27-phase-posts",
     "find": "<a href=\"/wiki/seg\" data-content-id=\"wiki:seg\">SEG</a>",
     "replace": "SEG"
   },
@@ -1009,13 +1009,13 @@
   },
   {
     "type": "edit",
-    "record_id": "wiki:operator-naming",
+    "record_id": "wiki:operator-naming-in-emergent-ontology",
     "find": "<a href=\"/wiki/seg\" data-content-id=\"wiki:seg\">SEG</a>",
     "replace": "SEG"
   },
   {
     "type": "edit",
-    "record_id": "wiki:bivalent-compression",
+    "record_id": "wiki:bivalent-compression-and-dimensional-poverty",
     "find": "<a href=\"/wiki/seg\" data-content-id=\"wiki:seg\">SEG</a>",
     "replace": "SEG"
   },
@@ -1027,31 +1027,31 @@
   },
   {
     "type": "edit",
-    "record_id": "wiki:handbook",
+    "record_id": "document:eo-handbook",
     "find": "<a href=\"/wiki/seg\" data-content-id=\"wiki:seg\">SEG</a>",
     "replace": "SEG"
   },
   {
     "type": "edit",
-    "record_id": "wiki:emergent-ontology",
+    "record_id": "wiki:emergent-ontology-eo",
     "find": "<a href=\"/wiki/helix\">helix</a>",
     "replace": "helix"
   },
   {
     "type": "edit",
-    "record_id": "wiki:influences",
+    "record_id": "wiki:influences-and-lineage",
     "find": "<a href=\"/wiki/helix\">helix</a>",
     "replace": "helix"
   },
   {
     "type": "edit",
-    "record_id": "wiki:triadic-minimum",
+    "record_id": "wiki:the-triadic-minimum",
     "find": "<a href=\"/wiki/helix\">helix</a>",
     "replace": "helix"
   },
   {
     "type": "edit",
-    "record_id": "wiki:three-triads",
+    "record_id": "wiki:the-three-triads",
     "find": "<a href=\"/wiki/helix\">helix</a>",
     "replace": "helix"
   },
@@ -1063,13 +1063,13 @@
   },
   {
     "type": "edit",
-    "record_id": "wiki:operators",
+    "record_id": "wiki:the-nine-operators",
     "find": "<a href=\"/wiki/helix\">helix</a>",
     "replace": "helix"
   },
   {
     "type": "edit",
-    "record_id": "wiki:integral-theory",
+    "record_id": "wiki:the-integral-lineage",
     "find": "<a href=\"/wiki/helix\">helix</a>",
     "replace": "helix"
   },
@@ -1081,19 +1081,19 @@
   },
   {
     "type": "edit",
-    "record_id": "wiki:sig-inflation",
+    "record_id": "wiki:eo-on-platonic-forms",
     "find": "<a href=\"/wiki/helix\">helix</a>",
     "replace": "helix"
   },
   {
     "type": "edit",
-    "record_id": "wiki:phase-space-cube",
+    "record_id": "wiki:the-eo-phase-space-cube",
     "find": "<a href=\"/wiki/helix\">helix</a>",
     "replace": "helix"
   },
   {
     "type": "edit",
-    "record_id": "wiki:phaseposts",
+    "record_id": "wiki:the-27-phase-posts",
     "find": "<a href=\"/wiki/helix\">helix</a>",
     "replace": "helix"
   },
@@ -1111,13 +1111,13 @@
   },
   {
     "type": "edit",
-    "record_id": "wiki:operator-naming",
+    "record_id": "wiki:operator-naming-in-emergent-ontology",
     "find": "<a href=\"/wiki/helix\">helix</a>",
     "replace": "helix"
   },
   {
     "type": "edit",
-    "record_id": "wiki:bivalent-compression",
+    "record_id": "wiki:bivalent-compression-and-dimensional-poverty",
     "find": "<a href=\"/wiki/helix\">helix</a>",
     "replace": "helix"
   },
@@ -1129,31 +1129,31 @@
   },
   {
     "type": "edit",
-    "record_id": "wiki:handbook",
+    "record_id": "document:eo-handbook",
     "find": "<a href=\"/wiki/helix\">helix</a>",
     "replace": "helix"
   },
   {
     "type": "edit",
-    "record_id": "wiki:emergent-ontology",
+    "record_id": "wiki:emergent-ontology-eo",
     "find": "<a href=\"/wiki/helix\" data-content-id=\"wiki:helix\">helix</a>",
     "replace": "helix"
   },
   {
     "type": "edit",
-    "record_id": "wiki:influences",
+    "record_id": "wiki:influences-and-lineage",
     "find": "<a href=\"/wiki/helix\" data-content-id=\"wiki:helix\">helix</a>",
     "replace": "helix"
   },
   {
     "type": "edit",
-    "record_id": "wiki:triadic-minimum",
+    "record_id": "wiki:the-triadic-minimum",
     "find": "<a href=\"/wiki/helix\" data-content-id=\"wiki:helix\">helix</a>",
     "replace": "helix"
   },
   {
     "type": "edit",
-    "record_id": "wiki:three-triads",
+    "record_id": "wiki:the-three-triads",
     "find": "<a href=\"/wiki/helix\" data-content-id=\"wiki:helix\">helix</a>",
     "replace": "helix"
   },
@@ -1165,13 +1165,13 @@
   },
   {
     "type": "edit",
-    "record_id": "wiki:operators",
+    "record_id": "wiki:the-nine-operators",
     "find": "<a href=\"/wiki/helix\" data-content-id=\"wiki:helix\">helix</a>",
     "replace": "helix"
   },
   {
     "type": "edit",
-    "record_id": "wiki:integral-theory",
+    "record_id": "wiki:the-integral-lineage",
     "find": "<a href=\"/wiki/helix\" data-content-id=\"wiki:helix\">helix</a>",
     "replace": "helix"
   },
@@ -1183,19 +1183,19 @@
   },
   {
     "type": "edit",
-    "record_id": "wiki:sig-inflation",
+    "record_id": "wiki:eo-on-platonic-forms",
     "find": "<a href=\"/wiki/helix\" data-content-id=\"wiki:helix\">helix</a>",
     "replace": "helix"
   },
   {
     "type": "edit",
-    "record_id": "wiki:phase-space-cube",
+    "record_id": "wiki:the-eo-phase-space-cube",
     "find": "<a href=\"/wiki/helix\" data-content-id=\"wiki:helix\">helix</a>",
     "replace": "helix"
   },
   {
     "type": "edit",
-    "record_id": "wiki:phaseposts",
+    "record_id": "wiki:the-27-phase-posts",
     "find": "<a href=\"/wiki/helix\" data-content-id=\"wiki:helix\">helix</a>",
     "replace": "helix"
   },
@@ -1213,13 +1213,13 @@
   },
   {
     "type": "edit",
-    "record_id": "wiki:operator-naming",
+    "record_id": "wiki:operator-naming-in-emergent-ontology",
     "find": "<a href=\"/wiki/helix\" data-content-id=\"wiki:helix\">helix</a>",
     "replace": "helix"
   },
   {
     "type": "edit",
-    "record_id": "wiki:bivalent-compression",
+    "record_id": "wiki:bivalent-compression-and-dimensional-poverty",
     "find": "<a href=\"/wiki/helix\" data-content-id=\"wiki:helix\">helix</a>",
     "replace": "helix"
   },
@@ -1231,31 +1231,31 @@
   },
   {
     "type": "edit",
-    "record_id": "wiki:handbook",
+    "record_id": "document:eo-handbook",
     "find": "<a href=\"/wiki/helix\" data-content-id=\"wiki:helix\">helix</a>",
     "replace": "helix"
   },
   {
     "type": "edit",
-    "record_id": "wiki:emergent-ontology",
+    "record_id": "wiki:emergent-ontology-eo",
     "find": "<a href=\"/wiki/operators\">operators</a>",
     "replace": "operators"
   },
   {
     "type": "edit",
-    "record_id": "wiki:influences",
+    "record_id": "wiki:influences-and-lineage",
     "find": "<a href=\"/wiki/operators\">operators</a>",
     "replace": "operators"
   },
   {
     "type": "edit",
-    "record_id": "wiki:triadic-minimum",
+    "record_id": "wiki:the-triadic-minimum",
     "find": "<a href=\"/wiki/operators\">operators</a>",
     "replace": "operators"
   },
   {
     "type": "edit",
-    "record_id": "wiki:three-triads",
+    "record_id": "wiki:the-three-triads",
     "find": "<a href=\"/wiki/operators\">operators</a>",
     "replace": "operators"
   },
@@ -1267,13 +1267,13 @@
   },
   {
     "type": "edit",
-    "record_id": "wiki:operators",
+    "record_id": "wiki:the-nine-operators",
     "find": "<a href=\"/wiki/operators\">operators</a>",
     "replace": "operators"
   },
   {
     "type": "edit",
-    "record_id": "wiki:integral-theory",
+    "record_id": "wiki:the-integral-lineage",
     "find": "<a href=\"/wiki/operators\">operators</a>",
     "replace": "operators"
   },
@@ -1285,19 +1285,19 @@
   },
   {
     "type": "edit",
-    "record_id": "wiki:sig-inflation",
+    "record_id": "wiki:eo-on-platonic-forms",
     "find": "<a href=\"/wiki/operators\">operators</a>",
     "replace": "operators"
   },
   {
     "type": "edit",
-    "record_id": "wiki:phase-space-cube",
+    "record_id": "wiki:the-eo-phase-space-cube",
     "find": "<a href=\"/wiki/operators\">operators</a>",
     "replace": "operators"
   },
   {
     "type": "edit",
-    "record_id": "wiki:phaseposts",
+    "record_id": "wiki:the-27-phase-posts",
     "find": "<a href=\"/wiki/operators\">operators</a>",
     "replace": "operators"
   },
@@ -1315,13 +1315,13 @@
   },
   {
     "type": "edit",
-    "record_id": "wiki:operator-naming",
+    "record_id": "wiki:operator-naming-in-emergent-ontology",
     "find": "<a href=\"/wiki/operators\">operators</a>",
     "replace": "operators"
   },
   {
     "type": "edit",
-    "record_id": "wiki:bivalent-compression",
+    "record_id": "wiki:bivalent-compression-and-dimensional-poverty",
     "find": "<a href=\"/wiki/operators\">operators</a>",
     "replace": "operators"
   },
@@ -1333,31 +1333,31 @@
   },
   {
     "type": "edit",
-    "record_id": "wiki:handbook",
+    "record_id": "document:eo-handbook",
     "find": "<a href=\"/wiki/operators\">operators</a>",
     "replace": "operators"
   },
   {
     "type": "edit",
-    "record_id": "wiki:emergent-ontology",
+    "record_id": "wiki:emergent-ontology-eo",
     "find": "<a href=\"/wiki/operators\" data-content-id=\"wiki:operators\">operators</a>",
     "replace": "operators"
   },
   {
     "type": "edit",
-    "record_id": "wiki:influences",
+    "record_id": "wiki:influences-and-lineage",
     "find": "<a href=\"/wiki/operators\" data-content-id=\"wiki:operators\">operators</a>",
     "replace": "operators"
   },
   {
     "type": "edit",
-    "record_id": "wiki:triadic-minimum",
+    "record_id": "wiki:the-triadic-minimum",
     "find": "<a href=\"/wiki/operators\" data-content-id=\"wiki:operators\">operators</a>",
     "replace": "operators"
   },
   {
     "type": "edit",
-    "record_id": "wiki:three-triads",
+    "record_id": "wiki:the-three-triads",
     "find": "<a href=\"/wiki/operators\" data-content-id=\"wiki:operators\">operators</a>",
     "replace": "operators"
   },
@@ -1369,13 +1369,13 @@
   },
   {
     "type": "edit",
-    "record_id": "wiki:operators",
+    "record_id": "wiki:the-nine-operators",
     "find": "<a href=\"/wiki/operators\" data-content-id=\"wiki:operators\">operators</a>",
     "replace": "operators"
   },
   {
     "type": "edit",
-    "record_id": "wiki:integral-theory",
+    "record_id": "wiki:the-integral-lineage",
     "find": "<a href=\"/wiki/operators\" data-content-id=\"wiki:operators\">operators</a>",
     "replace": "operators"
   },
@@ -1387,19 +1387,19 @@
   },
   {
     "type": "edit",
-    "record_id": "wiki:sig-inflation",
+    "record_id": "wiki:eo-on-platonic-forms",
     "find": "<a href=\"/wiki/operators\" data-content-id=\"wiki:operators\">operators</a>",
     "replace": "operators"
   },
   {
     "type": "edit",
-    "record_id": "wiki:phase-space-cube",
+    "record_id": "wiki:the-eo-phase-space-cube",
     "find": "<a href=\"/wiki/operators\" data-content-id=\"wiki:operators\">operators</a>",
     "replace": "operators"
   },
   {
     "type": "edit",
-    "record_id": "wiki:phaseposts",
+    "record_id": "wiki:the-27-phase-posts",
     "find": "<a href=\"/wiki/operators\" data-content-id=\"wiki:operators\">operators</a>",
     "replace": "operators"
   },
@@ -1417,13 +1417,13 @@
   },
   {
     "type": "edit",
-    "record_id": "wiki:operator-naming",
+    "record_id": "wiki:operator-naming-in-emergent-ontology",
     "find": "<a href=\"/wiki/operators\" data-content-id=\"wiki:operators\">operators</a>",
     "replace": "operators"
   },
   {
     "type": "edit",
-    "record_id": "wiki:bivalent-compression",
+    "record_id": "wiki:bivalent-compression-and-dimensional-poverty",
     "find": "<a href=\"/wiki/operators\" data-content-id=\"wiki:operators\">operators</a>",
     "replace": "operators"
   },
@@ -1435,31 +1435,31 @@
   },
   {
     "type": "edit",
-    "record_id": "wiki:handbook",
+    "record_id": "document:eo-handbook",
     "find": "<a href=\"/wiki/operators\" data-content-id=\"wiki:operators\">operators</a>",
     "replace": "operators"
   },
   {
     "type": "edit",
-    "record_id": "wiki:emergent-ontology",
+    "record_id": "wiki:emergent-ontology-eo",
     "find": "<a href=\"/wiki/phaseposts\">phaseposts</a>",
     "replace": "phaseposts"
   },
   {
     "type": "edit",
-    "record_id": "wiki:influences",
+    "record_id": "wiki:influences-and-lineage",
     "find": "<a href=\"/wiki/phaseposts\">phaseposts</a>",
     "replace": "phaseposts"
   },
   {
     "type": "edit",
-    "record_id": "wiki:triadic-minimum",
+    "record_id": "wiki:the-triadic-minimum",
     "find": "<a href=\"/wiki/phaseposts\">phaseposts</a>",
     "replace": "phaseposts"
   },
   {
     "type": "edit",
-    "record_id": "wiki:three-triads",
+    "record_id": "wiki:the-three-triads",
     "find": "<a href=\"/wiki/phaseposts\">phaseposts</a>",
     "replace": "phaseposts"
   },
@@ -1471,13 +1471,13 @@
   },
   {
     "type": "edit",
-    "record_id": "wiki:operators",
+    "record_id": "wiki:the-nine-operators",
     "find": "<a href=\"/wiki/phaseposts\">phaseposts</a>",
     "replace": "phaseposts"
   },
   {
     "type": "edit",
-    "record_id": "wiki:integral-theory",
+    "record_id": "wiki:the-integral-lineage",
     "find": "<a href=\"/wiki/phaseposts\">phaseposts</a>",
     "replace": "phaseposts"
   },
@@ -1489,19 +1489,19 @@
   },
   {
     "type": "edit",
-    "record_id": "wiki:sig-inflation",
+    "record_id": "wiki:eo-on-platonic-forms",
     "find": "<a href=\"/wiki/phaseposts\">phaseposts</a>",
     "replace": "phaseposts"
   },
   {
     "type": "edit",
-    "record_id": "wiki:phase-space-cube",
+    "record_id": "wiki:the-eo-phase-space-cube",
     "find": "<a href=\"/wiki/phaseposts\">phaseposts</a>",
     "replace": "phaseposts"
   },
   {
     "type": "edit",
-    "record_id": "wiki:phaseposts",
+    "record_id": "wiki:the-27-phase-posts",
     "find": "<a href=\"/wiki/phaseposts\">phaseposts</a>",
     "replace": "phaseposts"
   },
@@ -1519,13 +1519,13 @@
   },
   {
     "type": "edit",
-    "record_id": "wiki:operator-naming",
+    "record_id": "wiki:operator-naming-in-emergent-ontology",
     "find": "<a href=\"/wiki/phaseposts\">phaseposts</a>",
     "replace": "phaseposts"
   },
   {
     "type": "edit",
-    "record_id": "wiki:bivalent-compression",
+    "record_id": "wiki:bivalent-compression-and-dimensional-poverty",
     "find": "<a href=\"/wiki/phaseposts\">phaseposts</a>",
     "replace": "phaseposts"
   },
@@ -1537,31 +1537,31 @@
   },
   {
     "type": "edit",
-    "record_id": "wiki:handbook",
+    "record_id": "document:eo-handbook",
     "find": "<a href=\"/wiki/phaseposts\">phaseposts</a>",
     "replace": "phaseposts"
   },
   {
     "type": "edit",
-    "record_id": "wiki:emergent-ontology",
+    "record_id": "wiki:emergent-ontology-eo",
     "find": "<a href=\"/wiki/phaseposts\" data-content-id=\"wiki:phaseposts\">phaseposts</a>",
     "replace": "phaseposts"
   },
   {
     "type": "edit",
-    "record_id": "wiki:influences",
+    "record_id": "wiki:influences-and-lineage",
     "find": "<a href=\"/wiki/phaseposts\" data-content-id=\"wiki:phaseposts\">phaseposts</a>",
     "replace": "phaseposts"
   },
   {
     "type": "edit",
-    "record_id": "wiki:triadic-minimum",
+    "record_id": "wiki:the-triadic-minimum",
     "find": "<a href=\"/wiki/phaseposts\" data-content-id=\"wiki:phaseposts\">phaseposts</a>",
     "replace": "phaseposts"
   },
   {
     "type": "edit",
-    "record_id": "wiki:three-triads",
+    "record_id": "wiki:the-three-triads",
     "find": "<a href=\"/wiki/phaseposts\" data-content-id=\"wiki:phaseposts\">phaseposts</a>",
     "replace": "phaseposts"
   },
@@ -1573,13 +1573,13 @@
   },
   {
     "type": "edit",
-    "record_id": "wiki:operators",
+    "record_id": "wiki:the-nine-operators",
     "find": "<a href=\"/wiki/phaseposts\" data-content-id=\"wiki:phaseposts\">phaseposts</a>",
     "replace": "phaseposts"
   },
   {
     "type": "edit",
-    "record_id": "wiki:integral-theory",
+    "record_id": "wiki:the-integral-lineage",
     "find": "<a href=\"/wiki/phaseposts\" data-content-id=\"wiki:phaseposts\">phaseposts</a>",
     "replace": "phaseposts"
   },
@@ -1591,19 +1591,19 @@
   },
   {
     "type": "edit",
-    "record_id": "wiki:sig-inflation",
+    "record_id": "wiki:eo-on-platonic-forms",
     "find": "<a href=\"/wiki/phaseposts\" data-content-id=\"wiki:phaseposts\">phaseposts</a>",
     "replace": "phaseposts"
   },
   {
     "type": "edit",
-    "record_id": "wiki:phase-space-cube",
+    "record_id": "wiki:the-eo-phase-space-cube",
     "find": "<a href=\"/wiki/phaseposts\" data-content-id=\"wiki:phaseposts\">phaseposts</a>",
     "replace": "phaseposts"
   },
   {
     "type": "edit",
-    "record_id": "wiki:phaseposts",
+    "record_id": "wiki:the-27-phase-posts",
     "find": "<a href=\"/wiki/phaseposts\" data-content-id=\"wiki:phaseposts\">phaseposts</a>",
     "replace": "phaseposts"
   },
@@ -1621,13 +1621,13 @@
   },
   {
     "type": "edit",
-    "record_id": "wiki:operator-naming",
+    "record_id": "wiki:operator-naming-in-emergent-ontology",
     "find": "<a href=\"/wiki/phaseposts\" data-content-id=\"wiki:phaseposts\">phaseposts</a>",
     "replace": "phaseposts"
   },
   {
     "type": "edit",
-    "record_id": "wiki:bivalent-compression",
+    "record_id": "wiki:bivalent-compression-and-dimensional-poverty",
     "find": "<a href=\"/wiki/phaseposts\" data-content-id=\"wiki:phaseposts\">phaseposts</a>",
     "replace": "phaseposts"
   },
@@ -1639,31 +1639,31 @@
   },
   {
     "type": "edit",
-    "record_id": "wiki:handbook",
+    "record_id": "document:eo-handbook",
     "find": "<a href=\"/wiki/phaseposts\" data-content-id=\"wiki:phaseposts\">phaseposts</a>",
     "replace": "phaseposts"
   },
   {
     "type": "edit",
-    "record_id": "wiki:emergent-ontology",
+    "record_id": "wiki:emergent-ontology-eo",
     "find": "<a href=\"/wiki/main\">main page</a>",
     "replace": "Emergent Ontology main page"
   },
   {
     "type": "edit",
-    "record_id": "wiki:influences",
+    "record_id": "wiki:influences-and-lineage",
     "find": "<a href=\"/wiki/main\">main page</a>",
     "replace": "Emergent Ontology main page"
   },
   {
     "type": "edit",
-    "record_id": "wiki:triadic-minimum",
+    "record_id": "wiki:the-triadic-minimum",
     "find": "<a href=\"/wiki/main\">main page</a>",
     "replace": "Emergent Ontology main page"
   },
   {
     "type": "edit",
-    "record_id": "wiki:three-triads",
+    "record_id": "wiki:the-three-triads",
     "find": "<a href=\"/wiki/main\">main page</a>",
     "replace": "Emergent Ontology main page"
   },
@@ -1675,13 +1675,13 @@
   },
   {
     "type": "edit",
-    "record_id": "wiki:operators",
+    "record_id": "wiki:the-nine-operators",
     "find": "<a href=\"/wiki/main\">main page</a>",
     "replace": "Emergent Ontology main page"
   },
   {
     "type": "edit",
-    "record_id": "wiki:integral-theory",
+    "record_id": "wiki:the-integral-lineage",
     "find": "<a href=\"/wiki/main\">main page</a>",
     "replace": "Emergent Ontology main page"
   },
@@ -1693,19 +1693,19 @@
   },
   {
     "type": "edit",
-    "record_id": "wiki:sig-inflation",
+    "record_id": "wiki:eo-on-platonic-forms",
     "find": "<a href=\"/wiki/main\">main page</a>",
     "replace": "Emergent Ontology main page"
   },
   {
     "type": "edit",
-    "record_id": "wiki:phase-space-cube",
+    "record_id": "wiki:the-eo-phase-space-cube",
     "find": "<a href=\"/wiki/main\">main page</a>",
     "replace": "Emergent Ontology main page"
   },
   {
     "type": "edit",
-    "record_id": "wiki:phaseposts",
+    "record_id": "wiki:the-27-phase-posts",
     "find": "<a href=\"/wiki/main\">main page</a>",
     "replace": "Emergent Ontology main page"
   },
@@ -1723,13 +1723,13 @@
   },
   {
     "type": "edit",
-    "record_id": "wiki:operator-naming",
+    "record_id": "wiki:operator-naming-in-emergent-ontology",
     "find": "<a href=\"/wiki/main\">main page</a>",
     "replace": "Emergent Ontology main page"
   },
   {
     "type": "edit",
-    "record_id": "wiki:bivalent-compression",
+    "record_id": "wiki:bivalent-compression-and-dimensional-poverty",
     "find": "<a href=\"/wiki/main\">main page</a>",
     "replace": "Emergent Ontology main page"
   },
@@ -1741,31 +1741,31 @@
   },
   {
     "type": "edit",
-    "record_id": "wiki:handbook",
+    "record_id": "document:eo-handbook",
     "find": "<a href=\"/wiki/main\">main page</a>",
     "replace": "Emergent Ontology main page"
   },
   {
     "type": "edit",
-    "record_id": "wiki:emergent-ontology",
+    "record_id": "wiki:emergent-ontology-eo",
     "find": "<a href=\"/wiki/main\" data-content-id=\"wiki:main\">main page</a>",
     "replace": "Emergent Ontology main page"
   },
   {
     "type": "edit",
-    "record_id": "wiki:influences",
+    "record_id": "wiki:influences-and-lineage",
     "find": "<a href=\"/wiki/main\" data-content-id=\"wiki:main\">main page</a>",
     "replace": "Emergent Ontology main page"
   },
   {
     "type": "edit",
-    "record_id": "wiki:triadic-minimum",
+    "record_id": "wiki:the-triadic-minimum",
     "find": "<a href=\"/wiki/main\" data-content-id=\"wiki:main\">main page</a>",
     "replace": "Emergent Ontology main page"
   },
   {
     "type": "edit",
-    "record_id": "wiki:three-triads",
+    "record_id": "wiki:the-three-triads",
     "find": "<a href=\"/wiki/main\" data-content-id=\"wiki:main\">main page</a>",
     "replace": "Emergent Ontology main page"
   },
@@ -1777,13 +1777,13 @@
   },
   {
     "type": "edit",
-    "record_id": "wiki:operators",
+    "record_id": "wiki:the-nine-operators",
     "find": "<a href=\"/wiki/main\" data-content-id=\"wiki:main\">main page</a>",
     "replace": "Emergent Ontology main page"
   },
   {
     "type": "edit",
-    "record_id": "wiki:integral-theory",
+    "record_id": "wiki:the-integral-lineage",
     "find": "<a href=\"/wiki/main\" data-content-id=\"wiki:main\">main page</a>",
     "replace": "Emergent Ontology main page"
   },
@@ -1795,19 +1795,19 @@
   },
   {
     "type": "edit",
-    "record_id": "wiki:sig-inflation",
+    "record_id": "wiki:eo-on-platonic-forms",
     "find": "<a href=\"/wiki/main\" data-content-id=\"wiki:main\">main page</a>",
     "replace": "Emergent Ontology main page"
   },
   {
     "type": "edit",
-    "record_id": "wiki:phase-space-cube",
+    "record_id": "wiki:the-eo-phase-space-cube",
     "find": "<a href=\"/wiki/main\" data-content-id=\"wiki:main\">main page</a>",
     "replace": "Emergent Ontology main page"
   },
   {
     "type": "edit",
-    "record_id": "wiki:phaseposts",
+    "record_id": "wiki:the-27-phase-posts",
     "find": "<a href=\"/wiki/main\" data-content-id=\"wiki:main\">main page</a>",
     "replace": "Emergent Ontology main page"
   },
@@ -1825,13 +1825,13 @@
   },
   {
     "type": "edit",
-    "record_id": "wiki:operator-naming",
+    "record_id": "wiki:operator-naming-in-emergent-ontology",
     "find": "<a href=\"/wiki/main\" data-content-id=\"wiki:main\">main page</a>",
     "replace": "Emergent Ontology main page"
   },
   {
     "type": "edit",
-    "record_id": "wiki:bivalent-compression",
+    "record_id": "wiki:bivalent-compression-and-dimensional-poverty",
     "find": "<a href=\"/wiki/main\" data-content-id=\"wiki:main\">main page</a>",
     "replace": "Emergent Ontology main page"
   },
@@ -1843,31 +1843,31 @@
   },
   {
     "type": "edit",
-    "record_id": "wiki:handbook",
+    "record_id": "document:eo-handbook",
     "find": "<a href=\"/wiki/main\" data-content-id=\"wiki:main\">main page</a>",
     "replace": "Emergent Ontology main page"
   },
   {
     "type": "edit",
-    "record_id": "wiki:emergent-ontology",
+    "record_id": "wiki:emergent-ontology-eo",
     "find": "<a href=\"/wiki/fractal-self-similarity\">fractal self-similarity</a>",
     "replace": "fractal self-similarity"
   },
   {
     "type": "edit",
-    "record_id": "wiki:influences",
+    "record_id": "wiki:influences-and-lineage",
     "find": "<a href=\"/wiki/fractal-self-similarity\">fractal self-similarity</a>",
     "replace": "fractal self-similarity"
   },
   {
     "type": "edit",
-    "record_id": "wiki:triadic-minimum",
+    "record_id": "wiki:the-triadic-minimum",
     "find": "<a href=\"/wiki/fractal-self-similarity\">fractal self-similarity</a>",
     "replace": "fractal self-similarity"
   },
   {
     "type": "edit",
-    "record_id": "wiki:three-triads",
+    "record_id": "wiki:the-three-triads",
     "find": "<a href=\"/wiki/fractal-self-similarity\">fractal self-similarity</a>",
     "replace": "fractal self-similarity"
   },
@@ -1879,13 +1879,13 @@
   },
   {
     "type": "edit",
-    "record_id": "wiki:operators",
+    "record_id": "wiki:the-nine-operators",
     "find": "<a href=\"/wiki/fractal-self-similarity\">fractal self-similarity</a>",
     "replace": "fractal self-similarity"
   },
   {
     "type": "edit",
-    "record_id": "wiki:integral-theory",
+    "record_id": "wiki:the-integral-lineage",
     "find": "<a href=\"/wiki/fractal-self-similarity\">fractal self-similarity</a>",
     "replace": "fractal self-similarity"
   },
@@ -1897,19 +1897,19 @@
   },
   {
     "type": "edit",
-    "record_id": "wiki:sig-inflation",
+    "record_id": "wiki:eo-on-platonic-forms",
     "find": "<a href=\"/wiki/fractal-self-similarity\">fractal self-similarity</a>",
     "replace": "fractal self-similarity"
   },
   {
     "type": "edit",
-    "record_id": "wiki:phase-space-cube",
+    "record_id": "wiki:the-eo-phase-space-cube",
     "find": "<a href=\"/wiki/fractal-self-similarity\">fractal self-similarity</a>",
     "replace": "fractal self-similarity"
   },
   {
     "type": "edit",
-    "record_id": "wiki:phaseposts",
+    "record_id": "wiki:the-27-phase-posts",
     "find": "<a href=\"/wiki/fractal-self-similarity\">fractal self-similarity</a>",
     "replace": "fractal self-similarity"
   },
@@ -1927,13 +1927,13 @@
   },
   {
     "type": "edit",
-    "record_id": "wiki:operator-naming",
+    "record_id": "wiki:operator-naming-in-emergent-ontology",
     "find": "<a href=\"/wiki/fractal-self-similarity\">fractal self-similarity</a>",
     "replace": "fractal self-similarity"
   },
   {
     "type": "edit",
-    "record_id": "wiki:bivalent-compression",
+    "record_id": "wiki:bivalent-compression-and-dimensional-poverty",
     "find": "<a href=\"/wiki/fractal-self-similarity\">fractal self-similarity</a>",
     "replace": "fractal self-similarity"
   },
@@ -1945,31 +1945,31 @@
   },
   {
     "type": "edit",
-    "record_id": "wiki:handbook",
+    "record_id": "document:eo-handbook",
     "find": "<a href=\"/wiki/fractal-self-similarity\">fractal self-similarity</a>",
     "replace": "fractal self-similarity"
   },
   {
     "type": "edit",
-    "record_id": "wiki:emergent-ontology",
+    "record_id": "wiki:emergent-ontology-eo",
     "find": "<a href=\"/wiki/fractal-self-similarity\" data-content-id=\"wiki:fractal-self-similarity\">fractal self-similarity</a>",
     "replace": "fractal self-similarity"
   },
   {
     "type": "edit",
-    "record_id": "wiki:influences",
+    "record_id": "wiki:influences-and-lineage",
     "find": "<a href=\"/wiki/fractal-self-similarity\" data-content-id=\"wiki:fractal-self-similarity\">fractal self-similarity</a>",
     "replace": "fractal self-similarity"
   },
   {
     "type": "edit",
-    "record_id": "wiki:triadic-minimum",
+    "record_id": "wiki:the-triadic-minimum",
     "find": "<a href=\"/wiki/fractal-self-similarity\" data-content-id=\"wiki:fractal-self-similarity\">fractal self-similarity</a>",
     "replace": "fractal self-similarity"
   },
   {
     "type": "edit",
-    "record_id": "wiki:three-triads",
+    "record_id": "wiki:the-three-triads",
     "find": "<a href=\"/wiki/fractal-self-similarity\" data-content-id=\"wiki:fractal-self-similarity\">fractal self-similarity</a>",
     "replace": "fractal self-similarity"
   },
@@ -1981,13 +1981,13 @@
   },
   {
     "type": "edit",
-    "record_id": "wiki:operators",
+    "record_id": "wiki:the-nine-operators",
     "find": "<a href=\"/wiki/fractal-self-similarity\" data-content-id=\"wiki:fractal-self-similarity\">fractal self-similarity</a>",
     "replace": "fractal self-similarity"
   },
   {
     "type": "edit",
-    "record_id": "wiki:integral-theory",
+    "record_id": "wiki:the-integral-lineage",
     "find": "<a href=\"/wiki/fractal-self-similarity\" data-content-id=\"wiki:fractal-self-similarity\">fractal self-similarity</a>",
     "replace": "fractal self-similarity"
   },
@@ -1999,19 +1999,19 @@
   },
   {
     "type": "edit",
-    "record_id": "wiki:sig-inflation",
+    "record_id": "wiki:eo-on-platonic-forms",
     "find": "<a href=\"/wiki/fractal-self-similarity\" data-content-id=\"wiki:fractal-self-similarity\">fractal self-similarity</a>",
     "replace": "fractal self-similarity"
   },
   {
     "type": "edit",
-    "record_id": "wiki:phase-space-cube",
+    "record_id": "wiki:the-eo-phase-space-cube",
     "find": "<a href=\"/wiki/fractal-self-similarity\" data-content-id=\"wiki:fractal-self-similarity\">fractal self-similarity</a>",
     "replace": "fractal self-similarity"
   },
   {
     "type": "edit",
-    "record_id": "wiki:phaseposts",
+    "record_id": "wiki:the-27-phase-posts",
     "find": "<a href=\"/wiki/fractal-self-similarity\" data-content-id=\"wiki:fractal-self-similarity\">fractal self-similarity</a>",
     "replace": "fractal self-similarity"
   },
@@ -2029,13 +2029,13 @@
   },
   {
     "type": "edit",
-    "record_id": "wiki:operator-naming",
+    "record_id": "wiki:operator-naming-in-emergent-ontology",
     "find": "<a href=\"/wiki/fractal-self-similarity\" data-content-id=\"wiki:fractal-self-similarity\">fractal self-similarity</a>",
     "replace": "fractal self-similarity"
   },
   {
     "type": "edit",
-    "record_id": "wiki:bivalent-compression",
+    "record_id": "wiki:bivalent-compression-and-dimensional-poverty",
     "find": "<a href=\"/wiki/fractal-self-similarity\" data-content-id=\"wiki:fractal-self-similarity\">fractal self-similarity</a>",
     "replace": "fractal self-similarity"
   },
@@ -2047,31 +2047,31 @@
   },
   {
     "type": "edit",
-    "record_id": "wiki:handbook",
+    "record_id": "document:eo-handbook",
     "find": "<a href=\"/wiki/fractal-self-similarity\" data-content-id=\"wiki:fractal-self-similarity\">fractal self-similarity</a>",
     "replace": "fractal self-similarity"
   },
   {
     "type": "edit",
-    "record_id": "wiki:emergent-ontology",
+    "record_id": "wiki:emergent-ontology-eo",
     "find": "<a href=\"/wiki/ground-figure-pattern\">ground/figure/pattern</a>",
     "replace": "ground/figure/pattern"
   },
   {
     "type": "edit",
-    "record_id": "wiki:influences",
+    "record_id": "wiki:influences-and-lineage",
     "find": "<a href=\"/wiki/ground-figure-pattern\">ground/figure/pattern</a>",
     "replace": "ground/figure/pattern"
   },
   {
     "type": "edit",
-    "record_id": "wiki:triadic-minimum",
+    "record_id": "wiki:the-triadic-minimum",
     "find": "<a href=\"/wiki/ground-figure-pattern\">ground/figure/pattern</a>",
     "replace": "ground/figure/pattern"
   },
   {
     "type": "edit",
-    "record_id": "wiki:three-triads",
+    "record_id": "wiki:the-three-triads",
     "find": "<a href=\"/wiki/ground-figure-pattern\">ground/figure/pattern</a>",
     "replace": "ground/figure/pattern"
   },
@@ -2083,13 +2083,13 @@
   },
   {
     "type": "edit",
-    "record_id": "wiki:operators",
+    "record_id": "wiki:the-nine-operators",
     "find": "<a href=\"/wiki/ground-figure-pattern\">ground/figure/pattern</a>",
     "replace": "ground/figure/pattern"
   },
   {
     "type": "edit",
-    "record_id": "wiki:integral-theory",
+    "record_id": "wiki:the-integral-lineage",
     "find": "<a href=\"/wiki/ground-figure-pattern\">ground/figure/pattern</a>",
     "replace": "ground/figure/pattern"
   },
@@ -2101,19 +2101,19 @@
   },
   {
     "type": "edit",
-    "record_id": "wiki:sig-inflation",
+    "record_id": "wiki:eo-on-platonic-forms",
     "find": "<a href=\"/wiki/ground-figure-pattern\">ground/figure/pattern</a>",
     "replace": "ground/figure/pattern"
   },
   {
     "type": "edit",
-    "record_id": "wiki:phase-space-cube",
+    "record_id": "wiki:the-eo-phase-space-cube",
     "find": "<a href=\"/wiki/ground-figure-pattern\">ground/figure/pattern</a>",
     "replace": "ground/figure/pattern"
   },
   {
     "type": "edit",
-    "record_id": "wiki:phaseposts",
+    "record_id": "wiki:the-27-phase-posts",
     "find": "<a href=\"/wiki/ground-figure-pattern\">ground/figure/pattern</a>",
     "replace": "ground/figure/pattern"
   },
@@ -2131,13 +2131,13 @@
   },
   {
     "type": "edit",
-    "record_id": "wiki:operator-naming",
+    "record_id": "wiki:operator-naming-in-emergent-ontology",
     "find": "<a href=\"/wiki/ground-figure-pattern\">ground/figure/pattern</a>",
     "replace": "ground/figure/pattern"
   },
   {
     "type": "edit",
-    "record_id": "wiki:bivalent-compression",
+    "record_id": "wiki:bivalent-compression-and-dimensional-poverty",
     "find": "<a href=\"/wiki/ground-figure-pattern\">ground/figure/pattern</a>",
     "replace": "ground/figure/pattern"
   },
@@ -2149,31 +2149,31 @@
   },
   {
     "type": "edit",
-    "record_id": "wiki:handbook",
+    "record_id": "document:eo-handbook",
     "find": "<a href=\"/wiki/ground-figure-pattern\">ground/figure/pattern</a>",
     "replace": "ground/figure/pattern"
   },
   {
     "type": "edit",
-    "record_id": "wiki:emergent-ontology",
+    "record_id": "wiki:emergent-ontology-eo",
     "find": "<a href=\"/wiki/ground-figure-pattern\" data-content-id=\"wiki:ground-figure-pattern\">ground/figure/pattern</a>",
     "replace": "ground/figure/pattern"
   },
   {
     "type": "edit",
-    "record_id": "wiki:influences",
+    "record_id": "wiki:influences-and-lineage",
     "find": "<a href=\"/wiki/ground-figure-pattern\" data-content-id=\"wiki:ground-figure-pattern\">ground/figure/pattern</a>",
     "replace": "ground/figure/pattern"
   },
   {
     "type": "edit",
-    "record_id": "wiki:triadic-minimum",
+    "record_id": "wiki:the-triadic-minimum",
     "find": "<a href=\"/wiki/ground-figure-pattern\" data-content-id=\"wiki:ground-figure-pattern\">ground/figure/pattern</a>",
     "replace": "ground/figure/pattern"
   },
   {
     "type": "edit",
-    "record_id": "wiki:three-triads",
+    "record_id": "wiki:the-three-triads",
     "find": "<a href=\"/wiki/ground-figure-pattern\" data-content-id=\"wiki:ground-figure-pattern\">ground/figure/pattern</a>",
     "replace": "ground/figure/pattern"
   },
@@ -2185,13 +2185,13 @@
   },
   {
     "type": "edit",
-    "record_id": "wiki:operators",
+    "record_id": "wiki:the-nine-operators",
     "find": "<a href=\"/wiki/ground-figure-pattern\" data-content-id=\"wiki:ground-figure-pattern\">ground/figure/pattern</a>",
     "replace": "ground/figure/pattern"
   },
   {
     "type": "edit",
-    "record_id": "wiki:integral-theory",
+    "record_id": "wiki:the-integral-lineage",
     "find": "<a href=\"/wiki/ground-figure-pattern\" data-content-id=\"wiki:ground-figure-pattern\">ground/figure/pattern</a>",
     "replace": "ground/figure/pattern"
   },
@@ -2203,19 +2203,19 @@
   },
   {
     "type": "edit",
-    "record_id": "wiki:sig-inflation",
+    "record_id": "wiki:eo-on-platonic-forms",
     "find": "<a href=\"/wiki/ground-figure-pattern\" data-content-id=\"wiki:ground-figure-pattern\">ground/figure/pattern</a>",
     "replace": "ground/figure/pattern"
   },
   {
     "type": "edit",
-    "record_id": "wiki:phase-space-cube",
+    "record_id": "wiki:the-eo-phase-space-cube",
     "find": "<a href=\"/wiki/ground-figure-pattern\" data-content-id=\"wiki:ground-figure-pattern\">ground/figure/pattern</a>",
     "replace": "ground/figure/pattern"
   },
   {
     "type": "edit",
-    "record_id": "wiki:phaseposts",
+    "record_id": "wiki:the-27-phase-posts",
     "find": "<a href=\"/wiki/ground-figure-pattern\" data-content-id=\"wiki:ground-figure-pattern\">ground/figure/pattern</a>",
     "replace": "ground/figure/pattern"
   },
@@ -2233,13 +2233,13 @@
   },
   {
     "type": "edit",
-    "record_id": "wiki:operator-naming",
+    "record_id": "wiki:operator-naming-in-emergent-ontology",
     "find": "<a href=\"/wiki/ground-figure-pattern\" data-content-id=\"wiki:ground-figure-pattern\">ground/figure/pattern</a>",
     "replace": "ground/figure/pattern"
   },
   {
     "type": "edit",
-    "record_id": "wiki:bivalent-compression",
+    "record_id": "wiki:bivalent-compression-and-dimensional-poverty",
     "find": "<a href=\"/wiki/ground-figure-pattern\" data-content-id=\"wiki:ground-figure-pattern\">ground/figure/pattern</a>",
     "replace": "ground/figure/pattern"
   },
@@ -2251,31 +2251,31 @@
   },
   {
     "type": "edit",
-    "record_id": "wiki:handbook",
+    "record_id": "document:eo-handbook",
     "find": "<a href=\"/wiki/ground-figure-pattern\" data-content-id=\"wiki:ground-figure-pattern\">ground/figure/pattern</a>",
     "replace": "ground/figure/pattern"
   },
   {
     "type": "edit",
-    "record_id": "wiki:emergent-ontology",
+    "record_id": "wiki:emergent-ontology-eo",
     "find": "<a href=\"/wiki/degraded-historically\">degraded historically</a>",
     "replace": "degraded historically"
   },
   {
     "type": "edit",
-    "record_id": "wiki:influences",
+    "record_id": "wiki:influences-and-lineage",
     "find": "<a href=\"/wiki/degraded-historically\">degraded historically</a>",
     "replace": "degraded historically"
   },
   {
     "type": "edit",
-    "record_id": "wiki:triadic-minimum",
+    "record_id": "wiki:the-triadic-minimum",
     "find": "<a href=\"/wiki/degraded-historically\">degraded historically</a>",
     "replace": "degraded historically"
   },
   {
     "type": "edit",
-    "record_id": "wiki:three-triads",
+    "record_id": "wiki:the-three-triads",
     "find": "<a href=\"/wiki/degraded-historically\">degraded historically</a>",
     "replace": "degraded historically"
   },
@@ -2287,13 +2287,13 @@
   },
   {
     "type": "edit",
-    "record_id": "wiki:operators",
+    "record_id": "wiki:the-nine-operators",
     "find": "<a href=\"/wiki/degraded-historically\">degraded historically</a>",
     "replace": "degraded historically"
   },
   {
     "type": "edit",
-    "record_id": "wiki:integral-theory",
+    "record_id": "wiki:the-integral-lineage",
     "find": "<a href=\"/wiki/degraded-historically\">degraded historically</a>",
     "replace": "degraded historically"
   },
@@ -2305,19 +2305,19 @@
   },
   {
     "type": "edit",
-    "record_id": "wiki:sig-inflation",
+    "record_id": "wiki:eo-on-platonic-forms",
     "find": "<a href=\"/wiki/degraded-historically\">degraded historically</a>",
     "replace": "degraded historically"
   },
   {
     "type": "edit",
-    "record_id": "wiki:phase-space-cube",
+    "record_id": "wiki:the-eo-phase-space-cube",
     "find": "<a href=\"/wiki/degraded-historically\">degraded historically</a>",
     "replace": "degraded historically"
   },
   {
     "type": "edit",
-    "record_id": "wiki:phaseposts",
+    "record_id": "wiki:the-27-phase-posts",
     "find": "<a href=\"/wiki/degraded-historically\">degraded historically</a>",
     "replace": "degraded historically"
   },
@@ -2335,13 +2335,13 @@
   },
   {
     "type": "edit",
-    "record_id": "wiki:operator-naming",
+    "record_id": "wiki:operator-naming-in-emergent-ontology",
     "find": "<a href=\"/wiki/degraded-historically\">degraded historically</a>",
     "replace": "degraded historically"
   },
   {
     "type": "edit",
-    "record_id": "wiki:bivalent-compression",
+    "record_id": "wiki:bivalent-compression-and-dimensional-poverty",
     "find": "<a href=\"/wiki/degraded-historically\">degraded historically</a>",
     "replace": "degraded historically"
   },
@@ -2353,31 +2353,31 @@
   },
   {
     "type": "edit",
-    "record_id": "wiki:handbook",
+    "record_id": "document:eo-handbook",
     "find": "<a href=\"/wiki/degraded-historically\">degraded historically</a>",
     "replace": "degraded historically"
   },
   {
     "type": "edit",
-    "record_id": "wiki:emergent-ontology",
+    "record_id": "wiki:emergent-ontology-eo",
     "find": "<a href=\"/wiki/degraded-historically\" data-content-id=\"wiki:degraded-historically\">degraded historically</a>",
     "replace": "degraded historically"
   },
   {
     "type": "edit",
-    "record_id": "wiki:influences",
+    "record_id": "wiki:influences-and-lineage",
     "find": "<a href=\"/wiki/degraded-historically\" data-content-id=\"wiki:degraded-historically\">degraded historically</a>",
     "replace": "degraded historically"
   },
   {
     "type": "edit",
-    "record_id": "wiki:triadic-minimum",
+    "record_id": "wiki:the-triadic-minimum",
     "find": "<a href=\"/wiki/degraded-historically\" data-content-id=\"wiki:degraded-historically\">degraded historically</a>",
     "replace": "degraded historically"
   },
   {
     "type": "edit",
-    "record_id": "wiki:three-triads",
+    "record_id": "wiki:the-three-triads",
     "find": "<a href=\"/wiki/degraded-historically\" data-content-id=\"wiki:degraded-historically\">degraded historically</a>",
     "replace": "degraded historically"
   },
@@ -2389,13 +2389,13 @@
   },
   {
     "type": "edit",
-    "record_id": "wiki:operators",
+    "record_id": "wiki:the-nine-operators",
     "find": "<a href=\"/wiki/degraded-historically\" data-content-id=\"wiki:degraded-historically\">degraded historically</a>",
     "replace": "degraded historically"
   },
   {
     "type": "edit",
-    "record_id": "wiki:integral-theory",
+    "record_id": "wiki:the-integral-lineage",
     "find": "<a href=\"/wiki/degraded-historically\" data-content-id=\"wiki:degraded-historically\">degraded historically</a>",
     "replace": "degraded historically"
   },
@@ -2407,19 +2407,19 @@
   },
   {
     "type": "edit",
-    "record_id": "wiki:sig-inflation",
+    "record_id": "wiki:eo-on-platonic-forms",
     "find": "<a href=\"/wiki/degraded-historically\" data-content-id=\"wiki:degraded-historically\">degraded historically</a>",
     "replace": "degraded historically"
   },
   {
     "type": "edit",
-    "record_id": "wiki:phase-space-cube",
+    "record_id": "wiki:the-eo-phase-space-cube",
     "find": "<a href=\"/wiki/degraded-historically\" data-content-id=\"wiki:degraded-historically\">degraded historically</a>",
     "replace": "degraded historically"
   },
   {
     "type": "edit",
-    "record_id": "wiki:phaseposts",
+    "record_id": "wiki:the-27-phase-posts",
     "find": "<a href=\"/wiki/degraded-historically\" data-content-id=\"wiki:degraded-historically\">degraded historically</a>",
     "replace": "degraded historically"
   },
@@ -2437,13 +2437,13 @@
   },
   {
     "type": "edit",
-    "record_id": "wiki:operator-naming",
+    "record_id": "wiki:operator-naming-in-emergent-ontology",
     "find": "<a href=\"/wiki/degraded-historically\" data-content-id=\"wiki:degraded-historically\">degraded historically</a>",
     "replace": "degraded historically"
   },
   {
     "type": "edit",
-    "record_id": "wiki:bivalent-compression",
+    "record_id": "wiki:bivalent-compression-and-dimensional-poverty",
     "find": "<a href=\"/wiki/degraded-historically\" data-content-id=\"wiki:degraded-historically\">degraded historically</a>",
     "replace": "degraded historically"
   },
@@ -2455,31 +2455,31 @@
   },
   {
     "type": "edit",
-    "record_id": "wiki:handbook",
+    "record_id": "document:eo-handbook",
     "find": "<a href=\"/wiki/degraded-historically\" data-content-id=\"wiki:degraded-historically\">degraded historically</a>",
     "replace": "degraded historically"
   },
   {
     "type": "edit",
-    "record_id": "wiki:emergent-ontology",
+    "record_id": "wiki:emergent-ontology-eo",
     "find": "<a href=\"/wiki/phenomenal-address\">phenomenal address</a>",
     "replace": "phenomenal address"
   },
   {
     "type": "edit",
-    "record_id": "wiki:influences",
+    "record_id": "wiki:influences-and-lineage",
     "find": "<a href=\"/wiki/phenomenal-address\">phenomenal address</a>",
     "replace": "phenomenal address"
   },
   {
     "type": "edit",
-    "record_id": "wiki:triadic-minimum",
+    "record_id": "wiki:the-triadic-minimum",
     "find": "<a href=\"/wiki/phenomenal-address\">phenomenal address</a>",
     "replace": "phenomenal address"
   },
   {
     "type": "edit",
-    "record_id": "wiki:three-triads",
+    "record_id": "wiki:the-three-triads",
     "find": "<a href=\"/wiki/phenomenal-address\">phenomenal address</a>",
     "replace": "phenomenal address"
   },
@@ -2491,13 +2491,13 @@
   },
   {
     "type": "edit",
-    "record_id": "wiki:operators",
+    "record_id": "wiki:the-nine-operators",
     "find": "<a href=\"/wiki/phenomenal-address\">phenomenal address</a>",
     "replace": "phenomenal address"
   },
   {
     "type": "edit",
-    "record_id": "wiki:integral-theory",
+    "record_id": "wiki:the-integral-lineage",
     "find": "<a href=\"/wiki/phenomenal-address\">phenomenal address</a>",
     "replace": "phenomenal address"
   },
@@ -2509,19 +2509,19 @@
   },
   {
     "type": "edit",
-    "record_id": "wiki:sig-inflation",
+    "record_id": "wiki:eo-on-platonic-forms",
     "find": "<a href=\"/wiki/phenomenal-address\">phenomenal address</a>",
     "replace": "phenomenal address"
   },
   {
     "type": "edit",
-    "record_id": "wiki:phase-space-cube",
+    "record_id": "wiki:the-eo-phase-space-cube",
     "find": "<a href=\"/wiki/phenomenal-address\">phenomenal address</a>",
     "replace": "phenomenal address"
   },
   {
     "type": "edit",
-    "record_id": "wiki:phaseposts",
+    "record_id": "wiki:the-27-phase-posts",
     "find": "<a href=\"/wiki/phenomenal-address\">phenomenal address</a>",
     "replace": "phenomenal address"
   },
@@ -2539,13 +2539,13 @@
   },
   {
     "type": "edit",
-    "record_id": "wiki:operator-naming",
+    "record_id": "wiki:operator-naming-in-emergent-ontology",
     "find": "<a href=\"/wiki/phenomenal-address\">phenomenal address</a>",
     "replace": "phenomenal address"
   },
   {
     "type": "edit",
-    "record_id": "wiki:bivalent-compression",
+    "record_id": "wiki:bivalent-compression-and-dimensional-poverty",
     "find": "<a href=\"/wiki/phenomenal-address\">phenomenal address</a>",
     "replace": "phenomenal address"
   },
@@ -2557,31 +2557,31 @@
   },
   {
     "type": "edit",
-    "record_id": "wiki:handbook",
+    "record_id": "document:eo-handbook",
     "find": "<a href=\"/wiki/phenomenal-address\">phenomenal address</a>",
     "replace": "phenomenal address"
   },
   {
     "type": "edit",
-    "record_id": "wiki:emergent-ontology",
+    "record_id": "wiki:emergent-ontology-eo",
     "find": "<a href=\"/wiki/phenomenal-address\" data-content-id=\"wiki:phenomenal-address\">phenomenal address</a>",
     "replace": "phenomenal address"
   },
   {
     "type": "edit",
-    "record_id": "wiki:influences",
+    "record_id": "wiki:influences-and-lineage",
     "find": "<a href=\"/wiki/phenomenal-address\" data-content-id=\"wiki:phenomenal-address\">phenomenal address</a>",
     "replace": "phenomenal address"
   },
   {
     "type": "edit",
-    "record_id": "wiki:triadic-minimum",
+    "record_id": "wiki:the-triadic-minimum",
     "find": "<a href=\"/wiki/phenomenal-address\" data-content-id=\"wiki:phenomenal-address\">phenomenal address</a>",
     "replace": "phenomenal address"
   },
   {
     "type": "edit",
-    "record_id": "wiki:three-triads",
+    "record_id": "wiki:the-three-triads",
     "find": "<a href=\"/wiki/phenomenal-address\" data-content-id=\"wiki:phenomenal-address\">phenomenal address</a>",
     "replace": "phenomenal address"
   },
@@ -2593,13 +2593,13 @@
   },
   {
     "type": "edit",
-    "record_id": "wiki:operators",
+    "record_id": "wiki:the-nine-operators",
     "find": "<a href=\"/wiki/phenomenal-address\" data-content-id=\"wiki:phenomenal-address\">phenomenal address</a>",
     "replace": "phenomenal address"
   },
   {
     "type": "edit",
-    "record_id": "wiki:integral-theory",
+    "record_id": "wiki:the-integral-lineage",
     "find": "<a href=\"/wiki/phenomenal-address\" data-content-id=\"wiki:phenomenal-address\">phenomenal address</a>",
     "replace": "phenomenal address"
   },
@@ -2611,19 +2611,19 @@
   },
   {
     "type": "edit",
-    "record_id": "wiki:sig-inflation",
+    "record_id": "wiki:eo-on-platonic-forms",
     "find": "<a href=\"/wiki/phenomenal-address\" data-content-id=\"wiki:phenomenal-address\">phenomenal address</a>",
     "replace": "phenomenal address"
   },
   {
     "type": "edit",
-    "record_id": "wiki:phase-space-cube",
+    "record_id": "wiki:the-eo-phase-space-cube",
     "find": "<a href=\"/wiki/phenomenal-address\" data-content-id=\"wiki:phenomenal-address\">phenomenal address</a>",
     "replace": "phenomenal address"
   },
   {
     "type": "edit",
-    "record_id": "wiki:phaseposts",
+    "record_id": "wiki:the-27-phase-posts",
     "find": "<a href=\"/wiki/phenomenal-address\" data-content-id=\"wiki:phenomenal-address\">phenomenal address</a>",
     "replace": "phenomenal address"
   },
@@ -2641,13 +2641,13 @@
   },
   {
     "type": "edit",
-    "record_id": "wiki:operator-naming",
+    "record_id": "wiki:operator-naming-in-emergent-ontology",
     "find": "<a href=\"/wiki/phenomenal-address\" data-content-id=\"wiki:phenomenal-address\">phenomenal address</a>",
     "replace": "phenomenal address"
   },
   {
     "type": "edit",
-    "record_id": "wiki:bivalent-compression",
+    "record_id": "wiki:bivalent-compression-and-dimensional-poverty",
     "find": "<a href=\"/wiki/phenomenal-address\" data-content-id=\"wiki:phenomenal-address\">phenomenal address</a>",
     "replace": "phenomenal address"
   },
@@ -2659,31 +2659,31 @@
   },
   {
     "type": "edit",
-    "record_id": "wiki:handbook",
+    "record_id": "document:eo-handbook",
     "find": "<a href=\"/wiki/phenomenal-address\" data-content-id=\"wiki:phenomenal-address\">phenomenal address</a>",
     "replace": "phenomenal address"
   },
   {
     "type": "edit",
-    "record_id": "wiki:emergent-ontology",
+    "record_id": "wiki:emergent-ontology-eo",
     "find": "<a href=\"/wiki/experience-engine\">Experience Engine</a>",
     "replace": "Experience Engine"
   },
   {
     "type": "edit",
-    "record_id": "wiki:influences",
+    "record_id": "wiki:influences-and-lineage",
     "find": "<a href=\"/wiki/experience-engine\">Experience Engine</a>",
     "replace": "Experience Engine"
   },
   {
     "type": "edit",
-    "record_id": "wiki:triadic-minimum",
+    "record_id": "wiki:the-triadic-minimum",
     "find": "<a href=\"/wiki/experience-engine\">Experience Engine</a>",
     "replace": "Experience Engine"
   },
   {
     "type": "edit",
-    "record_id": "wiki:three-triads",
+    "record_id": "wiki:the-three-triads",
     "find": "<a href=\"/wiki/experience-engine\">Experience Engine</a>",
     "replace": "Experience Engine"
   },
@@ -2695,13 +2695,13 @@
   },
   {
     "type": "edit",
-    "record_id": "wiki:operators",
+    "record_id": "wiki:the-nine-operators",
     "find": "<a href=\"/wiki/experience-engine\">Experience Engine</a>",
     "replace": "Experience Engine"
   },
   {
     "type": "edit",
-    "record_id": "wiki:integral-theory",
+    "record_id": "wiki:the-integral-lineage",
     "find": "<a href=\"/wiki/experience-engine\">Experience Engine</a>",
     "replace": "Experience Engine"
   },
@@ -2713,19 +2713,19 @@
   },
   {
     "type": "edit",
-    "record_id": "wiki:sig-inflation",
+    "record_id": "wiki:eo-on-platonic-forms",
     "find": "<a href=\"/wiki/experience-engine\">Experience Engine</a>",
     "replace": "Experience Engine"
   },
   {
     "type": "edit",
-    "record_id": "wiki:phase-space-cube",
+    "record_id": "wiki:the-eo-phase-space-cube",
     "find": "<a href=\"/wiki/experience-engine\">Experience Engine</a>",
     "replace": "Experience Engine"
   },
   {
     "type": "edit",
-    "record_id": "wiki:phaseposts",
+    "record_id": "wiki:the-27-phase-posts",
     "find": "<a href=\"/wiki/experience-engine\">Experience Engine</a>",
     "replace": "Experience Engine"
   },
@@ -2743,13 +2743,13 @@
   },
   {
     "type": "edit",
-    "record_id": "wiki:operator-naming",
+    "record_id": "wiki:operator-naming-in-emergent-ontology",
     "find": "<a href=\"/wiki/experience-engine\">Experience Engine</a>",
     "replace": "Experience Engine"
   },
   {
     "type": "edit",
-    "record_id": "wiki:bivalent-compression",
+    "record_id": "wiki:bivalent-compression-and-dimensional-poverty",
     "find": "<a href=\"/wiki/experience-engine\">Experience Engine</a>",
     "replace": "Experience Engine"
   },
@@ -2761,31 +2761,31 @@
   },
   {
     "type": "edit",
-    "record_id": "wiki:handbook",
+    "record_id": "document:eo-handbook",
     "find": "<a href=\"/wiki/experience-engine\">Experience Engine</a>",
     "replace": "Experience Engine"
   },
   {
     "type": "edit",
-    "record_id": "wiki:emergent-ontology",
+    "record_id": "wiki:emergent-ontology-eo",
     "find": "<a href=\"/wiki/experience-engine\" data-content-id=\"wiki:experience-engine\">Experience Engine</a>",
     "replace": "Experience Engine"
   },
   {
     "type": "edit",
-    "record_id": "wiki:influences",
+    "record_id": "wiki:influences-and-lineage",
     "find": "<a href=\"/wiki/experience-engine\" data-content-id=\"wiki:experience-engine\">Experience Engine</a>",
     "replace": "Experience Engine"
   },
   {
     "type": "edit",
-    "record_id": "wiki:triadic-minimum",
+    "record_id": "wiki:the-triadic-minimum",
     "find": "<a href=\"/wiki/experience-engine\" data-content-id=\"wiki:experience-engine\">Experience Engine</a>",
     "replace": "Experience Engine"
   },
   {
     "type": "edit",
-    "record_id": "wiki:three-triads",
+    "record_id": "wiki:the-three-triads",
     "find": "<a href=\"/wiki/experience-engine\" data-content-id=\"wiki:experience-engine\">Experience Engine</a>",
     "replace": "Experience Engine"
   },
@@ -2797,13 +2797,13 @@
   },
   {
     "type": "edit",
-    "record_id": "wiki:operators",
+    "record_id": "wiki:the-nine-operators",
     "find": "<a href=\"/wiki/experience-engine\" data-content-id=\"wiki:experience-engine\">Experience Engine</a>",
     "replace": "Experience Engine"
   },
   {
     "type": "edit",
-    "record_id": "wiki:integral-theory",
+    "record_id": "wiki:the-integral-lineage",
     "find": "<a href=\"/wiki/experience-engine\" data-content-id=\"wiki:experience-engine\">Experience Engine</a>",
     "replace": "Experience Engine"
   },
@@ -2815,19 +2815,19 @@
   },
   {
     "type": "edit",
-    "record_id": "wiki:sig-inflation",
+    "record_id": "wiki:eo-on-platonic-forms",
     "find": "<a href=\"/wiki/experience-engine\" data-content-id=\"wiki:experience-engine\">Experience Engine</a>",
     "replace": "Experience Engine"
   },
   {
     "type": "edit",
-    "record_id": "wiki:phase-space-cube",
+    "record_id": "wiki:the-eo-phase-space-cube",
     "find": "<a href=\"/wiki/experience-engine\" data-content-id=\"wiki:experience-engine\">Experience Engine</a>",
     "replace": "Experience Engine"
   },
   {
     "type": "edit",
-    "record_id": "wiki:phaseposts",
+    "record_id": "wiki:the-27-phase-posts",
     "find": "<a href=\"/wiki/experience-engine\" data-content-id=\"wiki:experience-engine\">Experience Engine</a>",
     "replace": "Experience Engine"
   },
@@ -2845,13 +2845,13 @@
   },
   {
     "type": "edit",
-    "record_id": "wiki:operator-naming",
+    "record_id": "wiki:operator-naming-in-emergent-ontology",
     "find": "<a href=\"/wiki/experience-engine\" data-content-id=\"wiki:experience-engine\">Experience Engine</a>",
     "replace": "Experience Engine"
   },
   {
     "type": "edit",
-    "record_id": "wiki:bivalent-compression",
+    "record_id": "wiki:bivalent-compression-and-dimensional-poverty",
     "find": "<a href=\"/wiki/experience-engine\" data-content-id=\"wiki:experience-engine\">Experience Engine</a>",
     "replace": "Experience Engine"
   },
@@ -2863,31 +2863,31 @@
   },
   {
     "type": "edit",
-    "record_id": "wiki:handbook",
+    "record_id": "document:eo-handbook",
     "find": "<a href=\"/wiki/experience-engine\" data-content-id=\"wiki:experience-engine\">Experience Engine</a>",
     "replace": "Experience Engine"
   },
   {
     "type": "edit",
-    "record_id": "wiki:emergent-ontology",
+    "record_id": "wiki:emergent-ontology-eo",
     "find": "<a href=\"/wiki/integral-theory\">EO and Integral Theory</a>",
     "replace": "EO and Integral Theory"
   },
   {
     "type": "edit",
-    "record_id": "wiki:influences",
+    "record_id": "wiki:influences-and-lineage",
     "find": "<a href=\"/wiki/integral-theory\">EO and Integral Theory</a>",
     "replace": "EO and Integral Theory"
   },
   {
     "type": "edit",
-    "record_id": "wiki:triadic-minimum",
+    "record_id": "wiki:the-triadic-minimum",
     "find": "<a href=\"/wiki/integral-theory\">EO and Integral Theory</a>",
     "replace": "EO and Integral Theory"
   },
   {
     "type": "edit",
-    "record_id": "wiki:three-triads",
+    "record_id": "wiki:the-three-triads",
     "find": "<a href=\"/wiki/integral-theory\">EO and Integral Theory</a>",
     "replace": "EO and Integral Theory"
   },
@@ -2899,13 +2899,13 @@
   },
   {
     "type": "edit",
-    "record_id": "wiki:operators",
+    "record_id": "wiki:the-nine-operators",
     "find": "<a href=\"/wiki/integral-theory\">EO and Integral Theory</a>",
     "replace": "EO and Integral Theory"
   },
   {
     "type": "edit",
-    "record_id": "wiki:integral-theory",
+    "record_id": "wiki:the-integral-lineage",
     "find": "<a href=\"/wiki/integral-theory\">EO and Integral Theory</a>",
     "replace": "EO and Integral Theory"
   },
@@ -2917,19 +2917,19 @@
   },
   {
     "type": "edit",
-    "record_id": "wiki:sig-inflation",
+    "record_id": "wiki:eo-on-platonic-forms",
     "find": "<a href=\"/wiki/integral-theory\">EO and Integral Theory</a>",
     "replace": "EO and Integral Theory"
   },
   {
     "type": "edit",
-    "record_id": "wiki:phase-space-cube",
+    "record_id": "wiki:the-eo-phase-space-cube",
     "find": "<a href=\"/wiki/integral-theory\">EO and Integral Theory</a>",
     "replace": "EO and Integral Theory"
   },
   {
     "type": "edit",
-    "record_id": "wiki:phaseposts",
+    "record_id": "wiki:the-27-phase-posts",
     "find": "<a href=\"/wiki/integral-theory\">EO and Integral Theory</a>",
     "replace": "EO and Integral Theory"
   },
@@ -2947,13 +2947,13 @@
   },
   {
     "type": "edit",
-    "record_id": "wiki:operator-naming",
+    "record_id": "wiki:operator-naming-in-emergent-ontology",
     "find": "<a href=\"/wiki/integral-theory\">EO and Integral Theory</a>",
     "replace": "EO and Integral Theory"
   },
   {
     "type": "edit",
-    "record_id": "wiki:bivalent-compression",
+    "record_id": "wiki:bivalent-compression-and-dimensional-poverty",
     "find": "<a href=\"/wiki/integral-theory\">EO and Integral Theory</a>",
     "replace": "EO and Integral Theory"
   },
@@ -2965,31 +2965,31 @@
   },
   {
     "type": "edit",
-    "record_id": "wiki:handbook",
+    "record_id": "document:eo-handbook",
     "find": "<a href=\"/wiki/integral-theory\">EO and Integral Theory</a>",
     "replace": "EO and Integral Theory"
   },
   {
     "type": "edit",
-    "record_id": "wiki:emergent-ontology",
+    "record_id": "wiki:emergent-ontology-eo",
     "find": "<a href=\"/wiki/integral-theory\" data-content-id=\"wiki:integral-theory\">EO and Integral Theory</a>",
     "replace": "EO and Integral Theory"
   },
   {
     "type": "edit",
-    "record_id": "wiki:influences",
+    "record_id": "wiki:influences-and-lineage",
     "find": "<a href=\"/wiki/integral-theory\" data-content-id=\"wiki:integral-theory\">EO and Integral Theory</a>",
     "replace": "EO and Integral Theory"
   },
   {
     "type": "edit",
-    "record_id": "wiki:triadic-minimum",
+    "record_id": "wiki:the-triadic-minimum",
     "find": "<a href=\"/wiki/integral-theory\" data-content-id=\"wiki:integral-theory\">EO and Integral Theory</a>",
     "replace": "EO and Integral Theory"
   },
   {
     "type": "edit",
-    "record_id": "wiki:three-triads",
+    "record_id": "wiki:the-three-triads",
     "find": "<a href=\"/wiki/integral-theory\" data-content-id=\"wiki:integral-theory\">EO and Integral Theory</a>",
     "replace": "EO and Integral Theory"
   },
@@ -3001,13 +3001,13 @@
   },
   {
     "type": "edit",
-    "record_id": "wiki:operators",
+    "record_id": "wiki:the-nine-operators",
     "find": "<a href=\"/wiki/integral-theory\" data-content-id=\"wiki:integral-theory\">EO and Integral Theory</a>",
     "replace": "EO and Integral Theory"
   },
   {
     "type": "edit",
-    "record_id": "wiki:integral-theory",
+    "record_id": "wiki:the-integral-lineage",
     "find": "<a href=\"/wiki/integral-theory\" data-content-id=\"wiki:integral-theory\">EO and Integral Theory</a>",
     "replace": "EO and Integral Theory"
   },
@@ -3019,19 +3019,19 @@
   },
   {
     "type": "edit",
-    "record_id": "wiki:sig-inflation",
+    "record_id": "wiki:eo-on-platonic-forms",
     "find": "<a href=\"/wiki/integral-theory\" data-content-id=\"wiki:integral-theory\">EO and Integral Theory</a>",
     "replace": "EO and Integral Theory"
   },
   {
     "type": "edit",
-    "record_id": "wiki:phase-space-cube",
+    "record_id": "wiki:the-eo-phase-space-cube",
     "find": "<a href=\"/wiki/integral-theory\" data-content-id=\"wiki:integral-theory\">EO and Integral Theory</a>",
     "replace": "EO and Integral Theory"
   },
   {
     "type": "edit",
-    "record_id": "wiki:phaseposts",
+    "record_id": "wiki:the-27-phase-posts",
     "find": "<a href=\"/wiki/integral-theory\" data-content-id=\"wiki:integral-theory\">EO and Integral Theory</a>",
     "replace": "EO and Integral Theory"
   },
@@ -3049,13 +3049,13 @@
   },
   {
     "type": "edit",
-    "record_id": "wiki:operator-naming",
+    "record_id": "wiki:operator-naming-in-emergent-ontology",
     "find": "<a href=\"/wiki/integral-theory\" data-content-id=\"wiki:integral-theory\">EO and Integral Theory</a>",
     "replace": "EO and Integral Theory"
   },
   {
     "type": "edit",
-    "record_id": "wiki:bivalent-compression",
+    "record_id": "wiki:bivalent-compression-and-dimensional-poverty",
     "find": "<a href=\"/wiki/integral-theory\" data-content-id=\"wiki:integral-theory\">EO and Integral Theory</a>",
     "replace": "EO and Integral Theory"
   },
@@ -3067,31 +3067,31 @@
   },
   {
     "type": "edit",
-    "record_id": "wiki:handbook",
+    "record_id": "document:eo-handbook",
     "find": "<a href=\"/wiki/integral-theory\" data-content-id=\"wiki:integral-theory\">EO and Integral Theory</a>",
     "replace": "EO and Integral Theory"
   },
   {
     "type": "edit",
-    "record_id": "wiki:emergent-ontology",
+    "record_id": "wiki:emergent-ontology-eo",
     "find": "<a href=\"/wiki/global-cross-cultural-crosswalk\">Global Cross-Cultural Crosswalk</a>",
     "replace": "Global Cross-Cultural Crosswalk"
   },
   {
     "type": "edit",
-    "record_id": "wiki:influences",
+    "record_id": "wiki:influences-and-lineage",
     "find": "<a href=\"/wiki/global-cross-cultural-crosswalk\">Global Cross-Cultural Crosswalk</a>",
     "replace": "Global Cross-Cultural Crosswalk"
   },
   {
     "type": "edit",
-    "record_id": "wiki:triadic-minimum",
+    "record_id": "wiki:the-triadic-minimum",
     "find": "<a href=\"/wiki/global-cross-cultural-crosswalk\">Global Cross-Cultural Crosswalk</a>",
     "replace": "Global Cross-Cultural Crosswalk"
   },
   {
     "type": "edit",
-    "record_id": "wiki:three-triads",
+    "record_id": "wiki:the-three-triads",
     "find": "<a href=\"/wiki/global-cross-cultural-crosswalk\">Global Cross-Cultural Crosswalk</a>",
     "replace": "Global Cross-Cultural Crosswalk"
   },
@@ -3103,13 +3103,13 @@
   },
   {
     "type": "edit",
-    "record_id": "wiki:operators",
+    "record_id": "wiki:the-nine-operators",
     "find": "<a href=\"/wiki/global-cross-cultural-crosswalk\">Global Cross-Cultural Crosswalk</a>",
     "replace": "Global Cross-Cultural Crosswalk"
   },
   {
     "type": "edit",
-    "record_id": "wiki:integral-theory",
+    "record_id": "wiki:the-integral-lineage",
     "find": "<a href=\"/wiki/global-cross-cultural-crosswalk\">Global Cross-Cultural Crosswalk</a>",
     "replace": "Global Cross-Cultural Crosswalk"
   },
@@ -3121,19 +3121,19 @@
   },
   {
     "type": "edit",
-    "record_id": "wiki:sig-inflation",
+    "record_id": "wiki:eo-on-platonic-forms",
     "find": "<a href=\"/wiki/global-cross-cultural-crosswalk\">Global Cross-Cultural Crosswalk</a>",
     "replace": "Global Cross-Cultural Crosswalk"
   },
   {
     "type": "edit",
-    "record_id": "wiki:phase-space-cube",
+    "record_id": "wiki:the-eo-phase-space-cube",
     "find": "<a href=\"/wiki/global-cross-cultural-crosswalk\">Global Cross-Cultural Crosswalk</a>",
     "replace": "Global Cross-Cultural Crosswalk"
   },
   {
     "type": "edit",
-    "record_id": "wiki:phaseposts",
+    "record_id": "wiki:the-27-phase-posts",
     "find": "<a href=\"/wiki/global-cross-cultural-crosswalk\">Global Cross-Cultural Crosswalk</a>",
     "replace": "Global Cross-Cultural Crosswalk"
   },
@@ -3151,13 +3151,13 @@
   },
   {
     "type": "edit",
-    "record_id": "wiki:operator-naming",
+    "record_id": "wiki:operator-naming-in-emergent-ontology",
     "find": "<a href=\"/wiki/global-cross-cultural-crosswalk\">Global Cross-Cultural Crosswalk</a>",
     "replace": "Global Cross-Cultural Crosswalk"
   },
   {
     "type": "edit",
-    "record_id": "wiki:bivalent-compression",
+    "record_id": "wiki:bivalent-compression-and-dimensional-poverty",
     "find": "<a href=\"/wiki/global-cross-cultural-crosswalk\">Global Cross-Cultural Crosswalk</a>",
     "replace": "Global Cross-Cultural Crosswalk"
   },
@@ -3169,31 +3169,31 @@
   },
   {
     "type": "edit",
-    "record_id": "wiki:handbook",
+    "record_id": "document:eo-handbook",
     "find": "<a href=\"/wiki/global-cross-cultural-crosswalk\">Global Cross-Cultural Crosswalk</a>",
     "replace": "Global Cross-Cultural Crosswalk"
   },
   {
     "type": "edit",
-    "record_id": "wiki:emergent-ontology",
+    "record_id": "wiki:emergent-ontology-eo",
     "find": "<a href=\"/wiki/global-cross-cultural-crosswalk\" data-content-id=\"wiki:global-cross-cultural-crosswalk\">Global Cross-Cultural Crosswalk</a>",
     "replace": "Global Cross-Cultural Crosswalk"
   },
   {
     "type": "edit",
-    "record_id": "wiki:influences",
+    "record_id": "wiki:influences-and-lineage",
     "find": "<a href=\"/wiki/global-cross-cultural-crosswalk\" data-content-id=\"wiki:global-cross-cultural-crosswalk\">Global Cross-Cultural Crosswalk</a>",
     "replace": "Global Cross-Cultural Crosswalk"
   },
   {
     "type": "edit",
-    "record_id": "wiki:triadic-minimum",
+    "record_id": "wiki:the-triadic-minimum",
     "find": "<a href=\"/wiki/global-cross-cultural-crosswalk\" data-content-id=\"wiki:global-cross-cultural-crosswalk\">Global Cross-Cultural Crosswalk</a>",
     "replace": "Global Cross-Cultural Crosswalk"
   },
   {
     "type": "edit",
-    "record_id": "wiki:three-triads",
+    "record_id": "wiki:the-three-triads",
     "find": "<a href=\"/wiki/global-cross-cultural-crosswalk\" data-content-id=\"wiki:global-cross-cultural-crosswalk\">Global Cross-Cultural Crosswalk</a>",
     "replace": "Global Cross-Cultural Crosswalk"
   },
@@ -3205,13 +3205,13 @@
   },
   {
     "type": "edit",
-    "record_id": "wiki:operators",
+    "record_id": "wiki:the-nine-operators",
     "find": "<a href=\"/wiki/global-cross-cultural-crosswalk\" data-content-id=\"wiki:global-cross-cultural-crosswalk\">Global Cross-Cultural Crosswalk</a>",
     "replace": "Global Cross-Cultural Crosswalk"
   },
   {
     "type": "edit",
-    "record_id": "wiki:integral-theory",
+    "record_id": "wiki:the-integral-lineage",
     "find": "<a href=\"/wiki/global-cross-cultural-crosswalk\" data-content-id=\"wiki:global-cross-cultural-crosswalk\">Global Cross-Cultural Crosswalk</a>",
     "replace": "Global Cross-Cultural Crosswalk"
   },
@@ -3223,19 +3223,19 @@
   },
   {
     "type": "edit",
-    "record_id": "wiki:sig-inflation",
+    "record_id": "wiki:eo-on-platonic-forms",
     "find": "<a href=\"/wiki/global-cross-cultural-crosswalk\" data-content-id=\"wiki:global-cross-cultural-crosswalk\">Global Cross-Cultural Crosswalk</a>",
     "replace": "Global Cross-Cultural Crosswalk"
   },
   {
     "type": "edit",
-    "record_id": "wiki:phase-space-cube",
+    "record_id": "wiki:the-eo-phase-space-cube",
     "find": "<a href=\"/wiki/global-cross-cultural-crosswalk\" data-content-id=\"wiki:global-cross-cultural-crosswalk\">Global Cross-Cultural Crosswalk</a>",
     "replace": "Global Cross-Cultural Crosswalk"
   },
   {
     "type": "edit",
-    "record_id": "wiki:phaseposts",
+    "record_id": "wiki:the-27-phase-posts",
     "find": "<a href=\"/wiki/global-cross-cultural-crosswalk\" data-content-id=\"wiki:global-cross-cultural-crosswalk\">Global Cross-Cultural Crosswalk</a>",
     "replace": "Global Cross-Cultural Crosswalk"
   },
@@ -3253,13 +3253,13 @@
   },
   {
     "type": "edit",
-    "record_id": "wiki:operator-naming",
+    "record_id": "wiki:operator-naming-in-emergent-ontology",
     "find": "<a href=\"/wiki/global-cross-cultural-crosswalk\" data-content-id=\"wiki:global-cross-cultural-crosswalk\">Global Cross-Cultural Crosswalk</a>",
     "replace": "Global Cross-Cultural Crosswalk"
   },
   {
     "type": "edit",
-    "record_id": "wiki:bivalent-compression",
+    "record_id": "wiki:bivalent-compression-and-dimensional-poverty",
     "find": "<a href=\"/wiki/global-cross-cultural-crosswalk\" data-content-id=\"wiki:global-cross-cultural-crosswalk\">Global Cross-Cultural Crosswalk</a>",
     "replace": "Global Cross-Cultural Crosswalk"
   },
@@ -3271,31 +3271,31 @@
   },
   {
     "type": "edit",
-    "record_id": "wiki:handbook",
+    "record_id": "document:eo-handbook",
     "find": "<a href=\"/wiki/global-cross-cultural-crosswalk\" data-content-id=\"wiki:global-cross-cultural-crosswalk\">Global Cross-Cultural Crosswalk</a>",
     "replace": "Global Cross-Cultural Crosswalk"
   },
   {
     "type": "edit",
-    "record_id": "wiki:emergent-ontology",
+    "record_id": "wiki:emergent-ontology-eo",
     "find": "<a href=\"/wiki/existence-structure-interpretation\">Existence, Structure, Interpretation</a>",
     "replace": "Existence, Structure, Interpretation"
   },
   {
     "type": "edit",
-    "record_id": "wiki:influences",
+    "record_id": "wiki:influences-and-lineage",
     "find": "<a href=\"/wiki/existence-structure-interpretation\">Existence, Structure, Interpretation</a>",
     "replace": "Existence, Structure, Interpretation"
   },
   {
     "type": "edit",
-    "record_id": "wiki:triadic-minimum",
+    "record_id": "wiki:the-triadic-minimum",
     "find": "<a href=\"/wiki/existence-structure-interpretation\">Existence, Structure, Interpretation</a>",
     "replace": "Existence, Structure, Interpretation"
   },
   {
     "type": "edit",
-    "record_id": "wiki:three-triads",
+    "record_id": "wiki:the-three-triads",
     "find": "<a href=\"/wiki/existence-structure-interpretation\">Existence, Structure, Interpretation</a>",
     "replace": "Existence, Structure, Interpretation"
   },
@@ -3307,13 +3307,13 @@
   },
   {
     "type": "edit",
-    "record_id": "wiki:operators",
+    "record_id": "wiki:the-nine-operators",
     "find": "<a href=\"/wiki/existence-structure-interpretation\">Existence, Structure, Interpretation</a>",
     "replace": "Existence, Structure, Interpretation"
   },
   {
     "type": "edit",
-    "record_id": "wiki:integral-theory",
+    "record_id": "wiki:the-integral-lineage",
     "find": "<a href=\"/wiki/existence-structure-interpretation\">Existence, Structure, Interpretation</a>",
     "replace": "Existence, Structure, Interpretation"
   },
@@ -3325,19 +3325,19 @@
   },
   {
     "type": "edit",
-    "record_id": "wiki:sig-inflation",
+    "record_id": "wiki:eo-on-platonic-forms",
     "find": "<a href=\"/wiki/existence-structure-interpretation\">Existence, Structure, Interpretation</a>",
     "replace": "Existence, Structure, Interpretation"
   },
   {
     "type": "edit",
-    "record_id": "wiki:phase-space-cube",
+    "record_id": "wiki:the-eo-phase-space-cube",
     "find": "<a href=\"/wiki/existence-structure-interpretation\">Existence, Structure, Interpretation</a>",
     "replace": "Existence, Structure, Interpretation"
   },
   {
     "type": "edit",
-    "record_id": "wiki:phaseposts",
+    "record_id": "wiki:the-27-phase-posts",
     "find": "<a href=\"/wiki/existence-structure-interpretation\">Existence, Structure, Interpretation</a>",
     "replace": "Existence, Structure, Interpretation"
   },
@@ -3355,13 +3355,13 @@
   },
   {
     "type": "edit",
-    "record_id": "wiki:operator-naming",
+    "record_id": "wiki:operator-naming-in-emergent-ontology",
     "find": "<a href=\"/wiki/existence-structure-interpretation\">Existence, Structure, Interpretation</a>",
     "replace": "Existence, Structure, Interpretation"
   },
   {
     "type": "edit",
-    "record_id": "wiki:bivalent-compression",
+    "record_id": "wiki:bivalent-compression-and-dimensional-poverty",
     "find": "<a href=\"/wiki/existence-structure-interpretation\">Existence, Structure, Interpretation</a>",
     "replace": "Existence, Structure, Interpretation"
   },
@@ -3373,31 +3373,31 @@
   },
   {
     "type": "edit",
-    "record_id": "wiki:handbook",
+    "record_id": "document:eo-handbook",
     "find": "<a href=\"/wiki/existence-structure-interpretation\">Existence, Structure, Interpretation</a>",
     "replace": "Existence, Structure, Interpretation"
   },
   {
     "type": "edit",
-    "record_id": "wiki:emergent-ontology",
+    "record_id": "wiki:emergent-ontology-eo",
     "find": "<a href=\"/wiki/existence-structure-interpretation\" data-content-id=\"wiki:existence-structure-interpretation\">Existence, Structure, Interpretation</a>",
     "replace": "Existence, Structure, Interpretation"
   },
   {
     "type": "edit",
-    "record_id": "wiki:influences",
+    "record_id": "wiki:influences-and-lineage",
     "find": "<a href=\"/wiki/existence-structure-interpretation\" data-content-id=\"wiki:existence-structure-interpretation\">Existence, Structure, Interpretation</a>",
     "replace": "Existence, Structure, Interpretation"
   },
   {
     "type": "edit",
-    "record_id": "wiki:triadic-minimum",
+    "record_id": "wiki:the-triadic-minimum",
     "find": "<a href=\"/wiki/existence-structure-interpretation\" data-content-id=\"wiki:existence-structure-interpretation\">Existence, Structure, Interpretation</a>",
     "replace": "Existence, Structure, Interpretation"
   },
   {
     "type": "edit",
-    "record_id": "wiki:three-triads",
+    "record_id": "wiki:the-three-triads",
     "find": "<a href=\"/wiki/existence-structure-interpretation\" data-content-id=\"wiki:existence-structure-interpretation\">Existence, Structure, Interpretation</a>",
     "replace": "Existence, Structure, Interpretation"
   },
@@ -3409,13 +3409,13 @@
   },
   {
     "type": "edit",
-    "record_id": "wiki:operators",
+    "record_id": "wiki:the-nine-operators",
     "find": "<a href=\"/wiki/existence-structure-interpretation\" data-content-id=\"wiki:existence-structure-interpretation\">Existence, Structure, Interpretation</a>",
     "replace": "Existence, Structure, Interpretation"
   },
   {
     "type": "edit",
-    "record_id": "wiki:integral-theory",
+    "record_id": "wiki:the-integral-lineage",
     "find": "<a href=\"/wiki/existence-structure-interpretation\" data-content-id=\"wiki:existence-structure-interpretation\">Existence, Structure, Interpretation</a>",
     "replace": "Existence, Structure, Interpretation"
   },
@@ -3427,19 +3427,19 @@
   },
   {
     "type": "edit",
-    "record_id": "wiki:sig-inflation",
+    "record_id": "wiki:eo-on-platonic-forms",
     "find": "<a href=\"/wiki/existence-structure-interpretation\" data-content-id=\"wiki:existence-structure-interpretation\">Existence, Structure, Interpretation</a>",
     "replace": "Existence, Structure, Interpretation"
   },
   {
     "type": "edit",
-    "record_id": "wiki:phase-space-cube",
+    "record_id": "wiki:the-eo-phase-space-cube",
     "find": "<a href=\"/wiki/existence-structure-interpretation\" data-content-id=\"wiki:existence-structure-interpretation\">Existence, Structure, Interpretation</a>",
     "replace": "Existence, Structure, Interpretation"
   },
   {
     "type": "edit",
-    "record_id": "wiki:phaseposts",
+    "record_id": "wiki:the-27-phase-posts",
     "find": "<a href=\"/wiki/existence-structure-interpretation\" data-content-id=\"wiki:existence-structure-interpretation\">Existence, Structure, Interpretation</a>",
     "replace": "Existence, Structure, Interpretation"
   },
@@ -3457,13 +3457,13 @@
   },
   {
     "type": "edit",
-    "record_id": "wiki:operator-naming",
+    "record_id": "wiki:operator-naming-in-emergent-ontology",
     "find": "<a href=\"/wiki/existence-structure-interpretation\" data-content-id=\"wiki:existence-structure-interpretation\">Existence, Structure, Interpretation</a>",
     "replace": "Existence, Structure, Interpretation"
   },
   {
     "type": "edit",
-    "record_id": "wiki:bivalent-compression",
+    "record_id": "wiki:bivalent-compression-and-dimensional-poverty",
     "find": "<a href=\"/wiki/existence-structure-interpretation\" data-content-id=\"wiki:existence-structure-interpretation\">Existence, Structure, Interpretation</a>",
     "replace": "Existence, Structure, Interpretation"
   },
@@ -3475,31 +3475,31 @@
   },
   {
     "type": "edit",
-    "record_id": "wiki:handbook",
+    "record_id": "document:eo-handbook",
     "find": "<a href=\"/wiki/existence-structure-interpretation\" data-content-id=\"wiki:existence-structure-interpretation\">Existence, Structure, Interpretation</a>",
     "replace": "Existence, Structure, Interpretation"
   },
   {
     "type": "edit",
-    "record_id": "wiki:emergent-ontology",
+    "record_id": "wiki:emergent-ontology-eo",
     "find": "<a href=\"/wiki/eo-notation\">EO Notation §7</a>",
     "replace": "EO Notation §7"
   },
   {
     "type": "edit",
-    "record_id": "wiki:influences",
+    "record_id": "wiki:influences-and-lineage",
     "find": "<a href=\"/wiki/eo-notation\">EO Notation §7</a>",
     "replace": "EO Notation §7"
   },
   {
     "type": "edit",
-    "record_id": "wiki:triadic-minimum",
+    "record_id": "wiki:the-triadic-minimum",
     "find": "<a href=\"/wiki/eo-notation\">EO Notation §7</a>",
     "replace": "EO Notation §7"
   },
   {
     "type": "edit",
-    "record_id": "wiki:three-triads",
+    "record_id": "wiki:the-three-triads",
     "find": "<a href=\"/wiki/eo-notation\">EO Notation §7</a>",
     "replace": "EO Notation §7"
   },
@@ -3511,13 +3511,13 @@
   },
   {
     "type": "edit",
-    "record_id": "wiki:operators",
+    "record_id": "wiki:the-nine-operators",
     "find": "<a href=\"/wiki/eo-notation\">EO Notation §7</a>",
     "replace": "EO Notation §7"
   },
   {
     "type": "edit",
-    "record_id": "wiki:integral-theory",
+    "record_id": "wiki:the-integral-lineage",
     "find": "<a href=\"/wiki/eo-notation\">EO Notation §7</a>",
     "replace": "EO Notation §7"
   },
@@ -3529,19 +3529,19 @@
   },
   {
     "type": "edit",
-    "record_id": "wiki:sig-inflation",
+    "record_id": "wiki:eo-on-platonic-forms",
     "find": "<a href=\"/wiki/eo-notation\">EO Notation §7</a>",
     "replace": "EO Notation §7"
   },
   {
     "type": "edit",
-    "record_id": "wiki:phase-space-cube",
+    "record_id": "wiki:the-eo-phase-space-cube",
     "find": "<a href=\"/wiki/eo-notation\">EO Notation §7</a>",
     "replace": "EO Notation §7"
   },
   {
     "type": "edit",
-    "record_id": "wiki:phaseposts",
+    "record_id": "wiki:the-27-phase-posts",
     "find": "<a href=\"/wiki/eo-notation\">EO Notation §7</a>",
     "replace": "EO Notation §7"
   },
@@ -3559,13 +3559,13 @@
   },
   {
     "type": "edit",
-    "record_id": "wiki:operator-naming",
+    "record_id": "wiki:operator-naming-in-emergent-ontology",
     "find": "<a href=\"/wiki/eo-notation\">EO Notation §7</a>",
     "replace": "EO Notation §7"
   },
   {
     "type": "edit",
-    "record_id": "wiki:bivalent-compression",
+    "record_id": "wiki:bivalent-compression-and-dimensional-poverty",
     "find": "<a href=\"/wiki/eo-notation\">EO Notation §7</a>",
     "replace": "EO Notation §7"
   },
@@ -3577,31 +3577,31 @@
   },
   {
     "type": "edit",
-    "record_id": "wiki:handbook",
+    "record_id": "document:eo-handbook",
     "find": "<a href=\"/wiki/eo-notation\">EO Notation §7</a>",
     "replace": "EO Notation §7"
   },
   {
     "type": "edit",
-    "record_id": "wiki:emergent-ontology",
+    "record_id": "wiki:emergent-ontology-eo",
     "find": "<a href=\"/wiki/eo-notation\" data-content-id=\"wiki:eo-notation\">EO Notation §7</a>",
     "replace": "EO Notation §7"
   },
   {
     "type": "edit",
-    "record_id": "wiki:influences",
+    "record_id": "wiki:influences-and-lineage",
     "find": "<a href=\"/wiki/eo-notation\" data-content-id=\"wiki:eo-notation\">EO Notation §7</a>",
     "replace": "EO Notation §7"
   },
   {
     "type": "edit",
-    "record_id": "wiki:triadic-minimum",
+    "record_id": "wiki:the-triadic-minimum",
     "find": "<a href=\"/wiki/eo-notation\" data-content-id=\"wiki:eo-notation\">EO Notation §7</a>",
     "replace": "EO Notation §7"
   },
   {
     "type": "edit",
-    "record_id": "wiki:three-triads",
+    "record_id": "wiki:the-three-triads",
     "find": "<a href=\"/wiki/eo-notation\" data-content-id=\"wiki:eo-notation\">EO Notation §7</a>",
     "replace": "EO Notation §7"
   },
@@ -3613,13 +3613,13 @@
   },
   {
     "type": "edit",
-    "record_id": "wiki:operators",
+    "record_id": "wiki:the-nine-operators",
     "find": "<a href=\"/wiki/eo-notation\" data-content-id=\"wiki:eo-notation\">EO Notation §7</a>",
     "replace": "EO Notation §7"
   },
   {
     "type": "edit",
-    "record_id": "wiki:integral-theory",
+    "record_id": "wiki:the-integral-lineage",
     "find": "<a href=\"/wiki/eo-notation\" data-content-id=\"wiki:eo-notation\">EO Notation §7</a>",
     "replace": "EO Notation §7"
   },
@@ -3631,19 +3631,19 @@
   },
   {
     "type": "edit",
-    "record_id": "wiki:sig-inflation",
+    "record_id": "wiki:eo-on-platonic-forms",
     "find": "<a href=\"/wiki/eo-notation\" data-content-id=\"wiki:eo-notation\">EO Notation §7</a>",
     "replace": "EO Notation §7"
   },
   {
     "type": "edit",
-    "record_id": "wiki:phase-space-cube",
+    "record_id": "wiki:the-eo-phase-space-cube",
     "find": "<a href=\"/wiki/eo-notation\" data-content-id=\"wiki:eo-notation\">EO Notation §7</a>",
     "replace": "EO Notation §7"
   },
   {
     "type": "edit",
-    "record_id": "wiki:phaseposts",
+    "record_id": "wiki:the-27-phase-posts",
     "find": "<a href=\"/wiki/eo-notation\" data-content-id=\"wiki:eo-notation\">EO Notation §7</a>",
     "replace": "EO Notation §7"
   },
@@ -3661,13 +3661,13 @@
   },
   {
     "type": "edit",
-    "record_id": "wiki:operator-naming",
+    "record_id": "wiki:operator-naming-in-emergent-ontology",
     "find": "<a href=\"/wiki/eo-notation\" data-content-id=\"wiki:eo-notation\">EO Notation §7</a>",
     "replace": "EO Notation §7"
   },
   {
     "type": "edit",
-    "record_id": "wiki:bivalent-compression",
+    "record_id": "wiki:bivalent-compression-and-dimensional-poverty",
     "find": "<a href=\"/wiki/eo-notation\" data-content-id=\"wiki:eo-notation\">EO Notation §7</a>",
     "replace": "EO Notation §7"
   },
@@ -3679,31 +3679,31 @@
   },
   {
     "type": "edit",
-    "record_id": "wiki:handbook",
+    "record_id": "document:eo-handbook",
     "find": "<a href=\"/wiki/eo-notation\" data-content-id=\"wiki:eo-notation\">EO Notation §7</a>",
     "replace": "EO Notation §7"
   },
   {
     "type": "edit",
-    "record_id": "wiki:emergent-ontology",
+    "record_id": "wiki:emergent-ontology-eo",
     "find": "<a href=\"/wiki/eo-notation\">EO Notation §8</a>",
     "replace": "EO Notation §8"
   },
   {
     "type": "edit",
-    "record_id": "wiki:influences",
+    "record_id": "wiki:influences-and-lineage",
     "find": "<a href=\"/wiki/eo-notation\">EO Notation §8</a>",
     "replace": "EO Notation §8"
   },
   {
     "type": "edit",
-    "record_id": "wiki:triadic-minimum",
+    "record_id": "wiki:the-triadic-minimum",
     "find": "<a href=\"/wiki/eo-notation\">EO Notation §8</a>",
     "replace": "EO Notation §8"
   },
   {
     "type": "edit",
-    "record_id": "wiki:three-triads",
+    "record_id": "wiki:the-three-triads",
     "find": "<a href=\"/wiki/eo-notation\">EO Notation §8</a>",
     "replace": "EO Notation §8"
   },
@@ -3715,13 +3715,13 @@
   },
   {
     "type": "edit",
-    "record_id": "wiki:operators",
+    "record_id": "wiki:the-nine-operators",
     "find": "<a href=\"/wiki/eo-notation\">EO Notation §8</a>",
     "replace": "EO Notation §8"
   },
   {
     "type": "edit",
-    "record_id": "wiki:integral-theory",
+    "record_id": "wiki:the-integral-lineage",
     "find": "<a href=\"/wiki/eo-notation\">EO Notation §8</a>",
     "replace": "EO Notation §8"
   },
@@ -3733,19 +3733,19 @@
   },
   {
     "type": "edit",
-    "record_id": "wiki:sig-inflation",
+    "record_id": "wiki:eo-on-platonic-forms",
     "find": "<a href=\"/wiki/eo-notation\">EO Notation §8</a>",
     "replace": "EO Notation §8"
   },
   {
     "type": "edit",
-    "record_id": "wiki:phase-space-cube",
+    "record_id": "wiki:the-eo-phase-space-cube",
     "find": "<a href=\"/wiki/eo-notation\">EO Notation §8</a>",
     "replace": "EO Notation §8"
   },
   {
     "type": "edit",
-    "record_id": "wiki:phaseposts",
+    "record_id": "wiki:the-27-phase-posts",
     "find": "<a href=\"/wiki/eo-notation\">EO Notation §8</a>",
     "replace": "EO Notation §8"
   },
@@ -3763,13 +3763,13 @@
   },
   {
     "type": "edit",
-    "record_id": "wiki:operator-naming",
+    "record_id": "wiki:operator-naming-in-emergent-ontology",
     "find": "<a href=\"/wiki/eo-notation\">EO Notation §8</a>",
     "replace": "EO Notation §8"
   },
   {
     "type": "edit",
-    "record_id": "wiki:bivalent-compression",
+    "record_id": "wiki:bivalent-compression-and-dimensional-poverty",
     "find": "<a href=\"/wiki/eo-notation\">EO Notation §8</a>",
     "replace": "EO Notation §8"
   },
@@ -3781,31 +3781,31 @@
   },
   {
     "type": "edit",
-    "record_id": "wiki:handbook",
+    "record_id": "document:eo-handbook",
     "find": "<a href=\"/wiki/eo-notation\">EO Notation §8</a>",
     "replace": "EO Notation §8"
   },
   {
     "type": "edit",
-    "record_id": "wiki:emergent-ontology",
+    "record_id": "wiki:emergent-ontology-eo",
     "find": "<a href=\"/wiki/eo-notation\" data-content-id=\"wiki:eo-notation\">EO Notation §8</a>",
     "replace": "EO Notation §8"
   },
   {
     "type": "edit",
-    "record_id": "wiki:influences",
+    "record_id": "wiki:influences-and-lineage",
     "find": "<a href=\"/wiki/eo-notation\" data-content-id=\"wiki:eo-notation\">EO Notation §8</a>",
     "replace": "EO Notation §8"
   },
   {
     "type": "edit",
-    "record_id": "wiki:triadic-minimum",
+    "record_id": "wiki:the-triadic-minimum",
     "find": "<a href=\"/wiki/eo-notation\" data-content-id=\"wiki:eo-notation\">EO Notation §8</a>",
     "replace": "EO Notation §8"
   },
   {
     "type": "edit",
-    "record_id": "wiki:three-triads",
+    "record_id": "wiki:the-three-triads",
     "find": "<a href=\"/wiki/eo-notation\" data-content-id=\"wiki:eo-notation\">EO Notation §8</a>",
     "replace": "EO Notation §8"
   },
@@ -3817,13 +3817,13 @@
   },
   {
     "type": "edit",
-    "record_id": "wiki:operators",
+    "record_id": "wiki:the-nine-operators",
     "find": "<a href=\"/wiki/eo-notation\" data-content-id=\"wiki:eo-notation\">EO Notation §8</a>",
     "replace": "EO Notation §8"
   },
   {
     "type": "edit",
-    "record_id": "wiki:integral-theory",
+    "record_id": "wiki:the-integral-lineage",
     "find": "<a href=\"/wiki/eo-notation\" data-content-id=\"wiki:eo-notation\">EO Notation §8</a>",
     "replace": "EO Notation §8"
   },
@@ -3835,19 +3835,19 @@
   },
   {
     "type": "edit",
-    "record_id": "wiki:sig-inflation",
+    "record_id": "wiki:eo-on-platonic-forms",
     "find": "<a href=\"/wiki/eo-notation\" data-content-id=\"wiki:eo-notation\">EO Notation §8</a>",
     "replace": "EO Notation §8"
   },
   {
     "type": "edit",
-    "record_id": "wiki:phase-space-cube",
+    "record_id": "wiki:the-eo-phase-space-cube",
     "find": "<a href=\"/wiki/eo-notation\" data-content-id=\"wiki:eo-notation\">EO Notation §8</a>",
     "replace": "EO Notation §8"
   },
   {
     "type": "edit",
-    "record_id": "wiki:phaseposts",
+    "record_id": "wiki:the-27-phase-posts",
     "find": "<a href=\"/wiki/eo-notation\" data-content-id=\"wiki:eo-notation\">EO Notation §8</a>",
     "replace": "EO Notation §8"
   },
@@ -3865,13 +3865,13 @@
   },
   {
     "type": "edit",
-    "record_id": "wiki:operator-naming",
+    "record_id": "wiki:operator-naming-in-emergent-ontology",
     "find": "<a href=\"/wiki/eo-notation\" data-content-id=\"wiki:eo-notation\">EO Notation §8</a>",
     "replace": "EO Notation §8"
   },
   {
     "type": "edit",
-    "record_id": "wiki:bivalent-compression",
+    "record_id": "wiki:bivalent-compression-and-dimensional-poverty",
     "find": "<a href=\"/wiki/eo-notation\" data-content-id=\"wiki:eo-notation\">EO Notation §8</a>",
     "replace": "EO Notation §8"
   },
@@ -3883,31 +3883,31 @@
   },
   {
     "type": "edit",
-    "record_id": "wiki:handbook",
+    "record_id": "document:eo-handbook",
     "find": "<a href=\"/wiki/eo-notation\" data-content-id=\"wiki:eo-notation\">EO Notation §8</a>",
     "replace": "EO Notation §8"
   },
   {
     "type": "edit",
-    "record_id": "wiki:emergent-ontology",
+    "record_id": "wiki:emergent-ontology-eo",
     "find": "<a href=\"/wiki/eo-notation\">EO Notation §9</a>",
     "replace": "EO Notation §9"
   },
   {
     "type": "edit",
-    "record_id": "wiki:influences",
+    "record_id": "wiki:influences-and-lineage",
     "find": "<a href=\"/wiki/eo-notation\">EO Notation §9</a>",
     "replace": "EO Notation §9"
   },
   {
     "type": "edit",
-    "record_id": "wiki:triadic-minimum",
+    "record_id": "wiki:the-triadic-minimum",
     "find": "<a href=\"/wiki/eo-notation\">EO Notation §9</a>",
     "replace": "EO Notation §9"
   },
   {
     "type": "edit",
-    "record_id": "wiki:three-triads",
+    "record_id": "wiki:the-three-triads",
     "find": "<a href=\"/wiki/eo-notation\">EO Notation §9</a>",
     "replace": "EO Notation §9"
   },
@@ -3919,13 +3919,13 @@
   },
   {
     "type": "edit",
-    "record_id": "wiki:operators",
+    "record_id": "wiki:the-nine-operators",
     "find": "<a href=\"/wiki/eo-notation\">EO Notation §9</a>",
     "replace": "EO Notation §9"
   },
   {
     "type": "edit",
-    "record_id": "wiki:integral-theory",
+    "record_id": "wiki:the-integral-lineage",
     "find": "<a href=\"/wiki/eo-notation\">EO Notation §9</a>",
     "replace": "EO Notation §9"
   },
@@ -3937,19 +3937,19 @@
   },
   {
     "type": "edit",
-    "record_id": "wiki:sig-inflation",
+    "record_id": "wiki:eo-on-platonic-forms",
     "find": "<a href=\"/wiki/eo-notation\">EO Notation §9</a>",
     "replace": "EO Notation §9"
   },
   {
     "type": "edit",
-    "record_id": "wiki:phase-space-cube",
+    "record_id": "wiki:the-eo-phase-space-cube",
     "find": "<a href=\"/wiki/eo-notation\">EO Notation §9</a>",
     "replace": "EO Notation §9"
   },
   {
     "type": "edit",
-    "record_id": "wiki:phaseposts",
+    "record_id": "wiki:the-27-phase-posts",
     "find": "<a href=\"/wiki/eo-notation\">EO Notation §9</a>",
     "replace": "EO Notation §9"
   },
@@ -3967,13 +3967,13 @@
   },
   {
     "type": "edit",
-    "record_id": "wiki:operator-naming",
+    "record_id": "wiki:operator-naming-in-emergent-ontology",
     "find": "<a href=\"/wiki/eo-notation\">EO Notation §9</a>",
     "replace": "EO Notation §9"
   },
   {
     "type": "edit",
-    "record_id": "wiki:bivalent-compression",
+    "record_id": "wiki:bivalent-compression-and-dimensional-poverty",
     "find": "<a href=\"/wiki/eo-notation\">EO Notation §9</a>",
     "replace": "EO Notation §9"
   },
@@ -3985,31 +3985,31 @@
   },
   {
     "type": "edit",
-    "record_id": "wiki:handbook",
+    "record_id": "document:eo-handbook",
     "find": "<a href=\"/wiki/eo-notation\">EO Notation §9</a>",
     "replace": "EO Notation §9"
   },
   {
     "type": "edit",
-    "record_id": "wiki:emergent-ontology",
+    "record_id": "wiki:emergent-ontology-eo",
     "find": "<a href=\"/wiki/eo-notation\" data-content-id=\"wiki:eo-notation\">EO Notation §9</a>",
     "replace": "EO Notation §9"
   },
   {
     "type": "edit",
-    "record_id": "wiki:influences",
+    "record_id": "wiki:influences-and-lineage",
     "find": "<a href=\"/wiki/eo-notation\" data-content-id=\"wiki:eo-notation\">EO Notation §9</a>",
     "replace": "EO Notation §9"
   },
   {
     "type": "edit",
-    "record_id": "wiki:triadic-minimum",
+    "record_id": "wiki:the-triadic-minimum",
     "find": "<a href=\"/wiki/eo-notation\" data-content-id=\"wiki:eo-notation\">EO Notation §9</a>",
     "replace": "EO Notation §9"
   },
   {
     "type": "edit",
-    "record_id": "wiki:three-triads",
+    "record_id": "wiki:the-three-triads",
     "find": "<a href=\"/wiki/eo-notation\" data-content-id=\"wiki:eo-notation\">EO Notation §9</a>",
     "replace": "EO Notation §9"
   },
@@ -4021,13 +4021,13 @@
   },
   {
     "type": "edit",
-    "record_id": "wiki:operators",
+    "record_id": "wiki:the-nine-operators",
     "find": "<a href=\"/wiki/eo-notation\" data-content-id=\"wiki:eo-notation\">EO Notation §9</a>",
     "replace": "EO Notation §9"
   },
   {
     "type": "edit",
-    "record_id": "wiki:integral-theory",
+    "record_id": "wiki:the-integral-lineage",
     "find": "<a href=\"/wiki/eo-notation\" data-content-id=\"wiki:eo-notation\">EO Notation §9</a>",
     "replace": "EO Notation §9"
   },
@@ -4039,19 +4039,19 @@
   },
   {
     "type": "edit",
-    "record_id": "wiki:sig-inflation",
+    "record_id": "wiki:eo-on-platonic-forms",
     "find": "<a href=\"/wiki/eo-notation\" data-content-id=\"wiki:eo-notation\">EO Notation §9</a>",
     "replace": "EO Notation §9"
   },
   {
     "type": "edit",
-    "record_id": "wiki:phase-space-cube",
+    "record_id": "wiki:the-eo-phase-space-cube",
     "find": "<a href=\"/wiki/eo-notation\" data-content-id=\"wiki:eo-notation\">EO Notation §9</a>",
     "replace": "EO Notation §9"
   },
   {
     "type": "edit",
-    "record_id": "wiki:phaseposts",
+    "record_id": "wiki:the-27-phase-posts",
     "find": "<a href=\"/wiki/eo-notation\" data-content-id=\"wiki:eo-notation\">EO Notation §9</a>",
     "replace": "EO Notation §9"
   },
@@ -4069,13 +4069,13 @@
   },
   {
     "type": "edit",
-    "record_id": "wiki:operator-naming",
+    "record_id": "wiki:operator-naming-in-emergent-ontology",
     "find": "<a href=\"/wiki/eo-notation\" data-content-id=\"wiki:eo-notation\">EO Notation §9</a>",
     "replace": "EO Notation §9"
   },
   {
     "type": "edit",
-    "record_id": "wiki:bivalent-compression",
+    "record_id": "wiki:bivalent-compression-and-dimensional-poverty",
     "find": "<a href=\"/wiki/eo-notation\" data-content-id=\"wiki:eo-notation\">EO Notation §9</a>",
     "replace": "EO Notation §9"
   },
@@ -4087,121 +4087,121 @@
   },
   {
     "type": "edit",
-    "record_id": "wiki:handbook",
+    "record_id": "document:eo-handbook",
     "find": "<a href=\"/wiki/eo-notation\" data-content-id=\"wiki:eo-notation\">EO Notation §9</a>",
     "replace": "EO Notation §9"
   },
   {
     "type": "edit",
-    "record_id": "wiki:integral-theory",
+    "record_id": "wiki:the-integral-lineage",
     "find": "<a href=\"/wiki/emergent-ontology\">Emergent Ontology (EO)</a>",
     "replace": "Emergent Ontology (EO)"
   },
   {
     "type": "edit",
-    "record_id": "wiki:integral-theory",
+    "record_id": "wiki:the-integral-lineage",
     "find": "<a href=\"/wiki/emergent-ontology\" data-content-id=\"wiki:emergent-ontology\">Emergent Ontology (EO)</a>",
     "replace": "Emergent Ontology (EO)"
   },
   {
     "type": "edit",
-    "record_id": "wiki:integral-theory",
+    "record_id": "wiki:the-integral-lineage",
     "find": "(see <a href=\"/wiki/main\">main page</a> for detail)",
     "replace": "(see Emergent Ontology main page for detail)"
   },
   {
     "type": "edit",
-    "record_id": "wiki:integral-theory",
+    "record_id": "wiki:the-integral-lineage",
     "find": "(see <a href=\"/wiki/emergent-ontology\">main page</a> for detail)",
     "replace": "(see Emergent Ontology main page for detail)"
   },
   {
     "type": "edit",
-    "record_id": "wiki:emergent-ontology",
+    "record_id": "wiki:emergent-ontology-eo",
     "find": "Its formal proof, coauthored with the AI system Claude (Anthropic), demonstrates a unique non-degenerate ordering of nine transformation operators using Codd's relational algebra as a mathematical witness.",
     "replace": "Its dependency argument, co-developed with the AI system Claude (Anthropic), derives a unique non-degenerate ordering of nine transformation operators using Codd's relational algebra as a mathematical witness."
   },
   {
     "type": "edit",
-    "record_id": "wiki:emergent-ontology",
+    "record_id": "wiki:emergent-ontology-eo",
     "find": "The helix ordering was proven unique by exhaustive computational verification: of the 1,296 possible orderings of nine operators, 1,295 fail non-degeneracy criteria derived from Codd's relational algebra. Only one survives.",
     "replace": "The helix ordering was derived by exhaustive computational verification: of the 1,296 possible orderings of nine operators, 1,295 fail non-degeneracy criteria from Codd's relational algebra. Only one survives."
   },
   {
     "type": "edit",
-    "record_id": "wiki:emergent-ontology",
+    "record_id": "wiki:emergent-ontology-eo",
     "find": "the one with a proven unique ordering.",
     "replace": "the one with an established dependency ordering."
   },
   {
     "type": "edit",
-    "record_id": "wiki:emergent-ontology",
+    "record_id": "wiki:emergent-ontology-eo",
     "find": "Formal proof",
     "replace": "Dependency argument"
   },
   {
     "type": "edit",
-    "record_id": "wiki:emergent-ontology",
+    "record_id": "wiki:emergent-ontology-eo",
     "find": "The proof that the helix ordering NUL",
     "replace": "The argument that the helix ordering NUL"
   },
   {
     "type": "edit",
-    "record_id": "wiki:emergent-ontology",
+    "record_id": "wiki:emergent-ontology-eo",
     "find": "2. Dependency proof: Intra-triad dependencies are proven within each axis",
     "replace": "2. Dependency argument: Intra-triad dependencies are established within each axis"
   },
   {
     "type": "edit",
-    "record_id": "wiki:emergent-ontology",
+    "record_id": "wiki:emergent-ontology-eo",
     "find": "Inter-triad dependencies are proven across axes",
     "replace": "Inter-triad dependencies are established across axes"
   },
   {
     "type": "edit",
-    "record_id": "wiki:emergent-ontology",
+    "record_id": "wiki:emergent-ontology-eo",
     "find": "A revised version of the proof (v2",
     "replace": "A revised version of the argument (v2"
   },
   {
     "type": "edit",
-    "record_id": "wiki:emergent-ontology",
+    "record_id": "wiki:emergent-ontology-eo",
     "find": "the formal proof uses relational algebra rather than categorical language",
     "replace": "the dependency argument uses relational algebra rather than categorical language"
   },
   {
     "type": "edit",
-    "record_id": "wiki:influences",
+    "record_id": "wiki:influences-and-lineage",
     "find": "EO proposes a transformation algebra with formal constraints and computational verification).",
     "replace": "EO proposes a transformation algebra with structural constraints and computational verification)."
   },
   {
     "type": "edit",
-    "record_id": "wiki:triadic-minimum",
+    "record_id": "wiki:the-triadic-minimum",
     "find": "10.4 The Proof",
     "replace": "10.4 The Dependency Argument"
   },
   {
     "type": "edit",
-    "record_id": "wiki:triadic-minimum",
+    "record_id": "wiki:the-triadic-minimum",
     "find": "The formal proof of EO's operator ordering tests all 1,296 structurally admissible orderings",
     "replace": "The dependency argument for EO's operator ordering tests all 1,296 structurally admissible orderings"
   },
   {
     "type": "edit",
-    "record_id": "wiki:triadic-minimum",
+    "record_id": "wiki:the-triadic-minimum",
     "find": "eliminating the remaining 107 candidates.",
     "replace": "eliminating the remaining 108 candidates."
   },
   {
     "type": "edit",
-    "record_id": "wiki:triadic-minimum",
+    "record_id": "wiki:the-triadic-minimum",
     "find": "EO's formal derivation of the 3×3×3 phase space, the dependency helix, and the exhaustive computational proof against Codd's closure criterion has not undergone external peer review.",
     "replace": "EO's derivation of the 3×3×3 phase space, the dependency helix, and the exhaustive computational argument against Codd's closure criterion has not undergone external peer review."
   },
   {
     "type": "edit",
-    "record_id": "wiki:three-triads",
+    "record_id": "wiki:the-three-triads",
     "find": "In the formal proof, this is supported computationally",
     "replace": "In the dependency argument, this is supported computationally"
   },
@@ -4213,31 +4213,31 @@
   },
   {
     "type": "edit",
-    "record_id": "wiki:operators",
+    "record_id": "wiki:the-nine-operators",
     "find": "The helix ordering is the subject of a formal proof using relational calculus and computational verification; this proof has not been peer-reviewed.",
     "replace": "The helix ordering is the subject of a dependency argument using relational calculus and computational verification; this argument has not been peer-reviewed."
   },
   {
     "type": "edit",
-    "record_id": "wiki:operators",
+    "record_id": "wiki:the-nine-operators",
     "find": "Formal Proof — the relational calculus argument",
     "replace": "Dependency Argument — the relational calculus derivation"
   },
   {
     "type": "edit",
-    "record_id": "wiki:integral-theory",
+    "record_id": "wiki:the-integral-lineage",
     "find": "EO is built from combinatorial structure and formal proof — nine operators derived from a 3×3 lattice, with their dependency ordering verified by relational calculus and exhaustive computation. Its evidence is structural: the same ordering emerges from three independent lines of argument (formal proof, computational verification, and relational algebra).",
     "replace": "EO is built from combinatorial structure and structural derivation — nine operators derived from a 3×3 lattice, with their dependency ordering supported by relational calculus and exhaustive computation. Its evidence is structural: a computational argument using relational algebra as the formal witness."
   },
   {
     "type": "edit",
-    "record_id": "wiki:integral-theory",
+    "record_id": "wiki:the-integral-lineage",
     "find": "EO proposes a transformation algebra with formal constraints and computational verification. Gebser's evidence is cultural-historical (art, architecture, language, myth). EO's evidence is formal and computational (relational calculus, functional dependency closure, operator decomposition).",
     "replace": "EO proposes a transformation algebra with structural constraints and computational verification. Gebser's evidence is cultural-historical (art, architecture, language, myth). EO's evidence is computational (relational calculus, functional dependency closure, operator decomposition)."
   },
   {
     "type": "edit",
-    "record_id": "wiki:integral-theory",
+    "record_id": "wiki:the-integral-lineage",
     "find": "Formal proof, computational verification, relational algebra",
     "replace": "Structural derivation, computational verification, relational algebra"
   },
@@ -4249,25 +4249,25 @@
   },
   {
     "type": "edit",
-    "record_id": "wiki:sig-inflation",
+    "record_id": "wiki:eo-on-platonic-forms",
     "find": "This face has a proven necessary sequence: a computational proof tested all 1,296 possible orderings against Codd's functional dependency closure criterion, and only one ordering survives.",
     "replace": "This face has an established dependency sequence: a computational argument tested all 1,296 possible orderings against Codd's functional dependency closure criterion, and only one ordering survives."
   },
   {
     "type": "edit",
-    "record_id": "wiki:sig-inflation",
+    "record_id": "wiki:eo-on-platonic-forms",
     "find": "there is no proven single valid path through all nine positions",
     "replace": "there is no established single valid path through all nine positions"
   },
   {
     "type": "edit",
-    "record_id": "wiki:phase-space-cube",
+    "record_id": "wiki:the-eo-phase-space-cube",
     "find": "The nine operators have a proven canonical ordering:",
     "replace": "The nine operators have an established canonical ordering:"
   },
   {
     "type": "edit",
-    "record_id": "wiki:phaseposts",
+    "record_id": "wiki:the-27-phase-posts",
     "find": "SYN × Ground has zero English verbs — no language has adequate vocabulary for synthesizing an ambient condition.",
     "replace": "SYN × Ground has zero English verbs and is nearly empty across all languages tested (19 verbs total, empty in 19 of 27 languages)."
   },
@@ -4303,55 +4303,55 @@
   },
   {
     "type": "edit",
-    "record_id": "wiki:operator-naming",
+    "record_id": "wiki:operator-naming-in-emergent-ontology",
     "find": "Greek letters (ν, θ, α, etc.). Each system was developed for a different context — abbreviations for prose and documentation, glyphs for practitioner notation and data lineage, Greek letters for formal proofs and algebraic composition.",
     "replace": "Greek letters (ν, θ, α, etc.). Each system was developed for a different context — abbreviations for prose and documentation, glyphs for practitioner notation and data lineage, Greek letters for algebraic composition and formal work."
   },
   {
     "type": "edit",
-    "record_id": "wiki:operator-naming",
+    "record_id": "wiki:operator-naming-in-emergent-ontology",
     "find": "second in the proven dependency helix",
     "replace": "second in the dependency helix"
   },
   {
     "type": "edit",
-    "record_id": "wiki:operator-naming",
+    "record_id": "wiki:operator-naming-in-emergent-ontology",
     "find": "The formal proof of the helix's unique ordering mapped SIG to DDL expressions",
     "replace": "The dependency argument for the helix ordering mapped SIG to DDL expressions"
   },
   {
     "type": "edit",
-    "record_id": "wiki:operator-naming",
+    "record_id": "wiki:operator-naming-in-emergent-ontology",
     "find": "The proof's formal definition (Definition 2.2)",
     "replace": "The argument's formal definition (Definition 2.2)"
   },
   {
     "type": "edit",
-    "record_id": "wiki:operator-naming",
+    "record_id": "wiki:operator-naming-in-emergent-ontology",
     "find": "is proven unique by exhaustive computational verification across all 1,296 admissible orderings.",
     "replace": "is established by exhaustive computational verification across all 1,296 admissible orderings."
   },
   {
     "type": "edit",
-    "record_id": "wiki:operator-naming",
+    "record_id": "wiki:operator-naming-in-emergent-ontology",
     "find": "was developed for formal proofs, algebraic composition, and contexts",
     "replace": "was developed for algebraic composition, formal work, and contexts"
   },
   {
     "type": "edit",
-    "record_id": "wiki:operator-naming",
+    "record_id": "wiki:operator-naming-in-emergent-ontology",
     "find": "after the formal proof has been completed",
     "replace": "after the dependency argument has been completed"
   },
   {
     "type": "edit",
-    "record_id": "wiki:operator-naming",
+    "record_id": "wiki:operator-naming-in-emergent-ontology",
     "find": "then a lexical re-analysis under SIG's semantic context should produce",
     "replace": "then a reclassification under SIG's semantic context should produce"
   },
   {
     "type": "edit",
-    "record_id": "wiki:bivalent-compression",
+    "record_id": "wiki:bivalent-compression-and-dimensional-poverty",
     "find": "The empty cell at SYN × Ground contains zero verbs across all languages in the corpus. No attested human language has a verb meaning \"synthesize a condition.\" This absence is treated as data, not sampling artifact.",
     "replace": "The empty cell at SYN × Ground contains zero verbs in English and is empty in 19 of 27 tested languages (19 verbs total across all languages). No attested human language has robust vocabulary for \"synthesizing a condition.\" This absence is treated as data, not sampling artifact."
   },
@@ -4363,79 +4363,79 @@
   },
   {
     "type": "edit",
-    "record_id": "wiki:handbook",
+    "record_id": "document:eo-handbook",
     "find": "This closure has been proven formally by exhaustive computational verification against Codd's relational algebra.",
     "replace": "This closure is supported by exhaustive computational verification against Codd's relational algebra."
   },
   {
     "type": "edit",
-    "record_id": "wiki:handbook",
+    "record_id": "document:eo-handbook",
     "find": "For formal proofs, algebraic work, and contexts",
     "replace": "For algebraic work, formal derivations, and contexts"
   },
   {
     "type": "edit",
-    "record_id": "wiki:handbook",
+    "record_id": "document:eo-handbook",
     "find": "Formal proofs, algebra",
     "replace": "Algebra, formal derivations"
   },
   {
     "type": "edit",
-    "record_id": "wiki:handbook",
+    "record_id": "document:eo-handbook",
     "find": "This is EO's most developed face — the one with a proven unique ordering.",
     "replace": "This is EO's most developed face — the one with an established dependency ordering."
   },
   {
     "type": "edit",
-    "record_id": "wiki:handbook",
+    "record_id": "document:eo-handbook",
     "find": "The helix ordering was proven unique by exhaustive computational verification: of the 1,296 possible orderings of nine operators (constrained to maintain intra-triad sequence), 1,295 fail non-degeneracy criteria derived from Codd's relational algebra. Only one survives.",
     "replace": "The helix ordering was derived by exhaustive computational verification: of the 1,296 possible orderings of nine operators (constrained to maintain intra-triad sequence), 1,295 fail non-degeneracy criteria from Codd's relational algebra. Only one survives."
   },
   {
     "type": "edit",
-    "record_id": "wiki:handbook",
+    "record_id": "document:eo-handbook",
     "find": "Layer 2 (formal): Intra-triad presupposition established by formal argument. Ground → Figure → Pattern within each triad. Remaining 107 candidates eliminated under the non-degeneracy criterion.",
     "replace": "Layer 2 (formal): Intra-triad presupposition established by formal argument. Ground → Figure → Pattern within each triad. Remaining 108 candidates eliminated under the non-degeneracy criterion."
   },
   {
     "type": "edit",
-    "record_id": "wiki:handbook",
+    "record_id": "document:eo-handbook",
     "find": "Appendix E: The Formal Proof (Summary)",
     "replace": "Appendix E: The Dependency Argument (Summary)"
   },
   {
     "type": "edit",
-    "record_id": "wiki:handbook",
+    "record_id": "document:eo-handbook",
     "find": "Theorem: The helix ordering NUL",
     "replace": "Claim: The helix ordering NUL"
   },
   {
     "type": "edit",
-    "record_id": "wiki:handbook",
+    "record_id": "document:eo-handbook",
     "find": "Remaining 107 candidates eliminated under non-degeneracy criterion.",
     "replace": "Remaining 108 candidates eliminated under non-degeneracy criterion."
   },
   {
     "type": "edit",
-    "record_id": "wiki:handbook",
+    "record_id": "document:eo-handbook",
     "find": "Formal proof co-authored with Claude (Anthropic)",
     "replace": "Dependency argument co-developed with Claude (Anthropic)"
   },
   {
     "type": "edit",
-    "record_id": "wiki:handbook",
+    "record_id": "document:eo-handbook",
     "find": "This document synthesizes the EO wiki, Technical Handbook, and Formal Proof into a single practical reference.",
     "replace": "This document synthesizes the EO wiki, Technical Handbook, and Dependency Argument into a single practical reference."
   },
   {
     "type": "edit",
-    "record_id": "wiki:influences",
+    "record_id": "wiki:influences-and-lineage",
     "find": "The formal proof. Exhaustive computational verification of the helix ordering against Codd's relational algebra.",
     "replace": "The dependency argument. Exhaustive computational verification of the helix ordering against Codd's relational algebra."
   },
   {
     "type": "edit",
-    "record_id": "wiki:bivalent-compression",
+    "record_id": "wiki:bivalent-compression-and-dimensional-poverty",
     "find": "EO Proof v5.2 (dependency helix and co-constitutive triads)",
     "replace": "EO Dependency Argument (dependency helix and co-constitutive triads)"
   }

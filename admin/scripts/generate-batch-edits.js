@@ -14,23 +14,23 @@
 // ── Record ID mapping ─────────────────────────────────────────────────────
 // Article Name → record_id (best guesses — verify with Validate & Preview)
 const RECORDS = {
-  'Main page':            'wiki:emergent-ontology',
-  'Influences':           'wiki:influences',
-  'Triadic Minimum':      'wiki:triadic-minimum',
-  'Three Triads':         'wiki:three-triads',
+  'Main page':            'wiki:emergent-ontology-eo',
+  'Influences':           'wiki:influences-and-lineage',
+  'Triadic Minimum':      'wiki:the-triadic-minimum',
+  'Three Triads':         'wiki:the-three-triads',
   'Ground/Figure/Pattern':'wiki:ground-figure-pattern',
-  'Nine Operators':       'wiki:operators',
-  'Integral Theory':      'wiki:integral-theory',
+  'Nine Operators':       'wiki:the-nine-operators',
+  'Integral Theory':      'wiki:the-integral-lineage',
   'EO Notation':          'wiki:eo-notation',
-  'SIG Inflation':        'wiki:sig-inflation',
-  'Phase Space Cube':     'wiki:phase-space-cube',
-  '27 Phaseposts':        'wiki:phaseposts',
+  'SIG Inflation':        'wiki:eo-on-platonic-forms',
+  'Phase Space Cube':     'wiki:the-eo-phase-space-cube',
+  '27 Phaseposts':        'wiki:the-27-phase-posts',
   'EO Event Streaming':   'wiki:eo-event-streaming',
   'NUL':                  'wiki:nul',
-  'Operator Naming':      'wiki:operator-naming',
-  'Bivalent Compression': 'wiki:bivalent-compression',
+  'Operator Naming':      'wiki:operator-naming-in-emergent-ontology',
+  'Bivalent Compression': 'wiki:bivalent-compression-and-dimensional-poverty',
   'REC':                  'wiki:rec',
-  'Handbook':             'wiki:handbook',
+  'Handbook':             'document:eo-handbook',
 };
 
 const ALL_RECORD_IDS = Object.values(RECORDS);
