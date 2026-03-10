@@ -1477,16 +1477,22 @@ textarea { resize: vertical; }
 /* ── Batch Post ──────────────────────────────────────────────────── */
 
 .batch-post { max-width: 960px; margin: 0 auto; }
-.batch-post-header { margin-bottom: 1.5rem; }
+.batch-post-header { margin-bottom: 1rem; }
 .batch-post-header h2 { font-size: 1.5rem; margin-bottom: .25rem; }
 .batch-post-desc { color: var(--text-dim); font-size: .875rem; }
 
-.batch-post-templates {
-  display: flex; flex-wrap: wrap; align-items: center; gap: .5rem;
-  margin-bottom: 1rem; padding: .75rem; background: var(--bg2);
-  border: 1px solid var(--border); border-radius: var(--radius);
+.batch-post-tabs {
+  display: flex; gap: 0; margin-bottom: 1rem;
+  border-bottom: 2px solid var(--border);
 }
-.batch-post-templates-label { font-size: .8rem; color: var(--text-dim); font-weight: 600; }
+.batch-post-tab {
+  padding: .5rem 1.25rem; font-size: .9rem; font-weight: 600;
+  background: none; border: none; color: var(--text-dim);
+  border-bottom: 2px solid transparent; margin-bottom: -2px;
+  cursor: pointer; transition: color .15s, border-color .15s;
+}
+.batch-post-tab:hover { color: var(--text); }
+.batch-post-tab.active { color: var(--accent); border-bottom-color: var(--accent); }
 
 .batch-post-input { margin-bottom: 1rem; }
 .batch-post-textarea {
@@ -1553,6 +1559,61 @@ textarea { resize: vertical; }
   padding: .75rem 1rem; background: var(--bg2);
   border: 1px solid var(--border); border-radius: var(--radius);
   font-weight: 600;
+}
+
+.batch-post-status {
+  font-size: .85rem; color: var(--text-dim);
+  padding: .5rem .75rem; background: var(--bg2);
+  border: 1px solid var(--border); border-radius: var(--radius);
+  margin-bottom: .75rem;
+}
+
+.batch-post-mapping { margin-bottom: 1.5rem; }
+.batch-post-mapping h3 { font-size: 1.1rem; margin-bottom: .25rem; }
+.batch-post-mapping-desc { font-size: .82rem; color: var(--text-dim); margin-bottom: .75rem; }
+
+.batch-post-mapping-list { display: flex; flex-direction: column; gap: .4rem; margin-bottom: 1rem; }
+.batch-post-mapping-row {
+  display: flex; align-items: center; gap: .75rem;
+  padding: .5rem .75rem; background: var(--bg2);
+  border: 1px solid var(--border); border-radius: var(--radius);
+}
+.batch-post-mapping-unmapped { border-color: var(--warn); }
+.batch-post-mapping-article { display: flex; flex-direction: column; min-width: 160px; flex-shrink: 0; }
+.batch-post-mapping-name { font-weight: 600; font-size: .85rem; }
+.batch-post-mapping-count { font-size: .72rem; color: var(--text-dim); }
+.batch-post-mapping-select {
+  flex: 1; min-width: 200px;
+  background: var(--bg3); color: var(--text); border: 1px solid var(--border);
+  border-radius: 4px; padding: .3rem .5rem; font-size: .82rem;
+  font-family: var(--font-mono);
+}
+.batch-post-mapping-all {
+  flex: 1; font-size: .82rem; color: var(--text-dim); font-style: italic;
+}
+.batch-post-mapping-auto {
+  font-size: .65rem; color: var(--success); text-transform: uppercase;
+  letter-spacing: .06em; font-weight: 700;
+}
+
+.batch-post-generate {
+  display: flex; align-items: center; gap: .75rem; margin-top: .75rem;
+}
+.batch-post-warn-inline { font-size: .82rem; color: var(--warn); }
+
+.batch-post-patch-preview { margin-top: .75rem; }
+.batch-post-patch-preview > summary {
+  font-size: .8rem; color: var(--text-dim); cursor: pointer; user-select: none;
+}
+.batch-post-patch-list {
+  display: flex; flex-direction: column; gap: .25rem; margin-top: .5rem;
+  max-height: 400px; overflow-y: auto;
+}
+.batch-post-patch-item {
+  padding: .35rem .5rem; background: var(--bg3); border-radius: 4px;
+}
+.batch-post-patch-header {
+  display: flex; align-items: center; gap: .4rem; margin-bottom: .15rem;
 }
 
 .batch-post-warn {
