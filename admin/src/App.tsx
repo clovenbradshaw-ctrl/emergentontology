@@ -24,6 +24,7 @@ import PageBuilder from './editors/PageBuilder';
 import ExperimentEditor from './editors/ExperimentEditor';
 import DocumentEditor from './editors/DocumentEditor';
 import GlobalSearchReplace from './editors/GlobalSearchReplace';
+import BatchPost from './editors/BatchPost';
 import type { ContentType } from './eo/types';
 import { upsertCurrentRecord } from './xano/client';
 import { fetchCurrentRecordCached } from './xano/stateCache';
@@ -119,6 +120,7 @@ type Route =
   | { type: 'exp'; slug: string }
   | { type: 'doc'; slug: string }
   | { type: 'search-replace' }
+  | { type: 'batch-post' }
   | { type: 'settings' };
 
 function parseHash(hash: string): Route {
@@ -126,6 +128,7 @@ function parseHash(hash: string): Route {
   if (!h) return { type: 'list' };
   if (h === 'settings') return { type: 'settings' };
   if (h === 'search-replace') return { type: 'search-replace' };
+  if (h === 'batch-post') return { type: 'batch-post' };
   const [section, ...rest] = h.split('/');
   const slug = rest.join('/');
   if (section === 'wiki' && slug) return { type: 'wiki', slug };
@@ -187,6 +190,7 @@ function AdminShell() {
 
   const routeTitle = route.type === 'list' ? 'Content'
     : route.type === 'search-replace' ? 'Search & Replace'
+    : route.type === 'batch-post' ? 'Batch Post'
     : route.type === 'settings' ? 'Settings'
     : (() => {
         const slug = 'slug' in route ? route.slug : '';
@@ -206,6 +210,7 @@ function AdminShell() {
         <nav className="admin-nav">
           <button className={`nav-btn ${route.type === 'list' ? 'active' : ''}`} onClick={() => navigate('')}>Content</button>
           <button className={`nav-btn ${route.type === 'search-replace' ? 'active' : ''}`} onClick={() => navigate('search-replace')}>Search &amp; Replace</button>
+          <button className={`nav-btn ${route.type === 'batch-post' ? 'active' : ''}`} onClick={() => navigate('batch-post')}>Batch Post</button>
           <button className={`nav-btn ${route.type === 'settings' ? 'active' : ''}`} onClick={() => navigate('settings')}>Settings</button>
         </nav>
         <div className="admin-header-right">
@@ -248,6 +253,9 @@ function AdminShell() {
         )}
         {route.type === 'search-replace' && (
           <GlobalSearchReplace siteBase={SITE_BASE} />
+        )}
+        {route.type === 'batch-post' && (
+          <BatchPost siteBase={SITE_BASE} />
         )}
         {route.type === 'settings' && <SettingsPanel />}
       </main>
