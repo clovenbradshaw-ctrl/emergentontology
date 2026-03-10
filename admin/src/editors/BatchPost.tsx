@@ -346,6 +346,7 @@ export default function BatchPost({ siteBase }: Props) {
   const [progress, setProgress] = useState({ done: 0, total: 0 });
   const abortRef = useRef(false);
   const [editGroups, setEditGroups] = useState<ResolvedEditGroup[]>([]);
+  const [skippedRecords, setSkippedRecords] = useState<string[]>([]);
   const [validated, setValidated] = useState(false);
 
   // ── Parse patch text ───────────────────────────────────────────────────
@@ -484,6 +485,7 @@ export default function BatchPost({ siteBase }: Props) {
     setParseError(null);
     setResults([]);
     setEditGroups([]);
+    setSkippedRecords([]);
     setValidated(false);
 
     if (!jsonInput.trim()) { setParseError('Paste or generate a JSON payload first.'); return; }
@@ -517,20 +519,19 @@ export default function BatchPost({ siteBase }: Props) {
     try {
       invalidateCurrentCache();
       const groups: ResolvedEditGroup[] = [];
+      const skipped: string[] = [];
 
       for (const [recordId, recordEdits] of byRecord) {
         const rec = await fetchCurrentRecordCached(recordId);
         if (!rec) {
-          setParseError(`Record "${recordId}" not found.`);
-          setResolving(false);
-          return;
+          skipped.push(recordId);
+          continue;
         }
 
         let snapshot: Record<string, unknown>;
         try { snapshot = JSON.parse(rec.values); } catch {
-          setParseError(`Record "${recordId}": bad snapshot.`);
-          setResolving(false);
-          return;
+          skipped.push(`${recordId} (bad snapshot)`);
+          continue;
         }
 
         const originalContent = getRevisionContent(snapshot);
@@ -565,6 +566,7 @@ export default function BatchPost({ siteBase }: Props) {
       }
 
       setEditGroups(groups);
+      setSkippedRecords(skipped);
     } catch (err) {
       setParseError(`Resolve failed: ${err instanceof Error ? err.message : String(err)}`);
       setResolving(false);
@@ -835,7 +837,7 @@ export default function BatchPost({ siteBase }: Props) {
               </button>
               <button
                 className="btn btn-sm"
-                onClick={() => { setJsonInput(''); setValidated(false); setEditGroups([]); setParseError(null); setResults([]); }}
+                onClick={() => { setJsonInput(''); setValidated(false); setEditGroups([]); setSkippedRecords([]); setParseError(null); setResults([]); }}
                 disabled={!jsonInput}
               >
                 Clear
@@ -852,6 +854,14 @@ export default function BatchPost({ siteBase }: Props) {
             <div className="error-banner">
               {parseError}
               <button onClick={() => setParseError(null)}>&times;</button>
+            </div>
+          )}
+
+          {skippedRecords.length > 0 && (
+            <div className="error-banner" style={{ background: 'var(--warning-bg, #fef3c7)', borderColor: 'var(--warning-border, #f59e0b)', color: 'var(--warning-text, #92400e)' }}>
+              <strong>Skipped {skippedRecords.length} record{skippedRecords.length !== 1 ? 's' : ''} (not found):</strong>{' '}
+              {skippedRecords.join(', ')}
+              <button onClick={() => setSkippedRecords([])}>&times;</button>
             </div>
           )}
 
