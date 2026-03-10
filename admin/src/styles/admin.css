@@ -381,7 +381,9 @@ textarea { resize: vertical; }
 .create-form { display: flex; gap: .65rem; flex-wrap: wrap; align-items: flex-end; }
 .create-form input, .create-form select { flex: 1; min-width: 140px; }
 .content-table { width: 100%; border-collapse: collapse; font-size: .9rem; table-layout: fixed; }
-.content-table th, .content-table td { padding: .7rem 1rem; border-bottom: 1px solid var(--border); text-align: left; white-space: nowrap; vertical-align: top; }
+.content-table th, .content-table td { padding: .7rem 1rem; border-bottom: 1px solid var(--border); text-align: left; white-space: nowrap; vertical-align: top; overflow: hidden; text-overflow: ellipsis; }
+.content-table td:nth-child(2) { white-space: normal; overflow: visible; text-overflow: unset; }
+.content-table td:nth-child(3) { overflow: hidden; text-overflow: ellipsis; }
 .content-table thead th { color: var(--text-dim); font-weight: 600; font-size: .78rem; text-transform: uppercase; letter-spacing: .04em; background: var(--bg2); border-bottom: 2px solid var(--border); padding: .55rem 1rem; position: sticky; top: 0; z-index: 2; }
 .content-table tbody tr { transition: background .1s ease; }
 .content-table tbody tr:nth-child(even) { background: var(--bg2); }
