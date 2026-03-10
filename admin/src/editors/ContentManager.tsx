@@ -1140,6 +1140,17 @@ export default function ContentManager({ siteBase, onOpen }: Props) {
           ? <p className="empty-msg">{activeEntries.length === 0 ? 'No content yet. Create something above.' : 'No matching content.'}</p>
           : (
             <table className="content-table">
+              <colgroup>
+                <col style={{ width: '7%' }} />
+                <col style={{ width: '22%' }} />
+                <col style={{ width: '14%' }} />
+                <col style={{ width: '16%' }} />
+                <col style={{ width: '16%' }} />
+                <col style={{ width: '7%' }} />
+                <col style={{ width: '7%' }} />
+                <col style={{ width: '5%' }} />
+                <col style={{ width: '6%' }} />
+              </colgroup>
               <thead>
                 <tr>
                   <th className="sortable-th" onClick={() => handleSort('type')}>Type{sortIndicator('type')}</th>
@@ -1404,6 +1415,12 @@ export default function ContentManager({ siteBase, onOpen }: Props) {
             ? <p className="empty-msg" style={{ marginTop: '.75rem' }}>No archived content.</p>
             : (
               <table className="content-table archive-table">
+                <colgroup>
+                  <col style={{ width: '10%' }} />
+                  <col style={{ width: '45%' }} />
+                  <col style={{ width: '30%' }} />
+                  <col style={{ width: '15%' }} />
+                </colgroup>
                 <thead>
                   <tr>
                     <th>Type</th>
