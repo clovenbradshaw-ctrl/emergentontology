@@ -936,7 +936,7 @@ export default function BatchPost({ siteBase }: Props) {
                     </span>
                     <span>{r.label}</span>
                     {r.error && <span className="batch-post-op-error">{r.error}</span>}
-                    {r.response && (
+                    {r.response != null && (
                       <details className="batch-post-op-details">
                         <summary>Response</summary>
                         <pre><code>{JSON.stringify(r.response, null, 2)}</code></pre>
