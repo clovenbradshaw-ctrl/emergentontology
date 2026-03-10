@@ -742,6 +742,34 @@ textarea { resize: vertical; }
   color: var(--danger);
   line-height: 1.2;
 }
+.metadata-description {
+  font-size: .85rem;
+  color: var(--text);
+  line-height: 1.5;
+  margin: 0;
+}
+.metadata-description.editable {
+  cursor: pointer;
+  border-bottom: 1px dashed transparent;
+  transition: border-color .15s;
+}
+.metadata-description.editable:hover { border-color: var(--accent); }
+.metadata-placeholder {
+  color: var(--text-faint);
+  font-style: italic;
+}
+.metadata-description-input {
+  font-family: var(--font);
+  font-size: .85rem;
+  padding: .35rem .55rem;
+  background: var(--bg);
+  border: 1px solid var(--accent);
+  border-radius: 3px;
+  width: 100%;
+  resize: vertical;
+  color: var(--text);
+  line-height: 1.5;
+}
 
 /* Archive / soft-delete */
 .btn-danger { background: var(--danger); border-color: var(--danger); color: #fff; }
