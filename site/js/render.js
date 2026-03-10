@@ -300,9 +300,66 @@ export function hydrateHtmlWidgets(container) {
     var w = widgets[i];
     var src = w.textContent || '';
     if (src && src !== w.innerHTML) {
-      w.innerHTML = src;
+      // If the widget HTML contains page-level elements (body/html/doctype styles)
+      // that would leak into the parent page, render inside a sandboxed iframe.
+      if (hasPageLevelStyles(src)) {
+        renderAsIframe(w, src);
+      } else {
+        w.innerHTML = src;
+      }
     }
   }
+}
+
+/**
+ * Detect whether an HTML string contains page-level styles that would affect
+ * the parent document if injected directly (e.g. body { overflow: hidden }).
+ */
+function hasPageLevelStyles(html) {
+  // Check for body/html selectors in <style> blocks
+  var styleRe = /<style[\s\S]*?>([\s\S]*?)<\/style>/gi;
+  var match;
+  while ((match = styleRe.exec(html)) !== null) {
+    var css = match[1];
+    // Look for body or html selectors that set overflow or height
+    if (/(?:^|[},;\s])(?:body|html)\s*\{[^}]*(?:overflow\s*:\s*hidden|height\s*:\s*100vh)/i.test(css)) {
+      return true;
+    }
+  }
+  return false;
+}
+
+/**
+ * Render HTML content inside a sandboxed iframe to isolate its styles and
+ * scripts from the parent page.  The iframe auto-resizes to fit its content.
+ */
+function renderAsIframe(container, html) {
+  container.innerHTML = '';
+  var iframe = document.createElement('iframe');
+  iframe.style.cssText = 'width:100%;border:none;display:block;min-height:80vh;';
+  iframe.setAttribute('sandbox', 'allow-scripts allow-same-origin');
+  iframe.srcdoc = html;
+  container.appendChild(iframe);
+
+  // Auto-resize iframe to its content height
+  iframe.addEventListener('load', function () {
+    try {
+      var doc = iframe.contentDocument || iframe.contentWindow.document;
+      var h = doc.documentElement.scrollHeight || doc.body.scrollHeight;
+      iframe.style.height = h + 'px';
+
+      // Watch for size changes inside the iframe
+      if (typeof ResizeObserver !== 'undefined') {
+        var ro = new ResizeObserver(function () {
+          var newH = doc.documentElement.scrollHeight || doc.body.scrollHeight;
+          iframe.style.height = newH + 'px';
+        });
+        ro.observe(doc.body);
+      }
+    } catch (e) {
+      // cross-origin fallback — keep min-height
+    }
+  });
 }
 
 // ── Script activation (for live HTML/JS experiments) ─────────────────────────

@@ -28,6 +28,8 @@ export interface ContentMeta {
   content_type: ContentType;
   slug: string;
   title: string;
+  /** Short description shown in cards and listings */
+  description?: string;
   status: ContentStatus;
   visibility: Visibility;
   tags: string[];
@@ -155,6 +157,7 @@ export interface SiteIndex {
     content_id: string;
     slug: string;
     title: string;
+    description?: string;
     content_type: ContentType;
     status: ContentStatus;
     visibility: Visibility;

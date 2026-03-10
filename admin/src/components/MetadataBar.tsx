@@ -21,6 +21,7 @@ interface IndexEntry {
   content_id: string;
   slug: string;
   title: string;
+  description?: string;
   content_type: string;
   status: ContentStatus;
   visibility: Visibility;
@@ -47,6 +48,8 @@ export default function MetadataBar({ contentId, onTitleChange }: Props) {
   const [slugValue, setSlugValue] = useState('');
   const [slugError, setSlugError] = useState('');
   const [tagInput, setTagInput] = useState('');
+  const [editingDescription, setEditingDescription] = useState(false);
+  const [descriptionValue, setDescriptionValue] = useState('');
   const indexRecordRef = useRef<XanoCurrentRecord | null>(null);
   const allEntriesRef = useRef<IndexEntry[]>([]);
 
@@ -71,7 +74,7 @@ export default function MetadataBar({ contentId, onTitleChange }: Props) {
     load();
   }, [contentId]);
 
-  async function updateField(fields: Partial<{ slug: string; title: string; tags: string[]; status: string; visibility: string; pinned: boolean }>) {
+  async function updateField(fields: Partial<{ slug: string; title: string; description: string; tags: string[]; status: string; visibility: string; pinned: boolean }>) {
     if (!isAuthenticated || !entry) return;
     const agent = settings.displayName || 'editor';
 
@@ -255,6 +258,37 @@ export default function MetadataBar({ contentId, onTitleChange }: Props) {
               >
                 {entry.slug}
               </code>
+            )}
+          </div>
+          <div className="metadata-field">
+            <label>Description</label>
+            {editingDescription ? (
+              <textarea
+                className="metadata-description-input"
+                value={descriptionValue}
+                onChange={(e) => setDescriptionValue(e.target.value)}
+                onBlur={() => {
+                  const trimmed = descriptionValue.trim();
+                  if (trimmed !== (entry.description || '')) {
+                    updateField({ description: trimmed });
+                  }
+                  setEditingDescription(false);
+                }}
+                onKeyDown={(e) => {
+                  if (e.key === 'Escape') { setDescriptionValue(entry.description || ''); setEditingDescription(false); }
+                }}
+                placeholder="Short description for cards and listings…"
+                rows={2}
+                autoFocus
+              />
+            ) : (
+              <p
+                className="metadata-description editable"
+                onClick={() => { setEditingDescription(true); setDescriptionValue(entry.description || ''); }}
+                title="Click to edit description"
+              >
+                {entry.description || <span className="metadata-placeholder">Add a description…</span>}
+              </p>
             )}
           </div>
           <div className="metadata-field">

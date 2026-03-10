@@ -1043,7 +1043,9 @@ export function renderExpList(el) {
     h += '<div class="content-grid content-grid--sm">';
     exps.slice(0, COLUMN_LIMIT).forEach(function (e) {
       h += '<a class="content-card content-card--exp" href="' + contentUrl('experiment', e.slug) + '">';
-      h += '<h3 class="card-title">' + esc(e.title) + '</h3></a>';
+      h += '<h3 class="card-title">' + esc(e.title) + '</h3>';
+      if (e.description) h += '<p class="card-desc">' + esc(e.description) + '</p>';
+      h += '</a>';
     });
     h += '</div>';
     if (exps.length > COLUMN_LIMIT) {
@@ -1051,7 +1053,9 @@ export function renderExpList(el) {
       h += '<div class="content-grid content-grid--sm show-more-items">';
       exps.slice(COLUMN_LIMIT).forEach(function (e) {
         h += '<a class="content-card content-card--exp" href="' + contentUrl('experiment', e.slug) + '">';
-        h += '<h3 class="card-title">' + esc(e.title) + '</h3></a>';
+        h += '<h3 class="card-title">' + esc(e.title) + '</h3>';
+        if (e.description) h += '<p class="card-desc">' + esc(e.description) + '</p>';
+        h += '</a>';
       });
       h += '</div></details>';
     }
@@ -1088,7 +1092,7 @@ export function renderExp(el, slug) {
     var h = '';
 
     if (isHtmlCanvas) {
-      // ── HTML canvas mode: injected HTML takes over the page ──
+      // ── HTML canvas mode: render inside an iframe to isolate styles ──
       h += '<div class="exp-canvas" data-eo-op="SIG" data-eo-target="' + esc(content.content_id) + '">';
       h += '<div class="exp-canvas-header">';
       h += '<a class="exp-canvas-back" href="' + BASE + '/exp/">&larr; Experiments</a>';
@@ -1096,9 +1100,33 @@ export function renderExp(el, slug) {
       h += '<div class="content-actions eo-admin-only" hidden>';
       h += '<a class="btn btn-edit btn-sm" href="' + BASE + '/admin/#exp/' + esc(slug) + '">Edit</a></div>';
       h += '</div>';
-      h += '<div class="exp-canvas-body">' + rev.content + '</div>';
+      h += '<div class="exp-canvas-body"></div>';
       h += '</div>';
       el.innerHTML = h;
+
+      // Render content in a sandboxed iframe so embedded body/html styles
+      // cannot affect the parent page (e.g. overflow:hidden, height:100vh).
+      var canvasBody = el.querySelector('.exp-canvas-body');
+      if (canvasBody) {
+        var iframe = document.createElement('iframe');
+        iframe.style.cssText = 'width:100%;border:none;display:block;min-height:80vh;';
+        iframe.setAttribute('sandbox', 'allow-scripts allow-same-origin');
+        iframe.srcdoc = rev.content;
+        canvasBody.appendChild(iframe);
+        iframe.addEventListener('load', function () {
+          try {
+            var doc = iframe.contentDocument || iframe.contentWindow.document;
+            var ih = doc.documentElement.scrollHeight || doc.body.scrollHeight;
+            iframe.style.height = ih + 'px';
+            if (typeof ResizeObserver !== 'undefined') {
+              new ResizeObserver(function () {
+                var newH = doc.documentElement.scrollHeight || doc.body.scrollHeight;
+                iframe.style.height = newH + 'px';
+              }).observe(doc.body);
+            }
+          } catch (e) { /* cross-origin fallback */ }
+        });
+      }
     } else {
       // ── Standard mode: article chrome with entries ──
       h += '<article class="experiment-article" data-eo-op="SIG" data-eo-target="' + esc(content.content_id) + '">';

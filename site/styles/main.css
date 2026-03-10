@@ -501,7 +501,12 @@ details[open] > .rev-expand-toggle::before { content: '▾ '; }
 .exp-canvas-body {
   flex: 1;
   width: 100%;
-  /* No .wiki-body — injected HTML renders with its own styles */
+  /* No .wiki-body — injected HTML renders inside a sandboxed iframe */
+}
+.exp-canvas-body iframe {
+  width: 100%;
+  border: none;
+  display: block;
 }
 .exp-entries-section { display: flex; flex-direction: column; gap: 1.25rem; margin-top: 1.5rem; }
 .exp-entry-card {
@@ -655,6 +660,7 @@ main.home { max-width: 1100px; }
   margin-bottom: .35rem;
 }
 .card-title { font-size: 1rem; font-weight: 600; margin-bottom: .4rem; }
+.card-desc { font-size: .83rem; color: var(--text-dim); line-height: 1.5; margin: 0 0 .5rem; }
 .card-excerpt { font-size: .83rem; color: var(--text-dim); line-height: 1.5; margin: 0 0 .5rem; }
 .card-tags { display: flex; flex-wrap: wrap; gap: .3rem; margin-top: .5rem; }
 .card-meta { display: flex; align-items: center; gap: .5rem; margin-top: .5rem; font-size: .75rem; color: var(--text-dim); }
