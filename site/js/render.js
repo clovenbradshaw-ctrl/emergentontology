@@ -330,6 +330,46 @@ function hasPageLevelStyles(html) {
 }
 
 /**
+ * Auto-size an iframe to fit its full content height, handling:
+ * - Content with height:100vh / height:100% on body/html (viewport circularity)
+ * - JS-built content that renders after the load event
+ * - Dynamic content changes over time
+ */
+export function autoSizeIframe(iframe) {
+  var doc;
+  try { doc = iframe.contentDocument || iframe.contentWindow.document; }
+  catch (e) { return; }
+  var timer = null;
+  function measure() {
+    try {
+      var el = doc.documentElement, body = doc.body;
+      // Temporarily force auto height to break viewport-relative cycle
+      var sEH = el.style.height, sBH = body.style.height;
+      var sEM = el.style.minHeight, sBM = body.style.minHeight;
+      el.style.height = 'auto'; el.style.minHeight = '0';
+      body.style.height = 'auto'; body.style.minHeight = '0';
+      var h = Math.max(el.scrollHeight, body.scrollHeight);
+      el.style.height = sEH; el.style.minHeight = sEM;
+      body.style.height = sBH; body.style.minHeight = sBM;
+      if (h > 0) iframe.style.height = h + 'px';
+    } catch (e) {}
+  }
+  function dm() { if (timer) clearTimeout(timer); timer = setTimeout(measure, 50); }
+  measure();
+  if (typeof ResizeObserver !== 'undefined') {
+    var ro = new ResizeObserver(dm);
+    ro.observe(doc.documentElement);
+    if (doc.body) ro.observe(doc.body);
+  }
+  if (typeof MutationObserver !== 'undefined' && doc.body) {
+    new MutationObserver(dm).observe(doc.body, { childList: true, subtree: true });
+  }
+  setTimeout(measure, 150);
+  setTimeout(measure, 600);
+  setTimeout(measure, 1500);
+}
+
+/**
  * Render HTML content inside a sandboxed iframe to isolate its styles and
  * scripts from the parent page.  The iframe auto-resizes to fit its content.
  */
@@ -340,25 +380,8 @@ function renderAsIframe(container, html) {
   iframe.setAttribute('sandbox', 'allow-scripts allow-same-origin');
   iframe.srcdoc = html;
   container.appendChild(iframe);
-
-  // Resize iframe to match its content height so the page scrolls naturally
   iframe.addEventListener('load', function () {
-    try {
-      var doc = iframe.contentDocument || iframe.contentWindow.document;
-      var h = doc.documentElement.scrollHeight || doc.body.scrollHeight;
-      iframe.style.height = h + 'px';
-
-      // Watch for size changes inside the iframe
-      if (typeof ResizeObserver !== 'undefined') {
-        var ro = new ResizeObserver(function () {
-          var newH = doc.documentElement.scrollHeight || doc.body.scrollHeight;
-          iframe.style.height = newH + 'px';
-        });
-        ro.observe(doc.body);
-      }
-    } catch (e) {
-      // cross-origin fallback — keep min-height
-    }
+    autoSizeIframe(iframe);
   });
 }
 

@@ -2063,21 +2063,49 @@ function widgetHasPageLevelStyles(html) {
   return false;
 }
 
-// Render widget HTML inside a sandboxed iframe, capped at 80vh for internal scrolling.
+// Auto-size a same-origin iframe to its full content height.
+function widgetAutoSizeIframe(iframe) {
+  var doc;
+  try { doc = iframe.contentDocument || iframe.contentWindow.document; }
+  catch (e) { return; }
+  var timer = null;
+  function measure() {
+    try {
+      var el = doc.documentElement, body = doc.body;
+      var sEH = el.style.height, sBH = body.style.height;
+      var sEM = el.style.minHeight, sBM = body.style.minHeight;
+      el.style.height = 'auto'; el.style.minHeight = '0';
+      body.style.height = 'auto'; body.style.minHeight = '0';
+      var h = Math.max(el.scrollHeight, body.scrollHeight);
+      el.style.height = sEH; el.style.minHeight = sEM;
+      body.style.height = sBH; body.style.minHeight = sBM;
+      if (h > 0) iframe.style.height = h + 'px';
+    } catch (e) {}
+  }
+  function dm() { if (timer) clearTimeout(timer); timer = setTimeout(measure, 50); }
+  measure();
+  if (typeof ResizeObserver !== 'undefined') {
+    var ro = new ResizeObserver(dm);
+    ro.observe(doc.documentElement);
+    if (doc.body) ro.observe(doc.body);
+  }
+  if (typeof MutationObserver !== 'undefined' && doc.body) {
+    new MutationObserver(dm).observe(doc.body, { childList: true, subtree: true });
+  }
+  setTimeout(measure, 150);
+  setTimeout(measure, 600);
+  setTimeout(measure, 1500);
+}
+
 function widgetRenderAsIframe(container, html) {
   container.innerHTML = '';
   var iframe = document.createElement('iframe');
-  iframe.style.cssText = 'width:100%;border:none;display:block;min-height:60px;max-height:80vh;';
+  iframe.style.cssText = 'width:100%;border:none;display:block;min-height:60px;';
   iframe.setAttribute('sandbox', 'allow-scripts allow-same-origin');
   iframe.srcdoc = html;
   container.appendChild(iframe);
   iframe.addEventListener('load', function () {
-    try {
-      var doc = iframe.contentDocument || iframe.contentWindow.document;
-      var h = doc.documentElement.scrollHeight || doc.body.scrollHeight;
-      var maxH = window.innerHeight * 0.8;
-      iframe.style.height = (h > maxH ? maxH : h) + 'px';
-    } catch (e) { /* cross-origin fallback */ }
+    widgetAutoSizeIframe(iframe);
   });
 }
 
