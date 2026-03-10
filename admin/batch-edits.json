@@ -1,87 +1,2611 @@
 [
-  { "type": "edit", "replace_all": true, "find": "[NUL](https://claude.ai/wiki/operators/nul)", "replace": "NUL" },
-  { "type": "edit", "replace_all": true, "find": "[SUP](https://claude.ai/wiki/operators/sup)", "replace": "SUP" },
-  { "type": "edit", "replace_all": true, "find": "[REC](https://claude.ai/wiki/operators/rec)", "replace": "REC" },
-  { "type": "edit", "replace_all": true, "find": "[CON](https://claude.ai/wiki/operators/con)", "replace": "CON" },
-  { "type": "edit", "replace_all": true, "find": "[SEG](https://claude.ai/wiki/operators/seg)", "replace": "SEG" },
-  { "type": "edit", "replace_all": true, "find": "[helix](https://claude.ai/wiki/helix)", "replace": "helix" },
-  { "type": "edit", "replace_all": true, "find": "[operators](https://claude.ai/wiki/operators)", "replace": "operators" },
-  { "type": "edit", "replace_all": true, "find": "[phaseposts](https://claude.ai/wiki/phaseposts)", "replace": "phaseposts" },
-  { "type": "edit", "replace_all": true, "find": "[main page](https://claude.ai/wiki/emergent-ontology)", "replace": "**Emergent Ontology** main page" },
-  { "type": "edit", "replace_all": true, "find": "[fractal self-similarity](https://claude.ai/wiki/ground-figure-pattern)", "replace": "fractal self-similarity" },
-  { "type": "edit", "replace_all": true, "find": "[ground/figure/pattern](https://claude.ai/wiki/ground-figure-pattern)", "replace": "ground/figure/pattern" },
-  { "type": "edit", "replace_all": true, "find": "[degraded historically](https://claude.ai/wiki/operators/nul)", "replace": "degraded historically" },
-  { "type": "edit", "replace_all": true, "find": "[**phenomenal address**](https://claude.ai/wiki/operators/rec)", "replace": "**phenomenal address**" },
-  { "type": "edit", "replace_all": true, "find": "[Experience Engine](https://claude.ai/wiki/experience-engines)", "replace": "Experience Engine" },
-  { "type": "edit", "replace_all": true, "find": "[EO and Integral Theory](https://claude.ai/wiki/integral-theory)", "replace": "**EO and Integral Theory**" },
-  { "type": "edit", "replace_all": true, "find": "[Global Cross-Cultural Crosswalk](https://claude.ai/wiki/crosswalk)", "replace": "Global Cross-Cultural Crosswalk" },
-  { "type": "edit", "replace_all": true, "find": "[Existence, Structure, Interpretation](https://claude.ai/wiki/triads)", "replace": "Existence, Structure, Interpretation" },
-  { "type": "edit", "replace_all": true, "find": "[Emergent Ontology](https://claude.ai/wiki/emergent-ontology)", "replace": "**Emergent Ontology**" },
-  { "type": "edit", "replace_all": true, "find": "[The Formal Proof](https://claude.ai/wiki/proof)", "replace": "**The Dependency Argument**" },
-  { "type": "edit", "replace_all": true, "find": "[The Nine Operators](https://claude.ai/wiki/operators)", "replace": "**The Nine Operators**" },
-  { "type": "edit", "replace_all": true, "find": "[The Helix](https://claude.ai/wiki/helix)", "replace": "**The Helix**" },
-  { "type": "edit", "replace_all": true, "find": "[Cross-Linguistic Findings](https://claude.ai/wiki/cross-linguistic-findings)", "replace": "**Cross-Linguistic Findings**" },
-  { "type": "edit", "replace_all": true, "find": "[Experience Engines](https://claude.ai/wiki/experience-engines)", "replace": "**Experience Engines**" },
-  { "type": "edit", "replace_all": true, "find": "[Influences and Lineage](https://claude.ai/wiki/influences)", "replace": "**Influences and Lineage**" },
-  { "type": "edit", "replace_all": true, "find": "[Ground / Figure / Pattern](https://claude.ai/wiki/ground-figure-pattern)", "replace": "**Ground / Figure / Pattern**" },
-
   {
     "type": "edit",
-    "comment": "B-01",
+    "record_id": "wiki:emergent-ontology-eo",
+    "find": "[NUL](https://claude.ai/wiki/operators/nul)",
+    "replace": "NUL"
+  },
+  {
+    "type": "edit",
+    "record_id": "wiki:influences-and-lineage",
+    "find": "[NUL](https://claude.ai/wiki/operators/nul)",
+    "replace": "NUL"
+  },
+  {
+    "type": "edit",
+    "record_id": "wiki:the-triadic-minimum",
+    "find": "[NUL](https://claude.ai/wiki/operators/nul)",
+    "replace": "NUL"
+  },
+  {
+    "type": "edit",
+    "record_id": "wiki:the-three-triads",
+    "find": "[NUL](https://claude.ai/wiki/operators/nul)",
+    "replace": "NUL"
+  },
+  {
+    "type": "edit",
+    "record_id": "wiki:ground-figure-pattern",
+    "find": "[NUL](https://claude.ai/wiki/operators/nul)",
+    "replace": "NUL"
+  },
+  {
+    "type": "edit",
+    "record_id": "wiki:the-nine-operators",
+    "find": "[NUL](https://claude.ai/wiki/operators/nul)",
+    "replace": "NUL"
+  },
+  {
+    "type": "edit",
+    "record_id": "wiki:the-integral-lineage",
+    "find": "[NUL](https://claude.ai/wiki/operators/nul)",
+    "replace": "NUL"
+  },
+  {
+    "type": "edit",
+    "record_id": "wiki:eo-notation",
+    "find": "[NUL](https://claude.ai/wiki/operators/nul)",
+    "replace": "NUL"
+  },
+  {
+    "type": "edit",
+    "record_id": "wiki:eo-on-platonic-forms",
+    "find": "[NUL](https://claude.ai/wiki/operators/nul)",
+    "replace": "NUL"
+  },
+  {
+    "type": "edit",
+    "record_id": "wiki:the-eo-phase-space-cube",
+    "find": "[NUL](https://claude.ai/wiki/operators/nul)",
+    "replace": "NUL"
+  },
+  {
+    "type": "edit",
+    "record_id": "wiki:the-27-phase-posts",
+    "find": "[NUL](https://claude.ai/wiki/operators/nul)",
+    "replace": "NUL"
+  },
+  {
+    "type": "edit",
+    "record_id": "wiki:eo-event-streaming",
+    "find": "[NUL](https://claude.ai/wiki/operators/nul)",
+    "replace": "NUL"
+  },
+  {
+    "type": "edit",
+    "record_id": "wiki:nul",
+    "find": "[NUL](https://claude.ai/wiki/operators/nul)",
+    "replace": "NUL"
+  },
+  {
+    "type": "edit",
+    "record_id": "wiki:operator-naming-in-emergent-ontology",
+    "find": "[NUL](https://claude.ai/wiki/operators/nul)",
+    "replace": "NUL"
+  },
+  {
+    "type": "edit",
+    "record_id": "wiki:bivalent-compression-and-dimensional-poverty",
+    "find": "[NUL](https://claude.ai/wiki/operators/nul)",
+    "replace": "NUL"
+  },
+  {
+    "type": "edit",
+    "record_id": "wiki:rec",
+    "find": "[NUL](https://claude.ai/wiki/operators/nul)",
+    "replace": "NUL"
+  },
+  {
+    "type": "edit",
+    "record_id": "document:eo-handbook",
+    "find": "[NUL](https://claude.ai/wiki/operators/nul)",
+    "replace": "NUL"
+  },
+  {
+    "type": "edit",
+    "record_id": "wiki:emergent-ontology-eo",
+    "find": "[SUP](https://claude.ai/wiki/operators/sup)",
+    "replace": "SUP"
+  },
+  {
+    "type": "edit",
+    "record_id": "wiki:influences-and-lineage",
+    "find": "[SUP](https://claude.ai/wiki/operators/sup)",
+    "replace": "SUP"
+  },
+  {
+    "type": "edit",
+    "record_id": "wiki:the-triadic-minimum",
+    "find": "[SUP](https://claude.ai/wiki/operators/sup)",
+    "replace": "SUP"
+  },
+  {
+    "type": "edit",
+    "record_id": "wiki:the-three-triads",
+    "find": "[SUP](https://claude.ai/wiki/operators/sup)",
+    "replace": "SUP"
+  },
+  {
+    "type": "edit",
+    "record_id": "wiki:ground-figure-pattern",
+    "find": "[SUP](https://claude.ai/wiki/operators/sup)",
+    "replace": "SUP"
+  },
+  {
+    "type": "edit",
+    "record_id": "wiki:the-nine-operators",
+    "find": "[SUP](https://claude.ai/wiki/operators/sup)",
+    "replace": "SUP"
+  },
+  {
+    "type": "edit",
+    "record_id": "wiki:the-integral-lineage",
+    "find": "[SUP](https://claude.ai/wiki/operators/sup)",
+    "replace": "SUP"
+  },
+  {
+    "type": "edit",
+    "record_id": "wiki:eo-notation",
+    "find": "[SUP](https://claude.ai/wiki/operators/sup)",
+    "replace": "SUP"
+  },
+  {
+    "type": "edit",
+    "record_id": "wiki:eo-on-platonic-forms",
+    "find": "[SUP](https://claude.ai/wiki/operators/sup)",
+    "replace": "SUP"
+  },
+  {
+    "type": "edit",
+    "record_id": "wiki:the-eo-phase-space-cube",
+    "find": "[SUP](https://claude.ai/wiki/operators/sup)",
+    "replace": "SUP"
+  },
+  {
+    "type": "edit",
+    "record_id": "wiki:the-27-phase-posts",
+    "find": "[SUP](https://claude.ai/wiki/operators/sup)",
+    "replace": "SUP"
+  },
+  {
+    "type": "edit",
+    "record_id": "wiki:eo-event-streaming",
+    "find": "[SUP](https://claude.ai/wiki/operators/sup)",
+    "replace": "SUP"
+  },
+  {
+    "type": "edit",
+    "record_id": "wiki:nul",
+    "find": "[SUP](https://claude.ai/wiki/operators/sup)",
+    "replace": "SUP"
+  },
+  {
+    "type": "edit",
+    "record_id": "wiki:operator-naming-in-emergent-ontology",
+    "find": "[SUP](https://claude.ai/wiki/operators/sup)",
+    "replace": "SUP"
+  },
+  {
+    "type": "edit",
+    "record_id": "wiki:bivalent-compression-and-dimensional-poverty",
+    "find": "[SUP](https://claude.ai/wiki/operators/sup)",
+    "replace": "SUP"
+  },
+  {
+    "type": "edit",
+    "record_id": "wiki:rec",
+    "find": "[SUP](https://claude.ai/wiki/operators/sup)",
+    "replace": "SUP"
+  },
+  {
+    "type": "edit",
+    "record_id": "document:eo-handbook",
+    "find": "[SUP](https://claude.ai/wiki/operators/sup)",
+    "replace": "SUP"
+  },
+  {
+    "type": "edit",
+    "record_id": "wiki:emergent-ontology-eo",
+    "find": "[REC](https://claude.ai/wiki/operators/rec)",
+    "replace": "REC"
+  },
+  {
+    "type": "edit",
+    "record_id": "wiki:influences-and-lineage",
+    "find": "[REC](https://claude.ai/wiki/operators/rec)",
+    "replace": "REC"
+  },
+  {
+    "type": "edit",
+    "record_id": "wiki:the-triadic-minimum",
+    "find": "[REC](https://claude.ai/wiki/operators/rec)",
+    "replace": "REC"
+  },
+  {
+    "type": "edit",
+    "record_id": "wiki:the-three-triads",
+    "find": "[REC](https://claude.ai/wiki/operators/rec)",
+    "replace": "REC"
+  },
+  {
+    "type": "edit",
+    "record_id": "wiki:ground-figure-pattern",
+    "find": "[REC](https://claude.ai/wiki/operators/rec)",
+    "replace": "REC"
+  },
+  {
+    "type": "edit",
+    "record_id": "wiki:the-nine-operators",
+    "find": "[REC](https://claude.ai/wiki/operators/rec)",
+    "replace": "REC"
+  },
+  {
+    "type": "edit",
+    "record_id": "wiki:the-integral-lineage",
+    "find": "[REC](https://claude.ai/wiki/operators/rec)",
+    "replace": "REC"
+  },
+  {
+    "type": "edit",
+    "record_id": "wiki:eo-notation",
+    "find": "[REC](https://claude.ai/wiki/operators/rec)",
+    "replace": "REC"
+  },
+  {
+    "type": "edit",
+    "record_id": "wiki:eo-on-platonic-forms",
+    "find": "[REC](https://claude.ai/wiki/operators/rec)",
+    "replace": "REC"
+  },
+  {
+    "type": "edit",
+    "record_id": "wiki:the-eo-phase-space-cube",
+    "find": "[REC](https://claude.ai/wiki/operators/rec)",
+    "replace": "REC"
+  },
+  {
+    "type": "edit",
+    "record_id": "wiki:the-27-phase-posts",
+    "find": "[REC](https://claude.ai/wiki/operators/rec)",
+    "replace": "REC"
+  },
+  {
+    "type": "edit",
+    "record_id": "wiki:eo-event-streaming",
+    "find": "[REC](https://claude.ai/wiki/operators/rec)",
+    "replace": "REC"
+  },
+  {
+    "type": "edit",
+    "record_id": "wiki:nul",
+    "find": "[REC](https://claude.ai/wiki/operators/rec)",
+    "replace": "REC"
+  },
+  {
+    "type": "edit",
+    "record_id": "wiki:operator-naming-in-emergent-ontology",
+    "find": "[REC](https://claude.ai/wiki/operators/rec)",
+    "replace": "REC"
+  },
+  {
+    "type": "edit",
+    "record_id": "wiki:bivalent-compression-and-dimensional-poverty",
+    "find": "[REC](https://claude.ai/wiki/operators/rec)",
+    "replace": "REC"
+  },
+  {
+    "type": "edit",
+    "record_id": "wiki:rec",
+    "find": "[REC](https://claude.ai/wiki/operators/rec)",
+    "replace": "REC"
+  },
+  {
+    "type": "edit",
+    "record_id": "document:eo-handbook",
+    "find": "[REC](https://claude.ai/wiki/operators/rec)",
+    "replace": "REC"
+  },
+  {
+    "type": "edit",
+    "record_id": "wiki:emergent-ontology-eo",
+    "find": "[CON](https://claude.ai/wiki/operators/con)",
+    "replace": "CON"
+  },
+  {
+    "type": "edit",
+    "record_id": "wiki:influences-and-lineage",
+    "find": "[CON](https://claude.ai/wiki/operators/con)",
+    "replace": "CON"
+  },
+  {
+    "type": "edit",
+    "record_id": "wiki:the-triadic-minimum",
+    "find": "[CON](https://claude.ai/wiki/operators/con)",
+    "replace": "CON"
+  },
+  {
+    "type": "edit",
+    "record_id": "wiki:the-three-triads",
+    "find": "[CON](https://claude.ai/wiki/operators/con)",
+    "replace": "CON"
+  },
+  {
+    "type": "edit",
+    "record_id": "wiki:ground-figure-pattern",
+    "find": "[CON](https://claude.ai/wiki/operators/con)",
+    "replace": "CON"
+  },
+  {
+    "type": "edit",
+    "record_id": "wiki:the-nine-operators",
+    "find": "[CON](https://claude.ai/wiki/operators/con)",
+    "replace": "CON"
+  },
+  {
+    "type": "edit",
+    "record_id": "wiki:the-integral-lineage",
+    "find": "[CON](https://claude.ai/wiki/operators/con)",
+    "replace": "CON"
+  },
+  {
+    "type": "edit",
+    "record_id": "wiki:eo-notation",
+    "find": "[CON](https://claude.ai/wiki/operators/con)",
+    "replace": "CON"
+  },
+  {
+    "type": "edit",
+    "record_id": "wiki:eo-on-platonic-forms",
+    "find": "[CON](https://claude.ai/wiki/operators/con)",
+    "replace": "CON"
+  },
+  {
+    "type": "edit",
+    "record_id": "wiki:the-eo-phase-space-cube",
+    "find": "[CON](https://claude.ai/wiki/operators/con)",
+    "replace": "CON"
+  },
+  {
+    "type": "edit",
+    "record_id": "wiki:the-27-phase-posts",
+    "find": "[CON](https://claude.ai/wiki/operators/con)",
+    "replace": "CON"
+  },
+  {
+    "type": "edit",
+    "record_id": "wiki:eo-event-streaming",
+    "find": "[CON](https://claude.ai/wiki/operators/con)",
+    "replace": "CON"
+  },
+  {
+    "type": "edit",
+    "record_id": "wiki:nul",
+    "find": "[CON](https://claude.ai/wiki/operators/con)",
+    "replace": "CON"
+  },
+  {
+    "type": "edit",
+    "record_id": "wiki:operator-naming-in-emergent-ontology",
+    "find": "[CON](https://claude.ai/wiki/operators/con)",
+    "replace": "CON"
+  },
+  {
+    "type": "edit",
+    "record_id": "wiki:bivalent-compression-and-dimensional-poverty",
+    "find": "[CON](https://claude.ai/wiki/operators/con)",
+    "replace": "CON"
+  },
+  {
+    "type": "edit",
+    "record_id": "wiki:rec",
+    "find": "[CON](https://claude.ai/wiki/operators/con)",
+    "replace": "CON"
+  },
+  {
+    "type": "edit",
+    "record_id": "document:eo-handbook",
+    "find": "[CON](https://claude.ai/wiki/operators/con)",
+    "replace": "CON"
+  },
+  {
+    "type": "edit",
+    "record_id": "wiki:emergent-ontology-eo",
+    "find": "[SEG](https://claude.ai/wiki/operators/seg)",
+    "replace": "SEG"
+  },
+  {
+    "type": "edit",
+    "record_id": "wiki:influences-and-lineage",
+    "find": "[SEG](https://claude.ai/wiki/operators/seg)",
+    "replace": "SEG"
+  },
+  {
+    "type": "edit",
+    "record_id": "wiki:the-triadic-minimum",
+    "find": "[SEG](https://claude.ai/wiki/operators/seg)",
+    "replace": "SEG"
+  },
+  {
+    "type": "edit",
+    "record_id": "wiki:the-three-triads",
+    "find": "[SEG](https://claude.ai/wiki/operators/seg)",
+    "replace": "SEG"
+  },
+  {
+    "type": "edit",
+    "record_id": "wiki:ground-figure-pattern",
+    "find": "[SEG](https://claude.ai/wiki/operators/seg)",
+    "replace": "SEG"
+  },
+  {
+    "type": "edit",
+    "record_id": "wiki:the-nine-operators",
+    "find": "[SEG](https://claude.ai/wiki/operators/seg)",
+    "replace": "SEG"
+  },
+  {
+    "type": "edit",
+    "record_id": "wiki:the-integral-lineage",
+    "find": "[SEG](https://claude.ai/wiki/operators/seg)",
+    "replace": "SEG"
+  },
+  {
+    "type": "edit",
+    "record_id": "wiki:eo-notation",
+    "find": "[SEG](https://claude.ai/wiki/operators/seg)",
+    "replace": "SEG"
+  },
+  {
+    "type": "edit",
+    "record_id": "wiki:eo-on-platonic-forms",
+    "find": "[SEG](https://claude.ai/wiki/operators/seg)",
+    "replace": "SEG"
+  },
+  {
+    "type": "edit",
+    "record_id": "wiki:the-eo-phase-space-cube",
+    "find": "[SEG](https://claude.ai/wiki/operators/seg)",
+    "replace": "SEG"
+  },
+  {
+    "type": "edit",
+    "record_id": "wiki:the-27-phase-posts",
+    "find": "[SEG](https://claude.ai/wiki/operators/seg)",
+    "replace": "SEG"
+  },
+  {
+    "type": "edit",
+    "record_id": "wiki:eo-event-streaming",
+    "find": "[SEG](https://claude.ai/wiki/operators/seg)",
+    "replace": "SEG"
+  },
+  {
+    "type": "edit",
+    "record_id": "wiki:nul",
+    "find": "[SEG](https://claude.ai/wiki/operators/seg)",
+    "replace": "SEG"
+  },
+  {
+    "type": "edit",
+    "record_id": "wiki:operator-naming-in-emergent-ontology",
+    "find": "[SEG](https://claude.ai/wiki/operators/seg)",
+    "replace": "SEG"
+  },
+  {
+    "type": "edit",
+    "record_id": "wiki:bivalent-compression-and-dimensional-poverty",
+    "find": "[SEG](https://claude.ai/wiki/operators/seg)",
+    "replace": "SEG"
+  },
+  {
+    "type": "edit",
+    "record_id": "wiki:rec",
+    "find": "[SEG](https://claude.ai/wiki/operators/seg)",
+    "replace": "SEG"
+  },
+  {
+    "type": "edit",
+    "record_id": "document:eo-handbook",
+    "find": "[SEG](https://claude.ai/wiki/operators/seg)",
+    "replace": "SEG"
+  },
+  {
+    "type": "edit",
+    "record_id": "wiki:emergent-ontology-eo",
+    "find": "[helix](https://claude.ai/wiki/helix)",
+    "replace": "helix"
+  },
+  {
+    "type": "edit",
+    "record_id": "wiki:influences-and-lineage",
+    "find": "[helix](https://claude.ai/wiki/helix)",
+    "replace": "helix"
+  },
+  {
+    "type": "edit",
+    "record_id": "wiki:the-triadic-minimum",
+    "find": "[helix](https://claude.ai/wiki/helix)",
+    "replace": "helix"
+  },
+  {
+    "type": "edit",
+    "record_id": "wiki:the-three-triads",
+    "find": "[helix](https://claude.ai/wiki/helix)",
+    "replace": "helix"
+  },
+  {
+    "type": "edit",
+    "record_id": "wiki:ground-figure-pattern",
+    "find": "[helix](https://claude.ai/wiki/helix)",
+    "replace": "helix"
+  },
+  {
+    "type": "edit",
+    "record_id": "wiki:the-nine-operators",
+    "find": "[helix](https://claude.ai/wiki/helix)",
+    "replace": "helix"
+  },
+  {
+    "type": "edit",
+    "record_id": "wiki:the-integral-lineage",
+    "find": "[helix](https://claude.ai/wiki/helix)",
+    "replace": "helix"
+  },
+  {
+    "type": "edit",
+    "record_id": "wiki:eo-notation",
+    "find": "[helix](https://claude.ai/wiki/helix)",
+    "replace": "helix"
+  },
+  {
+    "type": "edit",
+    "record_id": "wiki:eo-on-platonic-forms",
+    "find": "[helix](https://claude.ai/wiki/helix)",
+    "replace": "helix"
+  },
+  {
+    "type": "edit",
+    "record_id": "wiki:the-eo-phase-space-cube",
+    "find": "[helix](https://claude.ai/wiki/helix)",
+    "replace": "helix"
+  },
+  {
+    "type": "edit",
+    "record_id": "wiki:the-27-phase-posts",
+    "find": "[helix](https://claude.ai/wiki/helix)",
+    "replace": "helix"
+  },
+  {
+    "type": "edit",
+    "record_id": "wiki:eo-event-streaming",
+    "find": "[helix](https://claude.ai/wiki/helix)",
+    "replace": "helix"
+  },
+  {
+    "type": "edit",
+    "record_id": "wiki:nul",
+    "find": "[helix](https://claude.ai/wiki/helix)",
+    "replace": "helix"
+  },
+  {
+    "type": "edit",
+    "record_id": "wiki:operator-naming-in-emergent-ontology",
+    "find": "[helix](https://claude.ai/wiki/helix)",
+    "replace": "helix"
+  },
+  {
+    "type": "edit",
+    "record_id": "wiki:bivalent-compression-and-dimensional-poverty",
+    "find": "[helix](https://claude.ai/wiki/helix)",
+    "replace": "helix"
+  },
+  {
+    "type": "edit",
+    "record_id": "wiki:rec",
+    "find": "[helix](https://claude.ai/wiki/helix)",
+    "replace": "helix"
+  },
+  {
+    "type": "edit",
+    "record_id": "document:eo-handbook",
+    "find": "[helix](https://claude.ai/wiki/helix)",
+    "replace": "helix"
+  },
+  {
+    "type": "edit",
+    "record_id": "wiki:emergent-ontology-eo",
+    "find": "[operators](https://claude.ai/wiki/operators)",
+    "replace": "operators"
+  },
+  {
+    "type": "edit",
+    "record_id": "wiki:influences-and-lineage",
+    "find": "[operators](https://claude.ai/wiki/operators)",
+    "replace": "operators"
+  },
+  {
+    "type": "edit",
+    "record_id": "wiki:the-triadic-minimum",
+    "find": "[operators](https://claude.ai/wiki/operators)",
+    "replace": "operators"
+  },
+  {
+    "type": "edit",
+    "record_id": "wiki:the-three-triads",
+    "find": "[operators](https://claude.ai/wiki/operators)",
+    "replace": "operators"
+  },
+  {
+    "type": "edit",
+    "record_id": "wiki:ground-figure-pattern",
+    "find": "[operators](https://claude.ai/wiki/operators)",
+    "replace": "operators"
+  },
+  {
+    "type": "edit",
+    "record_id": "wiki:the-nine-operators",
+    "find": "[operators](https://claude.ai/wiki/operators)",
+    "replace": "operators"
+  },
+  {
+    "type": "edit",
+    "record_id": "wiki:the-integral-lineage",
+    "find": "[operators](https://claude.ai/wiki/operators)",
+    "replace": "operators"
+  },
+  {
+    "type": "edit",
+    "record_id": "wiki:eo-notation",
+    "find": "[operators](https://claude.ai/wiki/operators)",
+    "replace": "operators"
+  },
+  {
+    "type": "edit",
+    "record_id": "wiki:eo-on-platonic-forms",
+    "find": "[operators](https://claude.ai/wiki/operators)",
+    "replace": "operators"
+  },
+  {
+    "type": "edit",
+    "record_id": "wiki:the-eo-phase-space-cube",
+    "find": "[operators](https://claude.ai/wiki/operators)",
+    "replace": "operators"
+  },
+  {
+    "type": "edit",
+    "record_id": "wiki:the-27-phase-posts",
+    "find": "[operators](https://claude.ai/wiki/operators)",
+    "replace": "operators"
+  },
+  {
+    "type": "edit",
+    "record_id": "wiki:eo-event-streaming",
+    "find": "[operators](https://claude.ai/wiki/operators)",
+    "replace": "operators"
+  },
+  {
+    "type": "edit",
+    "record_id": "wiki:nul",
+    "find": "[operators](https://claude.ai/wiki/operators)",
+    "replace": "operators"
+  },
+  {
+    "type": "edit",
+    "record_id": "wiki:operator-naming-in-emergent-ontology",
+    "find": "[operators](https://claude.ai/wiki/operators)",
+    "replace": "operators"
+  },
+  {
+    "type": "edit",
+    "record_id": "wiki:bivalent-compression-and-dimensional-poverty",
+    "find": "[operators](https://claude.ai/wiki/operators)",
+    "replace": "operators"
+  },
+  {
+    "type": "edit",
+    "record_id": "wiki:rec",
+    "find": "[operators](https://claude.ai/wiki/operators)",
+    "replace": "operators"
+  },
+  {
+    "type": "edit",
+    "record_id": "document:eo-handbook",
+    "find": "[operators](https://claude.ai/wiki/operators)",
+    "replace": "operators"
+  },
+  {
+    "type": "edit",
+    "record_id": "wiki:emergent-ontology-eo",
+    "find": "[phaseposts](https://claude.ai/wiki/phaseposts)",
+    "replace": "phaseposts"
+  },
+  {
+    "type": "edit",
+    "record_id": "wiki:influences-and-lineage",
+    "find": "[phaseposts](https://claude.ai/wiki/phaseposts)",
+    "replace": "phaseposts"
+  },
+  {
+    "type": "edit",
+    "record_id": "wiki:the-triadic-minimum",
+    "find": "[phaseposts](https://claude.ai/wiki/phaseposts)",
+    "replace": "phaseposts"
+  },
+  {
+    "type": "edit",
+    "record_id": "wiki:the-three-triads",
+    "find": "[phaseposts](https://claude.ai/wiki/phaseposts)",
+    "replace": "phaseposts"
+  },
+  {
+    "type": "edit",
+    "record_id": "wiki:ground-figure-pattern",
+    "find": "[phaseposts](https://claude.ai/wiki/phaseposts)",
+    "replace": "phaseposts"
+  },
+  {
+    "type": "edit",
+    "record_id": "wiki:the-nine-operators",
+    "find": "[phaseposts](https://claude.ai/wiki/phaseposts)",
+    "replace": "phaseposts"
+  },
+  {
+    "type": "edit",
+    "record_id": "wiki:the-integral-lineage",
+    "find": "[phaseposts](https://claude.ai/wiki/phaseposts)",
+    "replace": "phaseposts"
+  },
+  {
+    "type": "edit",
+    "record_id": "wiki:eo-notation",
+    "find": "[phaseposts](https://claude.ai/wiki/phaseposts)",
+    "replace": "phaseposts"
+  },
+  {
+    "type": "edit",
+    "record_id": "wiki:eo-on-platonic-forms",
+    "find": "[phaseposts](https://claude.ai/wiki/phaseposts)",
+    "replace": "phaseposts"
+  },
+  {
+    "type": "edit",
+    "record_id": "wiki:the-eo-phase-space-cube",
+    "find": "[phaseposts](https://claude.ai/wiki/phaseposts)",
+    "replace": "phaseposts"
+  },
+  {
+    "type": "edit",
+    "record_id": "wiki:the-27-phase-posts",
+    "find": "[phaseposts](https://claude.ai/wiki/phaseposts)",
+    "replace": "phaseposts"
+  },
+  {
+    "type": "edit",
+    "record_id": "wiki:eo-event-streaming",
+    "find": "[phaseposts](https://claude.ai/wiki/phaseposts)",
+    "replace": "phaseposts"
+  },
+  {
+    "type": "edit",
+    "record_id": "wiki:nul",
+    "find": "[phaseposts](https://claude.ai/wiki/phaseposts)",
+    "replace": "phaseposts"
+  },
+  {
+    "type": "edit",
+    "record_id": "wiki:operator-naming-in-emergent-ontology",
+    "find": "[phaseposts](https://claude.ai/wiki/phaseposts)",
+    "replace": "phaseposts"
+  },
+  {
+    "type": "edit",
+    "record_id": "wiki:bivalent-compression-and-dimensional-poverty",
+    "find": "[phaseposts](https://claude.ai/wiki/phaseposts)",
+    "replace": "phaseposts"
+  },
+  {
+    "type": "edit",
+    "record_id": "wiki:rec",
+    "find": "[phaseposts](https://claude.ai/wiki/phaseposts)",
+    "replace": "phaseposts"
+  },
+  {
+    "type": "edit",
+    "record_id": "document:eo-handbook",
+    "find": "[phaseposts](https://claude.ai/wiki/phaseposts)",
+    "replace": "phaseposts"
+  },
+  {
+    "type": "edit",
+    "record_id": "wiki:emergent-ontology-eo",
+    "find": "[main page](https://claude.ai/wiki/emergent-ontology)",
+    "replace": "**Emergent Ontology** main page"
+  },
+  {
+    "type": "edit",
+    "record_id": "wiki:influences-and-lineage",
+    "find": "[main page](https://claude.ai/wiki/emergent-ontology)",
+    "replace": "**Emergent Ontology** main page"
+  },
+  {
+    "type": "edit",
+    "record_id": "wiki:the-triadic-minimum",
+    "find": "[main page](https://claude.ai/wiki/emergent-ontology)",
+    "replace": "**Emergent Ontology** main page"
+  },
+  {
+    "type": "edit",
+    "record_id": "wiki:the-three-triads",
+    "find": "[main page](https://claude.ai/wiki/emergent-ontology)",
+    "replace": "**Emergent Ontology** main page"
+  },
+  {
+    "type": "edit",
+    "record_id": "wiki:ground-figure-pattern",
+    "find": "[main page](https://claude.ai/wiki/emergent-ontology)",
+    "replace": "**Emergent Ontology** main page"
+  },
+  {
+    "type": "edit",
+    "record_id": "wiki:the-nine-operators",
+    "find": "[main page](https://claude.ai/wiki/emergent-ontology)",
+    "replace": "**Emergent Ontology** main page"
+  },
+  {
+    "type": "edit",
+    "record_id": "wiki:the-integral-lineage",
+    "find": "[main page](https://claude.ai/wiki/emergent-ontology)",
+    "replace": "**Emergent Ontology** main page"
+  },
+  {
+    "type": "edit",
+    "record_id": "wiki:eo-notation",
+    "find": "[main page](https://claude.ai/wiki/emergent-ontology)",
+    "replace": "**Emergent Ontology** main page"
+  },
+  {
+    "type": "edit",
+    "record_id": "wiki:eo-on-platonic-forms",
+    "find": "[main page](https://claude.ai/wiki/emergent-ontology)",
+    "replace": "**Emergent Ontology** main page"
+  },
+  {
+    "type": "edit",
+    "record_id": "wiki:the-eo-phase-space-cube",
+    "find": "[main page](https://claude.ai/wiki/emergent-ontology)",
+    "replace": "**Emergent Ontology** main page"
+  },
+  {
+    "type": "edit",
+    "record_id": "wiki:the-27-phase-posts",
+    "find": "[main page](https://claude.ai/wiki/emergent-ontology)",
+    "replace": "**Emergent Ontology** main page"
+  },
+  {
+    "type": "edit",
+    "record_id": "wiki:eo-event-streaming",
+    "find": "[main page](https://claude.ai/wiki/emergent-ontology)",
+    "replace": "**Emergent Ontology** main page"
+  },
+  {
+    "type": "edit",
+    "record_id": "wiki:nul",
+    "find": "[main page](https://claude.ai/wiki/emergent-ontology)",
+    "replace": "**Emergent Ontology** main page"
+  },
+  {
+    "type": "edit",
+    "record_id": "wiki:operator-naming-in-emergent-ontology",
+    "find": "[main page](https://claude.ai/wiki/emergent-ontology)",
+    "replace": "**Emergent Ontology** main page"
+  },
+  {
+    "type": "edit",
+    "record_id": "wiki:bivalent-compression-and-dimensional-poverty",
+    "find": "[main page](https://claude.ai/wiki/emergent-ontology)",
+    "replace": "**Emergent Ontology** main page"
+  },
+  {
+    "type": "edit",
+    "record_id": "wiki:rec",
+    "find": "[main page](https://claude.ai/wiki/emergent-ontology)",
+    "replace": "**Emergent Ontology** main page"
+  },
+  {
+    "type": "edit",
+    "record_id": "document:eo-handbook",
+    "find": "[main page](https://claude.ai/wiki/emergent-ontology)",
+    "replace": "**Emergent Ontology** main page"
+  },
+  {
+    "type": "edit",
+    "record_id": "wiki:emergent-ontology-eo",
+    "find": "[fractal self-similarity](https://claude.ai/wiki/ground-figure-pattern)",
+    "replace": "fractal self-similarity"
+  },
+  {
+    "type": "edit",
+    "record_id": "wiki:influences-and-lineage",
+    "find": "[fractal self-similarity](https://claude.ai/wiki/ground-figure-pattern)",
+    "replace": "fractal self-similarity"
+  },
+  {
+    "type": "edit",
+    "record_id": "wiki:the-triadic-minimum",
+    "find": "[fractal self-similarity](https://claude.ai/wiki/ground-figure-pattern)",
+    "replace": "fractal self-similarity"
+  },
+  {
+    "type": "edit",
+    "record_id": "wiki:the-three-triads",
+    "find": "[fractal self-similarity](https://claude.ai/wiki/ground-figure-pattern)",
+    "replace": "fractal self-similarity"
+  },
+  {
+    "type": "edit",
+    "record_id": "wiki:ground-figure-pattern",
+    "find": "[fractal self-similarity](https://claude.ai/wiki/ground-figure-pattern)",
+    "replace": "fractal self-similarity"
+  },
+  {
+    "type": "edit",
+    "record_id": "wiki:the-nine-operators",
+    "find": "[fractal self-similarity](https://claude.ai/wiki/ground-figure-pattern)",
+    "replace": "fractal self-similarity"
+  },
+  {
+    "type": "edit",
+    "record_id": "wiki:the-integral-lineage",
+    "find": "[fractal self-similarity](https://claude.ai/wiki/ground-figure-pattern)",
+    "replace": "fractal self-similarity"
+  },
+  {
+    "type": "edit",
+    "record_id": "wiki:eo-notation",
+    "find": "[fractal self-similarity](https://claude.ai/wiki/ground-figure-pattern)",
+    "replace": "fractal self-similarity"
+  },
+  {
+    "type": "edit",
+    "record_id": "wiki:eo-on-platonic-forms",
+    "find": "[fractal self-similarity](https://claude.ai/wiki/ground-figure-pattern)",
+    "replace": "fractal self-similarity"
+  },
+  {
+    "type": "edit",
+    "record_id": "wiki:the-eo-phase-space-cube",
+    "find": "[fractal self-similarity](https://claude.ai/wiki/ground-figure-pattern)",
+    "replace": "fractal self-similarity"
+  },
+  {
+    "type": "edit",
+    "record_id": "wiki:the-27-phase-posts",
+    "find": "[fractal self-similarity](https://claude.ai/wiki/ground-figure-pattern)",
+    "replace": "fractal self-similarity"
+  },
+  {
+    "type": "edit",
+    "record_id": "wiki:eo-event-streaming",
+    "find": "[fractal self-similarity](https://claude.ai/wiki/ground-figure-pattern)",
+    "replace": "fractal self-similarity"
+  },
+  {
+    "type": "edit",
+    "record_id": "wiki:nul",
+    "find": "[fractal self-similarity](https://claude.ai/wiki/ground-figure-pattern)",
+    "replace": "fractal self-similarity"
+  },
+  {
+    "type": "edit",
+    "record_id": "wiki:operator-naming-in-emergent-ontology",
+    "find": "[fractal self-similarity](https://claude.ai/wiki/ground-figure-pattern)",
+    "replace": "fractal self-similarity"
+  },
+  {
+    "type": "edit",
+    "record_id": "wiki:bivalent-compression-and-dimensional-poverty",
+    "find": "[fractal self-similarity](https://claude.ai/wiki/ground-figure-pattern)",
+    "replace": "fractal self-similarity"
+  },
+  {
+    "type": "edit",
+    "record_id": "wiki:rec",
+    "find": "[fractal self-similarity](https://claude.ai/wiki/ground-figure-pattern)",
+    "replace": "fractal self-similarity"
+  },
+  {
+    "type": "edit",
+    "record_id": "document:eo-handbook",
+    "find": "[fractal self-similarity](https://claude.ai/wiki/ground-figure-pattern)",
+    "replace": "fractal self-similarity"
+  },
+  {
+    "type": "edit",
+    "record_id": "wiki:emergent-ontology-eo",
+    "find": "[ground/figure/pattern](https://claude.ai/wiki/ground-figure-pattern)",
+    "replace": "ground/figure/pattern"
+  },
+  {
+    "type": "edit",
+    "record_id": "wiki:influences-and-lineage",
+    "find": "[ground/figure/pattern](https://claude.ai/wiki/ground-figure-pattern)",
+    "replace": "ground/figure/pattern"
+  },
+  {
+    "type": "edit",
+    "record_id": "wiki:the-triadic-minimum",
+    "find": "[ground/figure/pattern](https://claude.ai/wiki/ground-figure-pattern)",
+    "replace": "ground/figure/pattern"
+  },
+  {
+    "type": "edit",
+    "record_id": "wiki:the-three-triads",
+    "find": "[ground/figure/pattern](https://claude.ai/wiki/ground-figure-pattern)",
+    "replace": "ground/figure/pattern"
+  },
+  {
+    "type": "edit",
+    "record_id": "wiki:ground-figure-pattern",
+    "find": "[ground/figure/pattern](https://claude.ai/wiki/ground-figure-pattern)",
+    "replace": "ground/figure/pattern"
+  },
+  {
+    "type": "edit",
+    "record_id": "wiki:the-nine-operators",
+    "find": "[ground/figure/pattern](https://claude.ai/wiki/ground-figure-pattern)",
+    "replace": "ground/figure/pattern"
+  },
+  {
+    "type": "edit",
+    "record_id": "wiki:the-integral-lineage",
+    "find": "[ground/figure/pattern](https://claude.ai/wiki/ground-figure-pattern)",
+    "replace": "ground/figure/pattern"
+  },
+  {
+    "type": "edit",
+    "record_id": "wiki:eo-notation",
+    "find": "[ground/figure/pattern](https://claude.ai/wiki/ground-figure-pattern)",
+    "replace": "ground/figure/pattern"
+  },
+  {
+    "type": "edit",
+    "record_id": "wiki:eo-on-platonic-forms",
+    "find": "[ground/figure/pattern](https://claude.ai/wiki/ground-figure-pattern)",
+    "replace": "ground/figure/pattern"
+  },
+  {
+    "type": "edit",
+    "record_id": "wiki:the-eo-phase-space-cube",
+    "find": "[ground/figure/pattern](https://claude.ai/wiki/ground-figure-pattern)",
+    "replace": "ground/figure/pattern"
+  },
+  {
+    "type": "edit",
+    "record_id": "wiki:the-27-phase-posts",
+    "find": "[ground/figure/pattern](https://claude.ai/wiki/ground-figure-pattern)",
+    "replace": "ground/figure/pattern"
+  },
+  {
+    "type": "edit",
+    "record_id": "wiki:eo-event-streaming",
+    "find": "[ground/figure/pattern](https://claude.ai/wiki/ground-figure-pattern)",
+    "replace": "ground/figure/pattern"
+  },
+  {
+    "type": "edit",
+    "record_id": "wiki:nul",
+    "find": "[ground/figure/pattern](https://claude.ai/wiki/ground-figure-pattern)",
+    "replace": "ground/figure/pattern"
+  },
+  {
+    "type": "edit",
+    "record_id": "wiki:operator-naming-in-emergent-ontology",
+    "find": "[ground/figure/pattern](https://claude.ai/wiki/ground-figure-pattern)",
+    "replace": "ground/figure/pattern"
+  },
+  {
+    "type": "edit",
+    "record_id": "wiki:bivalent-compression-and-dimensional-poverty",
+    "find": "[ground/figure/pattern](https://claude.ai/wiki/ground-figure-pattern)",
+    "replace": "ground/figure/pattern"
+  },
+  {
+    "type": "edit",
+    "record_id": "wiki:rec",
+    "find": "[ground/figure/pattern](https://claude.ai/wiki/ground-figure-pattern)",
+    "replace": "ground/figure/pattern"
+  },
+  {
+    "type": "edit",
+    "record_id": "document:eo-handbook",
+    "find": "[ground/figure/pattern](https://claude.ai/wiki/ground-figure-pattern)",
+    "replace": "ground/figure/pattern"
+  },
+  {
+    "type": "edit",
+    "record_id": "wiki:emergent-ontology-eo",
+    "find": "[degraded historically](https://claude.ai/wiki/operators/nul)",
+    "replace": "degraded historically"
+  },
+  {
+    "type": "edit",
+    "record_id": "wiki:influences-and-lineage",
+    "find": "[degraded historically](https://claude.ai/wiki/operators/nul)",
+    "replace": "degraded historically"
+  },
+  {
+    "type": "edit",
+    "record_id": "wiki:the-triadic-minimum",
+    "find": "[degraded historically](https://claude.ai/wiki/operators/nul)",
+    "replace": "degraded historically"
+  },
+  {
+    "type": "edit",
+    "record_id": "wiki:the-three-triads",
+    "find": "[degraded historically](https://claude.ai/wiki/operators/nul)",
+    "replace": "degraded historically"
+  },
+  {
+    "type": "edit",
+    "record_id": "wiki:ground-figure-pattern",
+    "find": "[degraded historically](https://claude.ai/wiki/operators/nul)",
+    "replace": "degraded historically"
+  },
+  {
+    "type": "edit",
+    "record_id": "wiki:the-nine-operators",
+    "find": "[degraded historically](https://claude.ai/wiki/operators/nul)",
+    "replace": "degraded historically"
+  },
+  {
+    "type": "edit",
+    "record_id": "wiki:the-integral-lineage",
+    "find": "[degraded historically](https://claude.ai/wiki/operators/nul)",
+    "replace": "degraded historically"
+  },
+  {
+    "type": "edit",
+    "record_id": "wiki:eo-notation",
+    "find": "[degraded historically](https://claude.ai/wiki/operators/nul)",
+    "replace": "degraded historically"
+  },
+  {
+    "type": "edit",
+    "record_id": "wiki:eo-on-platonic-forms",
+    "find": "[degraded historically](https://claude.ai/wiki/operators/nul)",
+    "replace": "degraded historically"
+  },
+  {
+    "type": "edit",
+    "record_id": "wiki:the-eo-phase-space-cube",
+    "find": "[degraded historically](https://claude.ai/wiki/operators/nul)",
+    "replace": "degraded historically"
+  },
+  {
+    "type": "edit",
+    "record_id": "wiki:the-27-phase-posts",
+    "find": "[degraded historically](https://claude.ai/wiki/operators/nul)",
+    "replace": "degraded historically"
+  },
+  {
+    "type": "edit",
+    "record_id": "wiki:eo-event-streaming",
+    "find": "[degraded historically](https://claude.ai/wiki/operators/nul)",
+    "replace": "degraded historically"
+  },
+  {
+    "type": "edit",
+    "record_id": "wiki:nul",
+    "find": "[degraded historically](https://claude.ai/wiki/operators/nul)",
+    "replace": "degraded historically"
+  },
+  {
+    "type": "edit",
+    "record_id": "wiki:operator-naming-in-emergent-ontology",
+    "find": "[degraded historically](https://claude.ai/wiki/operators/nul)",
+    "replace": "degraded historically"
+  },
+  {
+    "type": "edit",
+    "record_id": "wiki:bivalent-compression-and-dimensional-poverty",
+    "find": "[degraded historically](https://claude.ai/wiki/operators/nul)",
+    "replace": "degraded historically"
+  },
+  {
+    "type": "edit",
+    "record_id": "wiki:rec",
+    "find": "[degraded historically](https://claude.ai/wiki/operators/nul)",
+    "replace": "degraded historically"
+  },
+  {
+    "type": "edit",
+    "record_id": "document:eo-handbook",
+    "find": "[degraded historically](https://claude.ai/wiki/operators/nul)",
+    "replace": "degraded historically"
+  },
+  {
+    "type": "edit",
+    "record_id": "wiki:emergent-ontology-eo",
+    "find": "[**phenomenal address**](https://claude.ai/wiki/operators/rec)",
+    "replace": "**phenomenal address**"
+  },
+  {
+    "type": "edit",
+    "record_id": "wiki:influences-and-lineage",
+    "find": "[**phenomenal address**](https://claude.ai/wiki/operators/rec)",
+    "replace": "**phenomenal address**"
+  },
+  {
+    "type": "edit",
+    "record_id": "wiki:the-triadic-minimum",
+    "find": "[**phenomenal address**](https://claude.ai/wiki/operators/rec)",
+    "replace": "**phenomenal address**"
+  },
+  {
+    "type": "edit",
+    "record_id": "wiki:the-three-triads",
+    "find": "[**phenomenal address**](https://claude.ai/wiki/operators/rec)",
+    "replace": "**phenomenal address**"
+  },
+  {
+    "type": "edit",
+    "record_id": "wiki:ground-figure-pattern",
+    "find": "[**phenomenal address**](https://claude.ai/wiki/operators/rec)",
+    "replace": "**phenomenal address**"
+  },
+  {
+    "type": "edit",
+    "record_id": "wiki:the-nine-operators",
+    "find": "[**phenomenal address**](https://claude.ai/wiki/operators/rec)",
+    "replace": "**phenomenal address**"
+  },
+  {
+    "type": "edit",
+    "record_id": "wiki:the-integral-lineage",
+    "find": "[**phenomenal address**](https://claude.ai/wiki/operators/rec)",
+    "replace": "**phenomenal address**"
+  },
+  {
+    "type": "edit",
+    "record_id": "wiki:eo-notation",
+    "find": "[**phenomenal address**](https://claude.ai/wiki/operators/rec)",
+    "replace": "**phenomenal address**"
+  },
+  {
+    "type": "edit",
+    "record_id": "wiki:eo-on-platonic-forms",
+    "find": "[**phenomenal address**](https://claude.ai/wiki/operators/rec)",
+    "replace": "**phenomenal address**"
+  },
+  {
+    "type": "edit",
+    "record_id": "wiki:the-eo-phase-space-cube",
+    "find": "[**phenomenal address**](https://claude.ai/wiki/operators/rec)",
+    "replace": "**phenomenal address**"
+  },
+  {
+    "type": "edit",
+    "record_id": "wiki:the-27-phase-posts",
+    "find": "[**phenomenal address**](https://claude.ai/wiki/operators/rec)",
+    "replace": "**phenomenal address**"
+  },
+  {
+    "type": "edit",
+    "record_id": "wiki:eo-event-streaming",
+    "find": "[**phenomenal address**](https://claude.ai/wiki/operators/rec)",
+    "replace": "**phenomenal address**"
+  },
+  {
+    "type": "edit",
+    "record_id": "wiki:nul",
+    "find": "[**phenomenal address**](https://claude.ai/wiki/operators/rec)",
+    "replace": "**phenomenal address**"
+  },
+  {
+    "type": "edit",
+    "record_id": "wiki:operator-naming-in-emergent-ontology",
+    "find": "[**phenomenal address**](https://claude.ai/wiki/operators/rec)",
+    "replace": "**phenomenal address**"
+  },
+  {
+    "type": "edit",
+    "record_id": "wiki:bivalent-compression-and-dimensional-poverty",
+    "find": "[**phenomenal address**](https://claude.ai/wiki/operators/rec)",
+    "replace": "**phenomenal address**"
+  },
+  {
+    "type": "edit",
+    "record_id": "wiki:rec",
+    "find": "[**phenomenal address**](https://claude.ai/wiki/operators/rec)",
+    "replace": "**phenomenal address**"
+  },
+  {
+    "type": "edit",
+    "record_id": "document:eo-handbook",
+    "find": "[**phenomenal address**](https://claude.ai/wiki/operators/rec)",
+    "replace": "**phenomenal address**"
+  },
+  {
+    "type": "edit",
+    "record_id": "wiki:emergent-ontology-eo",
+    "find": "[Experience Engine](https://claude.ai/wiki/experience-engines)",
+    "replace": "Experience Engine"
+  },
+  {
+    "type": "edit",
+    "record_id": "wiki:influences-and-lineage",
+    "find": "[Experience Engine](https://claude.ai/wiki/experience-engines)",
+    "replace": "Experience Engine"
+  },
+  {
+    "type": "edit",
+    "record_id": "wiki:the-triadic-minimum",
+    "find": "[Experience Engine](https://claude.ai/wiki/experience-engines)",
+    "replace": "Experience Engine"
+  },
+  {
+    "type": "edit",
+    "record_id": "wiki:the-three-triads",
+    "find": "[Experience Engine](https://claude.ai/wiki/experience-engines)",
+    "replace": "Experience Engine"
+  },
+  {
+    "type": "edit",
+    "record_id": "wiki:ground-figure-pattern",
+    "find": "[Experience Engine](https://claude.ai/wiki/experience-engines)",
+    "replace": "Experience Engine"
+  },
+  {
+    "type": "edit",
+    "record_id": "wiki:the-nine-operators",
+    "find": "[Experience Engine](https://claude.ai/wiki/experience-engines)",
+    "replace": "Experience Engine"
+  },
+  {
+    "type": "edit",
+    "record_id": "wiki:the-integral-lineage",
+    "find": "[Experience Engine](https://claude.ai/wiki/experience-engines)",
+    "replace": "Experience Engine"
+  },
+  {
+    "type": "edit",
+    "record_id": "wiki:eo-notation",
+    "find": "[Experience Engine](https://claude.ai/wiki/experience-engines)",
+    "replace": "Experience Engine"
+  },
+  {
+    "type": "edit",
+    "record_id": "wiki:eo-on-platonic-forms",
+    "find": "[Experience Engine](https://claude.ai/wiki/experience-engines)",
+    "replace": "Experience Engine"
+  },
+  {
+    "type": "edit",
+    "record_id": "wiki:the-eo-phase-space-cube",
+    "find": "[Experience Engine](https://claude.ai/wiki/experience-engines)",
+    "replace": "Experience Engine"
+  },
+  {
+    "type": "edit",
+    "record_id": "wiki:the-27-phase-posts",
+    "find": "[Experience Engine](https://claude.ai/wiki/experience-engines)",
+    "replace": "Experience Engine"
+  },
+  {
+    "type": "edit",
+    "record_id": "wiki:eo-event-streaming",
+    "find": "[Experience Engine](https://claude.ai/wiki/experience-engines)",
+    "replace": "Experience Engine"
+  },
+  {
+    "type": "edit",
+    "record_id": "wiki:nul",
+    "find": "[Experience Engine](https://claude.ai/wiki/experience-engines)",
+    "replace": "Experience Engine"
+  },
+  {
+    "type": "edit",
+    "record_id": "wiki:operator-naming-in-emergent-ontology",
+    "find": "[Experience Engine](https://claude.ai/wiki/experience-engines)",
+    "replace": "Experience Engine"
+  },
+  {
+    "type": "edit",
+    "record_id": "wiki:bivalent-compression-and-dimensional-poverty",
+    "find": "[Experience Engine](https://claude.ai/wiki/experience-engines)",
+    "replace": "Experience Engine"
+  },
+  {
+    "type": "edit",
+    "record_id": "wiki:rec",
+    "find": "[Experience Engine](https://claude.ai/wiki/experience-engines)",
+    "replace": "Experience Engine"
+  },
+  {
+    "type": "edit",
+    "record_id": "document:eo-handbook",
+    "find": "[Experience Engine](https://claude.ai/wiki/experience-engines)",
+    "replace": "Experience Engine"
+  },
+  {
+    "type": "edit",
+    "record_id": "wiki:emergent-ontology-eo",
+    "find": "[EO and Integral Theory](https://claude.ai/wiki/integral-theory)",
+    "replace": "**EO and Integral Theory**"
+  },
+  {
+    "type": "edit",
+    "record_id": "wiki:influences-and-lineage",
+    "find": "[EO and Integral Theory](https://claude.ai/wiki/integral-theory)",
+    "replace": "**EO and Integral Theory**"
+  },
+  {
+    "type": "edit",
+    "record_id": "wiki:the-triadic-minimum",
+    "find": "[EO and Integral Theory](https://claude.ai/wiki/integral-theory)",
+    "replace": "**EO and Integral Theory**"
+  },
+  {
+    "type": "edit",
+    "record_id": "wiki:the-three-triads",
+    "find": "[EO and Integral Theory](https://claude.ai/wiki/integral-theory)",
+    "replace": "**EO and Integral Theory**"
+  },
+  {
+    "type": "edit",
+    "record_id": "wiki:ground-figure-pattern",
+    "find": "[EO and Integral Theory](https://claude.ai/wiki/integral-theory)",
+    "replace": "**EO and Integral Theory**"
+  },
+  {
+    "type": "edit",
+    "record_id": "wiki:the-nine-operators",
+    "find": "[EO and Integral Theory](https://claude.ai/wiki/integral-theory)",
+    "replace": "**EO and Integral Theory**"
+  },
+  {
+    "type": "edit",
+    "record_id": "wiki:the-integral-lineage",
+    "find": "[EO and Integral Theory](https://claude.ai/wiki/integral-theory)",
+    "replace": "**EO and Integral Theory**"
+  },
+  {
+    "type": "edit",
+    "record_id": "wiki:eo-notation",
+    "find": "[EO and Integral Theory](https://claude.ai/wiki/integral-theory)",
+    "replace": "**EO and Integral Theory**"
+  },
+  {
+    "type": "edit",
+    "record_id": "wiki:eo-on-platonic-forms",
+    "find": "[EO and Integral Theory](https://claude.ai/wiki/integral-theory)",
+    "replace": "**EO and Integral Theory**"
+  },
+  {
+    "type": "edit",
+    "record_id": "wiki:the-eo-phase-space-cube",
+    "find": "[EO and Integral Theory](https://claude.ai/wiki/integral-theory)",
+    "replace": "**EO and Integral Theory**"
+  },
+  {
+    "type": "edit",
+    "record_id": "wiki:the-27-phase-posts",
+    "find": "[EO and Integral Theory](https://claude.ai/wiki/integral-theory)",
+    "replace": "**EO and Integral Theory**"
+  },
+  {
+    "type": "edit",
+    "record_id": "wiki:eo-event-streaming",
+    "find": "[EO and Integral Theory](https://claude.ai/wiki/integral-theory)",
+    "replace": "**EO and Integral Theory**"
+  },
+  {
+    "type": "edit",
+    "record_id": "wiki:nul",
+    "find": "[EO and Integral Theory](https://claude.ai/wiki/integral-theory)",
+    "replace": "**EO and Integral Theory**"
+  },
+  {
+    "type": "edit",
+    "record_id": "wiki:operator-naming-in-emergent-ontology",
+    "find": "[EO and Integral Theory](https://claude.ai/wiki/integral-theory)",
+    "replace": "**EO and Integral Theory**"
+  },
+  {
+    "type": "edit",
+    "record_id": "wiki:bivalent-compression-and-dimensional-poverty",
+    "find": "[EO and Integral Theory](https://claude.ai/wiki/integral-theory)",
+    "replace": "**EO and Integral Theory**"
+  },
+  {
+    "type": "edit",
+    "record_id": "wiki:rec",
+    "find": "[EO and Integral Theory](https://claude.ai/wiki/integral-theory)",
+    "replace": "**EO and Integral Theory**"
+  },
+  {
+    "type": "edit",
+    "record_id": "document:eo-handbook",
+    "find": "[EO and Integral Theory](https://claude.ai/wiki/integral-theory)",
+    "replace": "**EO and Integral Theory**"
+  },
+  {
+    "type": "edit",
+    "record_id": "wiki:emergent-ontology-eo",
+    "find": "[Global Cross-Cultural Crosswalk](https://claude.ai/wiki/crosswalk)",
+    "replace": "Global Cross-Cultural Crosswalk"
+  },
+  {
+    "type": "edit",
+    "record_id": "wiki:influences-and-lineage",
+    "find": "[Global Cross-Cultural Crosswalk](https://claude.ai/wiki/crosswalk)",
+    "replace": "Global Cross-Cultural Crosswalk"
+  },
+  {
+    "type": "edit",
+    "record_id": "wiki:the-triadic-minimum",
+    "find": "[Global Cross-Cultural Crosswalk](https://claude.ai/wiki/crosswalk)",
+    "replace": "Global Cross-Cultural Crosswalk"
+  },
+  {
+    "type": "edit",
+    "record_id": "wiki:the-three-triads",
+    "find": "[Global Cross-Cultural Crosswalk](https://claude.ai/wiki/crosswalk)",
+    "replace": "Global Cross-Cultural Crosswalk"
+  },
+  {
+    "type": "edit",
+    "record_id": "wiki:ground-figure-pattern",
+    "find": "[Global Cross-Cultural Crosswalk](https://claude.ai/wiki/crosswalk)",
+    "replace": "Global Cross-Cultural Crosswalk"
+  },
+  {
+    "type": "edit",
+    "record_id": "wiki:the-nine-operators",
+    "find": "[Global Cross-Cultural Crosswalk](https://claude.ai/wiki/crosswalk)",
+    "replace": "Global Cross-Cultural Crosswalk"
+  },
+  {
+    "type": "edit",
+    "record_id": "wiki:the-integral-lineage",
+    "find": "[Global Cross-Cultural Crosswalk](https://claude.ai/wiki/crosswalk)",
+    "replace": "Global Cross-Cultural Crosswalk"
+  },
+  {
+    "type": "edit",
+    "record_id": "wiki:eo-notation",
+    "find": "[Global Cross-Cultural Crosswalk](https://claude.ai/wiki/crosswalk)",
+    "replace": "Global Cross-Cultural Crosswalk"
+  },
+  {
+    "type": "edit",
+    "record_id": "wiki:eo-on-platonic-forms",
+    "find": "[Global Cross-Cultural Crosswalk](https://claude.ai/wiki/crosswalk)",
+    "replace": "Global Cross-Cultural Crosswalk"
+  },
+  {
+    "type": "edit",
+    "record_id": "wiki:the-eo-phase-space-cube",
+    "find": "[Global Cross-Cultural Crosswalk](https://claude.ai/wiki/crosswalk)",
+    "replace": "Global Cross-Cultural Crosswalk"
+  },
+  {
+    "type": "edit",
+    "record_id": "wiki:the-27-phase-posts",
+    "find": "[Global Cross-Cultural Crosswalk](https://claude.ai/wiki/crosswalk)",
+    "replace": "Global Cross-Cultural Crosswalk"
+  },
+  {
+    "type": "edit",
+    "record_id": "wiki:eo-event-streaming",
+    "find": "[Global Cross-Cultural Crosswalk](https://claude.ai/wiki/crosswalk)",
+    "replace": "Global Cross-Cultural Crosswalk"
+  },
+  {
+    "type": "edit",
+    "record_id": "wiki:nul",
+    "find": "[Global Cross-Cultural Crosswalk](https://claude.ai/wiki/crosswalk)",
+    "replace": "Global Cross-Cultural Crosswalk"
+  },
+  {
+    "type": "edit",
+    "record_id": "wiki:operator-naming-in-emergent-ontology",
+    "find": "[Global Cross-Cultural Crosswalk](https://claude.ai/wiki/crosswalk)",
+    "replace": "Global Cross-Cultural Crosswalk"
+  },
+  {
+    "type": "edit",
+    "record_id": "wiki:bivalent-compression-and-dimensional-poverty",
+    "find": "[Global Cross-Cultural Crosswalk](https://claude.ai/wiki/crosswalk)",
+    "replace": "Global Cross-Cultural Crosswalk"
+  },
+  {
+    "type": "edit",
+    "record_id": "wiki:rec",
+    "find": "[Global Cross-Cultural Crosswalk](https://claude.ai/wiki/crosswalk)",
+    "replace": "Global Cross-Cultural Crosswalk"
+  },
+  {
+    "type": "edit",
+    "record_id": "document:eo-handbook",
+    "find": "[Global Cross-Cultural Crosswalk](https://claude.ai/wiki/crosswalk)",
+    "replace": "Global Cross-Cultural Crosswalk"
+  },
+  {
+    "type": "edit",
+    "record_id": "wiki:emergent-ontology-eo",
+    "find": "[Existence, Structure, Interpretation](https://claude.ai/wiki/triads)",
+    "replace": "Existence, Structure, Interpretation"
+  },
+  {
+    "type": "edit",
+    "record_id": "wiki:influences-and-lineage",
+    "find": "[Existence, Structure, Interpretation](https://claude.ai/wiki/triads)",
+    "replace": "Existence, Structure, Interpretation"
+  },
+  {
+    "type": "edit",
+    "record_id": "wiki:the-triadic-minimum",
+    "find": "[Existence, Structure, Interpretation](https://claude.ai/wiki/triads)",
+    "replace": "Existence, Structure, Interpretation"
+  },
+  {
+    "type": "edit",
+    "record_id": "wiki:the-three-triads",
+    "find": "[Existence, Structure, Interpretation](https://claude.ai/wiki/triads)",
+    "replace": "Existence, Structure, Interpretation"
+  },
+  {
+    "type": "edit",
+    "record_id": "wiki:ground-figure-pattern",
+    "find": "[Existence, Structure, Interpretation](https://claude.ai/wiki/triads)",
+    "replace": "Existence, Structure, Interpretation"
+  },
+  {
+    "type": "edit",
+    "record_id": "wiki:the-nine-operators",
+    "find": "[Existence, Structure, Interpretation](https://claude.ai/wiki/triads)",
+    "replace": "Existence, Structure, Interpretation"
+  },
+  {
+    "type": "edit",
+    "record_id": "wiki:the-integral-lineage",
+    "find": "[Existence, Structure, Interpretation](https://claude.ai/wiki/triads)",
+    "replace": "Existence, Structure, Interpretation"
+  },
+  {
+    "type": "edit",
+    "record_id": "wiki:eo-notation",
+    "find": "[Existence, Structure, Interpretation](https://claude.ai/wiki/triads)",
+    "replace": "Existence, Structure, Interpretation"
+  },
+  {
+    "type": "edit",
+    "record_id": "wiki:eo-on-platonic-forms",
+    "find": "[Existence, Structure, Interpretation](https://claude.ai/wiki/triads)",
+    "replace": "Existence, Structure, Interpretation"
+  },
+  {
+    "type": "edit",
+    "record_id": "wiki:the-eo-phase-space-cube",
+    "find": "[Existence, Structure, Interpretation](https://claude.ai/wiki/triads)",
+    "replace": "Existence, Structure, Interpretation"
+  },
+  {
+    "type": "edit",
+    "record_id": "wiki:the-27-phase-posts",
+    "find": "[Existence, Structure, Interpretation](https://claude.ai/wiki/triads)",
+    "replace": "Existence, Structure, Interpretation"
+  },
+  {
+    "type": "edit",
+    "record_id": "wiki:eo-event-streaming",
+    "find": "[Existence, Structure, Interpretation](https://claude.ai/wiki/triads)",
+    "replace": "Existence, Structure, Interpretation"
+  },
+  {
+    "type": "edit",
+    "record_id": "wiki:nul",
+    "find": "[Existence, Structure, Interpretation](https://claude.ai/wiki/triads)",
+    "replace": "Existence, Structure, Interpretation"
+  },
+  {
+    "type": "edit",
+    "record_id": "wiki:operator-naming-in-emergent-ontology",
+    "find": "[Existence, Structure, Interpretation](https://claude.ai/wiki/triads)",
+    "replace": "Existence, Structure, Interpretation"
+  },
+  {
+    "type": "edit",
+    "record_id": "wiki:bivalent-compression-and-dimensional-poverty",
+    "find": "[Existence, Structure, Interpretation](https://claude.ai/wiki/triads)",
+    "replace": "Existence, Structure, Interpretation"
+  },
+  {
+    "type": "edit",
+    "record_id": "wiki:rec",
+    "find": "[Existence, Structure, Interpretation](https://claude.ai/wiki/triads)",
+    "replace": "Existence, Structure, Interpretation"
+  },
+  {
+    "type": "edit",
+    "record_id": "document:eo-handbook",
+    "find": "[Existence, Structure, Interpretation](https://claude.ai/wiki/triads)",
+    "replace": "Existence, Structure, Interpretation"
+  },
+  {
+    "type": "edit",
+    "record_id": "wiki:emergent-ontology-eo",
+    "find": "[Emergent Ontology](https://claude.ai/wiki/emergent-ontology)",
+    "replace": "**Emergent Ontology**"
+  },
+  {
+    "type": "edit",
+    "record_id": "wiki:influences-and-lineage",
+    "find": "[Emergent Ontology](https://claude.ai/wiki/emergent-ontology)",
+    "replace": "**Emergent Ontology**"
+  },
+  {
+    "type": "edit",
+    "record_id": "wiki:the-triadic-minimum",
+    "find": "[Emergent Ontology](https://claude.ai/wiki/emergent-ontology)",
+    "replace": "**Emergent Ontology**"
+  },
+  {
+    "type": "edit",
+    "record_id": "wiki:the-three-triads",
+    "find": "[Emergent Ontology](https://claude.ai/wiki/emergent-ontology)",
+    "replace": "**Emergent Ontology**"
+  },
+  {
+    "type": "edit",
+    "record_id": "wiki:ground-figure-pattern",
+    "find": "[Emergent Ontology](https://claude.ai/wiki/emergent-ontology)",
+    "replace": "**Emergent Ontology**"
+  },
+  {
+    "type": "edit",
+    "record_id": "wiki:the-nine-operators",
+    "find": "[Emergent Ontology](https://claude.ai/wiki/emergent-ontology)",
+    "replace": "**Emergent Ontology**"
+  },
+  {
+    "type": "edit",
+    "record_id": "wiki:the-integral-lineage",
+    "find": "[Emergent Ontology](https://claude.ai/wiki/emergent-ontology)",
+    "replace": "**Emergent Ontology**"
+  },
+  {
+    "type": "edit",
+    "record_id": "wiki:eo-notation",
+    "find": "[Emergent Ontology](https://claude.ai/wiki/emergent-ontology)",
+    "replace": "**Emergent Ontology**"
+  },
+  {
+    "type": "edit",
+    "record_id": "wiki:eo-on-platonic-forms",
+    "find": "[Emergent Ontology](https://claude.ai/wiki/emergent-ontology)",
+    "replace": "**Emergent Ontology**"
+  },
+  {
+    "type": "edit",
+    "record_id": "wiki:the-eo-phase-space-cube",
+    "find": "[Emergent Ontology](https://claude.ai/wiki/emergent-ontology)",
+    "replace": "**Emergent Ontology**"
+  },
+  {
+    "type": "edit",
+    "record_id": "wiki:the-27-phase-posts",
+    "find": "[Emergent Ontology](https://claude.ai/wiki/emergent-ontology)",
+    "replace": "**Emergent Ontology**"
+  },
+  {
+    "type": "edit",
+    "record_id": "wiki:eo-event-streaming",
+    "find": "[Emergent Ontology](https://claude.ai/wiki/emergent-ontology)",
+    "replace": "**Emergent Ontology**"
+  },
+  {
+    "type": "edit",
+    "record_id": "wiki:nul",
+    "find": "[Emergent Ontology](https://claude.ai/wiki/emergent-ontology)",
+    "replace": "**Emergent Ontology**"
+  },
+  {
+    "type": "edit",
+    "record_id": "wiki:operator-naming-in-emergent-ontology",
+    "find": "[Emergent Ontology](https://claude.ai/wiki/emergent-ontology)",
+    "replace": "**Emergent Ontology**"
+  },
+  {
+    "type": "edit",
+    "record_id": "wiki:bivalent-compression-and-dimensional-poverty",
+    "find": "[Emergent Ontology](https://claude.ai/wiki/emergent-ontology)",
+    "replace": "**Emergent Ontology**"
+  },
+  {
+    "type": "edit",
+    "record_id": "wiki:rec",
+    "find": "[Emergent Ontology](https://claude.ai/wiki/emergent-ontology)",
+    "replace": "**Emergent Ontology**"
+  },
+  {
+    "type": "edit",
+    "record_id": "document:eo-handbook",
+    "find": "[Emergent Ontology](https://claude.ai/wiki/emergent-ontology)",
+    "replace": "**Emergent Ontology**"
+  },
+  {
+    "type": "edit",
+    "record_id": "wiki:emergent-ontology-eo",
+    "find": "[The Formal Proof](https://claude.ai/wiki/proof)",
+    "replace": "**The Dependency Argument**"
+  },
+  {
+    "type": "edit",
+    "record_id": "wiki:influences-and-lineage",
+    "find": "[The Formal Proof](https://claude.ai/wiki/proof)",
+    "replace": "**The Dependency Argument**"
+  },
+  {
+    "type": "edit",
+    "record_id": "wiki:the-triadic-minimum",
+    "find": "[The Formal Proof](https://claude.ai/wiki/proof)",
+    "replace": "**The Dependency Argument**"
+  },
+  {
+    "type": "edit",
+    "record_id": "wiki:the-three-triads",
+    "find": "[The Formal Proof](https://claude.ai/wiki/proof)",
+    "replace": "**The Dependency Argument**"
+  },
+  {
+    "type": "edit",
+    "record_id": "wiki:ground-figure-pattern",
+    "find": "[The Formal Proof](https://claude.ai/wiki/proof)",
+    "replace": "**The Dependency Argument**"
+  },
+  {
+    "type": "edit",
+    "record_id": "wiki:the-nine-operators",
+    "find": "[The Formal Proof](https://claude.ai/wiki/proof)",
+    "replace": "**The Dependency Argument**"
+  },
+  {
+    "type": "edit",
+    "record_id": "wiki:the-integral-lineage",
+    "find": "[The Formal Proof](https://claude.ai/wiki/proof)",
+    "replace": "**The Dependency Argument**"
+  },
+  {
+    "type": "edit",
+    "record_id": "wiki:eo-notation",
+    "find": "[The Formal Proof](https://claude.ai/wiki/proof)",
+    "replace": "**The Dependency Argument**"
+  },
+  {
+    "type": "edit",
+    "record_id": "wiki:eo-on-platonic-forms",
+    "find": "[The Formal Proof](https://claude.ai/wiki/proof)",
+    "replace": "**The Dependency Argument**"
+  },
+  {
+    "type": "edit",
+    "record_id": "wiki:the-eo-phase-space-cube",
+    "find": "[The Formal Proof](https://claude.ai/wiki/proof)",
+    "replace": "**The Dependency Argument**"
+  },
+  {
+    "type": "edit",
+    "record_id": "wiki:the-27-phase-posts",
+    "find": "[The Formal Proof](https://claude.ai/wiki/proof)",
+    "replace": "**The Dependency Argument**"
+  },
+  {
+    "type": "edit",
+    "record_id": "wiki:eo-event-streaming",
+    "find": "[The Formal Proof](https://claude.ai/wiki/proof)",
+    "replace": "**The Dependency Argument**"
+  },
+  {
+    "type": "edit",
+    "record_id": "wiki:nul",
+    "find": "[The Formal Proof](https://claude.ai/wiki/proof)",
+    "replace": "**The Dependency Argument**"
+  },
+  {
+    "type": "edit",
+    "record_id": "wiki:operator-naming-in-emergent-ontology",
+    "find": "[The Formal Proof](https://claude.ai/wiki/proof)",
+    "replace": "**The Dependency Argument**"
+  },
+  {
+    "type": "edit",
+    "record_id": "wiki:bivalent-compression-and-dimensional-poverty",
+    "find": "[The Formal Proof](https://claude.ai/wiki/proof)",
+    "replace": "**The Dependency Argument**"
+  },
+  {
+    "type": "edit",
+    "record_id": "wiki:rec",
+    "find": "[The Formal Proof](https://claude.ai/wiki/proof)",
+    "replace": "**The Dependency Argument**"
+  },
+  {
+    "type": "edit",
+    "record_id": "document:eo-handbook",
+    "find": "[The Formal Proof](https://claude.ai/wiki/proof)",
+    "replace": "**The Dependency Argument**"
+  },
+  {
+    "type": "edit",
+    "record_id": "wiki:emergent-ontology-eo",
+    "find": "[The Nine Operators](https://claude.ai/wiki/operators)",
+    "replace": "**The Nine Operators**"
+  },
+  {
+    "type": "edit",
+    "record_id": "wiki:influences-and-lineage",
+    "find": "[The Nine Operators](https://claude.ai/wiki/operators)",
+    "replace": "**The Nine Operators**"
+  },
+  {
+    "type": "edit",
+    "record_id": "wiki:the-triadic-minimum",
+    "find": "[The Nine Operators](https://claude.ai/wiki/operators)",
+    "replace": "**The Nine Operators**"
+  },
+  {
+    "type": "edit",
+    "record_id": "wiki:the-three-triads",
+    "find": "[The Nine Operators](https://claude.ai/wiki/operators)",
+    "replace": "**The Nine Operators**"
+  },
+  {
+    "type": "edit",
+    "record_id": "wiki:ground-figure-pattern",
+    "find": "[The Nine Operators](https://claude.ai/wiki/operators)",
+    "replace": "**The Nine Operators**"
+  },
+  {
+    "type": "edit",
+    "record_id": "wiki:the-nine-operators",
+    "find": "[The Nine Operators](https://claude.ai/wiki/operators)",
+    "replace": "**The Nine Operators**"
+  },
+  {
+    "type": "edit",
+    "record_id": "wiki:the-integral-lineage",
+    "find": "[The Nine Operators](https://claude.ai/wiki/operators)",
+    "replace": "**The Nine Operators**"
+  },
+  {
+    "type": "edit",
+    "record_id": "wiki:eo-notation",
+    "find": "[The Nine Operators](https://claude.ai/wiki/operators)",
+    "replace": "**The Nine Operators**"
+  },
+  {
+    "type": "edit",
+    "record_id": "wiki:eo-on-platonic-forms",
+    "find": "[The Nine Operators](https://claude.ai/wiki/operators)",
+    "replace": "**The Nine Operators**"
+  },
+  {
+    "type": "edit",
+    "record_id": "wiki:the-eo-phase-space-cube",
+    "find": "[The Nine Operators](https://claude.ai/wiki/operators)",
+    "replace": "**The Nine Operators**"
+  },
+  {
+    "type": "edit",
+    "record_id": "wiki:the-27-phase-posts",
+    "find": "[The Nine Operators](https://claude.ai/wiki/operators)",
+    "replace": "**The Nine Operators**"
+  },
+  {
+    "type": "edit",
+    "record_id": "wiki:eo-event-streaming",
+    "find": "[The Nine Operators](https://claude.ai/wiki/operators)",
+    "replace": "**The Nine Operators**"
+  },
+  {
+    "type": "edit",
+    "record_id": "wiki:nul",
+    "find": "[The Nine Operators](https://claude.ai/wiki/operators)",
+    "replace": "**The Nine Operators**"
+  },
+  {
+    "type": "edit",
+    "record_id": "wiki:operator-naming-in-emergent-ontology",
+    "find": "[The Nine Operators](https://claude.ai/wiki/operators)",
+    "replace": "**The Nine Operators**"
+  },
+  {
+    "type": "edit",
+    "record_id": "wiki:bivalent-compression-and-dimensional-poverty",
+    "find": "[The Nine Operators](https://claude.ai/wiki/operators)",
+    "replace": "**The Nine Operators**"
+  },
+  {
+    "type": "edit",
+    "record_id": "wiki:rec",
+    "find": "[The Nine Operators](https://claude.ai/wiki/operators)",
+    "replace": "**The Nine Operators**"
+  },
+  {
+    "type": "edit",
+    "record_id": "document:eo-handbook",
+    "find": "[The Nine Operators](https://claude.ai/wiki/operators)",
+    "replace": "**The Nine Operators**"
+  },
+  {
+    "type": "edit",
+    "record_id": "wiki:emergent-ontology-eo",
+    "find": "[The Helix](https://claude.ai/wiki/helix)",
+    "replace": "**The Helix**"
+  },
+  {
+    "type": "edit",
+    "record_id": "wiki:influences-and-lineage",
+    "find": "[The Helix](https://claude.ai/wiki/helix)",
+    "replace": "**The Helix**"
+  },
+  {
+    "type": "edit",
+    "record_id": "wiki:the-triadic-minimum",
+    "find": "[The Helix](https://claude.ai/wiki/helix)",
+    "replace": "**The Helix**"
+  },
+  {
+    "type": "edit",
+    "record_id": "wiki:the-three-triads",
+    "find": "[The Helix](https://claude.ai/wiki/helix)",
+    "replace": "**The Helix**"
+  },
+  {
+    "type": "edit",
+    "record_id": "wiki:ground-figure-pattern",
+    "find": "[The Helix](https://claude.ai/wiki/helix)",
+    "replace": "**The Helix**"
+  },
+  {
+    "type": "edit",
+    "record_id": "wiki:the-nine-operators",
+    "find": "[The Helix](https://claude.ai/wiki/helix)",
+    "replace": "**The Helix**"
+  },
+  {
+    "type": "edit",
+    "record_id": "wiki:the-integral-lineage",
+    "find": "[The Helix](https://claude.ai/wiki/helix)",
+    "replace": "**The Helix**"
+  },
+  {
+    "type": "edit",
+    "record_id": "wiki:eo-notation",
+    "find": "[The Helix](https://claude.ai/wiki/helix)",
+    "replace": "**The Helix**"
+  },
+  {
+    "type": "edit",
+    "record_id": "wiki:eo-on-platonic-forms",
+    "find": "[The Helix](https://claude.ai/wiki/helix)",
+    "replace": "**The Helix**"
+  },
+  {
+    "type": "edit",
+    "record_id": "wiki:the-eo-phase-space-cube",
+    "find": "[The Helix](https://claude.ai/wiki/helix)",
+    "replace": "**The Helix**"
+  },
+  {
+    "type": "edit",
+    "record_id": "wiki:the-27-phase-posts",
+    "find": "[The Helix](https://claude.ai/wiki/helix)",
+    "replace": "**The Helix**"
+  },
+  {
+    "type": "edit",
+    "record_id": "wiki:eo-event-streaming",
+    "find": "[The Helix](https://claude.ai/wiki/helix)",
+    "replace": "**The Helix**"
+  },
+  {
+    "type": "edit",
+    "record_id": "wiki:nul",
+    "find": "[The Helix](https://claude.ai/wiki/helix)",
+    "replace": "**The Helix**"
+  },
+  {
+    "type": "edit",
+    "record_id": "wiki:operator-naming-in-emergent-ontology",
+    "find": "[The Helix](https://claude.ai/wiki/helix)",
+    "replace": "**The Helix**"
+  },
+  {
+    "type": "edit",
+    "record_id": "wiki:bivalent-compression-and-dimensional-poverty",
+    "find": "[The Helix](https://claude.ai/wiki/helix)",
+    "replace": "**The Helix**"
+  },
+  {
+    "type": "edit",
+    "record_id": "wiki:rec",
+    "find": "[The Helix](https://claude.ai/wiki/helix)",
+    "replace": "**The Helix**"
+  },
+  {
+    "type": "edit",
+    "record_id": "document:eo-handbook",
+    "find": "[The Helix](https://claude.ai/wiki/helix)",
+    "replace": "**The Helix**"
+  },
+  {
+    "type": "edit",
+    "record_id": "wiki:emergent-ontology-eo",
+    "find": "[Cross-Linguistic Findings](https://claude.ai/wiki/cross-linguistic-findings)",
+    "replace": "**Cross-Linguistic Findings**"
+  },
+  {
+    "type": "edit",
+    "record_id": "wiki:influences-and-lineage",
+    "find": "[Cross-Linguistic Findings](https://claude.ai/wiki/cross-linguistic-findings)",
+    "replace": "**Cross-Linguistic Findings**"
+  },
+  {
+    "type": "edit",
+    "record_id": "wiki:the-triadic-minimum",
+    "find": "[Cross-Linguistic Findings](https://claude.ai/wiki/cross-linguistic-findings)",
+    "replace": "**Cross-Linguistic Findings**"
+  },
+  {
+    "type": "edit",
+    "record_id": "wiki:the-three-triads",
+    "find": "[Cross-Linguistic Findings](https://claude.ai/wiki/cross-linguistic-findings)",
+    "replace": "**Cross-Linguistic Findings**"
+  },
+  {
+    "type": "edit",
+    "record_id": "wiki:ground-figure-pattern",
+    "find": "[Cross-Linguistic Findings](https://claude.ai/wiki/cross-linguistic-findings)",
+    "replace": "**Cross-Linguistic Findings**"
+  },
+  {
+    "type": "edit",
+    "record_id": "wiki:the-nine-operators",
+    "find": "[Cross-Linguistic Findings](https://claude.ai/wiki/cross-linguistic-findings)",
+    "replace": "**Cross-Linguistic Findings**"
+  },
+  {
+    "type": "edit",
+    "record_id": "wiki:the-integral-lineage",
+    "find": "[Cross-Linguistic Findings](https://claude.ai/wiki/cross-linguistic-findings)",
+    "replace": "**Cross-Linguistic Findings**"
+  },
+  {
+    "type": "edit",
+    "record_id": "wiki:eo-notation",
+    "find": "[Cross-Linguistic Findings](https://claude.ai/wiki/cross-linguistic-findings)",
+    "replace": "**Cross-Linguistic Findings**"
+  },
+  {
+    "type": "edit",
+    "record_id": "wiki:eo-on-platonic-forms",
+    "find": "[Cross-Linguistic Findings](https://claude.ai/wiki/cross-linguistic-findings)",
+    "replace": "**Cross-Linguistic Findings**"
+  },
+  {
+    "type": "edit",
+    "record_id": "wiki:the-eo-phase-space-cube",
+    "find": "[Cross-Linguistic Findings](https://claude.ai/wiki/cross-linguistic-findings)",
+    "replace": "**Cross-Linguistic Findings**"
+  },
+  {
+    "type": "edit",
+    "record_id": "wiki:the-27-phase-posts",
+    "find": "[Cross-Linguistic Findings](https://claude.ai/wiki/cross-linguistic-findings)",
+    "replace": "**Cross-Linguistic Findings**"
+  },
+  {
+    "type": "edit",
+    "record_id": "wiki:eo-event-streaming",
+    "find": "[Cross-Linguistic Findings](https://claude.ai/wiki/cross-linguistic-findings)",
+    "replace": "**Cross-Linguistic Findings**"
+  },
+  {
+    "type": "edit",
+    "record_id": "wiki:nul",
+    "find": "[Cross-Linguistic Findings](https://claude.ai/wiki/cross-linguistic-findings)",
+    "replace": "**Cross-Linguistic Findings**"
+  },
+  {
+    "type": "edit",
+    "record_id": "wiki:operator-naming-in-emergent-ontology",
+    "find": "[Cross-Linguistic Findings](https://claude.ai/wiki/cross-linguistic-findings)",
+    "replace": "**Cross-Linguistic Findings**"
+  },
+  {
+    "type": "edit",
+    "record_id": "wiki:bivalent-compression-and-dimensional-poverty",
+    "find": "[Cross-Linguistic Findings](https://claude.ai/wiki/cross-linguistic-findings)",
+    "replace": "**Cross-Linguistic Findings**"
+  },
+  {
+    "type": "edit",
+    "record_id": "wiki:rec",
+    "find": "[Cross-Linguistic Findings](https://claude.ai/wiki/cross-linguistic-findings)",
+    "replace": "**Cross-Linguistic Findings**"
+  },
+  {
+    "type": "edit",
+    "record_id": "document:eo-handbook",
+    "find": "[Cross-Linguistic Findings](https://claude.ai/wiki/cross-linguistic-findings)",
+    "replace": "**Cross-Linguistic Findings**"
+  },
+  {
+    "type": "edit",
+    "record_id": "wiki:emergent-ontology-eo",
+    "find": "[Experience Engines](https://claude.ai/wiki/experience-engines)",
+    "replace": "**Experience Engines**"
+  },
+  {
+    "type": "edit",
+    "record_id": "wiki:influences-and-lineage",
+    "find": "[Experience Engines](https://claude.ai/wiki/experience-engines)",
+    "replace": "**Experience Engines**"
+  },
+  {
+    "type": "edit",
+    "record_id": "wiki:the-triadic-minimum",
+    "find": "[Experience Engines](https://claude.ai/wiki/experience-engines)",
+    "replace": "**Experience Engines**"
+  },
+  {
+    "type": "edit",
+    "record_id": "wiki:the-three-triads",
+    "find": "[Experience Engines](https://claude.ai/wiki/experience-engines)",
+    "replace": "**Experience Engines**"
+  },
+  {
+    "type": "edit",
+    "record_id": "wiki:ground-figure-pattern",
+    "find": "[Experience Engines](https://claude.ai/wiki/experience-engines)",
+    "replace": "**Experience Engines**"
+  },
+  {
+    "type": "edit",
+    "record_id": "wiki:the-nine-operators",
+    "find": "[Experience Engines](https://claude.ai/wiki/experience-engines)",
+    "replace": "**Experience Engines**"
+  },
+  {
+    "type": "edit",
+    "record_id": "wiki:the-integral-lineage",
+    "find": "[Experience Engines](https://claude.ai/wiki/experience-engines)",
+    "replace": "**Experience Engines**"
+  },
+  {
+    "type": "edit",
+    "record_id": "wiki:eo-notation",
+    "find": "[Experience Engines](https://claude.ai/wiki/experience-engines)",
+    "replace": "**Experience Engines**"
+  },
+  {
+    "type": "edit",
+    "record_id": "wiki:eo-on-platonic-forms",
+    "find": "[Experience Engines](https://claude.ai/wiki/experience-engines)",
+    "replace": "**Experience Engines**"
+  },
+  {
+    "type": "edit",
+    "record_id": "wiki:the-eo-phase-space-cube",
+    "find": "[Experience Engines](https://claude.ai/wiki/experience-engines)",
+    "replace": "**Experience Engines**"
+  },
+  {
+    "type": "edit",
+    "record_id": "wiki:the-27-phase-posts",
+    "find": "[Experience Engines](https://claude.ai/wiki/experience-engines)",
+    "replace": "**Experience Engines**"
+  },
+  {
+    "type": "edit",
+    "record_id": "wiki:eo-event-streaming",
+    "find": "[Experience Engines](https://claude.ai/wiki/experience-engines)",
+    "replace": "**Experience Engines**"
+  },
+  {
+    "type": "edit",
+    "record_id": "wiki:nul",
+    "find": "[Experience Engines](https://claude.ai/wiki/experience-engines)",
+    "replace": "**Experience Engines**"
+  },
+  {
+    "type": "edit",
+    "record_id": "wiki:operator-naming-in-emergent-ontology",
+    "find": "[Experience Engines](https://claude.ai/wiki/experience-engines)",
+    "replace": "**Experience Engines**"
+  },
+  {
+    "type": "edit",
+    "record_id": "wiki:bivalent-compression-and-dimensional-poverty",
+    "find": "[Experience Engines](https://claude.ai/wiki/experience-engines)",
+    "replace": "**Experience Engines**"
+  },
+  {
+    "type": "edit",
+    "record_id": "wiki:rec",
+    "find": "[Experience Engines](https://claude.ai/wiki/experience-engines)",
+    "replace": "**Experience Engines**"
+  },
+  {
+    "type": "edit",
+    "record_id": "document:eo-handbook",
+    "find": "[Experience Engines](https://claude.ai/wiki/experience-engines)",
+    "replace": "**Experience Engines**"
+  },
+  {
+    "type": "edit",
+    "record_id": "wiki:emergent-ontology-eo",
+    "find": "[Influences and Lineage](https://claude.ai/wiki/influences)",
+    "replace": "**Influences and Lineage**"
+  },
+  {
+    "type": "edit",
+    "record_id": "wiki:influences-and-lineage",
+    "find": "[Influences and Lineage](https://claude.ai/wiki/influences)",
+    "replace": "**Influences and Lineage**"
+  },
+  {
+    "type": "edit",
+    "record_id": "wiki:the-triadic-minimum",
+    "find": "[Influences and Lineage](https://claude.ai/wiki/influences)",
+    "replace": "**Influences and Lineage**"
+  },
+  {
+    "type": "edit",
+    "record_id": "wiki:the-three-triads",
+    "find": "[Influences and Lineage](https://claude.ai/wiki/influences)",
+    "replace": "**Influences and Lineage**"
+  },
+  {
+    "type": "edit",
+    "record_id": "wiki:ground-figure-pattern",
+    "find": "[Influences and Lineage](https://claude.ai/wiki/influences)",
+    "replace": "**Influences and Lineage**"
+  },
+  {
+    "type": "edit",
+    "record_id": "wiki:the-nine-operators",
+    "find": "[Influences and Lineage](https://claude.ai/wiki/influences)",
+    "replace": "**Influences and Lineage**"
+  },
+  {
+    "type": "edit",
+    "record_id": "wiki:the-integral-lineage",
+    "find": "[Influences and Lineage](https://claude.ai/wiki/influences)",
+    "replace": "**Influences and Lineage**"
+  },
+  {
+    "type": "edit",
+    "record_id": "wiki:eo-notation",
+    "find": "[Influences and Lineage](https://claude.ai/wiki/influences)",
+    "replace": "**Influences and Lineage**"
+  },
+  {
+    "type": "edit",
+    "record_id": "wiki:eo-on-platonic-forms",
+    "find": "[Influences and Lineage](https://claude.ai/wiki/influences)",
+    "replace": "**Influences and Lineage**"
+  },
+  {
+    "type": "edit",
+    "record_id": "wiki:the-eo-phase-space-cube",
+    "find": "[Influences and Lineage](https://claude.ai/wiki/influences)",
+    "replace": "**Influences and Lineage**"
+  },
+  {
+    "type": "edit",
+    "record_id": "wiki:the-27-phase-posts",
+    "find": "[Influences and Lineage](https://claude.ai/wiki/influences)",
+    "replace": "**Influences and Lineage**"
+  },
+  {
+    "type": "edit",
+    "record_id": "wiki:eo-event-streaming",
+    "find": "[Influences and Lineage](https://claude.ai/wiki/influences)",
+    "replace": "**Influences and Lineage**"
+  },
+  {
+    "type": "edit",
+    "record_id": "wiki:nul",
+    "find": "[Influences and Lineage](https://claude.ai/wiki/influences)",
+    "replace": "**Influences and Lineage**"
+  },
+  {
+    "type": "edit",
+    "record_id": "wiki:operator-naming-in-emergent-ontology",
+    "find": "[Influences and Lineage](https://claude.ai/wiki/influences)",
+    "replace": "**Influences and Lineage**"
+  },
+  {
+    "type": "edit",
+    "record_id": "wiki:bivalent-compression-and-dimensional-poverty",
+    "find": "[Influences and Lineage](https://claude.ai/wiki/influences)",
+    "replace": "**Influences and Lineage**"
+  },
+  {
+    "type": "edit",
+    "record_id": "wiki:rec",
+    "find": "[Influences and Lineage](https://claude.ai/wiki/influences)",
+    "replace": "**Influences and Lineage**"
+  },
+  {
+    "type": "edit",
+    "record_id": "document:eo-handbook",
+    "find": "[Influences and Lineage](https://claude.ai/wiki/influences)",
+    "replace": "**Influences and Lineage**"
+  },
+  {
+    "type": "edit",
+    "record_id": "wiki:emergent-ontology-eo",
+    "find": "[Ground / Figure / Pattern](https://claude.ai/wiki/ground-figure-pattern)",
+    "replace": "**Ground / Figure / Pattern**"
+  },
+  {
+    "type": "edit",
+    "record_id": "wiki:influences-and-lineage",
+    "find": "[Ground / Figure / Pattern](https://claude.ai/wiki/ground-figure-pattern)",
+    "replace": "**Ground / Figure / Pattern**"
+  },
+  {
+    "type": "edit",
+    "record_id": "wiki:the-triadic-minimum",
+    "find": "[Ground / Figure / Pattern](https://claude.ai/wiki/ground-figure-pattern)",
+    "replace": "**Ground / Figure / Pattern**"
+  },
+  {
+    "type": "edit",
+    "record_id": "wiki:the-three-triads",
+    "find": "[Ground / Figure / Pattern](https://claude.ai/wiki/ground-figure-pattern)",
+    "replace": "**Ground / Figure / Pattern**"
+  },
+  {
+    "type": "edit",
+    "record_id": "wiki:ground-figure-pattern",
+    "find": "[Ground / Figure / Pattern](https://claude.ai/wiki/ground-figure-pattern)",
+    "replace": "**Ground / Figure / Pattern**"
+  },
+  {
+    "type": "edit",
+    "record_id": "wiki:the-nine-operators",
+    "find": "[Ground / Figure / Pattern](https://claude.ai/wiki/ground-figure-pattern)",
+    "replace": "**Ground / Figure / Pattern**"
+  },
+  {
+    "type": "edit",
+    "record_id": "wiki:the-integral-lineage",
+    "find": "[Ground / Figure / Pattern](https://claude.ai/wiki/ground-figure-pattern)",
+    "replace": "**Ground / Figure / Pattern**"
+  },
+  {
+    "type": "edit",
+    "record_id": "wiki:eo-notation",
+    "find": "[Ground / Figure / Pattern](https://claude.ai/wiki/ground-figure-pattern)",
+    "replace": "**Ground / Figure / Pattern**"
+  },
+  {
+    "type": "edit",
+    "record_id": "wiki:eo-on-platonic-forms",
+    "find": "[Ground / Figure / Pattern](https://claude.ai/wiki/ground-figure-pattern)",
+    "replace": "**Ground / Figure / Pattern**"
+  },
+  {
+    "type": "edit",
+    "record_id": "wiki:the-eo-phase-space-cube",
+    "find": "[Ground / Figure / Pattern](https://claude.ai/wiki/ground-figure-pattern)",
+    "replace": "**Ground / Figure / Pattern**"
+  },
+  {
+    "type": "edit",
+    "record_id": "wiki:the-27-phase-posts",
+    "find": "[Ground / Figure / Pattern](https://claude.ai/wiki/ground-figure-pattern)",
+    "replace": "**Ground / Figure / Pattern**"
+  },
+  {
+    "type": "edit",
+    "record_id": "wiki:eo-event-streaming",
+    "find": "[Ground / Figure / Pattern](https://claude.ai/wiki/ground-figure-pattern)",
+    "replace": "**Ground / Figure / Pattern**"
+  },
+  {
+    "type": "edit",
+    "record_id": "wiki:nul",
+    "find": "[Ground / Figure / Pattern](https://claude.ai/wiki/ground-figure-pattern)",
+    "replace": "**Ground / Figure / Pattern**"
+  },
+  {
+    "type": "edit",
+    "record_id": "wiki:operator-naming-in-emergent-ontology",
+    "find": "[Ground / Figure / Pattern](https://claude.ai/wiki/ground-figure-pattern)",
+    "replace": "**Ground / Figure / Pattern**"
+  },
+  {
+    "type": "edit",
+    "record_id": "wiki:bivalent-compression-and-dimensional-poverty",
+    "find": "[Ground / Figure / Pattern](https://claude.ai/wiki/ground-figure-pattern)",
+    "replace": "**Ground / Figure / Pattern**"
+  },
+  {
+    "type": "edit",
+    "record_id": "wiki:rec",
+    "find": "[Ground / Figure / Pattern](https://claude.ai/wiki/ground-figure-pattern)",
+    "replace": "**Ground / Figure / Pattern**"
+  },
+  {
+    "type": "edit",
+    "record_id": "document:eo-handbook",
+    "find": "[Ground / Figure / Pattern](https://claude.ai/wiki/ground-figure-pattern)",
+    "replace": "**Ground / Figure / Pattern**"
+  },
+  {
+    "type": "edit",
+    "record_id": "wiki:emergent-ontology-eo",
     "find": "**Dependency proof**: Intra-triad dependencies are proven within each axis",
     "replace": "**Dependency argument**: Intra-triad dependencies are established within each axis"
   },
   {
     "type": "edit",
-    "comment": "B-02",
+    "record_id": "wiki:the-three-triads",
     "find": "In the formal proof, this is supported computationally — functional dependency growth is identical regardless of the internal ordering of operators within a triad. All six permutations produce the same FD-closure.",
     "replace": "In the dependency argument, this is supported computationally — functional dependency growth is identical regardless of the internal ordering of operators within a triad. All six permutations produce the same FD-closure."
   },
   {
     "type": "edit",
-    "comment": "B-10",
+    "record_id": "wiki:the-nine-operators",
     "find": "- **Formal Proof** — the relational calculus argument",
     "replace": "- **Dependency Argument** — the relational calculus derivation"
   },
   {
     "type": "edit",
-    "comment": "B-11",
+    "record_id": "wiki:the-integral-lineage",
     "find": "EO is built from combinatorial structure and formal proof — nine operators derived from a 3×3 lattice, with their dependency ordering verified by [relational calculus](https://en.wikipedia.org/wiki/Tuple_relational_calculus) and [exhaustive computation](https://en.wikipedia.org/wiki/Model_checking). Its evidence is structural: the same ordering emerges from three independent lines of argument (formal proof, computational verification, and relational algebra).",
     "replace": "EO is built from combinatorial structure and structural derivation — nine operators derived from a 3×3 lattice, with their dependency ordering supported by [relational calculus](https://en.wikipedia.org/wiki/Tuple_relational_calculus) and [exhaustive computation](https://en.wikipedia.org/wiki/Model_checking). Its evidence is structural: a computational argument using relational algebra as the formal witness."
   },
   {
     "type": "edit",
-    "comment": "B-12",
+    "record_id": "wiki:influences-and-lineage",
     "find": "- **The formal proof.** Exhaustive computational verification of the helix ordering against Codd's relational algebra.",
     "replace": "- **The dependency argument.** Exhaustive computational verification of the helix ordering against Codd's relational algebra."
   },
   {
     "type": "edit",
-    "comment": "B-13",
+    "record_id": "wiki:eo-event-streaming",
     "find": "- **EO Formal Proof (Dependency Helix)** — Mathematical and computational derivation of the helix ordering",
     "replace": "- **EO Dependency Argument (Helix Ordering)** — Structural derivation of the helix ordering"
   },
   {
     "type": "edit",
-    "comment": "B-14",
+    "record_id": "wiki:bivalent-compression-and-dimensional-poverty",
     "find": "- **The empty cell at SYN × Ground** contains zero verbs across all languages in the corpus. No attested human language has a verb meaning \"synthesize a condition.\" This absence is treated as data, not sampling artifact.",
     "replace": "- **The empty cell at SYN × Ground** contains zero verbs in English and is empty in 19 of 27 tested languages (19 verbs total across all languages). No attested human language has robust vocabulary for \"synthesizing a condition.\" This absence is treated as data, not sampling artifact."
   },
   {
     "type": "edit",
-    "comment": "B-15",
+    "record_id": "wiki:operator-naming-in-emergent-ontology",
     "find": "---## See Also- [**[The Nine Operators]**](/wiki/the-nine-operators) — full specifications, formal mappings, biological grounding- [**[The Three Faces]**](/wiki/the-three-faces-of-emergent-ontology) — Act, Resolution, and Site projections of the 27-cell cube- [**[The 27 Phaseposts]**](/wiki/the-27-phase-posts) — complete phase-space addressing with phenomenological names- **[Notation Systems]** — practitioner glyphs, Greek letters, three-face notation- **[Cross-Linguistic Findings]** — 27-language verb classification, population data, universal patterns",
     "replace": "---## See Also- **The Nine Operators** — full specifications, formal mappings, biological grounding- **The Three Faces** — Act, Resolution, and Site projections of the 27-cell cube- **The 27 Phaseposts** — complete phase-space addressing with phenomenological names- **Notation Systems** — practitioner glyphs, Greek letters, three-face notation- **Cross-Linguistic Findings** — 27-language verb classification, population data, universal patterns"
   },
   {
     "type": "edit",
-    "comment": "B-16",
+    "record_id": "document:eo-handbook",
     "find": "Everything in this manual is available in more detail across the EO wiki, the Technical Handbook, and the Formal Proof. This document synthesizes them into a single usable reference.",
     "replace": "Everything in this manual is available in more detail across the EO wiki, the Technical Handbook, and the Dependency Argument. This document synthesizes them into a single usable reference."
   },
   {
     "type": "edit",
-    "comment": "B-17",
+    "record_id": "document:eo-handbook",
     "find": "Remaining 107 candidates eliminated under the non-degeneracy criterion.",
     "replace": "Remaining 108 candidates eliminated under the non-degeneracy criterion."
   }
