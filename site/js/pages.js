@@ -93,7 +93,7 @@ export function renderHome(el) {
     { title: 'Wiki', type: 'wiki', entries: wikis, layout: 'grid' },
     { title: 'Blog', type: 'blog', entries: blogs, layout: 'list' },
     { title: 'Experiments', type: 'experiment', entries: exps, layout: 'grid' },
-    { title: 'Documents & Assets', type: 'document', entries: docs, layout: 'list' }
+    { title: 'Documents & Assets', type: 'document', entries: docs, layout: 'grid' }
   ];
   sections.sort(function (a, b) {
     var ta = (a.entries.length > 0 && a.entries[0].updated_at) || '';
