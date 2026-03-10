@@ -42,6 +42,64 @@ function titleLetter(title) {
   return words[0].charAt(0).toUpperCase();
 }
 
+// ── Related pages (auto-link by keyword ↔ slug matching) ────────────────────
+
+var RELATED_STOP = {};
+'the a an and or of to in is it for on by at as be do if no so up we he my not but are was has had its can all may you how why what when from with this that will been have they their them into than then each also more some about which would other could'.split(' ').forEach(function (w) { RELATED_STOP[w] = true; });
+
+function extractKeywords(entry) {
+  var words = {};
+  var raw = (entry.slug || '').split('-')
+    .concat((entry.title || '').toLowerCase().replace(/[^a-z0-9\s]/g, '').split(/\s+/))
+    .concat((entry.tags || []).map(function (t) { return t.toLowerCase(); }));
+  raw.forEach(function (w) {
+    if (w.length >= 3 && !RELATED_STOP[w]) words[w] = true;
+  });
+  return words;
+}
+
+function findRelatedPages(currentEntry, maxResults) {
+  maxResults = maxResults || 5;
+  var keywords = extractKeywords(currentEntry);
+  var idx = getSiteIndex();
+  var candidates = [];
+
+  (idx.entries || []).forEach(function (e) {
+    if (e.content_id === currentEntry.content_id) return;
+    if (e.visibility !== 'public' || e.status === 'archived') return;
+
+    var score = 0;
+    var slugParts = (e.slug || '').split('-');
+    var titleParts = (e.title || '').toLowerCase().replace(/[^a-z0-9\s]/g, '').split(/\s+/);
+    var tags = (e.tags || []).map(function (t) { return t.toLowerCase(); });
+
+    slugParts.concat(titleParts).forEach(function (w) {
+      if (keywords[w]) score += 1;
+    });
+    tags.forEach(function (t) {
+      if (keywords[t]) score += 2;
+    });
+
+    if (score > 0) candidates.push({ entry: e, score: score });
+  });
+
+  candidates.sort(function (a, b) { return b.score - a.score; });
+  return candidates.slice(0, maxResults);
+}
+
+function relatedPagesHtml(currentEntry) {
+  var related = findRelatedPages(currentEntry, 5);
+  if (related.length === 0) return '';
+
+  var h = '<nav class="related-pages"><h2>Related</h2><ul>';
+  related.forEach(function (r) {
+    var e = r.entry;
+    h += '<li><a href="' + contentUrl(e.content_type, e.slug) + '">' + esc(e.title) + '</a></li>';
+  });
+  h += '</ul></nav>';
+  return h;
+}
+
 // ═══════════════════════════════════════════════════════════════════════════
 // Home
 // ═══════════════════════════════════════════════════════════════════════════
@@ -899,6 +957,8 @@ export function renderWiki(el, slug) {
       h += renderRevisionContent(content.current_revision);
       h += '</div>';
 
+      h += relatedPagesHtml(content.meta);
+
       h += '<nav class="post-nav" id="next-wiki-preview"></nav>';
 
       h += revisionHistoryHtml(content);
@@ -1012,6 +1072,8 @@ export function renderBlog(el, slug) {
     h += '<div class="wiki-body">';
     h += renderRevisionContent(content.current_revision);
     h += '</div>';
+
+    h += relatedPagesHtml(content.meta);
 
     h += revisionHistoryHtml(content);
 
@@ -1169,6 +1231,8 @@ export function renderExp(el, slug) {
         h += '<p class="empty-page">No content yet.</p>';
       }
 
+      h += relatedPagesHtml(content.meta);
+
       if (rev) h += revisionHistoryHtml(content);
 
       h += '<div class="content-actions eo-admin-only" hidden>';
@@ -1281,6 +1345,8 @@ export function renderDoc(el, slug) {
       h += '<p class="empty-page">No content yet.</p>';
     }
 
+    h += relatedPagesHtml(content.meta);
+
     if (rev) h += revisionHistoryHtml(content);
 
     h += '<div class="content-actions eo-admin-only" hidden>';
@@ -1325,6 +1391,8 @@ export function renderPage(el, slug) {
       h += renderBlock(block, content);
     });
     h += '</div>';
+
+    h += relatedPagesHtml(content.meta);
 
     h += '<div class="content-actions eo-admin-only" hidden>';
     h += '<a class="btn btn-edit" href="' + BASE + '/admin/#page/' + esc(slug) + '">Edit in Admin</a></div>';
