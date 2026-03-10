@@ -2039,9 +2039,46 @@ function hydrateHtmlWidgets(container) {
     var w = widgets[i];
     var src = w.textContent || '';
     if (src && src !== w.innerHTML) {
-      w.innerHTML = src;
+      // If the widget HTML contains page-level styles (body/html selectors)
+      // that would leak into the parent page, render inside a sandboxed iframe.
+      if (widgetHasPageLevelStyles(src)) {
+        widgetRenderAsIframe(w, src);
+      } else {
+        w.innerHTML = src;
+      }
     }
   }
+}
+
+// Detect whether widget HTML contains page-level styles that would affect the parent document.
+function widgetHasPageLevelStyles(html) {
+  var styleRe = /<style[\s\S]*?>([\s\S]*?)<\/style>/gi;
+  var match;
+  while ((match = styleRe.exec(html)) !== null) {
+    var css = match[1];
+    if (/(?:^|[},;\s])(?:body|html)\s*\{[^}]*(?:overflow\s*:\s*hidden|height\s*:\s*100vh)/i.test(css)) {
+      return true;
+    }
+  }
+  return false;
+}
+
+// Render widget HTML inside a sandboxed iframe, capped at 80vh for internal scrolling.
+function widgetRenderAsIframe(container, html) {
+  container.innerHTML = '';
+  var iframe = document.createElement('iframe');
+  iframe.style.cssText = 'width:100%;border:none;display:block;min-height:60px;max-height:80vh;';
+  iframe.setAttribute('sandbox', 'allow-scripts allow-same-origin');
+  iframe.srcdoc = html;
+  container.appendChild(iframe);
+  iframe.addEventListener('load', function () {
+    try {
+      var doc = iframe.contentDocument || iframe.contentWindow.document;
+      var h = doc.documentElement.scrollHeight || doc.body.scrollHeight;
+      var maxH = window.innerHeight * 0.8;
+      iframe.style.height = (h > maxH ? maxH : h) + 'px';
+    } catch (e) { /* cross-origin fallback */ }
+  });
 }
 
 // Activate <script> tags after innerHTML insertion so embedded JS runs
