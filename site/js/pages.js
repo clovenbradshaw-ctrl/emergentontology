@@ -1109,7 +1109,7 @@ export function renderExp(el, slug) {
       var canvasBody = el.querySelector('.exp-canvas-body');
       if (canvasBody) {
         var iframe = document.createElement('iframe');
-        iframe.style.cssText = 'width:100%;border:none;display:block;min-height:80vh;';
+        iframe.style.cssText = 'width:100%;border:none;display:block;min-height:60px;max-height:80vh;';
         iframe.setAttribute('sandbox', 'allow-scripts allow-same-origin');
         iframe.srcdoc = rev.content;
         canvasBody.appendChild(iframe);
@@ -1117,11 +1117,17 @@ export function renderExp(el, slug) {
           try {
             var doc = iframe.contentDocument || iframe.contentWindow.document;
             var ih = doc.documentElement.scrollHeight || doc.body.scrollHeight;
-            iframe.style.height = ih + 'px';
+            var maxH = window.innerHeight * 0.8;
+            if (ih > maxH) {
+              iframe.style.height = maxH + 'px';
+            } else {
+              iframe.style.height = ih + 'px';
+            }
             if (typeof ResizeObserver !== 'undefined') {
               new ResizeObserver(function () {
                 var newH = doc.documentElement.scrollHeight || doc.body.scrollHeight;
-                iframe.style.height = newH + 'px';
+                var curMax = window.innerHeight * 0.8;
+                iframe.style.height = (newH > curMax ? curMax : newH) + 'px';
               }).observe(doc.body);
             }
           } catch (e) { /* cross-origin fallback */ }

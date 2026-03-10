@@ -336,23 +336,37 @@ function hasPageLevelStyles(html) {
 function renderAsIframe(container, html) {
   container.innerHTML = '';
   var iframe = document.createElement('iframe');
-  iframe.style.cssText = 'width:100%;border:none;display:block;min-height:80vh;';
+  // Cap iframe at 80vh and let it scroll internally instead of expanding
+  // to full content height (wheel events inside iframes don't propagate
+  // to the parent container, so auto-expanding breaks scrolling).
+  iframe.style.cssText = 'width:100%;border:none;display:block;min-height:60px;max-height:80vh;';
   iframe.setAttribute('sandbox', 'allow-scripts allow-same-origin');
   iframe.srcdoc = html;
   container.appendChild(iframe);
 
-  // Auto-resize iframe to its content height
+  // Resize iframe to content, capped at 80vh so it scrolls internally
   iframe.addEventListener('load', function () {
     try {
       var doc = iframe.contentDocument || iframe.contentWindow.document;
       var h = doc.documentElement.scrollHeight || doc.body.scrollHeight;
-      iframe.style.height = h + 'px';
+      var maxH = window.innerHeight * 0.8;
+      if (h > maxH) {
+        iframe.style.height = maxH + 'px';
+        iframe.style.overflowY = 'auto';
+      } else {
+        iframe.style.height = h + 'px';
+      }
 
       // Watch for size changes inside the iframe
       if (typeof ResizeObserver !== 'undefined') {
         var ro = new ResizeObserver(function () {
           var newH = doc.documentElement.scrollHeight || doc.body.scrollHeight;
-          iframe.style.height = newH + 'px';
+          var curMax = window.innerHeight * 0.8;
+          if (newH > curMax) {
+            iframe.style.height = curMax + 'px';
+          } else {
+            iframe.style.height = newH + 'px';
+          }
         });
         ro.observe(doc.body);
       }
