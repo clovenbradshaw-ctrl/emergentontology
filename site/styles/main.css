@@ -1061,6 +1061,42 @@ html[data-eo-auth] .btn-edit { display: inline-block; }
   overflow: hidden;
 }
 
+/* ── Related pages ── */
+.related-pages {
+  margin-top: 2.5rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid var(--border);
+}
+.related-pages h2 {
+  font-size: .85rem;
+  text-transform: uppercase;
+  letter-spacing: .06em;
+  color: var(--text-dim);
+  margin-bottom: .75rem;
+}
+.related-pages ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: .5rem;
+}
+.related-pages li a {
+  display: inline-block;
+  padding: .35rem .75rem;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  font-size: .88rem;
+  color: var(--link);
+  text-decoration: none;
+  transition: border-color .15s, background .15s;
+}
+.related-pages li a:hover {
+  border-color: var(--accent);
+  background: rgba(0,0,0,.03);
+}
+
 /* List card meta row */
 .list-card-meta { display: flex; align-items: center; gap: .75rem; font-size: .82rem; color: var(--text-dim); margin-top: .2rem; flex-wrap: wrap; }
 
