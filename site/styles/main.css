@@ -399,18 +399,12 @@ main { flex: 1; max-width: 860px; margin: 0 auto; padding: 2rem 1.5rem; width: 1
 .block-html {
   margin: 1rem 0;
   position: relative;
-  overflow: auto;
-  max-height: 80vh;
-  -webkit-overflow-scrolling: touch;
 }
 
 /* HTML widget (from TipTap editor) */
 [data-type="html-widget"] {
   margin: 1rem 0;
   position: relative;
-  overflow: auto;
-  max-height: 80vh;
-  -webkit-overflow-scrolling: touch;
 }
 
 /* Wiki */
