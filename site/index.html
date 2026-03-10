@@ -668,14 +668,6 @@
     background: var(--purple-bg); color: var(--purple);
     border: 1px solid var(--purple-border); font-weight: 500;
   }
-  .article-meta-bar {
-    display: flex; align-items: center; gap: 1.25rem;
-    font-size: 0.78rem; color: var(--text-muted);
-    padding: 0.55rem 0; border-top: 1px solid var(--border);
-    border-bottom: 1px solid var(--border);
-  }
-  .article-meta-bar strong { font-weight: 600; color: var(--text-secondary); }
-
   /* ── Print Styles ── */
   @media print {
     .topnav, .site-footer, .reading-progress, .article-toc,
@@ -709,7 +701,7 @@
     .wiki-page { padding: 2rem 0 4rem; }
     .wiki-body h1 { font-size: 1.7rem; }
     .article-header h1 { font-size: 1.8rem; }
-    .revision-info, .article-meta-bar { flex-wrap: wrap; gap: 0.5rem 1rem; }
+    .revision-info { flex-wrap: wrap; gap: 0.5rem 1rem; }
     .footer-inner { flex-direction: column; text-align: center; }
     .article-toc { display: none; }
     .toc-mobile { display: block; }
@@ -1417,13 +1409,6 @@ function renderPage(slug) {
     h += '</div>';
   }
 
-  // Meta bar
-  h += '<div class="article-meta-bar">';
-  if (rev) h += '<span><strong>Edited:</strong> ' + timeAgo(rev.ts) + '</span>';
-  if (revs.length) h += '<span><strong>Revisions:</strong> ' + revs.length + '</span>';
-  if (readTime) h += '<span>' + readTime + '</span>';
-  h += '<span><strong>Status:</strong> ' + esc(meta.status || '\u2014') + '</span>';
-  h += '</div>';
   h += '</div>'; // article-header
 
   // Mobile TOC
@@ -1527,6 +1512,20 @@ function renderPage(slug) {
   // Activate embedded scripts so experiment HTML/JS actually executes
   if (isExperiment) {
     activateScripts(app);
+  }
+
+  // Prevent HTML widgets from trapping page scroll at boundaries
+  var hwContainers = app.querySelectorAll('.block-html, [data-type="html-widget"]');
+  for (var wi = 0; wi < hwContainers.length; wi++) {
+    hwContainers[wi].addEventListener('wheel', function(e) {
+      var el = this;
+      var atTop = el.scrollTop === 0;
+      var atBottom = el.scrollTop + el.clientHeight >= el.scrollHeight - 1;
+      if (el.scrollHeight <= el.clientHeight || (atTop && e.deltaY < 0) || (atBottom && e.deltaY > 0)) {
+        return;
+      }
+      e.stopPropagation();
+    });
   }
 
   // Wire up wiki links
