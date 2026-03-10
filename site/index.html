@@ -1521,6 +1521,9 @@ function renderPage(slug) {
   h += '</div>'; // wiki-page
   app.innerHTML = h;
 
+  // Hydrate HTML widgets so their content renders instead of showing source
+  hydrateHtmlWidgets(app);
+
   // Activate embedded scripts so experiment HTML/JS actually executes
   if (isExperiment) {
     activateScripts(app);
@@ -2026,6 +2029,20 @@ function timeAgo(ts) {
 
 function escAttr(s) {
   return (s || '').replace(/\\/g, '\\\\').replace(/'/g, "\\'");
+}
+
+// Hydrate <div data-type="html-widget"> elements: TipTap serialises HTML widget
+// content as entity-escaped text nodes. After innerHTML assignment the browser
+// decodes the entities into text — this converts them back to rendered HTML.
+function hydrateHtmlWidgets(container) {
+  var widgets = container.querySelectorAll('[data-type="html-widget"]');
+  for (var i = 0; i < widgets.length; i++) {
+    var w = widgets[i];
+    var src = w.textContent || '';
+    if (src && src !== w.innerHTML) {
+      w.innerHTML = src;
+    }
+  }
 }
 
 // Activate <script> tags after innerHTML insertion so embedded JS runs
