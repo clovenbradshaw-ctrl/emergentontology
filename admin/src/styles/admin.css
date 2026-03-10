@@ -1555,6 +1555,72 @@ textarea { resize: vertical; }
   font-weight: 600;
 }
 
+.batch-post-warn {
+  background: rgba(251, 191, 36, .1); border: 1px solid var(--warn);
+  border-radius: var(--radius); padding: .5rem .75rem;
+  font-size: .82rem; color: var(--warn); margin-bottom: .75rem;
+}
+
+.batch-post-group {
+  background: var(--bg2); border: 1px solid var(--border);
+  border-radius: var(--radius); padding: .85rem 1rem; margin-bottom: .75rem;
+}
+.batch-post-group-header {
+  display: flex; align-items: center; gap: .5rem; flex-wrap: wrap;
+  margin-bottom: .5rem;
+}
+.batch-post-group-stats { font-size: .8rem; color: var(--text-dim); }
+
+.batch-post-edit-list {
+  display: flex; flex-direction: column; gap: .25rem; margin-bottom: .5rem;
+}
+.batch-post-edit-item {
+  display: flex; align-items: baseline; gap: .4rem; font-size: .8rem;
+  font-family: var(--font-mono); line-height: 1.4;
+  padding: .2rem .4rem; border-radius: 3px;
+}
+.batch-post-edit-nomatch { opacity: .45; }
+.batch-post-edit-count {
+  min-width: 2rem; text-align: right; color: var(--text-dim);
+  font-size: .72rem; flex-shrink: 0;
+}
+.batch-post-edit-find {
+  color: var(--danger); text-decoration: line-through;
+  word-break: break-all;
+}
+.batch-post-edit-arrow { color: var(--text-dim); flex-shrink: 0; }
+.batch-post-edit-replace { color: var(--success); word-break: break-all; }
+
+.batch-post-diff-details { margin-top: .35rem; }
+.batch-post-diff-details summary {
+  font-size: .75rem; color: var(--text-dim); cursor: pointer; user-select: none;
+}
+.batch-post-diff {
+  margin-top: .25rem; background: var(--code-bg); border-radius: 4px;
+  padding: .5rem; overflow-x: auto; max-height: 400px; overflow-y: auto;
+  font-family: var(--font-mono); font-size: .72rem; line-height: 1.5;
+}
+.batch-post-diff-line { display: flex; gap: .25rem; }
+.batch-post-diff-marker {
+  flex-shrink: 0; width: 1ch; color: var(--text-dim); user-select: none;
+}
+.batch-post-diff-del { background: rgba(248, 113, 113, .12); color: var(--danger); }
+.batch-post-diff-add { background: rgba(74, 222, 128, .12); color: var(--success); }
+.batch-post-diff-same { color: var(--text-dim); }
+
+.batch-post-other-ops { margin-top: 1rem; }
+.batch-post-other-ops h4 { font-size: .9rem; margin-bottom: .5rem; color: var(--text-dim); }
+
+.batch-post-results { margin-top: 1rem; }
+.batch-post-results h3 { font-size: 1rem; margin-bottom: .5rem; }
+.batch-post-result-list { display: flex; flex-direction: column; gap: .35rem; }
+.batch-post-result {
+  display: flex; align-items: center; gap: .5rem; font-size: .85rem;
+  padding: .35rem .5rem; border-radius: 4px;
+}
+.batch-post-result-ok { background: rgba(74, 222, 128, .08); }
+.batch-post-result-err { background: rgba(248, 113, 113, .08); }
+
 .batch-post-progress {
   height: 4px; background: var(--bg3); border-radius: 2px;
   margin-top: .75rem; overflow: hidden;
