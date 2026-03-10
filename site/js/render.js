@@ -336,31 +336,105 @@ function hasPageLevelStyles(html) {
 function renderAsIframe(container, html) {
   container.innerHTML = '';
   var iframe = document.createElement('iframe');
-  // Start at outer viewport height so embedded viewport-relative units resolve properly
-  iframe.style.cssText = 'width:100%;border:none;display:block;height:' + window.innerHeight + 'px;';
+  iframe.style.cssText = 'width:100%;border:none;display:block;height:400px;';
   iframe.setAttribute('sandbox', 'allow-scripts allow-same-origin');
   iframe.srcdoc = html;
   container.appendChild(iframe);
+  autoSizeIframe(iframe);
+}
 
-  // Resize iframe to match its content height so the page scrolls naturally
+// ── Iframe auto-sizing ───────────────────────────────────────────────────────
+
+/**
+ * Auto-size an iframe to its content height.  Handles viewport-relative
+ * content (100vh), dynamically rendered JS content, and ongoing mutations.
+ */
+export function autoSizeIframe(iframe) {
   iframe.addEventListener('load', function () {
     try {
       var doc = iframe.contentDocument || iframe.contentWindow.document;
-      var h = doc.documentElement.scrollHeight || doc.body.scrollHeight;
-      iframe.style.height = Math.max(h, window.innerHeight) + 'px';
-
-      // Watch for size changes inside the iframe
-      if (typeof ResizeObserver !== 'undefined') {
-        var ro = new ResizeObserver(function () {
-          var newH = doc.documentElement.scrollHeight || doc.body.scrollHeight;
-          iframe.style.height = Math.max(newH, window.innerHeight) + 'px';
-        });
-        ro.observe(doc.body);
-      }
+      resizeToContent(iframe, doc);
+      scheduleDelayedResizes(iframe, doc);
+      observeContentChanges(iframe, doc);
     } catch (e) {
-      // cross-origin fallback — keep initial height
+      // cross-origin — keep whatever height is set
     }
   });
+}
+
+/**
+ * Measure the iframe's true content height using dual-measurement to break
+ * the circular dependency when content uses viewport-relative units.
+ */
+function resizeToContent(iframe, doc) {
+  // Measure at two different iframe heights to detect viewport-locked content
+  iframe.style.height = '10000px';
+  void doc.documentElement.offsetHeight; // force reflow
+
+  var h1 = Math.max(
+    doc.documentElement.scrollHeight,
+    doc.body ? doc.body.scrollHeight : 0
+  );
+
+  iframe.style.height = '5000px';
+  void doc.documentElement.offsetHeight; // force reflow
+
+  var h2 = Math.max(
+    doc.documentElement.scrollHeight,
+    doc.body ? doc.body.scrollHeight : 0
+  );
+
+  var contentHeight;
+  if (h1 === 10000 && h2 === 5000) {
+    // Content is purely viewport-locked (e.g. height:100vh with no overflow).
+    // Use the outer viewport height as the intended display size.
+    contentHeight = window.innerHeight;
+  } else if (h1 === h2) {
+    // Content has a fixed height independent of the viewport — use it directly.
+    contentHeight = h1;
+  } else {
+    // Mixed: some viewport units plus real content. Use the smaller value
+    // as the better approximation of actual content extent.
+    contentHeight = Math.min(h1, h2);
+  }
+
+  iframe.style.height = Math.max(contentHeight, 60) + 'px';
+}
+
+function scheduleDelayedResizes(iframe, doc) {
+  var delays = [100, 300, 1000, 3000];
+  for (var i = 0; i < delays.length; i++) {
+    (function (ms) {
+      setTimeout(function () {
+        try { resizeToContent(iframe, doc); } catch (e) { /* iframe may be gone */ }
+      }, ms);
+    })(delays[i]);
+  }
+}
+
+function observeContentChanges(iframe, doc) {
+  var pending = null;
+  function debouncedResize() {
+    if (pending) return;
+    pending = requestAnimationFrame(function () {
+      pending = null;
+      try { resizeToContent(iframe, doc); } catch (e) { /* cross-origin or gone */ }
+    });
+  }
+
+  if (typeof ResizeObserver !== 'undefined') {
+    var ro = new ResizeObserver(debouncedResize);
+    if (doc.body) ro.observe(doc.body);
+    ro.observe(doc.documentElement);
+  }
+
+  if (typeof MutationObserver !== 'undefined' && doc.body) {
+    var mo = new MutationObserver(debouncedResize);
+    mo.observe(doc.body, {
+      childList: true, subtree: true,
+      attributes: true, attributeFilter: ['style', 'class']
+    });
+  }
 }
 
 // ── Script activation (for live HTML/JS experiments) ─────────────────────────

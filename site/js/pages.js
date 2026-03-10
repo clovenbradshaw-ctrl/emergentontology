@@ -12,7 +12,7 @@ import { contentUrl } from './router.js';
 import {
   esc, md, setBreadcrumbs, setTitle, renderBlock,
   revisionHistoryHtml, renderRevisionContent, revealAdmin,
-  hydrateHtmlWidgets, activateScripts, timeAgo
+  hydrateHtmlWidgets, activateScripts, timeAgo, autoSizeIframe
 } from './render.js';
 
 // ── Sort helper ──────────────────────────────────────────────────────────────
@@ -1109,26 +1109,11 @@ export function renderExp(el, slug) {
       var canvasBody = el.querySelector('.exp-canvas-body');
       if (canvasBody) {
         var iframe = document.createElement('iframe');
-        // Start at outer viewport height so embedded viewport-relative units
-        // (e.g. height:100vh) resolve to a meaningful size before we measure.
-        iframe.style.cssText = 'width:100%;border:none;display:block;height:' + window.innerHeight + 'px;';
+        iframe.style.cssText = 'width:100%;border:none;display:block;height:400px;';
         iframe.setAttribute('sandbox', 'allow-scripts allow-same-origin');
         iframe.srcdoc = rev.content;
         canvasBody.appendChild(iframe);
-        iframe.addEventListener('load', function () {
-          try {
-            var doc = iframe.contentDocument || iframe.contentWindow.document;
-            var ih = doc.documentElement.scrollHeight || doc.body.scrollHeight;
-            // Use the larger of content height or outer viewport height
-            iframe.style.height = Math.max(ih, window.innerHeight) + 'px';
-            if (typeof ResizeObserver !== 'undefined') {
-              new ResizeObserver(function () {
-                var newH = doc.documentElement.scrollHeight || doc.body.scrollHeight;
-                iframe.style.height = Math.max(newH, window.innerHeight) + 'px';
-              }).observe(doc.body);
-            }
-          } catch (e) { /* cross-origin fallback */ }
-        });
+        autoSizeIframe(iframe);
       }
     } else {
       // ── Standard mode: article chrome with entries ──
