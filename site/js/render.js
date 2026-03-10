@@ -336,7 +336,8 @@ function hasPageLevelStyles(html) {
 function renderAsIframe(container, html) {
   container.innerHTML = '';
   var iframe = document.createElement('iframe');
-  iframe.style.cssText = 'width:100%;border:none;display:block;min-height:60px;';
+  // Start at outer viewport height so embedded viewport-relative units resolve properly
+  iframe.style.cssText = 'width:100%;border:none;display:block;height:' + window.innerHeight + 'px;';
   iframe.setAttribute('sandbox', 'allow-scripts allow-same-origin');
   iframe.srcdoc = html;
   container.appendChild(iframe);
@@ -346,18 +347,18 @@ function renderAsIframe(container, html) {
     try {
       var doc = iframe.contentDocument || iframe.contentWindow.document;
       var h = doc.documentElement.scrollHeight || doc.body.scrollHeight;
-      iframe.style.height = h + 'px';
+      iframe.style.height = Math.max(h, window.innerHeight) + 'px';
 
       // Watch for size changes inside the iframe
       if (typeof ResizeObserver !== 'undefined') {
         var ro = new ResizeObserver(function () {
           var newH = doc.documentElement.scrollHeight || doc.body.scrollHeight;
-          iframe.style.height = newH + 'px';
+          iframe.style.height = Math.max(newH, window.innerHeight) + 'px';
         });
         ro.observe(doc.body);
       }
     } catch (e) {
-      // cross-origin fallback — keep min-height
+      // cross-origin fallback — keep initial height
     }
   });
 }

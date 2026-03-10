@@ -1109,7 +1109,9 @@ export function renderExp(el, slug) {
       var canvasBody = el.querySelector('.exp-canvas-body');
       if (canvasBody) {
         var iframe = document.createElement('iframe');
-        iframe.style.cssText = 'width:100%;border:none;display:block;min-height:60px;';
+        // Start at outer viewport height so embedded viewport-relative units
+        // (e.g. height:100vh) resolve to a meaningful size before we measure.
+        iframe.style.cssText = 'width:100%;border:none;display:block;height:' + window.innerHeight + 'px;';
         iframe.setAttribute('sandbox', 'allow-scripts allow-same-origin');
         iframe.srcdoc = rev.content;
         canvasBody.appendChild(iframe);
@@ -1117,11 +1119,12 @@ export function renderExp(el, slug) {
           try {
             var doc = iframe.contentDocument || iframe.contentWindow.document;
             var ih = doc.documentElement.scrollHeight || doc.body.scrollHeight;
-            iframe.style.height = ih + 'px';
+            // Use the larger of content height or outer viewport height
+            iframe.style.height = Math.max(ih, window.innerHeight) + 'px';
             if (typeof ResizeObserver !== 'undefined') {
               new ResizeObserver(function () {
                 var newH = doc.documentElement.scrollHeight || doc.body.scrollHeight;
-                iframe.style.height = newH + 'px';
+                iframe.style.height = Math.max(newH, window.innerHeight) + 'px';
               }).observe(doc.body);
             }
           } catch (e) { /* cross-origin fallback */ }
