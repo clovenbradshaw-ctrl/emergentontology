@@ -1,7 +1,7 @@
 {
   "hero": {
     "badge": "Emergent Ontology (EO)",
-    "title": "A framework that changes everything\nabout everything that changes\n",
+    "title": "A theory that changes everything\nabout everything that changes.\n",
     "subtitle": "Every language encodes the same nine transformations. Every system implements them. Every experience moves through them.  EO is a universal grammar of change.\n"
   },
   "operators": [
@@ -16,27 +16,27 @@
     },
     {
       "num": 2,
-      "symbol": "⊡",
-      "code": "DES",
-      "greek": "δ",
+      "symbol": "σ",
+      "code": "SIG",
+      "greek": "σ",
       "label": "Designation",
       "color": "#60a5fa",
-      "slug": "des"
+      "slug": "sig"
     },
     {
       "num": 3,
-      "symbol": "△",
+      "symbol": "ι",
       "code": "INS",
-      "greek": "ι",
+      "greek": "α",
       "label": "Instantiation",
       "color": "#4ade80",
       "slug": "ins"
     },
     {
       "num": 4,
-      "symbol": "｜",
+      "symbol": "|",
       "code": "SEG",
-      "greek": "σ",
+      "greek": "κ",
       "label": "Segmentation",
       "color": "#c084fc",
       "slug": "seg"
@@ -45,7 +45,7 @@
       "num": 5,
       "symbol": "⋈",
       "code": "CON",
-      "greek": "κ",
+      "greek": "ε",
       "label": "Connection",
       "color": "#34d399",
       "slug": "con"
@@ -54,7 +54,7 @@
       "num": 6,
       "symbol": "∨",
       "code": "SYN",
-      "greek": "ψ",
+      "greek": "η",
       "label": "Synthesis",
       "color": "#818cf8",
       "slug": "syn"
@@ -70,18 +70,18 @@
     },
     {
       "num": 8,
-      "symbol": "∥",
+      "symbol": "⊕",
       "code": "SUP",
-      "greek": "φ",
+      "greek": "ψ",
       "label": "Superposition",
       "color": "#f472b6",
       "slug": "sup"
     },
     {
       "num": 9,
-      "symbol": "⟳",
+      "symbol": "↬",
       "code": "REC",
-      "greek": "ρ",
+      "greek": "Ω",
       "label": "Recursion",
       "color": "#fb923c",
       "slug": "rec"
@@ -102,6 +102,11 @@
       "enabled": true,
       "max_items": 4,
       "layout": "grid"
+    },
+    "documents": {
+      "enabled": true,
+      "max_items": 6,
+      "layout": "list"
     },
     "pages": {
       "enabled": true,
