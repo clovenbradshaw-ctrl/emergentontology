@@ -12,7 +12,7 @@ import { contentUrl } from './router.js';
 import {
   esc, md, setBreadcrumbs, setTitle, renderBlock,
   revisionHistoryHtml, renderRevisionContent, revealAdmin,
-  hydrateHtmlWidgets, activateScripts, timeAgo
+  hydrateHtmlWidgets, activateScripts, timeAgo, autoSizeIframe
 } from './render.js';
 
 // ── Sort helper ──────────────────────────────────────────────────────────────
@@ -1176,17 +1176,7 @@ export function renderExp(el, slug) {
         iframe.srcdoc = rev.content;
         canvasBody.appendChild(iframe);
         iframe.addEventListener('load', function () {
-          try {
-            var doc = iframe.contentDocument || iframe.contentWindow.document;
-            var ih = doc.documentElement.scrollHeight || doc.body.scrollHeight;
-            iframe.style.height = ih + 'px';
-            if (typeof ResizeObserver !== 'undefined') {
-              new ResizeObserver(function () {
-                var newH = doc.documentElement.scrollHeight || doc.body.scrollHeight;
-                iframe.style.height = newH + 'px';
-              }).observe(doc.body);
-            }
-          } catch (e) { /* cross-origin fallback */ }
+          autoSizeIframe(iframe);
         });
       }
     } else {
