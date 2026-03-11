@@ -115,5 +115,23 @@
     "tags": {
       "enabled": true
     }
-  }
+  },
+  "concepts": [
+    {
+      "label": "Relational Configuration",
+      "brief": "Phenomena are patterns of relation, not substances with properties"
+    },
+    {
+      "label": "Nine Universal Operators",
+      "brief": "INS \u00b7 NUL \u00b7 SIG \u00b7 CON \u00b7 TRN \u00b7 PHS \u00b7 SCL \u00b7 BND \u00b7 RES"
+    },
+    {
+      "label": "Semantic Disclosure",
+      "brief": "Meaning emerges through structured revelation, not static reference"
+    },
+    {
+      "label": "Activity Streams",
+      "brief": "All change is expressible as compositions of universal operators"
+    }
+  ]
 }

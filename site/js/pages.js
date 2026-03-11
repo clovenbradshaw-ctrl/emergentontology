@@ -117,77 +117,111 @@ export function renderHome(el) {
   var blogs = sortByUpdated(publicEntries.filter(function (e) { return e.content_type === 'blog'; }));
   var exps  = sortByUpdated(publicEntries.filter(function (e) { return e.content_type === 'experiment'; }));
   var docs  = sortByUpdated(publicEntries.filter(function (e) { return e.content_type === 'document'; }));
-  var pages = sortByUpdated(publicEntries.filter(function (e) { return e.content_type === 'page'; }));
 
-  var allTags = [];
-  var tagSet = {};
-  publicEntries.forEach(function (e) {
-    (e.tags || []).forEach(function (t) {
-      if (t && !tagSet[t]) { tagSet[t] = true; allTags.push(t); }
-    });
-  });
-  allTags.sort();
-
+  var home = getHomeConfig();
   var h = '';
 
-  // Hero — read from home.yaml config (generated/home.json), fall back to defaults
-  var home = getHomeConfig();
+  // ── Hero ──
   var heroTitle = (home && home.hero && home.hero.title)
     ? esc(home.hero.title.replace(/\n+$/, '')).replace(/\n/g, '<br>')
     : 'A theory that changes everything<br>about everything that changes.';
   var heroBadge = (home && home.hero && home.hero.badge)
     ? esc(home.hero.badge)
     : 'Emergent Ontology (EO)';
+  var heroSub = (home && home.hero && home.hero.subtitle)
+    ? esc(home.hero.subtitle.replace(/\n+$/, '').replace(/\s+/g, ' '))
+    : '';
+
   h += '<section class="home-hero">';
   h += '<div class="hero-badge">' + heroBadge + '</div>';
   h += '<h1 class="hero-title">' + heroTitle + '</h1>';
+  if (heroSub) {
+    h += '<p class="hero-sub">' + heroSub + '</p>';
+  }
+  h += '<div class="hero-ctas">';
+  // Find handbook document for CTA
+  var handbook = docs.find(function (d) { return d.slug && d.slug.indexOf('handbook') !== -1; })
+    || docs.find(function (d) { return d.title && d.title.toLowerCase().indexOf('handbook') !== -1; });
+  if (handbook) {
+    h += '<a class="hero-btn hero-btn--primary" href="' + contentUrl('document', handbook.slug) + '">Read the Handbook</a>';
+  }
+  h += '<a class="hero-btn hero-btn--secondary" href="' + BASE + 'wiki/">Browse Wiki</a>';
+  h += '</div>';
   h += '</section>';
 
-  // Two-column layout
-  h += '<div class="home-columns"><div class="home-col-main">';
-
-  // Sort sections by most recently updated entry
-  var sections = [
-    { title: 'Wiki', type: 'wiki', entries: wikis, layout: 'grid' },
-    { title: 'Blog', type: 'blog', entries: blogs, layout: 'list' },
-    { title: 'Experiments', type: 'experiment', entries: exps, layout: 'grid' },
-    { title: 'Documents & Assets', type: 'document', entries: docs, layout: 'grid' }
-  ];
-  sections.sort(function (a, b) {
-    var ta = (a.entries.length > 0 && a.entries[0].updated_at) || '';
-    var tb = (b.entries.length > 0 && b.entries[0].updated_at) || '';
-    if (tb > ta) return 1;
-    if (tb < ta) return -1;
-    return 0;
-  });
-  sections.forEach(function (sec) {
-    if (sec.entries.length === 0) return; // hide empty sections
-    h += sectionHtml(sec.title, sec.type, sec.entries, COLUMN_LIMIT, sec.layout);
-  });
-
-  if (pages.length > 0) {
-    h += '<section class="home-section"><div class="section-header"><h2 class="section-title">Pages</h2></div>';
-    h += '<ul class="content-list">';
-    pages.forEach(function (e) {
-      h += '<li><a href="' + contentUrl('page', e.slug) + '">' + esc(e.title) + '</a></li>';
+  // ── Concepts Row ──
+  var concepts = (home && home.concepts) || [];
+  if (concepts.length > 0) {
+    h += '<div class="concepts-row"><div class="concepts-grid">';
+    concepts.forEach(function (c) {
+      h += '<div class="concept-card">';
+      h += '<div class="concept-label">' + esc(c.label) + '</div>';
+      h += '<div class="concept-brief">' + esc(c.brief) + '</div>';
+      h += '</div>';
     });
-    h += '</ul></section>';
-  }
-
-  h += '</div>'; // home-col-main
-
-  // Sidebar: topics only (cube disabled until ready)
-  if (allTags.length > 0) {
-    h += '<aside class="cube-sidebar" aria-label="Topics">';
-    h += '<div class="sidebar-topics sidebar-tags">';
-    h += '<div class="sidebar-label">Topics</div>';
-    h += '<div class="tag-cloud">';
-    allTags.forEach(function (t) { h += '<span class="tag tag-lg">' + esc(t) + '</span>'; });
     h += '</div></div>';
-    h += '</aside>';
   }
 
-  h += '</div>'; // home-columns
+  // ── Divider ──
+  h += '<hr class="home-divider">';
+
+  // ── Two-column content area ──
+  h += '<div class="home-content-area">';
+
+  // Left: Wiki feed
+  h += '<div>';
+  h += feedSectionHtml('Wiki', 'wiki', wikis, COLUMN_LIMIT);
+  h += '</div>';
+
+  // Right sidebar
+  h += '<div class="home-content-sidebar">';
+
+  // Handbook callout
+  if (handbook) {
+    h += '<a class="handbook-callout" href="' + contentUrl('document', handbook.slug) + '">';
+    h += '<div class="callout-label">Start Here</div>';
+    h += '<div class="callout-title">' + esc(handbook.title) + '</div>';
+    if (handbook.description) {
+      h += '<div class="callout-desc">' + esc(handbook.description) + '</div>';
+    } else {
+      h += '<div class="callout-desc">The comprehensive guide to Emergent Ontology — the best entry point for newcomers.</div>';
+    }
+    h += '<div class="callout-cta">Open Handbook \u2192</div>';
+    h += '</a>';
+  }
+
+  // Experiments feed
+  if (exps.length > 0) {
+    h += feedSectionHtml('Experiments', 'experiment', exps, 4);
+  }
+
+  // Blog (placeholder or feed)
+  if (blogs.length > 0) {
+    h += feedSectionHtml('Blog', 'blog', blogs, 5);
+  } else {
+    h += '<div class="blog-placeholder">';
+    h += '<div class="blog-placeholder-title">Blog</div>';
+    h += '<div class="blog-placeholder-note">No entries published yet.</div>';
+    h += '</div>';
+  }
+
+  // Documents & Assets (excluding handbook which is already shown)
+  var otherDocs = docs.filter(function (d) { return !handbook || d.slug !== handbook.slug; });
+  if (otherDocs.length > 0) {
+    h += feedSectionHtml('Documents', 'document', otherDocs, 4);
+  }
+
+  h += '</div>'; // home-content-sidebar
+  h += '</div>'; // home-content-area
+
+  // ── Footer ──
+  h += '<div class="home-footer">';
+  h += '<span class="home-footer-copy">\u00A9 Emergent Ontology</span>';
+  h += '<div class="home-footer-links">';
+  ['Wiki', 'Blog', 'Experiments', 'Documents'].forEach(function (name) {
+    h += '<a href="' + BASE + name.toLowerCase() + '/">' + name + '</a>';
+  });
+  h += '</div></div>';
 
   el.innerHTML = h;
   return Promise.resolve();
@@ -227,6 +261,55 @@ function sectionHtml(title, type, entries, max, layout) {
     }
   }
   h += '</section>';
+  return h;
+}
+
+// ── Feed-style rendering (redesigned home) ──────────────────────────────────
+
+function feedItemHtml(type, e) {
+  var op = classifyEntry(e);
+  var h = '<a class="feed-item" href="' + contentUrl(type, e.slug) + '">';
+  h += '<span class="feed-avatar" title="' + esc(op.code) + '">eo</span>';
+  h += '<div class="feed-body">';
+  h += '<div class="feed-header">';
+  h += '<span class="feed-title">' + esc(e.title) + '</span>';
+  if (e.tags && e.tags.length) {
+    e.tags.slice(0, 2).forEach(function (t) { h += '<span class="tag">' + esc(t) + '</span>'; });
+  }
+  if (e.updated_at) {
+    h += '<span class="feed-time">' + timeAgo(e.updated_at) + '</span>';
+  }
+  h += '</div>'; // feed-header
+  if (e.description) {
+    h += '<div class="feed-desc">' + esc(e.description) + '</div>';
+  }
+  h += '</div>'; // feed-body
+  h += '</a>';
+  return h;
+}
+
+function feedSectionHtml(title, type, entries, max) {
+  var h = '<div>';
+  h += '<div class="feed-section-header">';
+  h += '<h2 class="feed-section-title">' + esc(title) + '</h2>';
+  if (entries.length > max) {
+    h += '<a class="feed-section-more" href="' + BASE + type + '/">+ ' + (entries.length - max) + ' more</a>';
+  }
+  h += '</div>';
+  h += '<div class="feed-list">';
+  entries.slice(0, max).forEach(function (e) {
+    h += feedItemHtml(type, e);
+  });
+  h += '</div>';
+  if (entries.length > max) {
+    h += '<details class="show-more-wrap"><summary class="show-more-toggle">Show ' + (entries.length - max) + ' more</summary>';
+    h += '<div class="feed-list show-more-items">';
+    entries.slice(max).forEach(function (e) {
+      h += feedItemHtml(type, e);
+    });
+    h += '</div></details>';
+  }
+  h += '</div>';
   return h;
 }
 
