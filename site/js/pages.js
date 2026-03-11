@@ -7,7 +7,7 @@
 
 import { BASE, OPERATORS } from './config.js';
 import { classifyEntry, classifyText } from './classify.js';
-import { getSiteIndex, getHomeConfig, loadContent } from './api.js';
+import { getSiteIndex, getHomeConfig, loadHomeConfig, loadContent } from './api.js';
 import { contentUrl } from './router.js';
 import {
   esc, md, setBreadcrumbs, setTitle, renderBlock,
@@ -110,6 +110,13 @@ export function renderHome(el) {
   setBreadcrumbs([]);
   el.className = 'home';
 
+  // Ensure home config is loaded before rendering (it loads in parallel with index)
+  return loadHomeConfig().then(function () {
+    return _renderHomeInner(el, idx);
+  });
+}
+
+function _renderHomeInner(el, idx) {
   var publicEntries = (idx.entries || []).filter(function (e) {
     return e.visibility === 'public' && e.status !== 'archived';
   });
@@ -224,7 +231,6 @@ export function renderHome(el) {
   h += '</div></div>';
 
   el.innerHTML = h;
-  return Promise.resolve();
 }
 
 function sectionHtml(title, type, entries, max, layout) {
