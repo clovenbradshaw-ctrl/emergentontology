@@ -140,7 +140,7 @@ sections:
     enabled: true
 
 
-# ── Recent Articles Row ─────────────────────────────────────────────
-# The concepts row is now dynamic: it shows the user's most recently
-# viewed articles, falling back to most recently updated content.
-# No static configuration needed — cards are built from site data.
+# ── Pinned Content Row ──────────────────────────────────────────────
+# The top cards row prioritizes pinned content (entries with pinned: true),
+# then falls back to recently viewed articles, then most recently updated.
+# Pin content via the admin UI to feature it on the homepage.
