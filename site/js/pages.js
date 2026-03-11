@@ -178,6 +178,14 @@ function _renderHomeInner(el, idx) {
   h += '</section>';
 
   // ── Recent Articles Row ──
+  // Build a set of concept labels to exclude from the recent articles row.
+  // These are placeholders defined in home.yaml, not real articles.
+  var conceptLabels = {};
+  if (home && home.concepts) {
+    home.concepts.forEach(function (c) {
+      if (c.label) conceptLabels[c.label] = true;
+    });
+  }
   var recentVisits = getRecentVisits();
   // Build recent articles: prefer recently visited, fill with most recently updated
   var recentArticles = [];
@@ -186,7 +194,7 @@ function _renderHomeInner(el, idx) {
     if (recentArticles.length >= MAX_RECENT_VISITS) return;
     // Verify the entry still exists in the index
     var found = publicEntries.find(function (e) { return e.slug === v.slug && e.content_type === v.content_type; });
-    if (found) {
+    if (found && !conceptLabels[found.title]) {
       recentArticles.push(found);
       usedSlugs[found.content_type + ':' + found.slug] = true;
     }
@@ -196,7 +204,7 @@ function _renderHomeInner(el, idx) {
     var allSorted = sortByUpdated(publicEntries);
     for (var ri = 0; ri < allSorted.length && recentArticles.length < MAX_RECENT_VISITS; ri++) {
       var key = allSorted[ri].content_type + ':' + allSorted[ri].slug;
-      if (!usedSlugs[key]) {
+      if (!usedSlugs[key] && !conceptLabels[allSorted[ri].title]) {
         recentArticles.push(allSorted[ri]);
         usedSlugs[key] = true;
       }
