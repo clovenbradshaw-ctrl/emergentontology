@@ -617,11 +617,11 @@
     border-radius: 0 2px 2px 0;
   }
 
-  /* ── Related Articles Sidebar (left) ── */
+  /* ── Related Articles Sidebar (right) ── */
   .article-related-sidebar {
     position: sticky; top: 80px; width: 200px; flex-shrink: 0;
     max-height: calc(100vh - 100px); overflow-y: auto;
-    padding: 0.75rem 1rem 0.75rem 0; font-size: 0.78rem;
+    padding: 0.75rem 0 0.75rem 1rem; border-left: 2px solid var(--border); font-size: 0.78rem;
   }
   .related-sidebar-title {
     font-size: 0.7rem; font-weight: 700; text-transform: uppercase;
@@ -648,7 +648,7 @@
   .article-toc {
     position: sticky; top: 80px; width: 220px; flex-shrink: 0;
     max-height: calc(100vh - 100px); overflow-y: auto;
-    padding: 1rem; border-left: 2px solid var(--border);
+    padding: 1rem; border-right: 2px solid var(--border);
     font-size: 0.78rem;
   }
   .toc-title {
@@ -1653,20 +1653,16 @@ function renderPage(slug) {
     h += '</div>';
   }
 
-  // Article layout with related sidebar (left) and TOC sidebar (right)
+  // Article layout with TOC sidebar (left) and related sidebar (right)
   var related = findRelatedArticles(slug, 8);
   h += '<div class="article-layout">';
 
-  // Related articles sidebar (left)
-  if (related.length > 0) {
-    h += '<nav class="article-related-sidebar">';
-    h += '<div class="related-sidebar-title">Related</div>';
-    h += '<ul class="related-sidebar-list">';
-    for (var ri = 0; ri < related.length; ri++) {
-      var rp = related[ri].page;
-      h += '<li><a onclick="navigate(\'' + escAttr(rp.slug) + '\')">' + esc(rp.title) + '</a></li>';
-    }
-    h += '</ul></nav>';
+  // Sidebar TOC (left, desktop)
+  if (hasToc) {
+    h += '<div class="article-toc" id="articleToc">';
+    h += '<div class="toc-title">On this page</div>';
+    h += renderTocList(tocItems);
+    h += '</div>';
   }
 
   h += '<div class="article-main">';
@@ -1742,12 +1738,16 @@ function renderPage(slug) {
 
   h += '</div>'; // article-main
 
-  // Sidebar TOC (desktop)
-  if (hasToc) {
-    h += '<div class="article-toc" id="articleToc">';
-    h += '<div class="toc-title">On this page</div>';
-    h += renderTocList(tocItems);
-    h += '</div>';
+  // Related articles sidebar (right)
+  if (related.length > 0) {
+    h += '<nav class="article-related-sidebar">';
+    h += '<div class="related-sidebar-title">Related</div>';
+    h += '<ul class="related-sidebar-list">';
+    for (var ri = 0; ri < related.length; ri++) {
+      var rp = related[ri].page;
+      h += '<li><a onclick="navigate(\'' + escAttr(rp.slug) + '\')">' + esc(rp.title) + '</a></li>';
+    }
+    h += '</ul></nav>';
   }
 
   h += '</div>'; // article-layout
