@@ -788,71 +788,264 @@ export function renderWikiList(el) {
   }));
 
   var h = '<section class="home-section"><h1>Wiki</h1>';
-  h += '<div class="wiki-export-bar"><a class="btn btn-outline wiki-export-btn" href="' + BASE + '/wiki/all/">Export Wiki PDF</a></div>';
+
   if (wikis.length > 0) {
-    // Group wikis by tag — entries appear under each of their tags
+    // Collect all unique tags for the filter bar
+    var allTags = [];
+    var tagSet = {};
+    wikis.forEach(function (w) {
+      (w.tags || []).forEach(function (t) {
+        if (!tagSet[t]) { tagSet[t] = true; allTags.push(t); }
+      });
+    });
+    allTags.sort(function (a, b) { return a.localeCompare(b); });
+
+    // ── Toolbar: search + view mode + export ──
+    h += '<div class="wiki-toolbar">';
+    h += '<div class="wiki-search-wrap">';
+    h += '<input type="text" id="wiki-filter-input" class="wiki-filter-input" placeholder="Search articles\u2026" autocomplete="off">';
+    h += '<span class="wiki-search-icon">\uD83D\uDD0D</span>';
+    h += '<span class="wiki-filter-count" id="wiki-filter-count">' + wikis.length + ' articles</span>';
+    h += '</div>';
+    h += '<div class="wiki-toolbar-actions">';
+    h += '<div class="wiki-view-toggle" id="wiki-view-toggle">';
+    h += '<button class="wiki-view-btn active" data-view="list" title="List view">\u2630</button>';
+    h += '<button class="wiki-view-btn" data-view="grid" title="Card view">\u25A6</button>';
+    h += '</div>';
+    h += '<a class="btn btn-outline wiki-export-btn" href="' + BASE + '/wiki/all/">Export PDF</a>';
+    h += '</div>';
+    h += '</div>';
+
+    // ── Tag filter chips ──
+    if (allTags.length > 1) {
+      h += '<div class="wiki-tag-filters" id="wiki-tag-filters">';
+      h += '<button class="wiki-tag-chip active" data-tag="">All</button>';
+      allTags.forEach(function (t) {
+        h += '<button class="wiki-tag-chip" data-tag="' + esc(t) + '">' + esc(t) + '</button>';
+      });
+      h += '</div>';
+    }
+
+    // Group wikis by tag
     var tagGroups = {};
     var tagOrder = [];
     var uncategorized = [];
-
     wikis.forEach(function (w) {
       var tags = w.tags && w.tags.length ? w.tags : [];
       if (tags.length === 0) {
         uncategorized.push(w);
       } else {
         tags.forEach(function (t) {
-          if (!tagGroups[t]) {
-            tagGroups[t] = [];
-            tagOrder.push(t);
-          }
+          if (!tagGroups[t]) { tagGroups[t] = []; tagOrder.push(t); }
           tagGroups[t].push(w);
         });
       }
     });
+    tagOrder.sort(function (a, b) { return a.localeCompare(b); });
 
-    // Sort tags alphabetically (case-insensitive)
-    tagOrder.sort(function (a, b) {
-      return a.localeCompare(b);
-    });
-
-    // Sort pinned items to top, then by updated_at (already sorted)
     function pinnedFirst(items) {
       var pinned = items.filter(function (w) { return w.pinned; });
       var rest = items.filter(function (w) { return !w.pinned; });
       return pinned.concat(rest);
     }
 
+    // ── List view (accordion, default) ──
+    h += '<div class="wiki-view wiki-view-list" id="wiki-view-list">';
     h += '<div class="wiki-accordion">';
     tagOrder.forEach(function (tag) {
       var items = pinnedFirst(tagGroups[tag]);
-      h += '<details class="wiki-accordion-group" open>';
+      h += '<details class="wiki-accordion-group" open data-tag="' + esc(tag) + '">';
       h += '<summary class="wiki-accordion-header"><span class="accordion-chevron"></span> <span class="accordion-tag">' + esc(tag) + '</span> <span class="tag-count">(' + items.length + ')</span></summary>';
       h += '<ul class="wiki-accordion-list">';
-      items.forEach(function (w) {
-        h += wikiListItem(w);
-      });
-      h += '</ul>';
-      h += '</details>';
+      items.forEach(function (w) { h += wikiListItem(w); });
+      h += '</ul></details>';
     });
-
     if (uncategorized.length > 0) {
       var uncatSorted = pinnedFirst(uncategorized);
-      h += '<details class="wiki-accordion-group" open>';
+      h += '<details class="wiki-accordion-group" open data-tag="">';
       h += '<summary class="wiki-accordion-header"><span class="accordion-chevron"></span> <span class="accordion-tag">Other</span> <span class="tag-count">(' + uncatSorted.length + ')</span></summary>';
       h += '<ul class="wiki-accordion-list">';
-      uncatSorted.forEach(function (w) {
-        h += wikiListItem(w);
-      });
-      h += '</ul>';
-      h += '</details>';
+      uncatSorted.forEach(function (w) { h += wikiListItem(w); });
+      h += '</ul></details>';
     }
-    h += '</div>';
+    h += '</div></div>';
+
+    // ── Grid/card view (hidden by default) ──
+    h += '<div class="wiki-view wiki-view-grid" id="wiki-view-grid" hidden>';
+    h += '<div class="wiki-card-grid">';
+    wikis.forEach(function (w) {
+      var op = classifyEntry(w);
+      h += '<a class="wiki-card" href="' + contentUrl('wiki', w.slug) + '" data-slug="' + esc(w.slug) + '" data-tags="' + esc((w.tags || []).join(',')) + '" data-title="' + esc(w.title) + '">';
+      h += '<div class="wiki-card-header">';
+      h += '<span class="wiki-card-op" style="color:' + op.color + '">' + op.symbol + '</span>';
+      h += '<span class="wiki-card-code">' + op.code + '</span>';
+      h += '</div>';
+      h += '<h3 class="wiki-card-title">' + esc(w.title) + '</h3>';
+      if (w.description) {
+        h += '<p class="wiki-card-desc">' + esc(w.description) + '</p>';
+      }
+      if (w.tags && w.tags.length) {
+        h += '<div class="wiki-card-tags">';
+        w.tags.slice(0, 3).forEach(function (t) { h += '<span class="tag">' + esc(t) + '</span>'; });
+        h += '</div>';
+      }
+      if (w.updated_at) {
+        h += '<time class="wiki-card-time">' + timeAgo(w.updated_at) + '</time>';
+      }
+      h += '</a>';
+    });
+    h += '</div></div>';
+
+    // ── No results message ──
+    h += '<div class="wiki-no-results" id="wiki-no-results" hidden>No articles match your search.</div>';
+
   } else {
     h += '<p class="empty-page">No wiki entries yet.</p>';
   }
   h += '</section>';
   el.innerHTML = h;
+
+  // ── Wire up dynamic interactions ──
+  if (wikis.length > 0) {
+    initWikiListDynamics(el, wikis);
+  }
+
   return Promise.resolve();
+}
+
+function initWikiListDynamics(container, wikis) {
+  var filterInput = container.querySelector('#wiki-filter-input');
+  var filterCount = container.querySelector('#wiki-filter-count');
+  var tagFilters = container.querySelector('#wiki-tag-filters');
+  var viewToggle = container.querySelector('#wiki-view-toggle');
+  var listView = container.querySelector('#wiki-view-list');
+  var gridView = container.querySelector('#wiki-view-grid');
+  var noResults = container.querySelector('#wiki-no-results');
+  var activeTag = '';
+  var currentView = 'list';
+
+  // ── View toggle ──
+  if (viewToggle) {
+    viewToggle.addEventListener('click', function (e) {
+      var btn = e.target.closest('.wiki-view-btn');
+      if (!btn) return;
+      var view = btn.getAttribute('data-view');
+      if (view === currentView) return;
+      currentView = view;
+      viewToggle.querySelectorAll('.wiki-view-btn').forEach(function (b) {
+        b.classList.toggle('active', b === btn);
+      });
+      if (view === 'grid') {
+        listView.hidden = true;
+        gridView.hidden = false;
+      } else {
+        listView.hidden = false;
+        gridView.hidden = true;
+      }
+      applyFilters();
+    });
+  }
+
+  // ── Tag filter chips ──
+  if (tagFilters) {
+    tagFilters.addEventListener('click', function (e) {
+      var chip = e.target.closest('.wiki-tag-chip');
+      if (!chip) return;
+      activeTag = chip.getAttribute('data-tag') || '';
+      tagFilters.querySelectorAll('.wiki-tag-chip').forEach(function (c) {
+        c.classList.toggle('active', c === chip);
+      });
+      applyFilters();
+    });
+  }
+
+  // ── Search/filter input ──
+  var filterTimer;
+  if (filterInput) {
+    filterInput.addEventListener('input', function () {
+      clearTimeout(filterTimer);
+      filterTimer = setTimeout(applyFilters, 120);
+    });
+    // Clear on Escape
+    filterInput.addEventListener('keydown', function (e) {
+      if (e.key === 'Escape') {
+        filterInput.value = '';
+        applyFilters();
+      }
+    });
+  }
+
+  function applyFilters() {
+    var query = (filterInput ? filterInput.value : '').toLowerCase().trim();
+    var visibleCount = 0;
+
+    if (currentView === 'list') {
+      // Filter accordion items
+      var groups = listView.querySelectorAll('.wiki-accordion-group');
+      groups.forEach(function (group) {
+        var groupTag = group.getAttribute('data-tag') || '';
+        var tagMatch = !activeTag || groupTag === activeTag || (!groupTag && !activeTag);
+        // When filtering by tag, hide non-matching groups entirely
+        if (activeTag && groupTag !== activeTag) {
+          group.hidden = true;
+          return;
+        }
+        group.hidden = false;
+        var items = group.querySelectorAll('.wiki-accordion-item');
+        var groupVisible = 0;
+        items.forEach(function (item) {
+          var titleEl = item.querySelector('.wiki-item-main a');
+          var title = titleEl ? titleEl.textContent.toLowerCase() : '';
+          var tags = [];
+          item.querySelectorAll('.tag').forEach(function (t) { tags.push(t.textContent.toLowerCase()); });
+          var matchesQuery = !query || title.indexOf(query) !== -1 || tags.some(function (t) { return t.indexOf(query) !== -1; });
+          if (matchesQuery) {
+            item.hidden = false;
+            item.style.opacity = '';
+            groupVisible++;
+            visibleCount++;
+          } else {
+            item.hidden = true;
+          }
+        });
+        // Hide group if no visible items
+        if (groupVisible === 0) {
+          group.hidden = true;
+        } else {
+          group.hidden = false;
+          // Auto-open groups when filtering
+          if (query) group.open = true;
+        }
+      });
+    } else {
+      // Filter grid cards
+      var cards = gridView.querySelectorAll('.wiki-card');
+      cards.forEach(function (card) {
+        var cardTitle = (card.getAttribute('data-title') || '').toLowerCase();
+        var cardTags = (card.getAttribute('data-tags') || '').toLowerCase();
+        var matchesTag = !activeTag || cardTags.indexOf(activeTag.toLowerCase()) !== -1;
+        var matchesQuery = !query || cardTitle.indexOf(query) !== -1 || cardTags.indexOf(query) !== -1;
+        if (matchesTag && matchesQuery) {
+          card.hidden = false;
+          card.style.animation = 'wikiCardFadeIn .25s ease forwards';
+          visibleCount++;
+        } else {
+          card.hidden = true;
+        }
+      });
+    }
+
+    // Update count
+    if (filterCount) {
+      var suffix = query || activeTag ? ' matching' : '';
+      filterCount.textContent = visibleCount + ' article' + (visibleCount !== 1 ? 's' : '') + suffix;
+    }
+
+    // No results message
+    if (noResults) {
+      noResults.hidden = visibleCount > 0;
+    }
+  }
 }
 
 function wikiListItem(w) {
@@ -877,6 +1070,99 @@ function wikiListItem(w) {
   }
   h += '</li>';
   return h;
+}
+
+// ── Dynamic wiki article features ────────────────────────────────────────────
+
+function initWikiArticleDynamics(container) {
+  var wikiBody = container.querySelector('#wiki-body');
+  var progressBar = container.querySelector('#wiki-reading-progress-bar');
+  var tocNav = container.querySelector('#wiki-floating-toc');
+  if (!wikiBody) return;
+
+  // ── Build floating TOC from headings in the article ──
+  var headings = wikiBody.querySelectorAll('h1, h2, h3, h4');
+  if (tocNav && headings.length > 1) {
+    // Ensure headings have IDs for anchor linking
+    headings.forEach(function (h, i) {
+      if (!h.id) {
+        h.id = 'section-' + h.textContent.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '') || ('heading-' + i);
+      }
+    });
+
+    var tocHtml = '<div class="floating-toc-title">On this page</div>';
+    tocHtml += '<ul class="floating-toc-list">';
+    headings.forEach(function (h) {
+      var level = parseInt(h.tagName.charAt(1), 10);
+      if (level > 4) return;
+      tocHtml += '<li class="floating-toc-item toc-depth-' + level + '">';
+      tocHtml += '<a href="#' + h.id + '" class="floating-toc-link" data-target="' + h.id + '">' + esc(h.textContent) + '</a>';
+      tocHtml += '</li>';
+    });
+    tocHtml += '</ul>';
+    tocNav.innerHTML = tocHtml;
+
+    // Smooth scroll on click
+    tocNav.addEventListener('click', function (e) {
+      var link = e.target.closest('.floating-toc-link');
+      if (!link) return;
+      e.preventDefault();
+      var targetId = link.getAttribute('data-target');
+      var target = document.getElementById(targetId);
+      if (target) {
+        target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        history.replaceState(null, '', '#' + targetId);
+      }
+    });
+
+    // Highlight active section on scroll
+    var tocLinks = tocNav.querySelectorAll('.floating-toc-link');
+    var headingsArr = Array.prototype.slice.call(headings);
+    var scrollTimer;
+
+    function updateActiveTocLink() {
+      var scrollTop = window.scrollY || document.documentElement.scrollTop;
+      var active = null;
+      for (var i = headingsArr.length - 1; i >= 0; i--) {
+        if (headingsArr[i].offsetTop <= scrollTop + 120) {
+          active = headingsArr[i];
+          break;
+        }
+      }
+      tocLinks.forEach(function (link) {
+        var isActive = active && link.getAttribute('data-target') === active.id;
+        link.classList.toggle('active', isActive);
+      });
+    }
+
+    window.addEventListener('scroll', function () {
+      if (scrollTimer) cancelAnimationFrame(scrollTimer);
+      scrollTimer = requestAnimationFrame(updateActiveTocLink);
+    }, { passive: true });
+
+    updateActiveTocLink();
+  } else if (tocNav) {
+    tocNav.hidden = true;
+  }
+
+  // ── Reading progress bar ──
+  if (progressBar) {
+    var rafId;
+    function updateProgress() {
+      var docHeight = document.documentElement.scrollHeight - window.innerHeight;
+      if (docHeight <= 0) { progressBar.style.width = '0'; return; }
+      var scrolled = window.scrollY || document.documentElement.scrollTop;
+      var pct = Math.min(100, Math.max(0, (scrolled / docHeight) * 100));
+      progressBar.style.width = pct + '%';
+    }
+
+    window.addEventListener('scroll', function () {
+      if (rafId) cancelAnimationFrame(rafId);
+      rafId = requestAnimationFrame(updateProgress);
+    }, { passive: true });
+
+    updateProgress();
+  }
 }
 
 // ═══════════════════════════════════════════════════════════════════════════
@@ -1033,12 +1319,21 @@ export function renderWiki(el, slug) {
       var op = classifyText(classifyParts.join(' '));
       var related = findRelatedPages(content.meta, 8);
 
-      var h = '<article class="wiki-content" data-eo-op="' + op.code + '" data-eo-target="' + esc(content.content_id) + '">';
+      // ── Reading progress bar ──
+      var h = '<div class="wiki-reading-progress" id="wiki-reading-progress"><div class="wiki-reading-progress-bar" id="wiki-reading-progress-bar"></div></div>';
+
+      h += '<article class="wiki-content" data-eo-op="' + op.code + '" data-eo-target="' + esc(content.content_id) + '">';
       h += '<header class="content-header"><h1>' + esc(title) + '</h1>';
       h += '<code class="eo-op"><span class="eo-sym">' + op.symbol + '</span> <span class="eo-name">' + op.code + '</span>(<span class="eo-target">' + esc(content.content_id) + '</span>)</code>';
+      h += '<div class="content-meta-row">';
       h += '<div class="content-tags">';
       (content.meta.tags || []).forEach(function (t) { h += '<span class="tag">' + esc(t) + '</span>'; });
-      h += '</div></header>';
+      h += '</div>';
+      if (content.meta.updated_at) {
+        h += '<time class="content-updated">' + timeAgo(content.meta.updated_at) + '</time>';
+      }
+      h += '</div>';
+      h += '</header>';
 
       if (content.has_conflict) {
         h += '<div class="conflict-banner"><strong>Conflict detected:</strong> ' + (content.conflict_candidates || []).length + ' concurrent revisions. <a href="#history">View history</a>.</div>';
@@ -1046,7 +1341,10 @@ export function renderWiki(el, slug) {
 
       h += '<div class="article-layout">';
 
-      // Related articles sidebar (left)
+      // ── Left sidebar: floating TOC + related articles ──
+      h += '<aside class="article-sidebar" id="article-sidebar">';
+
+      // Related articles
       if (related.length > 0) {
         h += '<nav class="article-related-sidebar">';
         h += '<div class="related-sidebar-title">Related</div>';
@@ -1058,8 +1356,13 @@ export function renderWiki(el, slug) {
         h += '</ul></nav>';
       }
 
+      // Floating TOC placeholder — populated after render
+      h += '<nav class="wiki-floating-toc" id="wiki-floating-toc"></nav>';
+
+      h += '</aside>';
+
       h += '<div class="article-main">';
-      h += '<div class="wiki-body">';
+      h += '<div class="wiki-body" id="wiki-body">';
       h += renderRevisionContent(content.current_revision);
       h += '</div>';
 
@@ -1076,6 +1379,9 @@ export function renderWiki(el, slug) {
       h += '</article>';
       el.innerHTML = h;
       hydrateHtmlWidgets(el);
+
+      // ── Initialize dynamic article features ──
+      initWikiArticleDynamics(el);
 
       var nextEntry = getNextWikiEntry(slug);
       if (nextEntry) {
