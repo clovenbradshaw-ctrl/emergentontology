@@ -794,6 +794,7 @@ details[open] > .show-more-toggle::before { content: '\25BE '; }
   text-decoration: none;
   color: inherit;
   display: block;
+  cursor: pointer;
   transition: border-color .15s, box-shadow .15s;
 }
 .concept-card--link:hover {

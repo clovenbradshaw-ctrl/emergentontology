@@ -140,15 +140,7 @@ sections:
     enabled: true
 
 
-# ── Concepts Row ────────────────────────────────────────────────────
-# Key concepts displayed as a 4-column grid below the hero.
-
-concepts:
-  - label: "Relational Configuration"
-    brief: "Phenomena are patterns of relation, not substances with properties"
-  - label: "Nine Universal Operators"
-    brief: "INS · NUL · SIG · CON · TRN · PHS · SCL · BND · RES"
-  - label: "Semantic Disclosure"
-    brief: "Meaning emerges through structured revelation, not static reference"
-  - label: "Activity Streams"
-    brief: "All change is expressible as compositions of universal operators"
+# ── Recent Articles Row ─────────────────────────────────────────────
+# The concepts row is now dynamic: it shows the user's most recently
+# viewed articles, falling back to most recently updated content.
+# No static configuration needed — cards are built from site data.
