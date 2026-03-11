@@ -523,6 +523,31 @@
     border-radius: 0 2px 2px 0;
   }
 
+  /* ── Related Articles Sidebar (left) ── */
+  .article-related-sidebar {
+    position: sticky; top: 80px; width: 200px; flex-shrink: 0;
+    max-height: calc(100vh - 100px); overflow-y: auto;
+    padding: 0.75rem 1rem 0.75rem 0; font-size: 0.78rem;
+  }
+  .related-sidebar-title {
+    font-size: 0.7rem; font-weight: 700; text-transform: uppercase;
+    letter-spacing: 0.08em; color: var(--text-faint); margin-bottom: 0.75rem;
+  }
+  .related-sidebar-list { list-style: none; display: flex; flex-direction: column; gap: 0.35rem; }
+  .related-sidebar-list li a {
+    color: var(--text-muted); text-decoration: none; display: block;
+    padding: 0.3rem 0.5rem; border-radius: 4px; line-height: 1.35;
+    transition: color 0.15s, background 0.15s;
+    cursor: pointer;
+  }
+  .related-sidebar-list li a:hover {
+    color: var(--purple); background: var(--purple-bg);
+  }
+  .related-sidebar-list li .related-type {
+    font-size: 0.65rem; color: var(--text-faint); text-transform: uppercase;
+    letter-spacing: 0.04em; margin-top: 0.1rem;
+  }
+
   /* ── Table of Contents ── */
   .article-layout { display: flex; gap: 2.5rem; align-items: flex-start; }
   .article-main { flex: 1; min-width: 0; }
@@ -670,7 +695,7 @@
   }
   /* ── Print Styles ── */
   @media print {
-    .topnav, .site-footer, .reading-progress, .article-toc,
+    .topnav, .site-footer, .reading-progress, .article-toc, .article-related-sidebar,
     .toc-mobile, .next-article, .breadcrumbs, .search-overlay { display: none !important; }
     .page { max-width: 100%; padding: 0; }
     .wiki-page { padding: 1rem 0; }
@@ -704,6 +729,7 @@
     .revision-info { flex-wrap: wrap; gap: 0.5rem 1rem; }
     .footer-inner { flex-direction: column; text-align: center; }
     .article-toc { display: none; }
+    .article-related-sidebar { display: none; }
     .toc-mobile { display: block; }
     .article-layout { display: block; }
     .wiki-filter-bar { flex-direction: column; align-items: stretch; }
@@ -1419,8 +1445,22 @@ function renderPage(slug) {
     h += '</div>';
   }
 
-  // Article layout with sidebar TOC
+  // Article layout with related sidebar (left) and TOC sidebar (right)
+  var related = findRelatedArticles(slug, 8);
   h += '<div class="article-layout">';
+
+  // Related articles sidebar (left)
+  if (related.length > 0) {
+    h += '<nav class="article-related-sidebar">';
+    h += '<div class="related-sidebar-title">Related</div>';
+    h += '<ul class="related-sidebar-list">';
+    for (var ri = 0; ri < related.length; ri++) {
+      var rp = related[ri].page;
+      h += '<li><a onclick="navigate(\'' + escAttr(rp.slug) + '\')">' + esc(rp.title) + '</a></li>';
+    }
+    h += '</ul></nav>';
+  }
+
   h += '<div class="article-main">';
 
   // Body content
@@ -1644,6 +1684,73 @@ function hideReadingProgress() {
     window.removeEventListener('scroll', progressHandler);
     progressHandler = null;
   }
+}
+
+// ── Related Articles (keyword matching) ───────────────────────────────────────
+
+var RELATED_STOP_WORDS = {};
+'the a an and or of to in is it for on by at as be do if no so up we he my not but are was has had its can all may you how why what when from with this that will been have they their them into than then each also more some about which would other could'.split(' ').forEach(function(w) { RELATED_STOP_WORDS[w] = true; });
+
+function extractArticleKeywords(page) {
+  var words = {};
+  var raw = (page.slug || '').split('-')
+    .concat((page.title || '').toLowerCase().replace(/[^a-z0-9\s]/g, '').split(/\s+/))
+    .concat((page.tags || []).map(function(t) { return t.toLowerCase(); }));
+
+  // Also extract keywords from content if available
+  if (page.record && page.record.parsed && page.record.parsed.current_revision && page.record.parsed.current_revision.content) {
+    var text = page.record.parsed.current_revision.content.replace(/<[^>]+>/g, ' ').toLowerCase().replace(/[^a-z0-9\s]/g, '');
+    var contentWords = text.split(/\s+/);
+    // Only use the first ~200 words of content to keep it efficient
+    for (var i = 0; i < Math.min(contentWords.length, 200); i++) {
+      raw.push(contentWords[i]);
+    }
+  }
+
+  for (var i = 0; i < raw.length; i++) {
+    var w = raw[i];
+    if (w.length >= 3 && !RELATED_STOP_WORDS[w]) words[w] = true;
+  }
+  return words;
+}
+
+function findRelatedArticles(currentSlug, maxResults) {
+  maxResults = maxResults || 8;
+  var current = null;
+  for (var i = 0; i < allPages.length; i++) {
+    if (allPages[i].slug === currentSlug) { current = allPages[i]; break; }
+  }
+  if (!current) return [];
+
+  var keywords = extractArticleKeywords(current);
+  var candidates = [];
+
+  for (var i = 0; i < allPages.length; i++) {
+    var p = allPages[i];
+    if (p.slug === currentSlug) continue;
+    if (p.visibility === 'private' || p.status === 'archived') continue;
+    if (!p.hasContent && p.status !== 'published') continue;
+
+    var score = 0;
+    var slugParts = (p.slug || '').split('-');
+    var titleParts = (p.title || '').toLowerCase().replace(/[^a-z0-9\s]/g, '').split(/\s+/);
+    var tags = (p.tags || []).map(function(t) { return t.toLowerCase(); });
+
+    for (var j = 0; j < slugParts.length; j++) {
+      if (keywords[slugParts[j]]) score += 1;
+    }
+    for (var j = 0; j < titleParts.length; j++) {
+      if (keywords[titleParts[j]]) score += 1;
+    }
+    for (var j = 0; j < tags.length; j++) {
+      if (keywords[tags[j]]) score += 2;
+    }
+
+    if (score > 0) candidates.push({ page: p, score: score });
+  }
+
+  candidates.sort(function(a, b) { return b.score - a.score; });
+  return candidates.slice(0, maxResults);
 }
 
 // ── Next Article ──────────────────────────────────────────────────────────────

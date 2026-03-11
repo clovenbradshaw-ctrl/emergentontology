@@ -942,6 +942,8 @@ export function renderWiki(el, slug) {
         classifyParts.push(content.current_revision.content);
       }
       var op = classifyText(classifyParts.join(' '));
+      var related = findRelatedPages(content.meta, 8);
+
       var h = '<article class="wiki-content" data-eo-op="' + op.code + '" data-eo-target="' + esc(content.content_id) + '">';
       h += '<header class="content-header"><h1>' + esc(title) + '</h1>';
       h += '<code class="eo-op"><span class="eo-sym">' + op.symbol + '</span> <span class="eo-name">' + op.code + '</span>(<span class="eo-target">' + esc(content.content_id) + '</span>)</code>';
@@ -953,6 +955,21 @@ export function renderWiki(el, slug) {
         h += '<div class="conflict-banner"><strong>Conflict detected:</strong> ' + (content.conflict_candidates || []).length + ' concurrent revisions. <a href="#history">View history</a>.</div>';
       }
 
+      h += '<div class="article-layout">';
+
+      // Related articles sidebar (left)
+      if (related.length > 0) {
+        h += '<nav class="article-related-sidebar">';
+        h += '<div class="related-sidebar-title">Related</div>';
+        h += '<ul class="related-sidebar-list">';
+        related.forEach(function (r) {
+          var e = r.entry;
+          h += '<li><a href="' + contentUrl(e.content_type, e.slug) + '">' + esc(e.title) + '</a></li>';
+        });
+        h += '</ul></nav>';
+      }
+
+      h += '<div class="article-main">';
       h += '<div class="wiki-body">';
       h += renderRevisionContent(content.current_revision);
       h += '</div>';
@@ -965,6 +982,8 @@ export function renderWiki(el, slug) {
 
       h += '<div class="content-actions eo-admin-only" hidden>';
       h += '<a class="btn btn-edit" href="' + BASE + '/admin/#wiki/' + esc(slug) + '">Edit in Admin</a></div>';
+      h += '</div>'; // article-main
+      h += '</div>'; // article-layout
       h += '</article>';
       el.innerHTML = h;
       hydrateHtmlWidgets(el);
