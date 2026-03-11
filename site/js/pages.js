@@ -28,6 +28,27 @@ function sortByUpdated(entries) {
 }
 
 var COLUMN_LIMIT = 6;
+var RECENT_VISITS_KEY = 'eo-recent-visits';
+var MAX_RECENT_VISITS = 4;
+
+function trackVisit(contentType, slug, title) {
+  try {
+    var visits = JSON.parse(localStorage.getItem(RECENT_VISITS_KEY) || '[]');
+    // Remove existing entry for same slug+type
+    visits = visits.filter(function (v) { return !(v.slug === slug && v.content_type === contentType); });
+    // Add to front
+    visits.unshift({ content_type: contentType, slug: slug, title: title, visited_at: new Date().toISOString() });
+    // Keep only the most recent entries
+    visits = visits.slice(0, 20);
+    localStorage.setItem(RECENT_VISITS_KEY, JSON.stringify(visits));
+  } catch (e) { /* localStorage unavailable */ }
+}
+
+function getRecentVisits() {
+  try {
+    return JSON.parse(localStorage.getItem(RECENT_VISITS_KEY) || '[]');
+  } catch (e) { return []; }
+}
 
 var SKIP_WORDS = ['the', 'a', 'an'];
 
@@ -156,15 +177,47 @@ function _renderHomeInner(el, idx) {
   h += '</div>';
   h += '</section>';
 
-  // ── Concepts Row ──
-  var concepts = (home && home.concepts) || [];
-  if (concepts.length > 0) {
-    h += '<div class="concepts-row"><div class="concepts-grid">';
-    concepts.forEach(function (c) {
-      h += '<div class="concept-card">';
-      h += '<div class="concept-label">' + esc(c.label) + '</div>';
-      h += '<div class="concept-brief">' + esc(c.brief) + '</div>';
+  // ── Recent Articles Row ──
+  var recentVisits = getRecentVisits();
+  // Build recent articles: prefer recently visited, fill with most recently updated
+  var recentArticles = [];
+  var usedSlugs = {};
+  recentVisits.forEach(function (v) {
+    if (recentArticles.length >= MAX_RECENT_VISITS) return;
+    // Verify the entry still exists in the index
+    var found = publicEntries.find(function (e) { return e.slug === v.slug && e.content_type === v.content_type; });
+    if (found) {
+      recentArticles.push(found);
+      usedSlugs[found.content_type + ':' + found.slug] = true;
+    }
+  });
+  // Fill remaining slots with most recently updated articles
+  if (recentArticles.length < MAX_RECENT_VISITS) {
+    var allSorted = sortByUpdated(publicEntries);
+    for (var ri = 0; ri < allSorted.length && recentArticles.length < MAX_RECENT_VISITS; ri++) {
+      var key = allSorted[ri].content_type + ':' + allSorted[ri].slug;
+      if (!usedSlugs[key]) {
+        recentArticles.push(allSorted[ri]);
+        usedSlugs[key] = true;
+      }
+    }
+  }
+  if (recentArticles.length > 0) {
+    var hasVisits = recentVisits.length > 0;
+    h += '<div class="concepts-row"><div class="recent-header">' + (hasVisits ? 'Continue Reading' : 'Recent Articles') + '</div><div class="concepts-grid">';
+    recentArticles.forEach(function (e) {
+      var typeLabel = { wiki: 'Wiki', blog: 'Blog', experiment: 'Experiment', document: 'Document', page: 'Page' };
+      h += '<a class="concept-card concept-card--link" href="' + contentUrl(e.content_type, e.slug) + '">';
+      h += '<div class="concept-label">' + esc(e.title) + '</div>';
+      h += '<div class="concept-brief">';
+      if (e.description) {
+        h += esc(e.description);
+      } else {
+        h += '<span class="concept-type">' + (typeLabel[e.content_type] || e.content_type) + '</span>';
+        if (e.updated_at) h += ' · ' + timeAgo(e.updated_at);
+      }
       h += '</div>';
+      h += '</a>';
     });
     h += '</div></div>';
   }
@@ -1024,6 +1077,7 @@ export function renderWiki(el, slug) {
       var title = content.meta.title;
       setTitle(title);
       setBreadcrumbs([{ label: 'Wiki', href: BASE + '/wiki/' }, { label: title, href: BASE + '/wiki/' + slug + '/' }]);
+      trackVisit('wiki', slug, title);
 
       var classifyParts = [title, title];
       (content.meta.tags || []).forEach(function (t) { classifyParts.push(t); });
@@ -1167,6 +1221,7 @@ export function renderBlog(el, slug) {
     var title = content.meta.title;
     setTitle(title);
     setBreadcrumbs([{ label: 'Blog', href: BASE + '/blog/' }, { label: title, href: BASE + '/blog/' + slug + '/' }]);
+    trackVisit('blog', slug, title);
 
     var h = '<article class="wiki-content" data-eo-op="SIG" data-eo-target="' + esc(content.content_id) + '">';
     h += '<header class="content-header"><h1>' + esc(title) + '</h1>';
@@ -1253,6 +1308,7 @@ export function renderExp(el, slug) {
     var title = content.meta.title;
     setTitle(title);
     setBreadcrumbs([{ label: 'Experiments', href: BASE + '/exp/' }, { label: title, href: BASE + '/exp/' + slug + '/' }]);
+    trackVisit('experiment', slug, title);
 
     var rev = content.current_revision;
     var isHtmlCanvas = rev && rev.content && (rev.format === 'html' || (!rev.format && /^<!doctype\s|^<[a-z][\s\S]*>/i.test((rev.content || '').trim())));
@@ -1405,6 +1461,7 @@ export function renderDoc(el, slug) {
     var title = content.meta.title;
     setTitle(title);
     setBreadcrumbs([{ label: 'Documents', href: BASE + '/doc/' }, { label: title, href: BASE + '/doc/' + slug + '/' }]);
+    trackVisit('document', slug, title);
 
     var assets = (content.assets || []).filter(function (a) { return !a.deleted; });
     var rev = content.current_revision;
@@ -1473,6 +1530,7 @@ export function renderPage(el, slug) {
     var title = content.meta.title;
     setTitle(title);
     setBreadcrumbs([{ label: title, href: BASE + '/page/' + slug + '/' }]);
+    trackVisit('page', slug, title);
 
     var h = '<article data-eo-op="SIG" data-eo-target="' + esc(content.content_id) + '">';
     h += '<header class="content-header"><h1>' + esc(title) + '</h1></header>';
