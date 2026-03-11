@@ -281,11 +281,11 @@ main { flex: 1; max-width: 860px; margin: 0 auto; padding: 2rem 1.5rem; width: 1
 .callout-info { border-color: var(--accent2); }
 .block-quote {
   border-left: 4px solid var(--accent);
-  padding: .75rem 1.25rem;
+  padding: 1.25rem 1.5rem;
   background: var(--bg2);
 }
-.block-quote p { font-style: italic; font-size: 1.1rem; margin: 0; }
-.block-quote cite { display: block; margin-top: .5rem; color: var(--text-dim); font-size: .9rem; }
+.block-quote p { font-weight: 300; font-size: 1.25rem; line-height: 1.6; margin: 0; }
+.block-quote cite { display: block; margin-top: .75rem; color: var(--text-dim); font-size: .9rem; }
 .block-image img { max-width: 100%; border-radius: var(--radius); }
 .block-image figcaption { margin-top: .5rem; color: var(--text-dim); font-size: .85rem; text-align: center; }
 .block-divider { border: none; border-top: 1px solid var(--border); margin: 1rem 0; }
