@@ -187,19 +187,28 @@ function _renderHomeInner(el, idx) {
     });
   }
   var recentVisits = getRecentVisits();
-  // Build recent articles: prefer recently visited, fill with most recently updated
+  // Build recent articles: pinned content first, then recently visited, then most recently updated
   var recentArticles = [];
   var usedSlugs = {};
+  // 1. Pinned content takes top priority (most recently updated pinned items first)
+  var pinnedEntries = sortByUpdated(publicEntries.filter(function (e) { return e.pinned; }));
+  pinnedEntries.forEach(function (e) {
+    if (recentArticles.length >= MAX_RECENT_VISITS) return;
+    if (!conceptLabels[e.title]) {
+      recentArticles.push(e);
+      usedSlugs[e.content_type + ':' + e.slug] = true;
+    }
+  });
+  // 2. Fill with recently visited articles
   recentVisits.forEach(function (v) {
     if (recentArticles.length >= MAX_RECENT_VISITS) return;
-    // Verify the entry still exists in the index
     var found = publicEntries.find(function (e) { return e.slug === v.slug && e.content_type === v.content_type; });
-    if (found && !conceptLabels[found.title]) {
+    if (found && !usedSlugs[found.content_type + ':' + found.slug] && !conceptLabels[found.title]) {
       recentArticles.push(found);
       usedSlugs[found.content_type + ':' + found.slug] = true;
     }
   });
-  // Fill remaining slots with most recently updated articles
+  // 3. Fill remaining slots with most recently updated articles
   if (recentArticles.length < MAX_RECENT_VISITS) {
     var allSorted = sortByUpdated(publicEntries);
     for (var ri = 0; ri < allSorted.length && recentArticles.length < MAX_RECENT_VISITS; ri++) {
@@ -211,8 +220,10 @@ function _renderHomeInner(el, idx) {
     }
   }
   if (recentArticles.length > 0) {
+    var hasPinned = pinnedEntries.length > 0;
     var hasVisits = recentVisits.length > 0;
-    h += '<div class="concepts-row"><div class="recent-header">' + (hasVisits ? 'Continue Reading' : 'Recent Articles') + '</div><div class="concepts-grid">';
+    var rowLabel = hasPinned ? 'Pinned' : (hasVisits ? 'Continue Reading' : 'Recent Articles');
+    h += '<div class="concepts-row"><div class="recent-header">' + rowLabel + '</div><div class="concepts-grid">';
     recentArticles.forEach(function (e) {
       var typeLabel = { wiki: 'Wiki', blog: 'Blog', experiment: 'Experiment', document: 'Document', page: 'Page' };
       h += '<a class="concept-card concept-card--link" href="' + contentUrl(e.content_type, e.slug) + '">';
