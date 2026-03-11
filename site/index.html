@@ -1574,11 +1574,28 @@ function toggleTagGroup(header) {
   group.classList.toggle('collapsed');
 }
 
+function isHtmlCanvas(rev) {
+  if (!rev || !rev.content) return false;
+  var c = rev.content.trim();
+  return rev.format === 'html' || /^<!doctype\s/i.test(c) || /^<html[\s>]/i.test(c);
+}
+
 function extractExcerpt(p) {
+  // Prefer an explicit description when set
+  if (p.description) return p.description.length > 160 ? p.description.slice(0, 160) + '\u2026' : p.description;
   if (!p.record || !p.record.parsed) return '';
   var rev = p.record.parsed.current_revision;
   if (!rev || !rev.content) return '';
-  var text = rev.content.replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim();
+  // Full HTML documents (canvas experiments) have no useful plain-text excerpt
+  if (isHtmlCanvas(rev)) return '';
+  // Strip HTML tags, then <style>/<script> inner text won't survive because
+  // we also strip everything between those tags first
+  var text = rev.content
+    .replace(/<style[\s\S]*?<\/style>/gi, ' ')
+    .replace(/<script[\s\S]*?<\/script>/gi, ' ')
+    .replace(/<[^>]+>/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim();
   // Skip the title if content starts with it
   if (text.indexOf(p.title) === 0) text = text.slice(p.title.length).trim();
   return text.length > 140 ? text.slice(0, 140) + '\u2026' : text;
@@ -1588,7 +1605,12 @@ function estimateReadingTime(p) {
   if (!p.record || !p.record.parsed) return '';
   var rev = p.record.parsed.current_revision;
   if (!rev || !rev.content) return '';
-  var text = rev.content.replace(/<[^>]+>/g, ' ');
+  // Reading time is meaningless for full HTML canvas experiments
+  if (isHtmlCanvas(rev)) return '';
+  var text = rev.content
+    .replace(/<style[\s\S]*?<\/style>/gi, ' ')
+    .replace(/<script[\s\S]*?<\/script>/gi, ' ')
+    .replace(/<[^>]+>/g, ' ');
   var words = text.split(/\s+/).filter(function(w) { return w.length > 0; }).length;
   var mins = Math.max(1, Math.round(words / 200));
   return mins + ' min read';
