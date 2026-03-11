@@ -102,27 +102,121 @@
   .admin-btn.visible { display: flex; }
 
   /* ── Page Container ── */
-  .page { max-width: 980px; margin: 0 auto; padding: 0 2rem; }
+  .page { max-width: 1100px; margin: 0 auto; padding: 0 2rem; }
 
   /* ── Home Hero ── */
-  .hero { text-align: center; padding: 5rem 1rem 3rem; }
+  .hero { text-align: center; padding: 5rem 2rem 3.5rem; max-width: 700px; margin: 0 auto; }
   .hero-badge {
-    display: inline-block; padding: 0.35rem 1.1rem;
+    display: inline-block; padding: 0.3rem 1rem;
     border: 1.5px solid var(--purple-border); border-radius: 50px;
-    font-size: 0.72rem; font-weight: 600; letter-spacing: 0.1em;
+    font-size: 0.75rem; font-weight: 600; letter-spacing: 0.05em;
     text-transform: uppercase; color: var(--purple); background: var(--purple-bg);
-    margin-bottom: 1.5rem;
+    margin-bottom: 1.25rem;
   }
   .hero h1 {
-    font-size: 2.6rem; font-weight: 700; line-height: 1.2;
+    font-size: 2.5rem; font-weight: 700; line-height: 1.2;
     letter-spacing: -0.03em; color: var(--text);
-    max-width: 680px; margin: 0 auto 1.2rem;
+    margin: 0 0 1rem;
   }
   .hero-sub {
     font-size: 1.05rem; color: var(--text-muted);
-    max-width: 520px; margin: 0 auto; line-height: 1.65;
+    max-width: 520px; margin: 0 auto 2rem; line-height: 1.7;
   }
-  /* ── Home Sections ── */
+  .hero-ctas { display: flex; gap: 0.75rem; justify-content: center; margin-top: 1.5rem; }
+  .hero-btn {
+    display: inline-block; padding: 0.65rem 1.5rem; border-radius: 8px;
+    font-size: 0.9rem; font-weight: 600; cursor: pointer;
+    text-decoration: none; transition: opacity 0.15s;
+  }
+  .hero-btn:hover { opacity: 0.85; text-decoration: none; }
+  .hero-btn--primary { background: var(--purple); color: #fff; border: none; }
+  .hero-btn--secondary { background: var(--bg); color: var(--text); border: 1px solid var(--border); }
+
+  /* ── Concepts Row ── */
+  .concepts-row { max-width: 1060px; margin: 0 auto 2.5rem; padding: 0 2rem; }
+  .concepts-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1rem; }
+  .concept-card {
+    background: var(--bg-page); border: 1px solid var(--border);
+    border-radius: 10px; padding: 1.2rem 1.3rem;
+  }
+  .concept-label { font-weight: 600; font-size: 0.9rem; margin-bottom: 0.35rem; }
+  .concept-brief { font-size: 0.82rem; line-height: 1.5; color: var(--text-muted); }
+
+  /* ── Home Divider ── */
+  .home-divider { border: none; border-top: 1px solid var(--border); max-width: 1060px; margin: 0 auto 2rem; }
+
+  /* ── Home Content Area (two-column) ── */
+  .home-content-area {
+    max-width: 1060px; margin: 0 auto; padding: 0 2rem 4rem;
+    display: grid; grid-template-columns: 1fr 360px; gap: 3rem; align-items: start;
+  }
+  .home-content-sidebar { display: flex; flex-direction: column; gap: 2rem; }
+
+  /* ── Feed Items ── */
+  .feed-list { display: flex; flex-direction: column; }
+  .feed-item {
+    display: flex; align-items: flex-start; gap: 0.85rem;
+    padding: 0.85rem 0.5rem; border-radius: 8px; cursor: pointer;
+    color: var(--text); transition: background 0.15s; text-decoration: none;
+  }
+  .feed-item:hover { background: var(--bg-page); text-decoration: none; }
+  .feed-avatar {
+    width: 34px; height: 34px; border-radius: 8px; background: var(--purple);
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0; color: #fff; font-size: 0.55rem; font-weight: 600;
+  }
+  .feed-body { flex: 1; min-width: 0; }
+  .feed-header { display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap; }
+  .feed-title { font-weight: 600; font-size: 0.9rem; }
+  .feed-time { font-size: 0.75rem; color: var(--text-faint); margin-left: auto; }
+  .feed-desc {
+    font-size: 0.84rem; color: var(--text-muted); line-height: 1.5; margin-top: 0.15rem;
+    display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
+  }
+  .feed-tag {
+    font-size: 0.7rem; color: var(--text-faint); background: var(--border-light);
+    padding: 1px 8px; border-radius: 4px; font-weight: 500;
+    border: 1px solid var(--border);
+  }
+
+  /* ── Feed Section Header ── */
+  .feed-section-header {
+    display: flex; justify-content: space-between; align-items: baseline;
+    margin-bottom: 0.25rem; padding: 0 0.5rem;
+  }
+  .feed-section-title { font-size: 1.25rem; font-weight: 700; margin: 0; }
+  .feed-section-more {
+    font-size: 0.82rem; color: var(--purple); text-decoration: none;
+    font-weight: 500; cursor: pointer;
+  }
+  .feed-section-more:hover { text-decoration: underline; }
+
+  /* ── Handbook Callout ── */
+  .handbook-callout {
+    display: block; background: var(--purple); border-radius: 12px;
+    padding: 1.5rem; color: #fff; text-decoration: none; transition: opacity 0.15s;
+  }
+  .handbook-callout:hover { opacity: 0.92; text-decoration: none; }
+  .callout-label {
+    font-size: 0.7rem; font-weight: 600; text-transform: uppercase;
+    letter-spacing: 0.05em; opacity: 0.7; margin-bottom: 0.6rem;
+  }
+  .callout-title { font-size: 1.15rem; font-weight: 700; margin-bottom: 0.4rem; }
+  .callout-desc { font-size: 0.85rem; line-height: 1.55; opacity: 0.85; margin-bottom: 1rem; }
+  .callout-cta {
+    background: rgba(255,255,255,0.2); border-radius: 6px;
+    padding: 0.5rem 1rem; font-size: 0.82rem; font-weight: 600; text-align: center;
+  }
+
+  /* ── Blog Placeholder ── */
+  .blog-placeholder {
+    border: 1px dashed var(--border); border-radius: 10px;
+    padding: 1.5rem; text-align: center;
+  }
+  .blog-placeholder-title { font-size: 0.95rem; font-weight: 600; color: var(--text-faint); margin-bottom: 0.25rem; }
+  .blog-placeholder-note { font-size: 0.82rem; color: var(--text-faint); }
+
+  /* ── Legacy Home Sections (kept for section views) ── */
   .home-sections { display: flex; gap: 2rem; padding-bottom: 5rem; align-items: flex-start; }
   .home-left { flex: 1; min-width: 0; display: grid; grid-template-columns: repeat(3, 1fr); gap: 2rem; }
   .home-right { flex-shrink: 0; padding-top: 0.5rem; margin-left: auto; }
@@ -703,6 +797,10 @@
     .wiki-body { font-size: 11pt; }
   }
 
+  @media (max-width: 900px) {
+    .concepts-grid { grid-template-columns: repeat(2, 1fr); }
+    .home-content-area { grid-template-columns: 1fr; }
+  }
   @media (max-width: 768px) {
     .topnav { padding: 0 1rem; }
     .topnav-links { display: none; }
@@ -710,6 +808,8 @@
     .page { padding: 0 1rem; }
     .hero h1 { font-size: 1.8rem; }
     .hero { padding: 3rem 0.5rem 2rem; }
+    .hero-ctas { flex-direction: column; align-items: center; }
+    .concepts-grid { grid-template-columns: 1fr; }
     .home-sections { flex-direction: column; }
     .home-left { grid-template-columns: 1fr; }
     .home-right { align-self: center; overflow: visible; max-width: 100%; }
@@ -920,6 +1020,7 @@ function buildPageList() {
         status: e.status,
         visibility: e.visibility || 'public',
         tags: e.tags || [],
+        description: e.description || '',
         updated_at: e.updated_at || (rec && rec.parsed && rec.parsed.meta && rec.parsed.meta.updated_at) || '',
         hasContent: !!(rec && rec.parsed && rec.parsed.current_revision && rec.parsed.current_revision.content),
         record: rec
@@ -942,6 +1043,7 @@ function buildPageList() {
         status: meta.status,
         visibility: meta.visibility || 'public',
         tags: meta.tags || [],
+        description: meta.description || '',
         updated_at: meta.updated_at || '',
         hasContent: !!(rec.parsed.current_revision && rec.parsed.current_revision.content),
         record: rec
@@ -1000,6 +1102,47 @@ function setNav(v) {
 
 // ── Home Page ─────────────────────────────────────────────────────────────────
 
+function feedItemHtml(slug, title, tags, updatedAt, description) {
+  var cls = classifyItem(title, tags);
+  var h = '<a class="feed-item" onclick="navigate(\'' + escAttr(slug) + '\')">';
+  h += '<span class="feed-avatar" title="' + esc(cls.code) + '">eo</span>';
+  h += '<div class="feed-body">';
+  h += '<div class="feed-header">';
+  h += '<span class="feed-title">' + esc(title) + '</span>';
+  if (tags && tags.length) {
+    for (var t = 0; t < Math.min(tags.length, 2); t++) {
+      h += '<span class="feed-tag">' + esc(tags[t]) + '</span>';
+    }
+  }
+  if (updatedAt) {
+    h += '<span class="feed-time">' + relativeTime(updatedAt) + '</span>';
+  }
+  h += '</div>';
+  if (description) {
+    h += '<div class="feed-desc">' + esc(description) + '</div>';
+  }
+  h += '</div></a>';
+  return h;
+}
+
+function feedSectionHtml(title, items, max, viewKey) {
+  var h = '<div>';
+  h += '<div class="feed-section-header">';
+  h += '<h2 class="feed-section-title">' + esc(title) + '</h2>';
+  if (items.length > max) {
+    h += '<a class="feed-section-more" onclick="showView(\'' + viewKey + '\')">+ ' + (items.length - max) + ' more</a>';
+  }
+  h += '</div>';
+  h += '<div class="feed-list">';
+  var show = Math.min(items.length, max);
+  for (var i = 0; i < show; i++) {
+    var p = items[i];
+    h += feedItemHtml(p.slug, p.title, p.tags, p.updated_at, p.description || '');
+  }
+  h += '</div></div>';
+  return h;
+}
+
 function renderHome() {
   var app = document.getElementById('app');
   var wiki = filterPages('wiki');
@@ -1014,27 +1157,92 @@ function renderHome() {
   var heroBadge = (homeConfig && homeConfig.hero && homeConfig.hero.badge)
     ? esc(homeConfig.hero.badge)
     : 'Emergent Ontology (EO)';
+  var heroSub = (homeConfig && homeConfig.hero && homeConfig.hero.subtitle)
+    ? esc(homeConfig.hero.subtitle.replace(/\n+$/, '').replace(/\s+/g, ' '))
+    : '';
 
   var h = '<div class="fade-in">';
+
+  // ── Hero ──
   h += '<div class="hero">';
   h += '<div class="hero-badge">' + heroBadge + '</div>';
   h += '<h1>' + heroTitle + '</h1>';
+  if (heroSub) {
+    h += '<p class="hero-sub">' + heroSub + '</p>';
+  }
+  h += '<div class="hero-ctas">';
+  // Find handbook document for CTA
+  var handbook = docs.find(function (d) { return d.slug && d.slug.indexOf('handbook') !== -1; })
+    || docs.find(function (d) { return d.title && d.title.toLowerCase().indexOf('handbook') !== -1; });
+  if (handbook) {
+    h += '<a class="hero-btn hero-btn--primary" onclick="navigate(\'' + escAttr(handbook.slug) + '\')">Read the Handbook</a>';
+  }
+  h += '<a class="hero-btn hero-btn--secondary" onclick="showView(\'wiki\')">Browse Wiki</a>';
   h += '</div>';
-  h += '<div class="home-sections"><div class="home-left">';
+  h += '</div>';
 
-  // Wiki
-  h += renderHomeSection('Wiki', wiki);
-  // Blog
-  h += renderHomeSection('Blog', blogs);
-  // Experiments
-  h += renderHomeSection('Experiments', exps);
-  // Documents & Assets
-  h += renderHomeSection('Documents & Assets', docs);
+  // ── Concepts Row ──
+  var concepts = (homeConfig && homeConfig.concepts) || [];
+  if (concepts.length > 0) {
+    h += '<div class="concepts-row"><div class="concepts-grid">';
+    for (var ci = 0; ci < concepts.length; ci++) {
+      h += '<div class="concept-card">';
+      h += '<div class="concept-label">' + esc(concepts[ci].label) + '</div>';
+      h += '<div class="concept-brief">' + esc(concepts[ci].brief) + '</div>';
+      h += '</div>';
+    }
+    h += '</div></div>';
+  }
 
-  h += '</div>'; // home-left
+  // ── Divider ──
+  h += '<hr class="home-divider">';
 
-  // Phase Cube disabled until ready — just close the layout
-  h += '</div></div>'; // home-sections, fade-in
+  // ── Two-column content area ──
+  h += '<div class="home-content-area">';
+
+  // Left: Wiki feed
+  h += '<div>';
+  h += feedSectionHtml('Wiki', wiki, 6, 'wiki');
+  h += '</div>';
+
+  // Right sidebar
+  h += '<div class="home-content-sidebar">';
+
+  // Handbook callout
+  if (handbook) {
+    h += '<a class="handbook-callout" onclick="navigate(\'' + escAttr(handbook.slug) + '\')">';
+    h += '<div class="callout-label">Start Here</div>';
+    h += '<div class="callout-title">' + esc(handbook.title) + '</div>';
+    h += '<div class="callout-desc">The comprehensive guide to Emergent Ontology \u2014 the best entry point for newcomers.</div>';
+    h += '<div class="callout-cta">Open Handbook \u2192</div>';
+    h += '</a>';
+  }
+
+  // Experiments feed
+  if (exps.length > 0) {
+    h += feedSectionHtml('Experiments', exps, 4, 'experiments');
+  }
+
+  // Blog (placeholder or feed)
+  if (blogs.length > 0) {
+    h += feedSectionHtml('Blog', blogs, 5, 'blog');
+  } else {
+    h += '<div class="blog-placeholder">';
+    h += '<div class="blog-placeholder-title">Blog</div>';
+    h += '<div class="blog-placeholder-note">No entries published yet.</div>';
+    h += '</div>';
+  }
+
+  // Documents & Assets (excluding handbook)
+  var otherDocs = docs.filter(function (d) { return !handbook || d.slug !== handbook.slug; });
+  if (otherDocs.length > 0) {
+    h += feedSectionHtml('Documents', otherDocs, 4, 'documents');
+  }
+
+  h += '</div>'; // home-content-sidebar
+  h += '</div>'; // home-content-area
+  h += '</div>'; // fade-in
+
   app.innerHTML = h;
   document.title = 'Emergent Ontology';
   window.scrollTo(0, 0);
