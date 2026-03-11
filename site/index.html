@@ -1052,6 +1052,27 @@ function buildPageList() {
   }
 }
 
+// ── Recent Visits ─────────────────────────────────────────────────────────────
+
+var RECENT_VISITS_KEY = 'eo-recent-visits';
+var MAX_RECENT_CARDS = 4;
+
+function trackVisit(contentType, slug, title) {
+  try {
+    var visits = JSON.parse(localStorage.getItem(RECENT_VISITS_KEY) || '[]');
+    visits = visits.filter(function (v) { return !(v.slug === slug && v.content_type === contentType); });
+    visits.unshift({ content_type: contentType, slug: slug, title: title, visited_at: new Date().toISOString() });
+    visits = visits.slice(0, 20);
+    localStorage.setItem(RECENT_VISITS_KEY, JSON.stringify(visits));
+  } catch (e) { /* localStorage unavailable */ }
+}
+
+function getRecentVisits() {
+  try {
+    return JSON.parse(localStorage.getItem(RECENT_VISITS_KEY) || '[]');
+  } catch (e) { return []; }
+}
+
 // ── Routing ───────────────────────────────────────────────────────────────────
 
 function navigate(slug) {
@@ -1181,15 +1202,54 @@ function renderHome() {
   h += '</div>';
   h += '</div>';
 
-  // ── Concepts Row ──
-  var concepts = (homeConfig && homeConfig.concepts) || [];
-  if (concepts.length > 0) {
-    h += '<div class="concepts-row"><div class="concepts-grid">';
-    for (var ci = 0; ci < concepts.length; ci++) {
-      h += '<div class="concept-card">';
-      h += '<div class="concept-label">' + esc(concepts[ci].label) + '</div>';
-      h += '<div class="concept-brief">' + esc(concepts[ci].brief) + '</div>';
+  // ── Recent Articles Row ──
+  // Show recently viewed articles; fill remaining slots with most recently updated
+  var recentVisits = getRecentVisits();
+  var recentArticles = [];
+  var usedSlugs = {};
+  var typeLabels = { wiki: 'Wiki', blog: 'Blog', experiment: 'Experiment', document: 'Document', page: 'Page' };
+
+  // First: add recently visited items (verified against allPages)
+  for (var vi = 0; vi < recentVisits.length && recentArticles.length < MAX_RECENT_CARDS; vi++) {
+    var v = recentVisits[vi];
+    var found = allPages.find(function (p) { return p.slug === v.slug && p.content_type === v.content_type; });
+    if (found) {
+      recentArticles.push(found);
+      usedSlugs[found.content_type + ':' + found.slug] = true;
+    }
+  }
+  // Fill remaining slots with most recently updated articles
+  if (recentArticles.length < MAX_RECENT_CARDS) {
+    var allSorted = allPages.filter(function (p) {
+      return (p.status === 'published' || p.hasContent) && p.visibility !== 'private';
+    }).sort(function (a, b) {
+      var ta = a.updated_at || '', tb = b.updated_at || '';
+      return tb > ta ? 1 : tb < ta ? -1 : 0;
+    });
+    for (var ri = 0; ri < allSorted.length && recentArticles.length < MAX_RECENT_CARDS; ri++) {
+      var rKey = allSorted[ri].content_type + ':' + allSorted[ri].slug;
+      if (!usedSlugs[rKey]) {
+        recentArticles.push(allSorted[ri]);
+        usedSlugs[rKey] = true;
+      }
+    }
+  }
+  if (recentArticles.length > 0) {
+    var hasVisits = recentVisits.length > 0;
+    h += '<div class="concepts-row"><div class="recent-header">' + (hasVisits ? 'Continue Reading' : 'Recent Articles') + '</div><div class="concepts-grid">';
+    for (var ai = 0; ai < recentArticles.length; ai++) {
+      var article = recentArticles[ai];
+      h += '<a class="concept-card concept-card--link" onclick="navigate(\'' + escAttr(article.slug) + '\')">';
+      h += '<div class="concept-label">' + esc(article.title) + '</div>';
+      h += '<div class="concept-brief">';
+      if (article.description) {
+        h += esc(article.description);
+      } else {
+        h += '<span class="concept-type">' + (typeLabels[article.content_type] || article.content_type) + '</span>';
+        if (article.updated_at) h += ' \u00b7 ' + timeAgo(article.updated_at);
+      }
       h += '</div>';
+      h += '</a>';
     }
     h += '</div></div>';
   }
@@ -1584,6 +1644,9 @@ function renderPage(slug) {
   var isExperiment = (contentType === 'experiment');
 
   document.title = (meta.title || slug) + ' \u2014 Emergent Ontology';
+
+  // Track this visit for the recent articles row on the homepage
+  trackVisit(contentType, slug, meta.title || slug);
 
   // Build rendered content HTML first (for TOC extraction)
   var bodyHtml = '';
