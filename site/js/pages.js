@@ -7,7 +7,7 @@
 
 import { BASE, OPERATORS } from './config.js';
 import { classifyEntry, classifyText } from './classify.js';
-import { getSiteIndex, getHomeConfig, loadHomeConfig, loadContent } from './api.js';
+import { getSiteIndex, getHomeConfig, loadHomeConfig, loadContent, loadSubstackFeed } from './api.js';
 import { contentUrl } from './router.js';
 import {
   esc, md, setBreadcrumbs, setTitle, renderBlock,
@@ -131,18 +131,18 @@ export function renderHome(el) {
   setBreadcrumbs([]);
   el.className = 'home';
 
-  // Ensure home config is loaded before rendering (it loads in parallel with index)
-  return loadHomeConfig().then(function () {
-    return _renderHomeInner(el, idx);
+  // Load home config and Substack feed in parallel
+  return Promise.all([loadHomeConfig(), loadSubstackFeed()]).then(function (results) {
+    return _renderHomeInner(el, idx, results[1]);
   });
 }
 
-function _renderHomeInner(el, idx) {
+function _renderHomeInner(el, idx, substackPosts) {
   var publicEntries = (idx.entries || []).filter(function (e) {
     return e.visibility === 'public' && e.status !== 'archived';
   });
   var wikis = sortByUpdated(publicEntries.filter(function (e) { return e.content_type === 'wiki'; }));
-  var blogs = sortByUpdated(publicEntries.filter(function (e) { return e.content_type === 'blog'; }));
+  var blogs = substackPosts || [];
   var exps  = sortByUpdated(publicEntries.filter(function (e) { return e.content_type === 'experiment'; }));
   var docs  = sortByUpdated(publicEntries.filter(function (e) { return e.content_type === 'document'; }));
 
@@ -274,9 +274,9 @@ function _renderHomeInner(el, idx) {
     h += feedSectionHtml('Experiments', 'experiment', exps, 4);
   }
 
-  // Blog (placeholder or feed)
+  // Blog (Substack feed)
   if (blogs.length > 0) {
-    h += feedSectionHtml('Blog', 'blog', blogs, 5);
+    h += substackFeedSectionHtml(blogs, 5);
   } else {
     h += '<div class="blog-placeholder">';
     h += '<div class="blog-placeholder-title">Blog</div>';
@@ -388,6 +388,55 @@ function feedSectionHtml(title, type, entries, max) {
     h += '</div></details>';
   }
   h += '</div>';
+  return h;
+}
+
+function substackFeedSectionHtml(posts, max) {
+  var h = '<div>';
+  h += '<div class="feed-section-header">';
+  h += '<h2 class="feed-section-title">Blog</h2>';
+  if (posts.length > max) {
+    h += '<a class="feed-section-more" href="' + BASE + '/blog/">+ ' + (posts.length - max) + ' more</a>';
+  }
+  h += '</div>';
+  h += '<div class="feed-list">';
+  posts.slice(0, max).forEach(function (p) {
+    h += substackFeedItemHtml(p);
+  });
+  h += '</div>';
+  if (posts.length > max) {
+    h += '<details class="show-more-wrap"><summary class="show-more-toggle">Show ' + (posts.length - max) + ' more</summary>';
+    h += '<div class="feed-list show-more-items">';
+    posts.slice(max).forEach(function (p) {
+      h += substackFeedItemHtml(p);
+    });
+    h += '</div></details>';
+  }
+  h += '</div>';
+  return h;
+}
+
+function substackFeedItemHtml(post) {
+  var h = '<a class="feed-item" href="' + BASE + '/blog/' + esc(post.slug) + '/">';
+  h += '<span class="feed-avatar" title="Substack">eo</span>';
+  h += '<div class="feed-body">';
+  h += '<div class="feed-header">';
+  h += '<span class="feed-title">' + esc(post.title) + '</span>';
+  if (post.categories && post.categories.length) {
+    post.categories.slice(0, 2).forEach(function (c) { h += '<span class="tag">' + esc(c) + '</span>'; });
+  }
+  if (post.pubDate) {
+    h += '<span class="feed-time">' + timeAgo(post.pubDate) + '</span>';
+  }
+  h += '</div>'; // feed-header
+  if (post.description) {
+    // Strip HTML tags from description for the summary
+    var plain = post.description.replace(/<[^>]*>/g, '');
+    if (plain.length > 150) plain = plain.substring(0, 150) + '\u2026';
+    h += '<div class="feed-desc">' + esc(plain) + '</div>';
+  }
+  h += '</div>'; // feed-body
+  h += '</a>';
   return h;
 }
 
@@ -1498,36 +1547,39 @@ export function renderWiki(el, slug) {
 // ═══════════════════════════════════════════════════════════════════════════
 
 export function renderBlogList(el) {
-  var idx = getSiteIndex();
   setTitle('Blog');
   setBreadcrumbs([{ label: 'Blog', href: BASE + '/blog/' }]);
   el.className = '';
 
-  var blogs = sortByUpdated((idx.entries || []).filter(function (e) {
-    return e.content_type === 'blog' && e.visibility === 'public' && e.status !== 'archived';
-  }));
+  el.innerHTML = '<section class="home-section"><h1>Blog</h1><p class="loading-msg">Loading posts\u2026</p></section>';
 
-  var h = '<section class="home-section"><h1>Blog</h1>';
-  if (blogs.length > 0) {
-    h += '<div class="content-list-cards">';
-    blogs.slice(0, COLUMN_LIMIT).forEach(function (b) {
-      h += listCardHtml('blog', b);
-    });
-    h += '</div>';
-    if (blogs.length > COLUMN_LIMIT) {
-      h += '<details class="show-more-wrap"><summary class="show-more-toggle">Show ' + (blogs.length - COLUMN_LIMIT) + ' more</summary>';
-      h += '<div class="content-list-cards show-more-items">';
-      blogs.slice(COLUMN_LIMIT).forEach(function (b) {
-        h += listCardHtml('blog', b);
+  return loadSubstackFeed().then(function (posts) {
+    var h = '<section class="home-section"><h1>Blog</h1>';
+    if (posts.length > 0) {
+      h += '<div class="content-list-cards">';
+      posts.forEach(function (p) {
+        h += substackListCardHtml(p);
       });
-      h += '</div></details>';
+      h += '</div>';
+    } else {
+      h += '<p class="empty-page">No blog posts yet.</p>';
     }
-  } else {
-    h += '<p class="empty-page">No blog posts yet.</p>';
+    h += '</section>';
+    el.innerHTML = h;
+  });
+}
+
+function substackListCardHtml(post) {
+  var date = post.pubDate ? timeAgo(post.pubDate) : '';
+  var h = '<a class="list-card" href="' + BASE + '/blog/' + esc(post.slug) + '/">';
+  h += '<span class="list-card-operator" style="color:#60a5fa">' + titleLetter(post.title) + '</span>';
+  h += '<div class="list-card-body"><h3 class="list-card-title">' + esc(post.title) + '</h3>';
+  if (date) {
+    h += '<div class="list-card-meta"><time>' + date + '</time></div>';
   }
-  h += '</section>';
-  el.innerHTML = h;
-  return Promise.resolve();
+  h += '</div>';
+  h += '<div class="list-card-arrow">\u2192</div></a>';
+  return h;
 }
 
 // ═══════════════════════════════════════════════════════════════════════════
@@ -1535,42 +1587,43 @@ export function renderBlogList(el) {
 // ═══════════════════════════════════════════════════════════════════════════
 
 export function renderBlog(el, slug) {
-  var idx = getSiteIndex();
   el.className = '';
-  var entry = (idx.entries || []).find(function (e) { return e.content_type === 'blog' && e.slug === slug; });
-  var contentId = entry ? entry.content_id : 'blog:' + slug;
 
-  return loadContent(contentId).then(function (content) {
-    if (!content || !content.meta || content.meta.status === 'archived') { render404(el); return; }
+  el.innerHTML = '<article class="wiki-content"><p class="loading-msg">Loading\u2026</p></article>';
 
-    var title = content.meta.title;
+  return loadSubstackFeed().then(function (posts) {
+    var post = posts.find(function (p) { return p.slug === slug; });
+    if (!post) { render404(el); return; }
+
+    var title = post.title;
     setTitle(title);
     setBreadcrumbs([{ label: 'Blog', href: BASE + '/blog/' }, { label: title, href: BASE + '/blog/' + slug + '/' }]);
     trackVisit('blog', slug, title);
 
-    var h = '<article class="wiki-content" data-eo-op="SIG" data-eo-target="' + esc(content.content_id) + '">';
+    var h = '<article class="wiki-content">';
     h += '<header class="content-header"><h1>' + esc(title) + '</h1>';
     h += '<div class="post-meta">';
-    if (content.meta.updated_at) h += '<time>' + timeAgo(content.meta.updated_at) + '</time>';
+    if (post.pubDate) h += '<time>' + timeAgo(post.pubDate) + '</time>';
+    if (post.author) h += '<span class="post-author"> &middot; ' + esc(post.author) + '</span>';
     h += '</div>';
-    h += '<div class="content-tags">';
-    (content.meta.tags || []).forEach(function (t) { h += '<span class="tag">' + esc(t) + '</span>'; });
-    h += '</div></header>';
+    if (post.categories.length > 0) {
+      h += '<div class="content-tags">';
+      post.categories.forEach(function (c) { h += '<span class="tag">' + esc(c) + '</span>'; });
+      h += '</div>';
+    }
+    h += '</header>';
 
-    h += '<div class="wiki-body">';
-    h += renderRevisionContent(content.current_revision);
+    h += '<div class="wiki-body substack-content">';
+    h += post.content || post.description;
     h += '</div>';
 
-    h += relatedPagesHtml(content.meta);
+    h += '<div class="substack-cta">';
+    h += '<a class="btn" href="' + esc(post.link) + '" target="_blank" rel="noopener">Read on Substack \u2197</a>';
+    h += '</div>';
 
-    h += revisionHistoryHtml(content);
-
-    h += '<div class="content-actions eo-admin-only" hidden>';
-    h += '<a class="btn btn-edit" href="' + BASE + '/admin/#blog/' + esc(slug) + '">Edit in Admin</a></div>';
     h += '</article>';
     el.innerHTML = h;
     hydrateHtmlWidgets(el);
-    revealAdmin();
   });
 }
 

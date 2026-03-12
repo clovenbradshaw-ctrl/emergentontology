@@ -2333,3 +2333,12 @@ html[data-eo-auth] .btn-edit { display: inline-block; }
   pre { white-space: pre-wrap; word-wrap: break-word; border: 1px solid #ccc; }
   img { max-width: 100% !important; }
 }
+
+/* ── Substack blog content ──────────────────────────────────────────────── */
+.substack-content img { max-width: 100%; height: auto; border-radius: var(--radius); margin: 1rem 0; }
+.substack-content a { color: var(--link); }
+.substack-content blockquote { border-left: 3px solid var(--accent); padding-left: 1rem; margin: 1rem 0; color: var(--text-dim); }
+.substack-cta { margin: 2rem 0 1rem; text-align: center; }
+.substack-cta .btn { display: inline-block; padding: .6rem 1.4rem; background: var(--accent); color: #fff; border-radius: var(--radius); text-decoration: none; font-weight: 600; transition: opacity .15s; }
+.substack-cta .btn:hover { opacity: .85; }
+.loading-msg { color: var(--text-dim); font-style: italic; }
