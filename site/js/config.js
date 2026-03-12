@@ -9,6 +9,8 @@ export var API_URL = 'https://n8n.intelechia.com/webhook/81ca952a-3387-4837-8bcd
 
 export var API_TIMEOUT = 15000;
 
+export var SUBSTACK_FEED_URL = 'https://emergentontology.substack.com/feed';
+
 export var OPERATORS = [
   { num: 1, symbol: '\u2205', code: 'NUL', greek: '\u03BD', label: 'Absence & Nullity', color: '#9ca3af', slug: 'nul' },
   { num: 2, symbol: '\u03C3', code: 'SIG', greek: '\u03C3', label: 'Designation', color: '#60a5fa', slug: 'sig' },

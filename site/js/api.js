@@ -19,7 +19,7 @@
  * Handles deduplication, caching, error recovery, and index synthesis.
  */
 
-import { BASE, API_URL, API_TIMEOUT } from './config.js';
+import { BASE, API_URL, API_TIMEOUT, SUBSTACK_FEED_URL } from './config.js';
 
 // Xano public endpoint — supports server-side filtering via query params.
 var XANO_PUBLIC = 'https://xvkq-pq7i-idtl.n7d.xano.io/api:GGzWIVAW/get_public_eowiki';
@@ -444,5 +444,96 @@ function parseContentRecord(contentId, rec) {
   } catch (e) {
     console.warn('[eo] Failed to parse content for ' + contentId + ':', e.message);
     return null;
+  }
+}
+
+// ── Substack RSS feed ─────────────────────────────────────────────────────
+
+var _substackPosts = null;
+var _substackPromise = null;
+
+/**
+ * Fetch and parse the Substack RSS feed.
+ * Returns an array of post objects:
+ *   { title, slug, link, description, content, pubDate, author, categories }
+ */
+export function loadSubstackFeed() {
+  if (_substackPosts) return Promise.resolve(_substackPosts);
+  if (_substackPromise) return _substackPromise;
+
+  _substackPromise = fetch(SUBSTACK_FEED_URL)
+    .then(function (r) {
+      if (!r.ok) throw new Error('HTTP ' + r.status);
+      return r.text();
+    })
+    .then(function (xml) {
+      _substackPosts = parseRssFeed(xml);
+      _substackPromise = null;
+      console.log('[eo] Loaded ' + _substackPosts.length + ' Substack posts');
+      return _substackPosts;
+    })
+    .catch(function (e) {
+      console.warn('[eo] Substack feed fetch failed:', e.message || e);
+      _substackPromise = null;
+      _substackPosts = [];
+      return _substackPosts;
+    });
+
+  return _substackPromise;
+}
+
+function parseRssFeed(xml) {
+  var parser = new DOMParser();
+  var doc = parser.parseFromString(xml, 'text/xml');
+  var items = doc.querySelectorAll('item');
+  var posts = [];
+
+  for (var i = 0; i < items.length; i++) {
+    var item = items[i];
+    var link = textContent(item, 'link') || '';
+    var slug = extractSlug(link);
+
+    // Get content:encoded (CDATA) — try namespace first, then plain tag
+    var contentEl = item.getElementsByTagNameNS('http://purl.org/rss/1.0/modules/content/', 'encoded')[0]
+      || item.querySelector('content\\:encoded');
+    var content = contentEl ? contentEl.textContent || '' : '';
+
+    // Categories
+    var catEls = item.querySelectorAll('category');
+    var categories = [];
+    for (var j = 0; j < catEls.length; j++) {
+      var cat = (catEls[j].textContent || '').trim();
+      if (cat) categories.push(cat);
+    }
+
+    posts.push({
+      title: textContent(item, 'title') || 'Untitled',
+      slug: slug,
+      link: link,
+      description: textContent(item, 'description') || '',
+      content: content,
+      pubDate: textContent(item, 'pubDate') || '',
+      author: textContent(item, 'dc\\:creator') || textContent(item, 'author') || '',
+      categories: categories
+    });
+  }
+
+  return posts;
+}
+
+function textContent(parent, tag) {
+  var el = parent.querySelector(tag);
+  return el ? (el.textContent || '').trim() : '';
+}
+
+function extractSlug(url) {
+  if (!url) return '';
+  try {
+    var path = new URL(url).pathname;
+    // Substack URLs: /p/post-slug
+    var match = path.match(/\/p\/([^\/]+)/);
+    return match ? match[1] : path.replace(/^\/|\/$/g, '').replace(/\//g, '-') || '';
+  } catch (e) {
+    return '';
   }
 }
