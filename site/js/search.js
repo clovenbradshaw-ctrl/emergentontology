@@ -106,16 +106,50 @@
         resultsBox.hidden = false;
         return;
       }
+      var isAdmin = false;
+      try { isAdmin = localStorage.getItem('eo_xano_auth') === '1'; } catch (e) {}
       resultsBox.innerHTML = hits
         .map((h) => {
-          let html = `<a class="search-result-item" href="${escHtml(h.item.url)}"><span class="search-result-type">${escHtml(h.item.type)}</span> ${escHtml(h.item.title)}`;
+          var qParam = encodeURIComponent(q);
+          let html = `<a class="search-result-item" href="${escHtml(h.item.url)}?q=${qParam}"><span class="search-result-type">${escHtml(h.item.type)}</span> ${escHtml(h.item.title)}`;
           if (h.item.description) html += `<span class="search-result-desc">${escHtml(h.item.description)}</span>`;
+          if (isAdmin) {
+            var editUrl = h.item.url.replace(/\/$/, '').replace(base, '');
+            var editParts = editUrl.split('/').filter(Boolean);
+            var editType = editParts[0] || 'wiki';
+            var editSlug = editParts[1] || '';
+            if (editType === 'exp') editType = 'experiment';
+            html += `<span class="search-result-edit" data-edit-href="${base}/admin/#${editType}/${escHtml(editSlug)}" title="Open in editor">&#9998;</span>`;
+          }
           html += `</a>`;
           return html;
         })
         .join('');
       resultsBox.hidden = false;
     }, 150);
+  });
+
+  resultsBox.addEventListener('click', (e) => {
+    var editBtn = e.target.closest('.search-result-edit');
+    if (editBtn) {
+      e.preventDefault();
+      e.stopPropagation();
+      var href = editBtn.getAttribute('data-edit-href');
+      if (href) {
+        var drawer = document.getElementById('admin-drawer');
+        var drawerOverlay = document.getElementById('admin-drawer-overlay');
+        var iframe = document.getElementById('admin-drawer-iframe');
+        if (drawer && drawerOverlay && iframe) {
+          iframe.src = href;
+          drawer.classList.add('open');
+          drawerOverlay.classList.add('open');
+          document.body.style.overflow = 'hidden';
+        } else {
+          window.open(href, '_blank');
+        }
+      }
+      resultsBox.hidden = true;
+    }
   });
 
   document.addEventListener('click', (e) => {

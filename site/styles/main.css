@@ -575,6 +575,49 @@ details[open] > .rev-expand-toggle::before { content: '▾ '; }
   white-space: nowrap;
 }
 
+/* ── Search result edit button ── */
+.search-result-item { position: relative; }
+.search-result-edit,
+.hs-edit {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.6rem;
+  height: 1.6rem;
+  font-size: .85rem;
+  border-radius: 4px;
+  color: var(--text-dim);
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  cursor: pointer;
+  margin-left: auto;
+  flex-shrink: 0;
+  transition: background .15s, color .15s;
+}
+.search-result-edit:hover,
+.hs-edit:hover {
+  background: var(--purple-bg, rgba(124,109,216,0.15));
+  color: var(--accent, #7c6dd8);
+}
+
+/* ── Search highlight (scroll-to match) ── */
+mark.search-highlight {
+  background: rgba(250, 204, 21, 0.4);
+  color: inherit;
+  padding: 0.05em 0.15em;
+  border-radius: 3px;
+  animation: searchHighlightPulse 1.5s ease-in-out 2;
+}
+mark.search-highlight--fade {
+  transition: background 0.8s ease-out, padding 0.8s ease-out;
+  background: transparent;
+  padding: 0;
+}
+@keyframes searchHighlightPulse {
+  0%, 100% { background: rgba(250, 204, 21, 0.4); }
+  50% { background: rgba(250, 204, 21, 0.7); }
+}
+
 /* ── Home page ── */
 main.home { max-width: 1100px; }
 

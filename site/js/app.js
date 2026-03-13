@@ -22,6 +22,93 @@ import {
 } from './pages.js';
 import { setupUI } from './ui.js';
 
+// ── Search highlight: scroll to and highlight matching text after navigation ──
+
+function highlightSearchTerms(container) {
+  var params = new URLSearchParams(location.search);
+  var q = params.get('q');
+  if (!q) return;
+
+  // Clean the query param from the URL without triggering navigation
+  var cleanUrl = location.pathname + location.hash;
+  history.replaceState(null, '', cleanUrl);
+
+  var terms = q.toLowerCase().trim().split(/\s+/).filter(function (t) { return t.length > 0; });
+  if (!terms.length) return;
+
+  // Find the main article body to search within
+  var body = container.querySelector('.wiki-body, .article-main, .wiki-content, .content-body');
+  if (!body) body = container;
+
+  // Walk text nodes and wrap matching terms with <mark>
+  var walker = document.createTreeWalker(body, NodeFilter.SHOW_TEXT, null, false);
+  var matches = [];
+  var node;
+  while ((node = walker.nextNode())) {
+    var text = node.nodeValue;
+    if (!text || !text.trim()) continue;
+    var lower = text.toLowerCase();
+    for (var i = 0; i < terms.length; i++) {
+      if (lower.indexOf(terms[i]) >= 0) {
+        matches.push(node);
+        break;
+      }
+    }
+  }
+
+  if (!matches.length) return;
+
+  // Build a regex to wrap all term occurrences
+  var escaped = terms.map(function (t) { return t.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); });
+  var re = new RegExp('(' + escaped.join('|') + ')', 'gi');
+
+  var firstMark = null;
+  matches.forEach(function (textNode) {
+    var parent = textNode.parentNode;
+    if (!parent || parent.tagName === 'SCRIPT' || parent.tagName === 'STYLE') return;
+    var frag = document.createDocumentFragment();
+    var parts = textNode.nodeValue.split(re);
+    parts.forEach(function (part, idx) {
+      // Odd indices from split(regex-with-capture) are the matched groups
+      if (idx % 2 === 1) {
+        var mark = document.createElement('mark');
+        mark.className = 'search-highlight';
+        mark.textContent = part;
+        if (!firstMark) firstMark = mark;
+        frag.appendChild(mark);
+      } else {
+        frag.appendChild(document.createTextNode(part));
+      }
+    });
+    parent.replaceChild(frag, textNode);
+  });
+
+  // Scroll to the first match
+  if (firstMark) {
+    setTimeout(function () {
+      firstMark.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }, 100);
+
+    // Auto-remove highlights after 6 seconds
+    setTimeout(function () {
+      var marks = body.querySelectorAll('mark.search-highlight');
+      marks.forEach(function (m) {
+        m.classList.add('search-highlight--fade');
+      });
+      // Remove the mark elements after fade
+      setTimeout(function () {
+        marks.forEach(function (m) {
+          var p = m.parentNode;
+          if (p) {
+            p.replaceChild(document.createTextNode(m.textContent), m);
+            p.normalize();
+          }
+        });
+      }, 1000);
+    }, 6000);
+  }
+}
+
 // ── Main render ──────────────────────────────────────────────────────────────
 
 function render() {
@@ -57,6 +144,7 @@ function render() {
     })
     .then(function () {
       revealAdmin();
+      highlightSearchTerms(main);
     })
     .catch(function (err) {
       console.error('[eo] Render failed:', err);
