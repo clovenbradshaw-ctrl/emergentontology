@@ -63,7 +63,9 @@
                   type: typeLabels[e.content_type] || e.content_type,
                   url: typeUrl(e.content_type, e.slug),
                   tags: e.tags || [],
-                  excerpt: '',
+                  keywords: e.keywords || [],
+                  description: e.description || '',
+                  excerpt: e.description || '',
                 }));
               }
             }
@@ -73,7 +75,13 @@
     }
 
     fuse = new window.Fuse(data, {
-      keys: ['title', 'excerpt', 'tags'],
+      keys: [
+        { name: 'title', weight: 2 },
+        { name: 'keywords', weight: 1.5 },
+        { name: 'tags', weight: 1.2 },
+        { name: 'description', weight: 1 },
+        { name: 'excerpt', weight: 0.8 },
+      ],
       threshold: 0.35,
       includeScore: true,
     });
@@ -99,7 +107,12 @@
         return;
       }
       resultsBox.innerHTML = hits
-        .map((h) => `<a class="search-result-item" href="${escHtml(h.item.url)}"><span class="search-result-type">${escHtml(h.item.type)}</span> ${escHtml(h.item.title)}</a>`)
+        .map((h) => {
+          let html = `<a class="search-result-item" href="${escHtml(h.item.url)}"><span class="search-result-type">${escHtml(h.item.type)}</span> ${escHtml(h.item.title)}`;
+          if (h.item.description) html += `<span class="search-result-desc">${escHtml(h.item.description)}</span>`;
+          html += `</a>`;
+          return html;
+        })
         .join('');
       resultsBox.hidden = false;
     }, 150);
