@@ -1020,6 +1020,7 @@ function buildPageList() {
         status: e.status,
         visibility: e.visibility || 'public',
         tags: e.tags || [],
+        keywords: e.keywords || [],
         description: e.description || '',
         updated_at: e.updated_at || (rec && rec.parsed && rec.parsed.meta && rec.parsed.meta.updated_at) || '',
         hasContent: !!(rec && rec.parsed && rec.parsed.current_revision && rec.parsed.current_revision.content),
@@ -1043,6 +1044,7 @@ function buildPageList() {
         status: meta.status,
         visibility: meta.visibility || 'public',
         tags: meta.tags || [],
+        keywords: meta.keywords || [],
         description: meta.description || '',
         updated_at: meta.updated_at || '',
         hasContent: !!(rec.parsed.current_revision && rec.parsed.current_revision.content),
@@ -1685,6 +1687,12 @@ function renderPage(slug) {
     bodyHtml = renderBlocks(parsed);
   }
 
+  // Auto-link article mentions (opt out with "no-autolink" tag)
+  var noAutoLink = (meta.tags || []).indexOf('no-autolink') !== -1;
+  if (bodyHtml && !noAutoLink) {
+    bodyHtml = autoLinkArticles(bodyHtml, slug);
+  }
+
   // Extract TOC from headings
   var tocItems = extractTOC(bodyHtml);
   var hasToc = tocItems.length >= 2;
@@ -2078,6 +2086,105 @@ function rewriteLinks(html) {
       return 'href="#' + slug + '" data-wiki-link="' + slug + '"';
     }
   );
+}
+
+// ── Auto-Link Articles ────────────────────────────────────────────────────────
+
+function buildAutoLinkIndex(currentSlug) {
+  var terms = [];
+  var seen = {};
+
+  for (var i = 0; i < allPages.length; i++) {
+    var p = allPages[i];
+    if (p.slug === currentSlug) continue;
+    if (p.visibility === 'private' || p.status === 'archived') continue;
+    if (!p.hasContent && p.status !== 'published') continue;
+    // Respect opt-out: articles tagged "no-autolink" won't be linked to
+    if ((p.tags || []).indexOf('no-autolink') !== -1) continue;
+
+    var candidates = [p.title];
+    var kw = p.keywords || [];
+    for (var k = 0; k < kw.length; k++) candidates.push(kw[k]);
+    var tags = p.tags || [];
+    for (var t = 0; t < tags.length; t++) candidates.push(tags[t]);
+
+    for (var c = 0; c < candidates.length; c++) {
+      var term = (candidates[c] || '').trim();
+      if (term.length < 3) continue;
+      var key = term.toLowerCase();
+      if (seen[key]) continue;
+      seen[key] = true;
+      terms.push({ term: term, slug: p.slug, title: p.title });
+    }
+  }
+
+  terms.sort(function(a, b) { return b.term.length - a.term.length; });
+  return terms;
+}
+
+function autoLinkArticles(html, currentSlug) {
+  if (!allPages || !allPages.length) return html;
+
+  var terms = buildAutoLinkIndex(currentSlug);
+  if (!terms.length) return html;
+
+  var container = document.createElement('div');
+  container.innerHTML = html;
+
+  var linked = {};
+  var SKIP_TAGS = { A: 1, CODE: 1, PRE: 1, SCRIPT: 1, STYLE: 1, TEXTAREA: 1, H1: 1, H2: 1, H3: 1, H4: 1, H5: 1, H6: 1 };
+
+  function walkTextNodes(node) {
+    if (node.nodeType === 3) {
+      processTextNode(node);
+    } else if (node.nodeType === 1 && !SKIP_TAGS[node.tagName]) {
+      var children = [];
+      for (var i = 0; i < node.childNodes.length; i++) children.push(node.childNodes[i]);
+      for (var i = 0; i < children.length; i++) walkTextNodes(children[i]);
+    }
+  }
+
+  function processTextNode(textNode) {
+    var text = textNode.nodeValue;
+    if (!text || !text.trim()) return;
+
+    for (var i = 0; i < terms.length; i++) {
+      var t = terms[i];
+      var linkKey = t.slug + '::' + t.term.toLowerCase();
+      if (linked[linkKey]) continue;
+
+      var escaped = t.term.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+      var re = new RegExp('\\b(' + escaped + ')\\b', 'i');
+      var match = re.exec(text);
+      if (!match) continue;
+
+      var before = text.substring(0, match.index);
+      var matched = text.substring(match.index, match.index + match[0].length);
+      var after = text.substring(match.index + match[0].length);
+
+      var beforeNode = document.createTextNode(before);
+      var link = document.createElement('a');
+      link.setAttribute('onclick', "navigate('" + t.slug.replace(/'/g, "\\'") + "')");
+      link.setAttribute('class', 'auto-link');
+      link.setAttribute('title', t.title);
+      link.textContent = matched;
+      var afterNode = document.createTextNode(after);
+
+      var parent = textNode.parentNode;
+      parent.insertBefore(beforeNode, textNode);
+      parent.insertBefore(link, textNode);
+      parent.insertBefore(afterNode, textNode);
+      parent.removeChild(textNode);
+
+      linked[linkKey] = true;
+
+      if (after.trim()) processTextNode(afterNode);
+      return;
+    }
+  }
+
+  walkTextNodes(container);
+  return container.innerHTML;
 }
 
 // ── HTML Detection ────────────────────────────────────────────────────────────

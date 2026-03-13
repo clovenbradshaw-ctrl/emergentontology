@@ -344,6 +344,18 @@ main { flex: 1; max-width: 860px; margin: 0 auto; padding: 2rem 1.5rem; width: 1
   font-size: .95rem;
 }
 
+/* Auto-linked article mentions */
+.auto-link {
+  color: inherit;
+  text-decoration: underline dotted var(--accent, #888);
+  text-underline-offset: 2px;
+  cursor: pointer;
+}
+.auto-link:hover {
+  text-decoration-style: solid;
+  color: var(--link-color, var(--accent));
+}
+
 /* Code block */
 .block-code pre {
   background: var(--code-bg);
