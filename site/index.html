@@ -132,6 +132,111 @@
   .hero-btn--primary { background: var(--purple); color: #fff; border: none; }
   .hero-btn--secondary { background: var(--bg); color: var(--text); border: 1px solid var(--border); }
 
+  /* ── Hero Search ── */
+  .hero-search {
+    position: relative;
+    max-width: 520px;
+    margin: 1.5rem auto 0;
+  }
+  .hero-search-input {
+    width: 100%;
+    padding: 0.8rem 1.2rem 0.8rem 2.6rem;
+    border: 1.5px solid var(--border);
+    border-radius: 10px;
+    background: var(--bg);
+    color: var(--text);
+    font-size: 0.95rem;
+    font-family: 'Inter', sans-serif;
+    outline: none;
+    transition: border-color 0.2s, box-shadow 0.2s;
+  }
+  .hero-search-input::placeholder { color: var(--text-faint); }
+  .hero-search-input:focus {
+    border-color: var(--purple);
+    box-shadow: 0 0 0 3px var(--purple-bg);
+  }
+  .hero-search-icon {
+    position: absolute;
+    left: 0.85rem;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--text-faint);
+    font-size: 1rem;
+    pointer-events: none;
+  }
+  .hero-search-kbd {
+    position: absolute;
+    right: 0.75rem;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 0.7rem;
+    color: var(--text-faint);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 0.15rem 0.4rem;
+    font-family: var(--font-mono, monospace);
+    pointer-events: none;
+  }
+  .hero-search-results {
+    position: absolute;
+    top: calc(100% + 6px);
+    left: 0; right: 0;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    box-shadow: 0 8px 30px rgba(0,0,0,0.12);
+    max-height: 360px;
+    overflow-y: auto;
+    z-index: 50;
+    display: none;
+  }
+  .hero-search-results.open { display: block; }
+  .hero-search-results:empty { display: none; }
+  .hs-item {
+    display: block;
+    padding: 0.65rem 1rem;
+    cursor: pointer;
+    border-bottom: 1px solid var(--border-light);
+    text-decoration: none;
+    color: var(--text);
+    transition: background 0.1s;
+  }
+  .hs-item:last-child { border-bottom: none; }
+  .hs-item:hover, .hs-item.hs-active { background: var(--purple-bg); }
+  .hs-item-top { display: flex; align-items: center; gap: 0.5rem; }
+  .hs-type {
+    font-size: 0.65rem;
+    color: var(--purple);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    font-weight: 600;
+    flex-shrink: 0;
+  }
+  .hs-title { font-size: 0.9rem; font-weight: 500; }
+  .hs-snippet {
+    font-size: 0.78rem;
+    color: var(--text-muted);
+    margin-top: 0.2rem;
+    line-height: 1.4;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+  }
+  .hs-snippet mark {
+    background: var(--purple-bg);
+    color: var(--purple);
+    border-radius: 2px;
+    padding: 0 0.1rem;
+  }
+  .hs-empty {
+    padding: 1.2rem;
+    text-align: center;
+    color: var(--text-faint);
+    font-size: 0.85rem;
+  }
+
   /* ── Concepts Row ── */
   .concepts-row { max-width: 1060px; margin: 0 auto 2.5rem; padding: 0 2rem; }
   .concepts-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1rem; }
@@ -1003,6 +1108,7 @@ function fetchApiRecords() {
 
 function buildPageList() {
   allPages = [];
+  _heroSearchIndex = null; // reset search index when page list rebuilds
   var seen = {};
 
   // From the site index
@@ -1202,6 +1308,13 @@ function renderHome() {
   }
   h += '<a class="hero-btn hero-btn--secondary" onclick="showView(\'wiki\')">Browse Wiki</a>';
   h += '</div>';
+  // ── Hero Search ──
+  h += '<div class="hero-search">';
+  h += '<span class="hero-search-icon">\u2315</span>';
+  h += '<input class="hero-search-input" id="heroSearchInput" placeholder="Search titles, keywords, content\u2026" autocomplete="off">';
+  h += '<span class="hero-search-kbd">\u2318K</span>';
+  h += '<div class="hero-search-results" id="heroSearchResults"></div>';
+  h += '</div>';
   h += '</div>';
 
   // ── Recent Articles Row ──
@@ -1311,6 +1424,223 @@ function renderHome() {
 
   // Clean up any previous cube listeners
   if (window._hcubeCleanup) { window._hcubeCleanup(); window._hcubeCleanup = null; }
+
+  // ── Init hero search ──
+  initHeroSearch();
+}
+
+// ── Hero Search (front-page inline search) ────────────────────────────────────
+
+var _heroSearchIndex = null;
+
+function buildHeroSearchIndex() {
+  if (_heroSearchIndex) return _heroSearchIndex;
+  _heroSearchIndex = allPages
+    .filter(function (p) { return (p.status === 'published' || p.hasContent) && p.visibility !== 'private'; })
+    .map(function (p) {
+      // Extract plain-text content from record if available
+      var body = '';
+      if (p.record && p.record.parsed) {
+        var pr = p.record.parsed;
+        if (pr.current_revision && pr.current_revision.content) {
+          body = pr.current_revision.content.replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').slice(0, 800);
+        }
+        // For page-type blocks, gather block text
+        if (pr.blocks && pr.block_order) {
+          var parts = [];
+          pr.block_order.forEach(function (bid) {
+            var b = pr.blocks[bid];
+            if (b && b.data) {
+              if (typeof b.data === 'string') parts.push(b.data);
+              else if (b.data.text) parts.push(b.data.text);
+              else if (b.data.content) parts.push(b.data.content);
+            }
+          });
+          if (parts.length) body = parts.join(' ').replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').slice(0, 800);
+        }
+      }
+      return {
+        slug: p.slug,
+        title: p.title || '',
+        content_type: p.content_type,
+        description: p.description || '',
+        tags: (p.tags || []).join(' '),
+        keywords: (p.keywords || []).join(' '),
+        body: body,
+        updated_at: p.updated_at || ''
+      };
+    });
+  return _heroSearchIndex;
+}
+
+function heroSearch(query) {
+  var idx = buildHeroSearchIndex();
+  var q = query.toLowerCase().trim();
+  if (!q) return [];
+
+  var terms = q.split(/\s+/).filter(function (t) { return t.length > 0; });
+  var scored = [];
+
+  for (var i = 0; i < idx.length; i++) {
+    var item = idx[i];
+    var titleLow = item.title.toLowerCase();
+    var tagsLow = item.tags.toLowerCase();
+    var kwLow = item.keywords.toLowerCase();
+    var descLow = item.description.toLowerCase();
+    var bodyLow = item.body.toLowerCase();
+
+    var score = 0;
+    var matched = true;
+    var snippet = '';
+
+    for (var t = 0; t < terms.length; t++) {
+      var term = terms[t];
+      var termFound = false;
+
+      // Title match (highest weight)
+      if (titleLow.indexOf(term) >= 0) { score += 10; termFound = true; }
+      // Keywords match (high weight)
+      if (kwLow.indexOf(term) >= 0) { score += 8; termFound = true; }
+      // Tags match
+      if (tagsLow.indexOf(term) >= 0) { score += 6; termFound = true; }
+      // Description match
+      if (descLow.indexOf(term) >= 0) { score += 4; termFound = true; }
+      // Content body match (lower weight, but still searchable)
+      if (bodyLow.indexOf(term) >= 0) { score += 2; termFound = true; }
+
+      if (!termFound) { matched = false; break; }
+    }
+
+    if (!matched || score === 0) continue;
+
+    // Exact title start bonus
+    if (titleLow.indexOf(q) === 0) score += 5;
+
+    // Build a snippet from the best matching field
+    snippet = item.description;
+    if (!snippet && item.body) {
+      // Find the first occurrence of any term in the body
+      var bestPos = -1;
+      for (var s = 0; s < terms.length; s++) {
+        var pos = bodyLow.indexOf(terms[s]);
+        if (pos >= 0 && (bestPos < 0 || pos < bestPos)) bestPos = pos;
+      }
+      if (bestPos >= 0) {
+        var start = Math.max(0, bestPos - 40);
+        snippet = (start > 0 ? '\u2026' : '') + item.body.slice(start, start + 140) + '\u2026';
+      } else {
+        snippet = item.body.slice(0, 120) + '\u2026';
+      }
+    }
+
+    scored.push({ item: item, score: score, snippet: snippet });
+  }
+
+  scored.sort(function (a, b) { return b.score - a.score; });
+  return scored.slice(0, 8);
+}
+
+function highlightTerms(text, query) {
+  if (!text || !query) return esc(text || '');
+  var terms = query.toLowerCase().trim().split(/\s+/).filter(function (t) { return t.length > 0; });
+  var safe = esc(text);
+  terms.forEach(function (term) {
+    var re = new RegExp('(' + term.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + ')', 'gi');
+    safe = safe.replace(re, '<mark>$1</mark>');
+  });
+  return safe;
+}
+
+function initHeroSearch() {
+  var input = document.getElementById('heroSearchInput');
+  var results = document.getElementById('heroSearchResults');
+  if (!input || !results) return;
+
+  var activeIdx = -1;
+  var debounce = null;
+
+  input.addEventListener('input', function () {
+    clearTimeout(debounce);
+    debounce = setTimeout(function () {
+      var q = input.value.trim();
+      activeIdx = -1;
+      if (!q) { results.innerHTML = ''; results.classList.remove('open'); return; }
+
+      var hits = heroSearch(q);
+      if (hits.length === 0) {
+        results.innerHTML = '<div class="hs-empty">No matching content found</div>';
+        results.classList.add('open');
+        return;
+      }
+
+      var typeLabels = { wiki: 'Wiki', blog: 'Blog', experiment: 'Experiment', document: 'Document', page: 'Page' };
+      results.innerHTML = hits.map(function (h, i) {
+        var tl = typeLabels[h.item.content_type] || h.item.content_type;
+        return '<div class="hs-item" data-idx="' + i + '" data-slug="' + escAttr(h.item.slug) + '">'
+          + '<div class="hs-item-top"><span class="hs-type">' + esc(tl) + '</span> <span class="hs-title">' + highlightTerms(h.item.title, q) + '</span></div>'
+          + (h.snippet ? '<div class="hs-snippet">' + highlightTerms(h.snippet, q) + '</div>' : '')
+          + '</div>';
+      }).join('');
+      results.classList.add('open');
+    }, 120);
+  });
+
+  results.addEventListener('click', function (e) {
+    var item = e.target.closest('.hs-item');
+    if (item && item.dataset.slug) {
+      results.classList.remove('open');
+      input.value = '';
+      navigate(item.dataset.slug);
+    }
+  });
+
+  input.addEventListener('keydown', function (e) {
+    var items = results.querySelectorAll('.hs-item');
+    if (!items.length) return;
+
+    if (e.key === 'ArrowDown') {
+      e.preventDefault();
+      activeIdx = Math.min(activeIdx + 1, items.length - 1);
+      updateActive(items);
+    } else if (e.key === 'ArrowUp') {
+      e.preventDefault();
+      activeIdx = Math.max(activeIdx - 1, 0);
+      updateActive(items);
+    } else if (e.key === 'Enter' && activeIdx >= 0 && items[activeIdx]) {
+      e.preventDefault();
+      results.classList.remove('open');
+      input.value = '';
+      navigate(items[activeIdx].dataset.slug);
+    } else if (e.key === 'Escape') {
+      results.classList.remove('open');
+      input.blur();
+    }
+  });
+
+  function updateActive(items) {
+    for (var i = 0; i < items.length; i++) {
+      items[i].classList.toggle('hs-active', i === activeIdx);
+    }
+    if (items[activeIdx]) items[activeIdx].scrollIntoView({ block: 'nearest' });
+  }
+
+  // Close on outside click
+  document.addEventListener('click', function (e) {
+    if (!e.target.closest('.hero-search')) {
+      results.classList.remove('open');
+    }
+  });
+
+  // Wire Cmd/Ctrl+K to focus hero search if on home page
+  document.addEventListener('keydown', function (e) {
+    if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
+      var heroInput = document.getElementById('heroSearchInput');
+      if (heroInput) {
+        e.preventDefault();
+        heroInput.focus();
+      }
+    }
+  });
 }
 
 function filterPages(type) {
@@ -2416,7 +2746,9 @@ function doSearch(q) {
   var m = allPages.filter(function(p) {
     return (p.title || '').toLowerCase().indexOf(q) >= 0 ||
            (p.slug || '').indexOf(q) >= 0 ||
-           (p.tags || []).some(function(t) { return t.toLowerCase().indexOf(q) >= 0; });
+           (p.tags || []).some(function(t) { return t.toLowerCase().indexOf(q) >= 0; }) ||
+           (p.keywords || []).some(function(k) { return k.toLowerCase().indexOf(q) >= 0; }) ||
+           (p.description || '').toLowerCase().indexOf(q) >= 0;
   });
   if (!m.length) {
     sRes.innerHTML = '<div class="search-empty">No results</div>';
