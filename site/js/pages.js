@@ -1201,6 +1201,28 @@ function initWikiArticleDynamics(container) {
   var tocNav = container.querySelector('#wiki-floating-toc');
   if (!wikiBody) return;
 
+  // ── Scroll container: on desktop, .article-main scrolls independently ──
+  var articleMain = container.querySelector('.article-main');
+  var scrollContainer = null; // null = use window (mobile fallback)
+
+  if (articleMain && !window.matchMedia('(max-width: 900px)').matches) {
+    scrollContainer = articleMain;
+
+    // Handle initial hash navigation within the scroll container
+    requestAnimationFrame(function () {
+      var hash = window.location.hash;
+      if (hash) {
+        var hashTarget = document.getElementById(hash.slice(1));
+        if (hashTarget && scrollContainer.contains(hashTarget)) {
+          var targetOffset = hashTarget.getBoundingClientRect().top - scrollContainer.getBoundingClientRect().top + scrollContainer.scrollTop;
+          scrollContainer.scrollTop = targetOffset;
+        }
+      }
+    });
+  }
+
+  var scrollTarget = scrollContainer || window;
+
   // ── Build floating TOC from headings in the article ──
   var headings = wikiBody.querySelectorAll('h1, h2, h3, h4');
   if (tocNav && headings.length > 1) {
@@ -1231,7 +1253,12 @@ function initWikiArticleDynamics(container) {
       var targetId = link.getAttribute('data-target');
       var target = document.getElementById(targetId);
       if (target) {
-        target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        if (scrollContainer) {
+          var targetOffset = target.getBoundingClientRect().top - scrollContainer.getBoundingClientRect().top + scrollContainer.scrollTop;
+          scrollContainer.scrollTo({ top: targetOffset, behavior: 'smooth' });
+        } else {
+          target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
         history.replaceState(null, '', '#' + targetId);
       }
     });
@@ -1242,12 +1269,23 @@ function initWikiArticleDynamics(container) {
     var scrollTimer;
 
     function updateActiveTocLink() {
-      var scrollTop = window.scrollY || document.documentElement.scrollTop;
       var active = null;
-      for (var i = headingsArr.length - 1; i >= 0; i--) {
-        if (headingsArr[i].offsetTop <= scrollTop + 120) {
-          active = headingsArr[i];
-          break;
+      if (scrollContainer) {
+        var containerRect = scrollContainer.getBoundingClientRect();
+        for (var i = headingsArr.length - 1; i >= 0; i--) {
+          var headingRect = headingsArr[i].getBoundingClientRect();
+          if (headingRect.top <= containerRect.top + 40) {
+            active = headingsArr[i];
+            break;
+          }
+        }
+      } else {
+        var scrollTop = window.scrollY || document.documentElement.scrollTop;
+        for (var i = headingsArr.length - 1; i >= 0; i--) {
+          if (headingsArr[i].offsetTop <= scrollTop + 120) {
+            active = headingsArr[i];
+            break;
+          }
         }
       }
       tocLinks.forEach(function (link) {
@@ -1256,7 +1294,7 @@ function initWikiArticleDynamics(container) {
       });
     }
 
-    window.addEventListener('scroll', function () {
+    scrollTarget.addEventListener('scroll', function () {
       if (scrollTimer) cancelAnimationFrame(scrollTimer);
       scrollTimer = requestAnimationFrame(updateActiveTocLink);
     }, { passive: true });
@@ -1270,14 +1308,21 @@ function initWikiArticleDynamics(container) {
   if (progressBar) {
     var rafId;
     function updateProgress() {
-      var docHeight = document.documentElement.scrollHeight - window.innerHeight;
-      if (docHeight <= 0) { progressBar.style.width = '0'; return; }
-      var scrolled = window.scrollY || document.documentElement.scrollTop;
-      var pct = Math.min(100, Math.max(0, (scrolled / docHeight) * 100));
-      progressBar.style.width = pct + '%';
+      if (scrollContainer) {
+        var scrollableHeight = scrollContainer.scrollHeight - scrollContainer.clientHeight;
+        if (scrollableHeight <= 0) { progressBar.style.width = '0'; return; }
+        var pct = Math.min(100, Math.max(0, (scrollContainer.scrollTop / scrollableHeight) * 100));
+        progressBar.style.width = pct + '%';
+      } else {
+        var docHeight = document.documentElement.scrollHeight - window.innerHeight;
+        if (docHeight <= 0) { progressBar.style.width = '0'; return; }
+        var scrolled = window.scrollY || document.documentElement.scrollTop;
+        var pct = Math.min(100, Math.max(0, (scrolled / docHeight) * 100));
+        progressBar.style.width = pct + '%';
+      }
     }
 
-    window.addEventListener('scroll', function () {
+    scrollTarget.addEventListener('scroll', function () {
       if (rafId) cancelAnimationFrame(rafId);
       rafId = requestAnimationFrame(updateProgress);
     }, { passive: true });
@@ -1420,7 +1465,7 @@ function extractSnippet(revision, maxLen) {
 
 export function renderWiki(el, slug) {
   var idx = getSiteIndex();
-  el.className = '';
+  el.className = 'wiki-article';
   var entry = (idx.entries || []).find(function (e) { return e.content_type === 'wiki' && e.slug === slug; });
   var contentId = entry ? entry.content_id : 'wiki:' + slug;
 

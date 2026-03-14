@@ -1334,6 +1334,9 @@ details[open] > .wiki-accordion-header .accordion-chevron {
 
 @media (max-width: 900px) {
   .article-sidebar { display: none; }
+  .article-main { overflow-y: visible; max-height: none; }
+  main.wiki-article { display: block; overflow: visible; }
+  .wiki-content { display: block; }
   .wiki-reading-progress { height: 2px; }
   .wiki-toolbar { flex-direction: column; align-items: stretch; }
   .wiki-search-wrap { min-width: 0; }
@@ -1561,9 +1564,15 @@ html[data-eo-auth] .btn-edit { display: inline-block; }
   overflow: hidden;
 }
 
-/* ── Article layout (flex wrapper for sidebar + main) ── */
-.article-layout { display: flex; gap: 2rem; align-items: flex-start; }
-.article-main { flex: 1; min-width: 0; }
+/* ── Sticky article layout: only body scrolls on desktop ── */
+main.wiki-article { display: flex; flex-direction: column; overflow: hidden; height: calc(100vh - 56px); }
+.wiki-content { display: flex; flex-direction: column; flex: 1; min-height: 0; }
+.article-layout { display: flex; gap: 2rem; align-items: flex-start; flex: 1; min-height: 0; }
+.article-main { flex: 1; min-width: 0; overflow-y: auto; }
+.article-main::-webkit-scrollbar { width: 6px; }
+.article-main::-webkit-scrollbar-track { background: transparent; }
+.article-main::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+.article-main::-webkit-scrollbar-thumb:hover { background: var(--text-dim); }
 
 /* ── Related Articles Sidebar (inside article-sidebar or standalone) ── */
 .article-related-sidebar {
@@ -1592,6 +1601,9 @@ html[data-eo-auth] .btn-edit { display: inline-block; }
   .article-related-sidebar { display: none; }
   .article-sidebar { display: none; }
   .article-layout { display: block; }
+  .article-main { overflow-y: visible; max-height: none; }
+  main.wiki-article { display: block; overflow: visible; }
+  .wiki-content { display: block; }
 }
 
 /* ── Related pages (inline, bottom of article) ── */

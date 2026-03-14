@@ -642,9 +642,15 @@
     letter-spacing: 0.04em; margin-top: 0.1rem;
   }
 
-  /* ── Table of Contents ── */
-  .article-layout { display: flex; gap: 2.5rem; align-items: flex-start; }
-  .article-main { flex: 1; min-width: 0; }
+  /* ── Sticky article layout: only body scrolls on desktop ── */
+  main.wiki-article { display: flex; flex-direction: column; overflow: hidden; height: calc(100vh - 56px); }
+  .wiki-content { display: flex; flex-direction: column; flex: 1; min-height: 0; }
+  .article-layout { display: flex; gap: 2.5rem; align-items: flex-start; flex: 1; min-height: 0; }
+  .article-main { flex: 1; min-width: 0; overflow-y: auto; }
+  .article-main::-webkit-scrollbar { width: 6px; }
+  .article-main::-webkit-scrollbar-track { background: transparent; }
+  .article-main::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+  .article-main::-webkit-scrollbar-thumb:hover { background: var(--text-dim); }
   .article-toc {
     position: sticky; top: 80px; width: 220px; flex-shrink: 0;
     max-height: calc(100vh - 100px); overflow-y: auto;
@@ -832,6 +838,9 @@
     .article-related-sidebar { display: none; }
     .toc-mobile { display: block; }
     .article-layout { display: block; }
+    .article-main { overflow-y: visible; max-height: none; }
+    main.wiki-article { display: block; overflow: visible; }
+    .wiki-content { display: block; }
     .wiki-filter-bar { flex-direction: column; align-items: stretch; }
     .wiki-filter-search { min-width: 100%; }
     .wiki-cards-grid { grid-template-columns: 1fr; }
