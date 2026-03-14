@@ -399,11 +399,18 @@ function initHeroSearch(idx) {
         results.classList.add('open');
         return;
       }
+      var isAdmin = false;
+      try { isAdmin = localStorage.getItem('eo_xano_auth') === '1'; } catch (e) {}
       results.innerHTML = hits.map(function (h, i) {
         var tl = typeLabels[h.item.content_type] || h.item.content_type;
         var url = contentUrl(h.item.content_type, h.item.slug);
-        return '<a class="hs-item" href="' + esc(url) + '" data-idx="' + i + '">'
-          + '<div class="hs-item-top"><span class="hs-type">' + esc(tl) + '</span> <span class="hs-title">' + highlightTerms(h.item.title, q) + '</span></div>'
+        var qParam = encodeURIComponent(q);
+        var editType = h.item.content_type === 'experiment' ? 'experiment' : h.item.content_type;
+        var editHtml = isAdmin
+          ? '<span class="hs-edit" data-edit-href="' + BASE + '/admin/#' + editType + '/' + esc(h.item.slug) + '" title="Open in editor">&#9998;</span>'
+          : '';
+        return '<a class="hs-item" href="' + esc(url) + '?q=' + qParam + '" data-idx="' + i + '">'
+          + '<div class="hs-item-top"><span class="hs-type">' + esc(tl) + '</span> <span class="hs-title">' + highlightTerms(h.item.title, q) + '</span>' + editHtml + '</div>'
           + (h.snippet ? '<div class="hs-snippet">' + highlightTerms(h.snippet, q) + '</div>' : '')
           + '</a>';
       }).join('');
@@ -428,6 +435,29 @@ function initHeroSearch(idx) {
     } else if (e.key === 'Escape') {
       results.classList.remove('open');
       input.blur();
+    }
+  });
+
+  results.addEventListener('click', function (e) {
+    var editBtn = e.target.closest('.hs-edit');
+    if (editBtn) {
+      e.preventDefault();
+      e.stopPropagation();
+      var href = editBtn.getAttribute('data-edit-href');
+      if (href) {
+        var drawer = document.getElementById('admin-drawer');
+        var drawerOverlay = document.getElementById('admin-drawer-overlay');
+        var iframe = document.getElementById('admin-drawer-iframe');
+        if (drawer && drawerOverlay && iframe) {
+          iframe.src = href;
+          drawer.classList.add('open');
+          drawerOverlay.classList.add('open');
+          document.body.style.overflow = 'hidden';
+        } else {
+          window.open(href, '_blank');
+        }
+      }
+      results.classList.remove('open');
     }
   });
 

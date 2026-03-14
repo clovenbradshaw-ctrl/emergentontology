@@ -236,6 +236,42 @@
     color: var(--text-faint);
     font-size: 0.85rem;
   }
+  .hs-edit {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 1.5rem;
+    height: 1.5rem;
+    font-size: .8rem;
+    border-radius: 4px;
+    color: var(--text-muted);
+    background: var(--bg-card, var(--bg2, #1a1a2e));
+    border: 1px solid var(--border-light);
+    cursor: pointer;
+    margin-left: auto;
+    flex-shrink: 0;
+    transition: background .15s, color .15s;
+  }
+  .hs-edit:hover {
+    background: var(--purple-bg);
+    color: var(--purple);
+  }
+  mark.search-highlight {
+    background: rgba(250, 204, 21, 0.4);
+    color: inherit;
+    padding: 0.05em 0.15em;
+    border-radius: 3px;
+    animation: searchHighlightPulse 1.5s ease-in-out 2;
+  }
+  mark.search-highlight--fade {
+    transition: background 0.8s ease-out, padding 0.8s ease-out;
+    background: transparent;
+    padding: 0;
+  }
+  @keyframes searchHighlightPulse {
+    0%, 100% { background: rgba(250, 204, 21, 0.4); }
+    50% { background: rgba(250, 204, 21, 0.7); }
+  }
 
   /* ── Concepts Row ── */
   .concepts-row { max-width: 1060px; margin: 0 auto 2.5rem; padding: 0 2rem; }
