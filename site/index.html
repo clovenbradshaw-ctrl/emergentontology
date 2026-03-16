@@ -2382,71 +2382,155 @@ function hideReadingProgress() {
   }
 }
 
-// ── Related Articles (keyword matching) ───────────────────────────────────────
-
+// ── Related Articles — Improved ───────────────────────────────────────────────
+//
+// Three-signal scoring:
+//   1. Explicit wiki-links (navigate() in content) — highest confidence
+//   2. TF-IDF term overlap — downweights ubiquitous EO vocabulary
+//   3. Shared tags — structural grouping signal
+//
+// Replace the existing RELATED_STOP_WORDS block through findRelatedArticles().
 var RELATED_STOP_WORDS = {};
 'the a an and or of to in is it for on by at as be do if no so up we he my not but are was has had its can all may you how why what when from with this that will been have they their them into than then each also more some about which would other could'.split(' ').forEach(function(w) { RELATED_STOP_WORDS[w] = true; });
-
-function extractArticleKeywords(page) {
-  var words = {};
-  var raw = (page.slug || '').split('-')
-    .concat((page.title || '').toLowerCase().replace(/[^a-z0-9\s]/g, '').split(/\s+/))
-    .concat((page.tags || []).map(function(t) { return t.toLowerCase(); }));
-
-  // Also extract keywords from content if available
-  if (page.record && page.record.parsed && page.record.parsed.current_revision && page.record.parsed.current_revision.content) {
-    var text = page.record.parsed.current_revision.content.replace(/<[^>]+>/g, ' ').toLowerCase().replace(/[^a-z0-9\s]/g, '');
-    var contentWords = text.split(/\s+/);
-    // Only use the first ~200 words of content to keep it efficient
-    for (var i = 0; i < Math.min(contentWords.length, 200); i++) {
-      raw.push(contentWords[i]);
+// IDF index — built lazily on first call to findRelatedArticles.
+var _idfIndex = null;
+// Extract all meaningful terms from a page for IDF/TF computation.
+// Uses slug, title, tags, stored keywords, and up to MAX_CONTENT_WORDS of body text.
+var MAX_CONTENT_WORDS = 1500;
+function _pageTerms(page) {
+  var terms = [];
+  // Slug parts (e.g. "the-nine-operators" → ["nine", "operators"])
+  (page.slug || '').split('-').forEach(function(w) {
+    if (w.length >= 3) terms.push(w.toLowerCase());
+  });
+  // Title words
+  (page.title || '').toLowerCase().replace(/[^a-z0-9\s]/g, '').split(/\s+/).forEach(function(w) {
+    if (w.length >= 3) terms.push(w);
+  });
+  // Stored tags
+  (page.tags || []).forEach(function(t) {
+    if (t.length >= 2) terms.push(t.toLowerCase());
+  });
+  // Stored keywords
+  (page.keywords || []).forEach(function(k) {
+    if (k.length >= 2) terms.push(k.toLowerCase());
+  });
+  // Body content
+  var content = page.record &&
+                page.record.parsed &&
+                page.record.parsed.current_revision &&
+                page.record.parsed.current_revision.content || '';
+  if (content) {
+    var text = content.replace(/<[^>]+>/g, ' ').toLowerCase().replace(/[^a-z0-9\s]/g, '');
+    var words = text.split(/\s+/);
+    for (var i = 0; i < Math.min(words.length, MAX_CONTENT_WORDS); i++) {
+      if (words[i].length >= 4 && !RELATED_STOP_WORDS[words[i]]) {
+        terms.push(words[i]);
+      }
     }
   }
-
-  for (var i = 0; i < raw.length; i++) {
-    var w = raw[i];
-    if (w.length >= 3 && !RELATED_STOP_WORDS[w]) words[w] = true;
-  }
-  return words;
+  return terms.filter(function(w) { return w.length >= 3 && !RELATED_STOP_WORDS[w]; });
 }
-
+// Extract slugs that this page explicitly links to via navigate('slug').
+// These represent editorial judgments — highest-confidence relatedness signal.
+function _extractOutgoingLinks(page) {
+  var slugs = {};
+  var content = page.record &&
+                page.record.parsed &&
+                page.record.parsed.current_revision &&
+                page.record.parsed.current_revision.content || '';
+  if (!content) return slugs;
+  var re = /navigate\(['"]([^'"#]+)['"]\)/g;
+  var m;
+  while ((m = re.exec(content)) !== null) {
+    slugs[m[1]] = true;
+  }
+  return slugs;
+}
+// Build the IDF index once over allPages.
+// IDF(t) = log((N+1) / (df(t)+1))  — smoothed to avoid division by zero.
+// High IDF = rare term = more discriminating.
+function _buildIdfIndex() {
+  if (_idfIndex) return _idfIndex;
+  var N = allPages.length;
+  var df = {}; // document frequency per term
+  allPages.forEach(function(p) {
+    var seen = {};
+    _pageTerms(p).forEach(function(t) {
+      if (!seen[t]) { df[t] = (df[t] || 0) + 1; seen[t] = true; }
+    });
+  });
+  _idfIndex = {};
+  Object.keys(df).forEach(function(t) {
+    _idfIndex[t] = Math.log((N + 1) / (df[t] + 1));
+  });
+  return _idfIndex;
+}
 function findRelatedArticles(currentSlug, maxResults) {
   maxResults = maxResults || 8;
+  // Find current page
   var current = null;
   for (var i = 0; i < allPages.length; i++) {
     if (allPages[i].slug === currentSlug) { current = allPages[i]; break; }
   }
   if (!current) return [];
-
-  var keywords = extractArticleKeywords(current);
+  var idf = _buildIdfIndex();
+  // --- Signal 1: explicit wiki-links ---
+  // Outgoing: which slugs does the current article link to?
+  var outgoing = _extractOutgoingLinks(current);
+  // Incoming: build a reverse map — which articles link TO current?
+  // (O(N) scan; fine for a wiki of this size)
+  var incoming = {};
+  allPages.forEach(function(p) {
+    if (p.slug === currentSlug) return;
+    if (_extractOutgoingLinks(p)[currentSlug]) incoming[p.slug] = true;
+  });
+  // --- Signal 2: TF-IDF vector for current article ---
+  var currentTerms = _pageTerms(current);
+  var tf = {};
+  currentTerms.forEach(function(t) { tf[t] = (tf[t] || 0) + 1; });
+  // Normalise TF by max frequency so scores are in [0,1] × IDF range
+  var maxTf = 1;
+  Object.keys(tf).forEach(function(t) { if (tf[t] > maxTf) maxTf = tf[t]; });
+  // Precompute TF-IDF weight for each term in current article
+  var currentWeight = {};
+  Object.keys(tf).forEach(function(t) {
+    var w = (tf[t] / maxTf) * (idf[t] || 0);
+    if (w > 0.05) currentWeight[t] = w; // drop near-zero (ubiquitous) terms
+  });
+  // --- Score all candidates ---
   var candidates = [];
-
-  for (var i = 0; i < allPages.length; i++) {
-    var p = allPages[i];
-    if (p.slug === currentSlug) continue;
-    if (p.visibility === 'private' || p.status === 'archived') continue;
-    if (!p.hasContent && p.status !== 'published') continue;
-
+  allPages.forEach(function(p) {
+    if (p.slug === currentSlug) return;
+    if (p.visibility === 'private' || p.status === 'archived') return;
+    if (!p.hasContent && p.status !== 'published') return;
     var score = 0;
-    var slugParts = (p.slug || '').split('-');
-    var titleParts = (p.title || '').toLowerCase().replace(/[^a-z0-9\s]/g, '').split(/\s+/);
-    var tags = (p.tags || []).map(function(t) { return t.toLowerCase(); });
-
-    for (var j = 0; j < slugParts.length; j++) {
-      if (keywords[slugParts[j]]) score += 1;
-    }
-    for (var j = 0; j < titleParts.length; j++) {
-      if (keywords[titleParts[j]]) score += 1;
-    }
-    for (var j = 0; j < tags.length; j++) {
-      if (keywords[tags[j]]) score += 2;
-    }
-
+    // Signal 1: link graph (+6 per direction, max +12)
+    if (outgoing[p.slug]) score += 6;
+    if (incoming[p.slug]) score += 6;
+    // Signal 2: TF-IDF term overlap
+    // Build a term-set for candidate (no need for weights — presence is enough)
+    var pTermSet = {};
+    _pageTerms(p).forEach(function(t) { pTermSet[t] = true; });
+    Object.keys(currentWeight).forEach(function(t) {
+      if (pTermSet[t]) score += currentWeight[t];
+    });
+    // Signal 3: shared tags — structural grouping
+    var currentTags = (current.tags || []);
+    var pTags = (p.tags || []);
+    currentTags.forEach(function(ct) {
+      if (ct.length > 2 && pTags.indexOf(ct) !== -1) score += 2;
+    });
     if (score > 0) candidates.push({ page: p, score: score });
-  }
-
+  });
   candidates.sort(function(a, b) { return b.score - a.score; });
   return candidates.slice(0, maxResults);
+}
+// Legacy wrapper — kept in case anything calls extractArticleKeywords directly.
+function extractArticleKeywords(page) {
+  var words = {};
+  _pageTerms(page).forEach(function(w) { words[w] = true; });
+  return words;
 }
 
 // ── Next Article ──────────────────────────────────────────────────────────────
