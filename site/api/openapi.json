@@ -1,0 +1,277 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "Emergent Ontology API",
+    "description": "Read-only API for accessing Emergent Ontology content. All endpoints return static JSON generated at build time. No authentication required.",
+    "version": "1.0.0",
+    "contact": {
+      "name": "Emergent Ontology",
+      "url": "https://github.com/clovenbradshaw-ctrl/emergentontology"
+    }
+  },
+  "servers": [
+    {
+      "url": "/api",
+      "description": "Static JSON API (relative to site root)"
+    }
+  ],
+  "paths": {
+    "/index.json": {
+      "get": {
+        "operationId": "getSiteIndex",
+        "summary": "Get the full site index",
+        "description": "Returns all content entries, navigation items, and slug-to-ID mapping. This is the main discovery endpoint.",
+        "responses": {
+          "200": {
+            "description": "Site index",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/SiteIndex" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/content.json": {
+      "get": {
+        "operationId": "listContent",
+        "summary": "List all content with summaries",
+        "description": "Returns a list of all published content items with metadata and content previews. Useful for browsing or searching.",
+        "responses": {
+          "200": {
+            "description": "Content listing",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/ContentList" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/content/{contentId}.json": {
+      "get": {
+        "operationId": "getContent",
+        "summary": "Get a specific content item",
+        "description": "Returns the full content for a specific item. The contentId uses the format 'type-slug' (e.g., 'wiki-operators', 'blog-my-post').",
+        "parameters": [
+          {
+            "name": "contentId",
+            "in": "path",
+            "required": true,
+            "description": "Content identifier in 'type-slug' format (e.g., 'wiki-operators')",
+            "schema": { "type": "string" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Content item",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/ContentItem" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/operators.json": {
+      "get": {
+        "operationId": "getOperators",
+        "summary": "Get the nine EO operators",
+        "description": "Returns the definitions of all nine Emergent Ontology operators with symbols, codes, labels, and colors.",
+        "responses": {
+          "200": {
+            "description": "Operators list",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/OperatorList" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/home.json": {
+      "get": {
+        "operationId": "getHomeConfig",
+        "summary": "Get homepage configuration",
+        "description": "Returns the homepage hero, operators grid, and content sections configuration.",
+        "responses": {
+          "200": {
+            "description": "Home configuration",
+            "content": {
+              "application/json": {
+                "schema": { "type": "object" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/manifest.json": {
+      "get": {
+        "operationId": "getApiManifest",
+        "summary": "Get API manifest and discovery info",
+        "description": "Returns a manifest describing all available API endpoints, content types, and usage instructions.",
+        "responses": {
+          "200": {
+            "description": "API manifest",
+            "content": {
+              "application/json": {
+                "schema": { "type": "object" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/sitemap.json": {
+      "get": {
+        "operationId": "getSitemap",
+        "summary": "Get machine-readable sitemap",
+        "description": "Returns a JSON sitemap of all public URLs on the site.",
+        "responses": {
+          "200": {
+            "description": "Sitemap",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/Sitemap" }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "SiteIndex": {
+        "type": "object",
+        "properties": {
+          "entries": {
+            "type": "array",
+            "description": "All content entries",
+            "items": { "$ref": "#/components/schemas/IndexEntry" }
+          },
+          "nav": {
+            "type": "array",
+            "description": "Published public entries (for navigation)",
+            "items": { "$ref": "#/components/schemas/IndexEntry" }
+          },
+          "slug_map": {
+            "type": "object",
+            "description": "Mapping of slug to content_id",
+            "additionalProperties": { "type": "string" }
+          },
+          "built_at": { "type": "string", "format": "date-time" }
+        }
+      },
+      "IndexEntry": {
+        "type": "object",
+        "properties": {
+          "content_id": { "type": "string", "description": "Unique ID like 'wiki:operators'" },
+          "slug": { "type": "string" },
+          "title": { "type": "string" },
+          "content_type": { "type": "string", "enum": ["wiki", "blog", "experiment", "document", "page"] },
+          "status": { "type": "string", "enum": ["draft", "published", "archived"] },
+          "visibility": { "type": "string", "enum": ["public", "private"] },
+          "tags": { "type": "array", "items": { "type": "string" } },
+          "updated_at": { "type": "string", "format": "date-time" }
+        }
+      },
+      "ContentList": {
+        "type": "object",
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": { "$ref": "#/components/schemas/ContentSummary" }
+          },
+          "total": { "type": "integer" },
+          "generated_at": { "type": "string", "format": "date-time" }
+        }
+      },
+      "ContentSummary": {
+        "type": "object",
+        "properties": {
+          "content_id": { "type": "string" },
+          "content_type": { "type": "string" },
+          "slug": { "type": "string" },
+          "title": { "type": "string" },
+          "description": { "type": "string" },
+          "tags": { "type": "array", "items": { "type": "string" } },
+          "updated_at": { "type": "string", "format": "date-time" },
+          "url": { "type": "string", "description": "Relative URL path to the content" },
+          "api_url": { "type": "string", "description": "API URL for full content" }
+        }
+      },
+      "ContentItem": {
+        "type": "object",
+        "properties": {
+          "content_id": { "type": "string" },
+          "content_type": { "type": "string" },
+          "meta": { "$ref": "#/components/schemas/ContentMeta" },
+          "current_revision": { "type": "object", "description": "Current content revision (for wiki/blog types)" },
+          "blocks": { "type": "array", "description": "Content blocks (for page types)" },
+          "entries": { "type": "array", "description": "Experiment entries (for experiment types)" },
+          "assets": { "type": "array", "description": "Document assets (for document types)" }
+        }
+      },
+      "ContentMeta": {
+        "type": "object",
+        "properties": {
+          "content_id": { "type": "string" },
+          "content_type": { "type": "string" },
+          "slug": { "type": "string" },
+          "title": { "type": "string" },
+          "description": { "type": "string" },
+          "status": { "type": "string" },
+          "visibility": { "type": "string" },
+          "tags": { "type": "array", "items": { "type": "string" } },
+          "updated_at": { "type": "string", "format": "date-time" }
+        }
+      },
+      "OperatorList": {
+        "type": "object",
+        "properties": {
+          "operators": {
+            "type": "array",
+            "items": { "$ref": "#/components/schemas/Operator" }
+          }
+        }
+      },
+      "Operator": {
+        "type": "object",
+        "properties": {
+          "num": { "type": "integer", "description": "Operator number (1-9)" },
+          "symbol": { "type": "string", "description": "Unicode symbol" },
+          "code": { "type": "string", "description": "Three-letter code (NUL, SIG, INS, etc.)" },
+          "greek": { "type": "string", "description": "Greek letter" },
+          "label": { "type": "string", "description": "Human-readable label" },
+          "color": { "type": "string", "description": "Display color (hex)" },
+          "slug": { "type": "string", "description": "URL slug" },
+          "wiki_url": { "type": "string", "description": "URL to the operator's wiki page" }
+        }
+      },
+      "Sitemap": {
+        "type": "object",
+        "properties": {
+          "urls": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "url": { "type": "string" },
+                "title": { "type": "string" },
+                "type": { "type": "string" },
+                "updated_at": { "type": "string" }
+              }
+            }
+          },
+          "generated_at": { "type": "string", "format": "date-time" }
+        }
+      }
+    }
+  }
+}

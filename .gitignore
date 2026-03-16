@@ -24,6 +24,13 @@ site/public/generated/js/
 # Projector build output (generated at build time, not committed)
 site/generated/
 
+# API files generated at build time (content mirrors, index, sitemap)
+site/api/content/
+site/api/index.json
+site/api/content.json
+site/api/home.json
+site/api/sitemap.json
+
 # TypeScript compile output for projector
 tools/projector/dist/
 

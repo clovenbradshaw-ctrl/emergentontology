@@ -1,0 +1,57 @@
+# Emergent Ontology (EO)
+
+> A universal grammar of change: every language encodes the same nine transformations, every system implements them, every experience moves through them.
+
+## What is Emergent Ontology?
+
+Emergent Ontology is a theoretical framework proposing that all meaningful structural change in any system reduces to nine primitive operators. These operators were derived from cross-linguistic verb classification (27 languages), Codd's relational algebra, biological morphogenesis, and experience architecture.
+
+## The Nine Operators
+
+1. NUL (∅) — Absence & Nullity: The void, non-existence, null state
+2. SIG (σ) — Designation: Naming, metadata definition, labeling
+3. INS (ι) — Instantiation: Creation, bringing into existence
+4. SEG (|) — Segmentation: Splitting, dividing, partitioning
+5. CON (⋈) — Connection: Relating, joining, linking
+6. SYN (∨) — Synthesis: Merging, combining, unifying
+7. ALT (∿) — Alternation: Frame-switching, changing perspective
+8. SUP (⊕) — Superposition: Holding contradictions simultaneously
+9. REC (↬) — Recursion: Re-centering, self-reference, looping back
+
+## API Access
+
+This site provides a structured JSON API for programmatic access:
+
+- Site index: /api/index.json
+- Content list: /api/content.json
+- Individual content: /api/content/{content_id}.json (e.g., /api/content/wiki-operators.json)
+- Operators: /api/operators.json
+- Home config: /api/home.json
+- Full API manifest: /api/manifest.json
+- OpenAPI spec: /api/openapi.json
+
+All endpoints return JSON. No authentication is required for public content.
+
+## Content Types
+
+- **wiki**: Knowledge base articles about EO concepts and operators
+- **blog**: Blog posts and essays
+- **experiment**: Timestamped research entries (notes, datasets, results)
+- **document**: Asset collections (PDFs, spreadsheets, external links)
+- **page**: Block-based custom pages
+
+## Documentation
+
+- Technical handbook: /docs/TheCompleteEOTechnicalHandbook.html
+- Technical manual (plain text): /docs/technicalmanual.txt
+
+## Machine-Readable Endpoints
+
+- AI plugin manifest: /.well-known/ai-plugin.json
+- API manifest: /api/manifest.json
+- OpenAPI specification: /api/openapi.json
+
+## Source
+
+- GitHub: https://github.com/clovenbradshaw-ctrl/emergentontology
+- Substack: https://emergentontology.substack.com

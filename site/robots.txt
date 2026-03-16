@@ -1,0 +1,16 @@
+# Emergent Ontology — robots.txt
+# Bots and AI agents are welcome to access all public content.
+
+User-agent: *
+Allow: /
+
+# API endpoints (static JSON)
+Allow: /api/
+Allow: /generated/
+
+# Documentation
+Allow: /llms.txt
+Allow: /.well-known/
+
+# Sitemap
+Sitemap: https://emergentontology.com/api/sitemap.json
