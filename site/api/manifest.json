@@ -1,8 +1,20 @@
 {
   "name": "Emergent Ontology API",
   "version": "1.0.0",
-  "description": "Read-only JSON API for Emergent Ontology — a universal grammar of change based on nine primitive operators. All endpoints return static JSON. No authentication required.",
+  "description": "Read-only API for Emergent Ontology — a universal grammar of change based on nine primitive operators. Content is served from a live Xano database. No authentication required for public content.",
   "base_url": "/api",
+  "live_api": {
+    "base_url": "https://xvkq-pq7i-idtl.n7d.xano.io/api:GGzWIVAW",
+    "endpoint": "https://xvkq-pq7i-idtl.n7d.xano.io/api:GGzWIVAW/get_public_eowiki",
+    "note": "Live database API. This is the primary content source. Query parameters are all optional.",
+    "parameters": {
+      "record_id": "Fetch a single record by ID (e.g. wiki:operators, blog:first-post, site:index)",
+      "content_type": "Filter by content type: wiki, blog, experiment, document, page",
+      "status": "Filter by status (default: published)",
+      "visibility": "Filter by visibility (default: public)"
+    },
+    "response_shape": "Array of records. Each record has: record_id, displayName, values (JSON string containing meta and content blocks), lastModified."
+  },
   "endpoints": {
     "manifest": {
       "path": "/api/manifest.json",
@@ -12,18 +24,6 @@
       "path": "/api/openapi.json",
       "description": "OpenAPI 3.0 specification for all endpoints"
     },
-    "index": {
-      "path": "/api/index.json",
-      "description": "Site index with all content entries, navigation, and slug mapping. Start here for discovery."
-    },
-    "content_list": {
-      "path": "/api/content.json",
-      "description": "All content items with summaries and preview text"
-    },
-    "content_item": {
-      "path": "/api/content/{content_id}.json",
-      "description": "Full content for a specific item. Use content_id from the index with ':' replaced by '-' (e.g., wiki:operators → wiki-operators.json)"
-    },
     "operators": {
       "path": "/api/operators.json",
       "description": "The nine EO operators with symbols, codes, labels, and wiki links"
@@ -31,10 +31,6 @@
     "home": {
       "path": "/api/home.json",
       "description": "Homepage configuration (hero, operators grid, sections)"
-    },
-    "sitemap": {
-      "path": "/api/sitemap.json",
-      "description": "Machine-readable JSON sitemap of all public URLs"
     }
   },
   "content_types": {
