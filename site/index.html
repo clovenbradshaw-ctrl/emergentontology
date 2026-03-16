@@ -716,6 +716,58 @@
   .wiki-view-btn:hover { color: var(--text); }
   .wiki-view-btn.active { background: var(--purple-bg); color: var(--purple); font-weight: 600; }
 
+  /* ── Reading Paths ── */
+  .reading-paths { margin-bottom: 1.5rem; }
+  .rp-title { font-size: 0.7rem; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; color: var(--text-faint); margin-bottom: 0.6rem; }
+  .rp-list { display: flex; gap: 0.4rem; flex-wrap: wrap; }
+  .rpath {
+    height: 28px; padding: 0 12px; border: 1px solid var(--border); border-radius: 100px;
+    background: var(--bg); font-size: 0.78rem; color: var(--text-muted); cursor: pointer;
+    font-family: 'Inter', sans-serif; transition: all 0.15s; white-space: nowrap;
+  }
+  .rpath:hover { border-color: var(--purple); color: var(--purple); }
+  .rpath.on { background: var(--purple); color: #fff; border-color: var(--purple); }
+
+  /* ── Concept Path Bar ── */
+  .path-bar {
+    background: var(--purple-bg); border: 1px solid var(--purple-border);
+    border-radius: 8px; padding: 0.85rem 1rem; margin-bottom: 1.25rem;
+  }
+  .path-bar-hd { display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.6rem; }
+  .path-bar-title { font-size: 0.75rem; font-weight: 600; color: var(--purple); letter-spacing: 0.02em; }
+  .path-bar-desc { font-size: 0.75rem; color: var(--text-muted); }
+  .path-steps { display: flex; gap: 0; overflow-x: auto; padding-bottom: 2px; }
+  .pstep { display: flex; align-items: center; gap: 0.4rem; flex-shrink: 0; padding: 0.3rem 0; cursor: pointer; }
+  .pstep:not(:last-child)::after { content: '\2192'; color: var(--text-faint); margin: 0 0.5rem; font-size: 0.75rem; }
+  .pstep-n {
+    width: 18px; height: 18px; border-radius: 50%; border: 1px solid var(--purple-border);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 10px; color: var(--purple); font-weight: 500; flex-shrink: 0;
+  }
+  .pstep-t { font-size: 0.78rem; color: var(--text); font-weight: 500; }
+  .pstep-t:hover { color: var(--purple); }
+  .pstep.found .pstep-n { background: var(--purple); border-color: var(--purple); color: #fff; }
+  .pstep.missing .pstep-t { color: var(--text-faint); }
+
+  /* ── Active filter chips ── */
+  .wiki-meta-row { display: flex; align-items: center; gap: 0.5rem; margin-bottom: 1rem; min-height: 22px; }
+  .wiki-chip {
+    display: inline-flex; align-items: center; gap: 0.3rem; height: 22px; padding: 0 10px;
+    background: var(--purple-bg); color: var(--purple); border-radius: 100px;
+    font-size: 0.75rem; font-weight: 500;
+  }
+  .wiki-chip button {
+    background: none; border: none; cursor: pointer; color: var(--purple);
+    font-size: 13px; line-height: 1; padding: 0; display: flex; align-items: center; opacity: 0.7;
+  }
+  .wiki-chip button:hover { opacity: 1; }
+
+  /* ── Cluster badges ── */
+  .cluster-badge {
+    height: 22px; padding: 0 9px; border-radius: 100px; font-size: 0.72rem;
+    font-weight: 600; display: inline-flex; align-items: center; gap: 5px;
+  }
+
   /* ── Rich Wiki Cards ── */
   .wiki-card {
     display: flex; flex-direction: column; gap: 0.35rem;
@@ -1758,7 +1810,46 @@ function renderHomeSection(title, items) {
 
 // ── Section View (wiki/blog/experiments list) ─────────────────────────────────
 
-var wikiFilterState = { query: '', tag: '', view: 'grouped' };
+var wikiFilterState = { query: '', tag: '', view: 'grouped', path: '' };
+
+var WIKI_CLUSTERS = [
+  {id:'foundation',label:'Foundation',color:'#6366F1',bg:'#EEF2FF',text:'#4338CA',
+   keys:['ground / figure','three triads','triadic minimum','emergent ontology (eo)']},
+  {id:'entity',label:'Entity Types',color:'#0891B2',bg:'#ECFEFF',text:'#0E7490',
+   keys:['emanon','protogon','holon']},
+  {id:'operators',label:'Operators',color:'#D97706',bg:'#FFFBEB',text:'#B45309',
+   keys:['nine operators','operator naming','mvp: minimum','minimum viable','ins']},
+  {id:'structure',label:'Structure & Space',color:'#7C3AED',bg:'#F5F3FF',text:'#6D28D9',
+   keys:['27 forms','capacity ground','degrees of freedom','three arrows','decal notation','axis triad']},
+  {id:'notation',label:'Notation',color:'#DB2777',bg:'#FDF2F8',text:'#BE185D',
+   keys:['eo notation','decal notation','operator naming']},
+  {id:'lineage',label:'Philosophy & Lineage',color:'#059669',bg:'#ECFDF5',text:'#047857',
+   keys:['influences and','integral lineage','three faces']},
+  {id:'advanced',label:'Advanced Topics',color:'#DC2626',bg:'#FEF2F2',text:'#B91C1C',
+   keys:['quantum weirdness','time as emergent','weirdness']}
+];
+
+var WIKI_PATHS = [
+  {id:'start',label:'Start here',desc:'New to EO',
+   steps:['Emergent Ontology (EO)','Ground / Figure / Pattern','The Three Triads','The Nine Operators','The 27 Forms']},
+  {id:'ops',label:'Operators',desc:'Formal operators in depth',
+   steps:['INS','The Nine Operators','Operator Naming in Emergent Ontology','EO Notation','Decal Notation']},
+  {id:'entities',label:'Entity Types',desc:'Emanon, Protogon, Holon',
+   steps:['The Triadic Minimum','Emanon','Protogon','Holons','Degrees of Freedom']},
+  {id:'formal',label:'Formal structure',desc:'Advanced reading',
+   steps:['EO Capacity Ground Cube','Time as Emergent Dimension','Quantum Weirdness in EO: Contained but not Tamed','The Three Arrows']}
+];
+
+function wikiClusterOf(title) {
+  var t = (title || '').toLowerCase();
+  for (var i = 0; i < WIKI_CLUSTERS.length; i++) {
+    var c = WIKI_CLUSTERS[i];
+    for (var j = 0; j < c.keys.length; j++) {
+      if (t.indexOf(c.keys[j]) >= 0) return c;
+    }
+  }
+  return WIKI_CLUSTERS[WIKI_CLUSTERS.length - 1];
+}
 
 function renderSection(type) {
   var app = document.getElementById('app');
@@ -1808,9 +1899,20 @@ function renderSection(type) {
     h += '</div>';
     h += '<div class="wiki-view-toggle">';
     h += '<button class="wiki-view-btn' + (wikiFilterState.view === 'grouped' ? ' active' : '') + '" data-wview="grouped">Grouped</button>';
+    h += '<button class="wiki-view-btn' + (wikiFilterState.view === 'clustered' ? ' active' : '') + '" data-wview="clustered">Clustered</button>';
     h += '<button class="wiki-view-btn' + (wikiFilterState.view === 'all' ? ' active' : '') + '" data-wview="all">All</button>';
     h += '</div>';
     h += '</div>';
+
+    // Reading paths
+    h += '<div class="reading-paths">';
+    h += '<div class="rp-title">Reading paths</div>';
+    h += '<div class="rp-list">';
+    for (var pi = 0; pi < WIKI_PATHS.length; pi++) {
+      var rp = WIKI_PATHS[pi];
+      h += '<button class="rpath' + (wikiFilterState.path === rp.id ? ' on' : '') + '" data-path="' + rp.id + '">' + esc(rp.label) + '</button>';
+    }
+    h += '</div></div>';
 
     // Apply filters
     var filtered = pub;
@@ -1827,8 +1929,62 @@ function renderSection(type) {
         return (p.tags || []).indexOf(wikiFilterState.tag) >= 0;
       });
     }
+    if (wikiFilterState.path) {
+      var activePDef = null;
+      for (var pi = 0; pi < WIKI_PATHS.length; pi++) {
+        if (WIKI_PATHS[pi].id === wikiFilterState.path) { activePDef = WIKI_PATHS[pi]; break; }
+      }
+      if (activePDef) {
+        filtered = filtered.filter(function(p) {
+          return activePDef.steps.some(function(s) {
+            return (p.title || '').toLowerCase().indexOf(s.toLowerCase()) >= 0;
+          });
+        });
+      }
+    }
 
-    h += '<div class="wiki-article-count">' + filtered.length + ' article' + (filtered.length !== 1 ? 's' : '') + '</div>';
+    // Active filter chips + article count
+    h += '<div class="wiki-meta-row">';
+    h += '<span class="wiki-article-count">' + filtered.length + ' article' + (filtered.length !== 1 ? 's' : '') + '</span>';
+    if (wikiFilterState.tag) {
+      h += '<span class="wiki-chip">' + esc(wikiFilterState.tag) + '<button onclick="wikiFilterState.tag=\'\';renderSection(\'wiki\');">\u00D7</button></span>';
+    }
+    if (wikiFilterState.path) {
+      var activePathLabel = '';
+      for (var pi = 0; pi < WIKI_PATHS.length; pi++) {
+        if (WIKI_PATHS[pi].id === wikiFilterState.path) { activePathLabel = WIKI_PATHS[pi].label; break; }
+      }
+      h += '<span class="wiki-chip">' + esc(activePathLabel) + '<button onclick="wikiFilterState.path=\'\';renderSection(\'wiki\');">\u00D7</button></span>';
+    }
+    h += '</div>';
+
+    // Path bar (when a reading path is active)
+    if (wikiFilterState.path) {
+      var activePDef2 = null;
+      for (var pi = 0; pi < WIKI_PATHS.length; pi++) {
+        if (WIKI_PATHS[pi].id === wikiFilterState.path) { activePDef2 = WIKI_PATHS[pi]; break; }
+      }
+      if (activePDef2) {
+        h += '<div class="path-bar">';
+        h += '<div class="path-bar-hd"><span class="path-bar-title">' + esc(activePDef2.label) + '</span>';
+        h += '<span class="path-bar-desc">\u2014 ' + esc(activePDef2.desc) + '</span></div>';
+        h += '<div class="path-steps">';
+        for (var si = 0; si < activePDef2.steps.length; si++) {
+          var stepName = activePDef2.steps[si];
+          var foundPage = null;
+          for (var fi = 0; fi < pub.length; fi++) {
+            if ((pub[fi].title || '').toLowerCase().indexOf(stepName.toLowerCase()) >= 0) {
+              foundPage = pub[fi]; break;
+            }
+          }
+          h += '<div class="pstep' + (foundPage ? ' found' : ' missing') + '"' + (foundPage ? ' onclick="navigate(\'' + escAttr(foundPage.slug) + '\')"' : '') + '>';
+          h += '<div class="pstep-n">' + (foundPage ? '\u2713' : (si + 1)) + '</div>';
+          h += '<span class="pstep-t">' + esc(stepName) + '</span>';
+          h += '</div>';
+        }
+        h += '</div></div>';
+      }
+    }
 
     if (filtered.length === 0) {
       h += '<div class="empty-state"><div class="empty-state-icon">\u03C3</div>';
@@ -1841,6 +1997,25 @@ function renderSection(type) {
         h += renderWikiCard(filtered[i]);
       }
       h += '</div>';
+    } else if (wikiFilterState.view === 'clustered') {
+      // Grouped by concept cluster
+      for (var ci = 0; ci < WIKI_CLUSTERS.length; ci++) {
+        var cl = WIKI_CLUSTERS[ci];
+        var clItems = filtered.filter(function(p) {
+          return wikiClusterOf(p.title).id === cl.id;
+        });
+        if (!clItems.length) continue;
+        h += '<div class="tag-group">';
+        h += '<div class="tag-group-header" onclick="toggleTagGroup(this)">';
+        h += '<span class="tag-group-chevron">\u25BC</span>';
+        h += '<span class="cluster-badge" style="background:' + cl.bg + ';color:' + cl.text + '">' + esc(cl.label) + ' <span class="tag-group-count">(' + clItems.length + ')</span></span>';
+        h += '</div>';
+        h += '<div class="tag-group-body"><div class="wiki-cards-grid">';
+        for (var i = 0; i < clItems.length; i++) {
+          h += renderWikiCard(clItems[i]);
+        }
+        h += '</div></div></div>';
+      }
     } else {
       // Grouped by tag with collapsible sections
       var tagMap = {};
@@ -1961,6 +2136,13 @@ function setupWikiFilters(type) {
   document.querySelectorAll('.wiki-view-btn').forEach(function(btn) {
     btn.addEventListener('click', function() {
       wikiFilterState.view = this.getAttribute('data-wview');
+      renderSection(type);
+    });
+  });
+  document.querySelectorAll('.rpath').forEach(function(btn) {
+    btn.addEventListener('click', function() {
+      var pathId = this.getAttribute('data-path');
+      wikiFilterState.path = wikiFilterState.path === pathId ? '' : pathId;
       renderSection(type);
     });
   });
