@@ -3,6 +3,7 @@
  */
 
 import { BASE, OPERATORS } from './config.js';
+import { contentUrl } from './router.js';
 import { revealAdmin } from './render.js';
 
 /**
@@ -17,6 +18,7 @@ export function setupUI(renderFn) {
   setupAdminEscReveal();
   setupLogoCycling();
   setupButtonActions();
+  setupArticleLinkModal(renderFn);
   setupSpaNavigation(renderFn);
   revealAdmin();
 }
@@ -173,6 +175,148 @@ function showCopyFeedback(btn) {
   }, 1500);
 }
 
+// ── Article link modal ──────────────────────────────────────────────────────
+
+var LINK_STOP = {};
+'the a an and or of to in is it for on by at as be do if no so up we he my not but are was has had its can all may you how why what when from with this that will been have they their them into than then each also more some about which would other could'.split(' ').forEach(function (w) { LINK_STOP[w] = true; });
+
+function findCandidates(slug, type, maxResults) {
+  maxResults = maxResults || 8;
+  var idx = window.__eoSiteIndex;
+  if (!idx || !idx.entries) return [];
+
+  // Extract keywords from the clicked slug
+  var keywords = {};
+  slug.split('-').forEach(function (w) {
+    if (w.length >= 3 && !LINK_STOP[w]) keywords[w] = true;
+  });
+
+  // Find the exact target first
+  var contentType = type === 'experiment' ? 'experiment' : 'wiki';
+  var exact = null;
+  var candidates = [];
+
+  (idx.entries || []).forEach(function (e) {
+    if (e.visibility !== 'public' || e.status === 'archived') return;
+
+    // Check if this is the exact target
+    if (e.slug === slug && (e.content_type === contentType || e.content_type === type)) {
+      exact = e;
+      return;
+    }
+
+    // Score by keyword overlap
+    var score = 0;
+    var slugParts = (e.slug || '').split('-');
+    var titleParts = (e.title || '').toLowerCase().replace(/[^a-z0-9\s]/g, '').split(/\s+/);
+    var tags = (e.tags || []).map(function (t) { return t.toLowerCase(); });
+
+    slugParts.concat(titleParts).forEach(function (w) {
+      if (keywords[w]) score += 1;
+    });
+    tags.forEach(function (t) {
+      if (keywords[t]) score += 2;
+    });
+
+    if (score > 0) candidates.push({ entry: e, score: score });
+  });
+
+  candidates.sort(function (a, b) { return b.score - a.score; });
+  var results = candidates.slice(0, maxResults);
+
+  // Prepend the exact match if found
+  if (exact) {
+    results.unshift({ entry: exact, score: 999, exact: true });
+  }
+
+  return results;
+}
+
+function setupArticleLinkModal(renderFn) {
+  var overlay = document.getElementById('article-link-modal-overlay');
+  var list = document.getElementById('article-link-modal-list');
+  var title = document.getElementById('article-link-modal-title');
+  var closeBtn = document.getElementById('article-link-modal-close');
+  if (!overlay || !list || !closeBtn) return;
+
+  function closeModal() {
+    overlay.classList.remove('open');
+    document.body.style.overflow = '';
+  }
+
+  function openModal(slug, type) {
+    var candidates = findCandidates(slug, type);
+    var displaySlug = slug.replace(/-/g, ' ');
+    title.textContent = 'Navigate: ' + displaySlug;
+
+    if (candidates.length === 0) {
+      list.innerHTML = '<li class="article-link-modal-empty">No matching articles found.</li>';
+    } else {
+      var h = '';
+      candidates.forEach(function (c) {
+        var e = c.entry;
+        var url = contentUrl(e.content_type, e.slug);
+        var label = c.exact ? 'Exact match' : 'Related';
+        h += '<li><a href="' + url + '" data-spa-nav="true">' +
+          '<span class="alm-title">' +
+          '<span class="alm-type">' + (e.content_type || '').toUpperCase() + '</span>' +
+          escHtml(e.title || e.slug) +
+          '</span>' +
+          '<span class="alm-match">' + label + '</span>' +
+          '</a></li>';
+      });
+      list.innerHTML = h;
+    }
+
+    overlay.classList.add('open');
+    document.body.style.overflow = 'hidden';
+  }
+
+  // Close handlers
+  closeBtn.addEventListener('click', closeModal);
+  overlay.addEventListener('click', function (e) { if (e.target === overlay) closeModal(); });
+  document.addEventListener('keydown', function (e) {
+    if (e.key === 'Escape' && overlay.classList.contains('open')) {
+      e.stopImmediatePropagation();
+      closeModal();
+    }
+  });
+
+  // Intercept clicks on article embed links
+  document.addEventListener('click', function (e) {
+    var link = e.target.closest('[data-article-link]');
+    if (!link) return;
+
+    e.preventDefault();
+    e.stopPropagation();
+
+    var slug = link.getAttribute('data-article-slug');
+    var type = link.getAttribute('data-article-link');
+    if (!slug) return;
+
+    openModal(slug, type);
+  });
+
+  // Handle clicks on items inside the modal — SPA navigate and close
+  list.addEventListener('click', function (e) {
+    var link = e.target.closest('a[data-spa-nav]');
+    if (!link) return;
+
+    e.preventDefault();
+    closeModal();
+
+    var href = link.getAttribute('href');
+    var resolved = new URL(href, document.baseURI);
+    history.pushState(null, '', resolved.pathname);
+    renderFn();
+    window.scrollTo(0, 0);
+  });
+}
+
+function escHtml(s) {
+  return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+}
+
 // ── SPA link interception ────────────────────────────────────────────────────
 
 function setupSpaNavigation(renderFn) {
@@ -183,6 +327,7 @@ function setupSpaNavigation(renderFn) {
     if (!href) return;
     if (href.startsWith('http') || href.startsWith('mailto:') || href.startsWith('#')) return;
     if (link.classList.contains('btn-edit')) return; // handled by drawer
+    if (link.hasAttribute('data-article-link')) return; // handled by article link modal
 
     var resolved = new URL(href, document.baseURI);
     if (resolved.origin !== location.origin) return;
