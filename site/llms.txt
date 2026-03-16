@@ -20,17 +20,31 @@ Emergent Ontology is a theoretical framework proposing that all meaningful struc
 
 ## API Access
 
-This site provides a structured JSON API for programmatic access:
+Content is served from a live Xano database. No authentication required for public content.
 
-- Site index: /api/index.json
-- Content list: /api/content.json
-- Individual content: /api/content/{content_id}.json (e.g., /api/content/wiki-operators.json)
-- Operators: /api/operators.json
+### Live API (primary)
+
+Base endpoint: https://xvkq-pq7i-idtl.n7d.xano.io/api:GGzWIVAW/get_public_eowiki
+
+Query parameters (all optional):
+- record_id={id}        → fetch a single record (e.g. wiki:operators, blog:first-post, site:index)
+- content_type={type}   → filter by type: wiki, blog, experiment, document, page
+- status={status}       → filter by status (default: published)
+- visibility={vis}      → filter by visibility (default: public)
+
+Examples:
+- All published wiki articles:  ?content_type=wiki
+- A specific article:           ?record_id=wiki:operators
+- The site index:               ?record_id=site:index
+
+Returns JSON. Each record has record_id, displayName, values (JSON string with meta + content blocks), and lastModified.
+
+### Static discovery files
+
+- Operators reference: /api/operators.json
 - Home config: /api/home.json
 - Full API manifest: /api/manifest.json
 - OpenAPI spec: /api/openapi.json
-
-All endpoints return JSON. No authentication is required for public content.
 
 ## Content Types
 
