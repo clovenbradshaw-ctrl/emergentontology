@@ -36,7 +36,7 @@ export function esc(s) {
 export function md(text) {
   if (!text) return '';
   if (window.marked) {
-    try { return window.marked.parse(text); } catch (e) { /* fall through */ }
+    try { return window.marked.parse(text).replace(/<table>/g, '<div class="table-scroll"><table>').replace(/<\/table>/g, '</table></div>'); } catch (e) { /* fall through */ }
   }
   return text
     .replace(/^#### (.+)$/gm, '<h4>$1</h4>')
@@ -61,7 +61,7 @@ export function md(text) {
         var cells = parseRow(lines[i]);
         h += '<tr>' + cells.map(function(c) { return '<td>' + c + '</td>'; }).join('') + '</tr>';
       }
-      return h + '</tbody></table>';
+      return '<div class="table-scroll">' + h + '</tbody></table></div>';
     })
     .replace(/\n\n/g, '</p><p>')
     .replace(/^(?!<[hulot])(.+)/gm, '<p>$1</p>');
