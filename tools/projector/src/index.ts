@@ -31,7 +31,7 @@ import type {
   ExperimentEntry,
 } from './types.js';
 import { fetchAllCurrentRecords, type XanoCurrentRecord } from './fetch_xano.js';
-import { renderSearchIndex, renderStateFiles } from './render.js';
+import { renderSearchIndex, renderStateFiles, renderApiFiles } from './render.js';
 
 const OUT_DEFAULT = join(
   import.meta.dirname,
@@ -414,9 +414,10 @@ async function main() {
   renderSearchIndex(projectedContents, cfg);
 
   // ── 5. Write home config from home.yaml ────────────────────────────────
+  let homeConfig: unknown = null;
   try {
     const homeYamlPath = join(import.meta.dirname, '..', '..', '..', 'home.yaml');
-    const homeConfig = yaml.load(readFileSync(homeYamlPath, 'utf-8'));
+    homeConfig = yaml.load(readFileSync(homeYamlPath, 'utf-8'));
     writeFileSync(
       join(cfg.out_dir, 'home.json'),
       JSON.stringify(homeConfig, null, 2),
@@ -426,6 +427,9 @@ async function main() {
   } catch (err) {
     console.warn('[projector] Could not read home.yaml:', err);
   }
+
+  // ── 6. Write API files for bot/AI access ──────────────────────────────
+  renderApiFiles(siteIndex, projectedContents, cfg, homeConfig);
 
   writeFileSync(
     join(cfg.out_dir, 'build-manifest.json'),

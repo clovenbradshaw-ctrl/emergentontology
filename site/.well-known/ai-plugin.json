@@ -1,0 +1,17 @@
+{
+  "schema_version": "v1",
+  "name_for_human": "Emergent Ontology",
+  "name_for_model": "emergent_ontology",
+  "description_for_human": "Access the Emergent Ontology knowledge base — a universal grammar of change built on nine primitive operators.",
+  "description_for_model": "Emergent Ontology (EO) is a theoretical framework proposing that all structural change reduces to nine primitive operators: NUL (absence), SIG (designation), INS (instantiation), SEG (segmentation), CON (connection), SYN (synthesis), ALT (alternation), SUP (superposition), REC (recursion). This API provides read-only access to wiki articles, blog posts, experiments, documents, and pages about EO. Use /api/manifest.json for full endpoint listing, /api/index.json for the site index, and /api/content/{id}.json for individual content items.",
+  "auth": {
+    "type": "none"
+  },
+  "api": {
+    "type": "openapi",
+    "url": "/api/openapi.json"
+  },
+  "logo_url": "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>∅</text></svg>",
+  "contact_email": "",
+  "legal_info_url": ""
+}

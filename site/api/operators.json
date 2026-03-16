@@ -1,0 +1,103 @@
+{
+  "operators": [
+    {
+      "num": 1,
+      "symbol": "∅",
+      "code": "NUL",
+      "greek": "ν",
+      "label": "Absence & Nullity",
+      "description": "The void, non-existence, null state. The operator of what is not, what has been removed, or what has not yet come into being.",
+      "color": "#9ca3af",
+      "slug": "nul",
+      "wiki_url": "/wiki/nul/"
+    },
+    {
+      "num": 2,
+      "symbol": "σ",
+      "code": "SIG",
+      "greek": "σ",
+      "label": "Designation",
+      "description": "Naming, metadata definition, labeling. The operator that assigns meaning by pointing at something and saying what it is.",
+      "color": "#60a5fa",
+      "slug": "sig",
+      "wiki_url": "/wiki/sig/"
+    },
+    {
+      "num": 3,
+      "symbol": "ι",
+      "code": "INS",
+      "greek": "α",
+      "label": "Instantiation",
+      "description": "Creation, bringing into existence. The operator that makes something real — from abstract type to concrete instance.",
+      "color": "#4ade80",
+      "slug": "ins",
+      "wiki_url": "/wiki/ins/"
+    },
+    {
+      "num": 4,
+      "symbol": "|",
+      "code": "SEG",
+      "greek": "κ",
+      "label": "Segmentation",
+      "description": "Splitting, dividing, partitioning. The operator that creates boundaries and separates wholes into parts.",
+      "color": "#c084fc",
+      "slug": "seg",
+      "wiki_url": "/wiki/seg/"
+    },
+    {
+      "num": 5,
+      "symbol": "⋈",
+      "code": "CON",
+      "greek": "ε",
+      "label": "Connection",
+      "description": "Relating, joining, linking. The operator that creates relationships between separate entities.",
+      "color": "#34d399",
+      "slug": "con",
+      "wiki_url": "/wiki/con/"
+    },
+    {
+      "num": 6,
+      "symbol": "∨",
+      "code": "SYN",
+      "greek": "η",
+      "label": "Synthesis",
+      "description": "Merging, combining, unifying. The operator that resolves multiplicity into unity.",
+      "color": "#818cf8",
+      "slug": "syn",
+      "wiki_url": "/wiki/syn/"
+    },
+    {
+      "num": 7,
+      "symbol": "∿",
+      "code": "ALT",
+      "greek": "δ",
+      "label": "Alternation",
+      "description": "Frame-switching, changing perspective. The operator that shifts between different views or states.",
+      "color": "#fbbf24",
+      "slug": "alt",
+      "wiki_url": "/wiki/alt/"
+    },
+    {
+      "num": 8,
+      "symbol": "⊕",
+      "code": "SUP",
+      "greek": "ψ",
+      "label": "Superposition",
+      "description": "Holding contradictions simultaneously. The operator that maintains multiple incompatible states at once.",
+      "color": "#f472b6",
+      "slug": "sup",
+      "wiki_url": "/wiki/sup/"
+    },
+    {
+      "num": 9,
+      "symbol": "↬",
+      "code": "REC",
+      "greek": "Ω",
+      "label": "Recursion",
+      "description": "Re-centering, self-reference, looping back. The operator that applies the system to itself.",
+      "color": "#fb923c",
+      "slug": "rec",
+      "wiki_url": "/wiki/rec/"
+    }
+  ]
+}
