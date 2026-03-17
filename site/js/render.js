@@ -181,14 +181,14 @@ export function renderBlock(block, page) {
     case 'wiki-embed': {
       var wslug = String(d.slug || d.wiki_id || '');
       if (!wslug) return '<div class="block block-wiki-embed">[wiki embed: no slug]</div>';
-      return '<div class="block block-wiki-embed"><a class="wiki-embed-link" href="' + BASE + '/wiki/' + esc(wslug) + '/">Linked wiki: ' + esc(wslug) + '</a></div>';
+      return '<div class="block block-wiki-embed"><a class="wiki-embed-link" href="' + BASE + '/wiki/' + esc(wslug) + '/" data-article-link="wiki" data-article-slug="' + esc(wslug) + '">Linked wiki: ' + esc(wslug) + '</a></div>';
     }
 
     case 'experiment-embed': {
       var eid = String(d.exp_id || '');
       if (!eid) return '<div class="block block-experiment-embed">[experiment embed: no ID]</div>';
       var eslug = eid.replace('experiment:', '');
-      return '<div class="block block-experiment-embed"><a class="exp-embed-link" href="' + BASE + '/exp/' + esc(eslug) + '/">Linked experiment: ' + esc(eslug) + '</a></div>';
+      return '<div class="block block-experiment-embed"><a class="exp-embed-link" href="' + BASE + '/exp/' + esc(eslug) + '/" data-article-link="experiment" data-article-slug="' + esc(eslug) + '">Linked experiment: ' + esc(eslug) + '</a></div>';
     }
 
     case 'toc': {

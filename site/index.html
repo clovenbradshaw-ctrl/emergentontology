@@ -581,6 +581,54 @@
   .search-result .sr-title { font-weight: 500; }
   .search-empty { padding: 1.5rem; text-align: center; color: var(--text-faint); font-size: 0.88rem; }
 
+  /* ── Article Link Modal ── */
+  .article-link-modal-overlay {
+    display: none; position: fixed; inset: 0;
+    background: rgba(0,0,0,0.45); z-index: 210;
+    align-items: flex-start; justify-content: center; padding-top: 12vh;
+  }
+  .article-link-modal-overlay.open { display: flex; }
+  .article-link-modal {
+    width: 480px; max-width: 92vw; background: var(--bg);
+    border-radius: 12px; box-shadow: 0 20px 60px rgba(0,0,0,0.2);
+    overflow: hidden; animation: searchIn 0.2s ease-out;
+  }
+  .article-link-modal-header {
+    padding: 1rem 1.2rem; border-bottom: 1px solid var(--border);
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  .article-link-modal-header h3 {
+    margin: 0; font-size: 0.95rem; font-weight: 600; color: var(--text);
+  }
+  .article-link-modal-close {
+    background: none; border: none; cursor: pointer;
+    color: var(--text-faint); font-size: 1.2rem; padding: 0.2rem 0.4rem;
+    border-radius: 4px; transition: background 0.15s;
+  }
+  .article-link-modal-close:hover { background: var(--border-light); }
+  .article-link-modal-list {
+    list-style: none; margin: 0; padding: 0.5rem;
+    max-height: 360px; overflow-y: auto;
+  }
+  .article-link-modal-list li a {
+    display: block; padding: 0.65rem 0.8rem; border-radius: 6px;
+    text-decoration: none; color: var(--text); transition: background 0.1s;
+  }
+  .article-link-modal-list li a:hover { background: var(--border-light); }
+  .article-link-modal-list li a .alm-title {
+    font-weight: 500; font-size: 0.92rem; display: block;
+  }
+  .article-link-modal-list li a .alm-type {
+    font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.08em;
+    font-weight: 600; color: var(--purple); margin-right: 0.5rem;
+  }
+  .article-link-modal-list li a .alm-match {
+    font-size: 0.75rem; color: var(--text-faint); display: block; margin-top: 0.15rem;
+  }
+  .article-link-modal-empty {
+    padding: 1.5rem; text-align: center; color: var(--text-faint); font-size: 0.88rem;
+  }
+
   /* ── Footer ── */
   .site-footer {
     border-top: 1px solid var(--border);
@@ -1098,6 +1146,16 @@
   <div class="search-box">
     <input class="search-input" id="searchInput" placeholder="Search pages…" autocomplete="off">
     <div class="search-results" id="searchResults"></div>
+  </div>
+</div>
+
+<div class="article-link-modal-overlay" id="article-link-modal-overlay">
+  <div class="article-link-modal">
+    <div class="article-link-modal-header">
+      <h3 id="article-link-modal-title">Choose an article</h3>
+      <button class="article-link-modal-close" id="article-link-modal-close">&times;</button>
+    </div>
+    <ul class="article-link-modal-list" id="article-link-modal-list"></ul>
   </div>
 </div>
 
