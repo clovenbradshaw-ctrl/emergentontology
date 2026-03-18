@@ -808,8 +808,8 @@
       "interpretation": "Of 9 operators, 5 have their nearest centroid at a lower helix position and 4 at a higher position. Directional asymmetry toward lower helix positions: operators are more similar to their prerequisites than their successors. Consistent with helix dependency direction."
     },
     "test_D": {
-      "spearman_r": NaN,
-      "spearman_p": NaN,
+      "spearman_r": null,
+      "spearman_p": null,
       "n_operators": 9,
       "theory_rank": {
         "Void": null,
@@ -1232,8 +1232,8 @@
       "interpretation": "Of 9 operators, 4 have their nearest centroid at a lower helix position and 5 at a higher position. Confusions are symmetric or toward higher positions. No evidence of directed dependency from centroid proximity."
     },
     "test_D": {
-      "spearman_r": NaN,
-      "spearman_p": NaN,
+      "spearman_r": null,
+      "spearman_p": null,
       "n_operators": 9,
       "theory_rank": {
         "Clearing": null,
