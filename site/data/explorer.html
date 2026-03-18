@@ -1,0 +1,903 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Empirical Grounding — Emergent Ontology</title>
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>∅</text></svg>" />
+  <script>
+    (function() {
+      var t = localStorage.getItem('eo-theme');
+      if (!t) t = window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark';
+      document.documentElement.setAttribute('data-theme', t);
+    })();
+  </script>
+  <style>
+    :root {
+      --bg:       #0f0f0f;
+      --bg2:      #1a1a1a;
+      --bg3:      #222;
+      --border:   #333;
+      --text:     #e8e8e8;
+      --text-dim: #888;
+      --accent:   #7c6fcd;
+      --link:     #9b8fd4;
+      --green:    #4ade80;
+      --red:      #f87171;
+      --yellow:   #fbbf24;
+      --shadow-color: rgba(0,0,0,.4);
+      --font-sans: system-ui, -apple-system, 'Segoe UI', sans-serif;
+      --font-mono: 'JetBrains Mono', 'Fira Code', monospace;
+      --radius:   6px;
+    }
+    [data-theme="light"] {
+      --bg:       #ffffff;
+      --bg2:      #f5f5f7;
+      --bg3:      #e8e8ec;
+      --border:   #d1d1d6;
+      --text:     #1d1d1f;
+      --text-dim: #636366;
+      --accent:   #5b4dba;
+      --link:     #4a3fa0;
+      --green:    #16a34a;
+      --red:      #dc2626;
+      --yellow:   #ca8a04;
+      --shadow-color: rgba(0,0,0,.12);
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: var(--font-sans);
+      line-height: 1.6;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+    a { color: var(--link); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    code { font-family: var(--font-mono); font-size: .85em; background: var(--bg3); padding: 1px 5px; border-radius: 3px; }
+
+    /* Header — matches main site */
+    .site-header {
+      display: flex; align-items: center; gap: 2rem;
+      padding: .75rem 2rem;
+      background: var(--bg2); border-bottom: 1px solid var(--border);
+      position: sticky; top: 0; z-index: 100;
+    }
+    .site-logo { font-weight: 700; font-size: 1.1rem; color: var(--text); display: flex; align-items: center; gap: .45rem; }
+    .site-logo:hover { text-decoration: none; color: var(--accent); }
+    .site-nav ul { display: flex; gap: 1.5rem; list-style: none; }
+    .site-nav a { color: var(--text-dim); font-size: .9rem; }
+    .site-nav a:hover { color: var(--text); text-decoration: none; }
+    .site-nav a.active { color: var(--accent); }
+    .theme-toggle {
+      margin-left: auto;
+      background: none; border: 1px solid var(--border); border-radius: var(--radius);
+      color: var(--text-dim); padding: .35rem .55rem; cursor: pointer;
+      font-size: .85rem; line-height: 1; transition: border-color .15s, color .15s;
+    }
+    .theme-toggle:hover { border-color: var(--accent); color: var(--text); }
+
+    /* Main layout */
+    main { flex: 1; max-width: 1100px; margin: 0 auto; padding: 2rem 1.5rem; width: 100%; }
+
+    /* Hero */
+    .hero { padding: 1.5rem 0 1rem; }
+    .hero h1 { font-size: 1.75rem; font-weight: 700; }
+    .hero-sub { color: var(--text-dim); margin-top: .35rem; font-size: .95rem; }
+
+    /* Tabs */
+    .tabs { display: flex; gap: 2px; margin: 1rem 0 0; overflow-x: auto; border-bottom: 1px solid var(--border); }
+    .tab {
+      padding: .5rem 1rem; cursor: pointer; font-size: .85rem; font-weight: 500;
+      color: var(--text-dim); border-bottom: 2px solid transparent;
+      transition: color .15s, border-color .15s; white-space: nowrap; background: none; border-top: none; border-left: none; border-right: none;
+    }
+    .tab:hover { color: var(--text); }
+    .tab.active { color: var(--accent); border-bottom-color: var(--accent); }
+
+    /* Tab content */
+    .tab-content { display: none; padding: 1.5rem 0; }
+    .tab-content.active { display: block; }
+
+    /* Cards */
+    .cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 12px; margin-bottom: 1.5rem; }
+    .card {
+      background: var(--bg2); border: 1px solid var(--border); border-radius: var(--radius);
+      padding: 14px; cursor: pointer; transition: border-color .15s;
+    }
+    .card:hover { border-color: var(--accent); }
+    .card .label { font-size: .7rem; color: var(--text-dim); text-transform: uppercase; letter-spacing: .5px; margin-bottom: 2px; font-family: var(--font-mono); }
+    .card .value { font-size: 1.5rem; font-weight: 700; font-family: var(--font-mono); }
+    .card .sub { font-size: .75rem; color: var(--text-dim); margin-top: 2px; }
+
+    /* Sections */
+    .section-title { font-size: 1.1rem; font-weight: 600; margin: 1.5rem 0 .6rem; padding-bottom: .4rem; border-bottom: 1px solid var(--border); }
+    .section-desc { color: var(--text-dim); font-size: .85rem; margin-bottom: 1rem; }
+
+    /* Tables */
+    table { width: 100%; border-collapse: collapse; margin-bottom: 1.5rem; font-size: .85rem; }
+    th { text-align: left; padding: 8px 10px; background: var(--bg2); color: var(--text-dim); font-weight: 600; font-size: .75rem; text-transform: uppercase; letter-spacing: .5px; border-bottom: 1px solid var(--border); font-family: var(--font-mono); }
+    td { padding: 7px 10px; border-bottom: 1px solid var(--border); cursor: pointer; transition: background .1s; font-family: var(--font-mono); font-size: .8rem; }
+    td:hover { background: var(--bg2); }
+    tr:last-child td { border-bottom: none; }
+
+    /* Charts */
+    .chart-wrap { background: var(--bg2); border: 1px solid var(--border); border-radius: var(--radius); padding: 16px; margin-bottom: 1.5rem; overflow-x: auto; }
+    svg text { fill: var(--text-dim); font-size: 11px; font-family: var(--font-mono); }
+    svg .bar { cursor: pointer; transition: opacity .15s; }
+    svg .bar:hover { opacity: .75; }
+
+    /* Figures */
+    .figures-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(380px, 1fr)); gap: 12px; }
+    .figure-card { background: var(--bg2); border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; cursor: pointer; transition: border-color .15s; }
+    .figure-card:hover { border-color: var(--accent); }
+    .figure-card img { width: 100%; display: block; }
+    .figure-card .caption { padding: 10px 12px; font-size: .8rem; color: var(--text-dim); font-family: var(--font-mono); }
+
+    /* Badges */
+    .badge { display: inline-block; padding: 1px 7px; border-radius: 999px; font-size: .7rem; font-weight: 600; font-family: var(--font-mono); }
+    .badge-green { background: rgba(74,222,128,.12); color: var(--green); }
+    .badge-red { background: rgba(248,113,113,.12); color: var(--red); }
+    .badge-yellow { background: rgba(251,191,36,.12); color: var(--yellow); }
+    .badge-accent { background: rgba(124,111,205,.12); color: var(--accent); }
+
+    /* Modal */
+    .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,.6); z-index: 1000; align-items: center; justify-content: center; }
+    .modal-overlay.open { display: flex; }
+    .modal { background: var(--bg2); border: 1px solid var(--border); border-radius: 10px; max-width: 520px; width: 92%; max-height: 80vh; overflow-y: auto; padding: 24px; position: relative; }
+    .modal .modal-badge { display: inline-block; padding: 2px 8px; border-radius: 999px; font-size: .7rem; font-weight: 600; background: var(--bg3); color: var(--accent); margin-bottom: 10px; font-family: var(--font-mono); }
+    .modal h2 { font-size: 1rem; font-weight: 600; margin-bottom: 6px; }
+    .modal .modal-value { font-size: 1.75rem; font-weight: 700; color: var(--accent); margin-bottom: 10px; font-family: var(--font-mono); }
+    .modal .modal-desc { color: var(--text-dim); font-size: .85rem; margin-bottom: 16px; }
+    .modal .modal-meta { background: var(--bg3); border-radius: var(--radius); padding: 10px 14px; margin-bottom: 14px; font-size: .8rem; font-family: var(--font-mono); }
+    .modal .modal-meta div { margin-bottom: 4px; }
+    .modal .meta-label { color: var(--text-dim); }
+    .modal .modal-buttons { display: flex; gap: 8px; }
+    .modal .btn-primary { display: inline-block; padding: 7px 14px; border-radius: var(--radius); font-size: .8rem; font-weight: 500; background: var(--accent); color: #fff; }
+    .modal .btn-primary:hover { opacity: .85; text-decoration: none; }
+    .modal .btn-secondary { display: inline-block; padding: 7px 14px; border-radius: var(--radius); font-size: .8rem; font-weight: 500; background: var(--bg3); color: var(--text); border: 1px solid var(--border); }
+    .modal .btn-secondary:hover { background: var(--border); text-decoration: none; }
+
+    .z-pos { color: var(--green); }
+    .z-neg { color: var(--red); }
+
+    .loading { text-align: center; padding: 4rem 1rem; color: var(--text-dim); }
+    .loading .spinner { width: 24px; height: 24px; border: 2px solid var(--border); border-top-color: var(--accent); border-radius: 50%; animation: spin .7s linear infinite; margin: 0 auto 12px; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .error-box { background: rgba(248,113,113,.08); border: 1px solid rgba(248,113,113,.25); border-radius: var(--radius); padding: 14px; color: var(--red); font-size: .85rem; }
+    .error-box a { color: var(--red); text-decoration: underline; }
+
+    .site-footer { text-align: center; padding: 1.5rem; color: var(--text-dim); font-size: .8rem; border-top: 1px solid var(--border); }
+
+    @media (max-width: 640px) {
+      .site-header { flex-wrap: wrap; gap: 1rem; }
+      main { padding: 1rem; }
+      .cards { grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); }
+      .figures-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+  <header class="site-header">
+    <a class="site-logo" href="../">∅ Emergent Ontology</a>
+    <nav class="site-nav">
+      <ul>
+        <li><a href="../">Home</a></li>
+        <li><a href="../wiki.html">Wiki</a></li>
+        <li><a class="active" href="#">Empirical Grounding</a></li>
+      </ul>
+    </nav>
+    <button class="theme-toggle" id="theme-toggle" aria-label="Toggle theme">◑</button>
+  </header>
+
+  <main>
+    <section class="hero">
+      <h1>Empirical Grounding <span style="color:var(--text-dim);font-weight:400;font-size:.85em">(Preliminary)</span></h1>
+      <p class="hero-sub">Live data explorer — every number fetched at runtime from the analysis JSON. Click any value to trace its provenance.</p>
+    </section>
+
+    <div class="tabs" id="tabs"></div>
+    <div id="content">
+      <div class="loading"><div class="spinner"></div>Fetching data from GitHub&hellip;</div>
+    </div>
+  </main>
+
+  <footer class="site-footer">
+    All data fetched live from <a href="https://github.com/clovenbradshaw-ctrl/emergentontology/tree/main/data">clovenbradshaw-ctrl/emergentontology/data</a>
+  </footer>
+
+  <!-- Modal -->
+  <div class="modal-overlay" id="modal-overlay">
+    <div class="modal">
+      <div class="modal-badge" id="modal-file"></div>
+      <h2 id="modal-title"></h2>
+      <div class="modal-value" id="modal-value"></div>
+      <div class="modal-desc" id="modal-desc"></div>
+      <div class="modal-meta" id="modal-meta"></div>
+      <div class="modal-buttons" id="modal-buttons"></div>
+    </div>
+  </div>
+
+<script>
+/* ── Constants ──────────────────────────────────────────────────────────── */
+const REPO = 'clovenbradshaw-ctrl/emergentontology';
+const BRANCH = 'main';
+const DATA_PATH = 'data';
+const RAW_BASE = `https://raw.githubusercontent.com/${REPO}/${BRANCH}/${DATA_PATH}/`;
+const BLOB_BASE = `https://github.com/${REPO}/blob/${BRANCH}/${DATA_PATH}/`;
+
+const FILES = ['results.json', 'centroid_results.json',
+               'coord_geometry.json', 'helix_geometry.json',
+               'composite_test.json'];
+
+const FIGURES = ['zscores_by_language_axes.png',
+                 'zscores_by_language_faces.png',
+                 'proportionality_curve.png',
+                 'pca_by_operator.png',
+                 'pca_by_operator_rotated.png',
+                 'pca_by_entity_type.png',
+                 'lda_by_domain.png',
+                 'lda_by_domain_combined.png',
+                 'lda_by_mode.png',
+                 'lda_by_mode_combined.png',
+                 'lda_by_resolution.png',
+                 'lda_by_resolution_combined.png',
+                 'lda_by_site.png',
+                 'lda_by_site_combined.png'];
+
+const Z_THRESHOLD = 10;
+const AXIS = { q1: 'Q1 Mode', q2: 'Q2 Domain', q3: 'Q3 Object' };
+const LSET = { consensus: 'Consensus', claude: 'Claude only', gpt4: 'GPT-4 only', full: 'Full (best-available)', combined: 'Combined (~39k)', ud_only: 'UD-only' };
+const FACE = { operators_act: 'Act face (Q1×Q2)', face_site: 'Site face (Q2×Q3)', face_resolution: 'Resolution face (Q1×Q3)', full_27cell: 'Full 27-cell' };
+
+/* ── Helpers ─────────────────────────────────────────────────────────────── */
+function prov(file, key, value, desc) {
+  return JSON.stringify({ file, key, value: String(value), desc, blob_url: BLOB_BASE + file, raw_url: RAW_BASE + file });
+}
+function el(tag, attrs, children) {
+  const e = document.createElement(tag);
+  if (attrs) for (const [k, v] of Object.entries(attrs)) {
+    if (k === 'data-prov' || k === 'colspan') e.setAttribute(k, v);
+    else if (k === 'class') e.className = v;
+    else if (k === 'style') e.style.cssText = v;
+    else if (k === 'src' || k === 'alt' || k === 'href' || k === 'target') e.setAttribute(k, v);
+    else e[k] = v;
+  }
+  if (children != null) {
+    if (typeof children === 'string') e.textContent = children;
+    else if (Array.isArray(children)) children.forEach(c => c && e.appendChild(typeof c === 'string' ? document.createTextNode(c) : c));
+    else e.appendChild(children);
+  }
+  return e;
+}
+function fmt(n, d = 4) {
+  if (n == null || (typeof n === 'number' && isNaN(n))) return '—';
+  return typeof n === 'number' ? (d === 0 ? String(Math.round(n)) : Number(n.toFixed(d)).toString()) : String(n);
+}
+function zBadge(z) {
+  if (z >= Z_THRESHOLD) return '<span class="badge badge-green">≥ threshold</span>';
+  if (z >= 2) return '<span class="badge badge-yellow">moderate</span>';
+  if (z >= 0) return '<span class="badge badge-accent">weak</span>';
+  return '<span class="badge badge-red">below chance</span>';
+}
+
+/* ── SVG Bar Chart ───────────────────────────────────────────────────────── */
+function barChart(container, data, opts = {}) {
+  const { file, keyPfx, descPfx, horiz, threshold, colorFn } = opts;
+  const m = { t: 24, r: 20, b: horiz ? 12 : 50, l: horiz ? 120 : 48 };
+  const barH = 22, gap = 5, n = data.length;
+  const accent = getComputedStyle(document.documentElement).getPropertyValue('--accent').trim() || '#7c6fcd';
+  const red = getComputedStyle(document.documentElement).getPropertyValue('--red').trim() || '#f87171';
+
+  let W, H;
+  if (horiz) { H = n * (barH + gap) + m.t + m.b; W = Math.min(container.clientWidth || 550, 650); }
+  else { W = Math.max(n * (barH + gap) + m.l + m.r, 280); H = 220; }
+
+  const vals = data.map(d => d.v);
+  const lo = Math.min(0, ...vals), hi = Math.max(...vals, threshold || 0) * 1.12;
+  const ns = 'http://www.w3.org/2000/svg';
+  const svg = document.createElementNS(ns, 'svg');
+  svg.setAttribute('width', W); svg.setAttribute('height', H);
+
+  if (horiz) {
+    const cw = W - m.l - m.r, scale = cw / (hi - lo), z0 = m.l + (-lo) * scale;
+    data.forEach((d, i) => {
+      const y = m.t + i * (barH + gap), bw = d.v * scale;
+      const x = d.v >= 0 ? z0 : z0 + bw;
+      const r = document.createElementNS(ns, 'rect');
+      r.setAttribute('class', 'bar'); r.setAttribute('x', x); r.setAttribute('y', y);
+      r.setAttribute('width', Math.abs(bw)); r.setAttribute('height', barH); r.setAttribute('rx', 3);
+      r.setAttribute('fill', colorFn ? colorFn(d) : (d.v >= 0 ? accent : red));
+      if (file && keyPfx) r.setAttribute('data-prov', prov(file, `${keyPfx}.${d.k}`, d.v, `${descPfx||''} ${d.label}`));
+      svg.appendChild(r);
+      const lb = document.createElementNS(ns, 'text');
+      lb.setAttribute('x', m.l - 6); lb.setAttribute('y', y + barH/2 + 4); lb.setAttribute('text-anchor', 'end'); lb.setAttribute('font-size', '10');
+      lb.textContent = d.label; svg.appendChild(lb);
+      const vt = document.createElementNS(ns, 'text');
+      vt.setAttribute('x', x + (d.v >= 0 ? Math.abs(bw) + 4 : -4));
+      vt.setAttribute('y', y + barH/2 + 4); vt.setAttribute('text-anchor', d.v >= 0 ? 'start' : 'end');
+      vt.setAttribute('font-size', '10'); vt.setAttribute('font-weight', '600');
+      vt.textContent = fmt(d.v, 3); svg.appendChild(vt);
+    });
+    if (threshold != null) {
+      const tx = z0 + threshold * scale;
+      if (tx >= m.l && tx <= W - m.r) {
+        const ln = document.createElementNS(ns, 'line');
+        ln.setAttribute('x1', tx); ln.setAttribute('x2', tx); ln.setAttribute('y1', m.t - 4); ln.setAttribute('y2', H - m.b);
+        ln.setAttribute('stroke', red); ln.setAttribute('stroke-width', '1.5'); ln.setAttribute('stroke-dasharray', '5,3');
+        svg.appendChild(ln);
+        const tl = document.createElementNS(ns, 'text');
+        tl.setAttribute('x', tx + 4); tl.setAttribute('y', m.t - 6); tl.setAttribute('font-size', '9'); tl.setAttribute('fill', red);
+        tl.textContent = `z=${threshold}`; svg.appendChild(tl);
+      }
+    }
+  } else {
+    const ch = H - m.t - m.b, scale = ch / (hi - lo), z0 = m.t + hi * scale;
+    data.forEach((d, i) => {
+      const x = m.l + i * (barH + gap), bh = d.v * scale;
+      const y = d.v >= 0 ? z0 - bh : z0;
+      const r = document.createElementNS(ns, 'rect');
+      r.setAttribute('class', 'bar'); r.setAttribute('x', x); r.setAttribute('y', y);
+      r.setAttribute('width', barH); r.setAttribute('height', Math.abs(bh)); r.setAttribute('rx', 3);
+      r.setAttribute('fill', colorFn ? colorFn(d) : (d.v >= 0 ? accent : red));
+      if (file && keyPfx) r.setAttribute('data-prov', prov(file, `${keyPfx}.${d.k}`, d.v, `${descPfx||''} ${d.label}`));
+      svg.appendChild(r);
+      const lb = document.createElementNS(ns, 'text');
+      lb.setAttribute('x', x + barH/2); lb.setAttribute('y', H - m.b + 12); lb.setAttribute('text-anchor', 'middle'); lb.setAttribute('font-size', '9');
+      lb.setAttribute('transform', `rotate(40 ${x+barH/2} ${H-m.b+12})`);
+      lb.textContent = d.label; svg.appendChild(lb);
+      const vt = document.createElementNS(ns, 'text');
+      vt.setAttribute('x', x + barH/2); vt.setAttribute('y', y - 3); vt.setAttribute('text-anchor', 'middle');
+      vt.setAttribute('font-size', '9'); vt.setAttribute('font-weight', '600');
+      vt.textContent = fmt(d.v, 2); svg.appendChild(vt);
+    });
+    if (threshold != null) {
+      const ty = z0 - threshold * scale;
+      if (ty >= m.t && ty <= H - m.b) {
+        const ln = document.createElementNS(ns, 'line');
+        ln.setAttribute('x1', m.l - 4); ln.setAttribute('x2', W - m.r); ln.setAttribute('y1', ty); ln.setAttribute('y2', ty);
+        ln.setAttribute('stroke', red); ln.setAttribute('stroke-width', '1.5'); ln.setAttribute('stroke-dasharray', '5,3');
+        svg.appendChild(ln);
+      }
+    }
+  }
+  container.appendChild(svg);
+}
+
+/* ── Table builder ────────────────────────────────────────────────────────── */
+function makeTable(headers, rows) {
+  const t = el('table');
+  const th = el('thead', {}, el('tr', {}, headers.map(h => el('th', {}, h))));
+  t.appendChild(th);
+  const tb = el('tbody');
+  rows.forEach(r => tb.appendChild(r));
+  t.appendChild(tb);
+  return t;
+}
+
+/* ── Tab definitions ──────────────────────────────────────────────────────── */
+const TABS = [
+  { id: 'overview', label: 'Overview' },
+  { id: 'zscores', label: 'Z-Scores' },
+  { id: 'proportionality', label: 'Proportionality' },
+  { id: 'languages', label: 'Languages' },
+  { id: 'cells', label: 'Cells' },
+  { id: 'classifier', label: 'Classifier' },
+  { id: 'helix', label: 'Helix' },
+  { id: 'coordgeo', label: 'Coord Geo' },
+  { id: 'composite', label: 'Composite' },
+  { id: 'figures', label: 'Figures' },
+];
+
+function initTabs() {
+  const t = document.getElementById('tabs');
+  TABS.forEach((d, i) => {
+    const tab = el('button', { class: 'tab' + (i === 0 ? ' active' : '') }, d.label);
+    tab.dataset.tab = d.id;
+    tab.addEventListener('click', () => {
+      document.querySelectorAll('.tab').forEach(x => x.classList.toggle('active', x.dataset.tab === d.id));
+      document.querySelectorAll('.tab-content').forEach(x => x.classList.toggle('active', x.id === 'tab-' + d.id));
+    });
+    t.appendChild(tab);
+  });
+}
+
+/* ── Modal ────────────────────────────────────────────────────────────────── */
+document.body.addEventListener('click', e => {
+  const t = e.target.closest('[data-prov]');
+  if (!t) return;
+  try {
+    const p = JSON.parse(t.getAttribute('data-prov'));
+    document.getElementById('modal-file').textContent = p.file;
+    document.getElementById('modal-title').textContent = p.desc || p.key;
+    document.getElementById('modal-value').textContent = p.value;
+    document.getElementById('modal-desc').textContent = p.desc || '';
+    document.getElementById('modal-meta').innerHTML = `<div><span class="meta-label">Source:</span> ${p.file}</div><div><span class="meta-label">Key:</span> ${p.key}</div>`;
+    document.getElementById('modal-buttons').innerHTML = `<a class="btn-primary" href="${p.blob_url}" target="_blank">View on GitHub</a><a class="btn-secondary" href="${p.raw_url}" target="_blank">Raw file</a>`;
+    document.getElementById('modal-overlay').classList.add('open');
+  } catch (_) {}
+});
+document.getElementById('modal-overlay').addEventListener('click', e => { if (e.target === e.currentTarget) e.currentTarget.classList.remove('open'); });
+document.addEventListener('keydown', e => { if (e.key === 'Escape') document.getElementById('modal-overlay').classList.remove('open'); });
+
+/* ── Theme ────────────────────────────────────────────────────────────────── */
+document.getElementById('theme-toggle').addEventListener('click', () => {
+  const next = (document.documentElement.getAttribute('data-theme') || 'dark') === 'dark' ? 'light' : 'dark';
+  document.documentElement.setAttribute('data-theme', next);
+  localStorage.setItem('eo-theme', next);
+});
+
+/* ═══════════════════════════════════════════════════════════════════════════ */
+/*                          RENDER FUNCTIONS                                  */
+/* ═══════════════════════════════════════════════════════════════════════════ */
+
+function renderOverview(R, C, H, CT) {
+  const d = el('div', { id: 'tab-overview', class: 'tab-content active' });
+
+  // Summary cards
+  const cards = el('div', { class: 'cards' });
+  [
+    ['Consensus Clauses', fmt(R.n_clauses, 0), 'results.json', 'n_clauses', 'Clauses where both models agreed on all three axes'],
+    ['Total Embedded', fmt(R.n_total_embedded, 0), 'results.json', 'n_total_embedded', 'Total clause embeddings in corpus'],
+    ['Languages', fmt(R.n_languages, 0), 'results.json', 'n_languages', 'Number of languages analyzed'],
+    ['27-cell z', '+' + fmt(R.face_zscores.full_27cell.z, 2), 'results.json', 'face_zscores.full_27cell.z', 'Z-score for full 27-cell address grouping'],
+    ['Frequency r', fmt(H.act_face.test_D.spearman_r, 4), 'helix_geometry.json', 'act_face.test_D.spearman_r', 'Spearman r between theory-predicted and observed operator frequency rank'],
+    ['27-cell Accuracy', fmt(C['Full 27-cell'].accuracy_heldout * 100, 1) + '%', 'centroid_results.json', 'Full 27-cell.accuracy_heldout', 'Held-out centroid classifier accuracy'],
+    ['vs Chance', fmt(C['Full 27-cell'].multiple_of_chance, 2) + '×', 'centroid_results.json', 'Full 27-cell.multiple_of_chance', 'Multiple of chance for 27-cell classifier'],
+    ['MDS Stress', fmt(CT.act_face.mds_stress, 4), 'composite_test.json', 'act_face.mds_stress', 'MDS stress for act face composite test'],
+  ].forEach(([label, value, file, key, desc]) => {
+    const c = el('div', { class: 'card', 'data-prov': prov(file, key, value, desc) });
+    c.appendChild(el('div', { class: 'label' }, label));
+    c.appendChild(el('div', { class: 'value' }, value));
+    cards.appendChild(c);
+  });
+  d.appendChild(cards);
+
+  // Per-axis z-scores
+  d.appendChild(el('div', { class: 'section-title' }, 'Per-Axis Z-Scores (Consensus)'));
+  const rows1 = ['q1', 'q2', 'q3'].map(q => {
+    const s = R.zscores[q];
+    const tr = el('tr');
+    tr.appendChild(el('td', { 'data-prov': prov('results.json', `zscores.${q}`, AXIS[q], `${AXIS[q]} z-score`) }, AXIS[q]));
+    const ztd = el('td', { 'data-prov': prov('results.json', `zscores.${q}.z`, s.z, `${AXIS[q]} z-score (200-shuffle permutation)`), class: s.z >= 0 ? 'z-pos' : 'z-neg' });
+    ztd.textContent = (s.z >= 0 ? '+' : '') + fmt(s.z, 2);
+    tr.appendChild(ztd);
+    tr.appendChild(el('td', { 'data-prov': prov('results.json', `zscores.${q}.separation`, s.separation, `${AXIS[q]} separation`) }, fmt(s.separation, 5)));
+    const btd = el('td'); btd.innerHTML = zBadge(s.z); tr.appendChild(btd);
+    return tr;
+  });
+  d.appendChild(makeTable(['Axis', 'Z-score', 'Separation', 'Signal'], rows1));
+
+  // Face z-scores
+  d.appendChild(el('div', { class: 'section-title' }, 'Face Z-Scores'));
+  const rows2 = Object.entries(R.face_zscores).map(([k, v]) => {
+    const tr = el('tr');
+    tr.appendChild(el('td', { 'data-prov': prov('results.json', `face_zscores.${k}.z`, v.z, `${FACE[k]} z-score`) }, FACE[k]));
+    tr.appendChild(el('td', {}, String(v.n_groups)));
+    const ztd = el('td', { 'data-prov': prov('results.json', `face_zscores.${k}.z`, v.z, `Z-score for ${FACE[k]}`), class: 'z-pos', style: 'font-weight:700' });
+    ztd.textContent = '+' + fmt(v.z, 2); tr.appendChild(ztd);
+    return tr;
+  });
+  d.appendChild(makeTable(['Grouping', 'Groups', 'Z-score'], rows2));
+
+  // Kappa
+  d.appendChild(el('div', { class: 'section-title' }, 'Inter-Model Agreement (κ)'));
+  const rows3 = ['q1', 'q2', 'q3'].map(q => {
+    const v = R.kappas.claude_vs_gpt4[q];
+    const tr = el('tr');
+    tr.appendChild(el('td', {}, AXIS[q]));
+    tr.appendChild(el('td', { 'data-prov': prov('results.json', `kappas.claude_vs_gpt4.${q}`, v, `Cohen's κ for ${AXIS[q]}`) }, fmt(v, 3)));
+    return tr;
+  });
+  d.appendChild(makeTable(['Axis', 'κ'], rows3));
+
+  // ARI
+  d.appendChild(el('div', { class: 'section-title' }, 'Axis Independence (ARI)'));
+  const rows4 = [['q1_vs_q2', 'Q1 vs Q2'], ['q1_vs_q3', 'Q1 vs Q3'], ['q2_vs_q3', 'Q2 vs Q3']].map(([k, label]) => {
+    const v = R.ari[k];
+    const tr = el('tr');
+    tr.appendChild(el('td', {}, label));
+    tr.appendChild(el('td', { 'data-prov': prov('results.json', `ari.${k}`, v, `ARI between ${label}`) }, fmt(v, 4)));
+    return tr;
+  });
+  d.appendChild(makeTable(['Pair', 'ARI'], rows4));
+
+  return d;
+}
+
+function renderZscores(R) {
+  const d = el('div', { id: 'tab-zscores', class: 'tab-content' });
+
+  d.appendChild(el('div', { class: 'section-title' }, 'Face Z-Scores'));
+  const ch = el('div', { class: 'chart-wrap' });
+  barChart(ch, Object.entries(R.face_zscores).map(([k, v]) => ({ label: FACE[k], v: v.z, k: `face_zscores.${k}.z` })),
+    { file: 'results.json', keyPfx: 'face_zscores', descPfx: 'Z-score for', threshold: Z_THRESHOLD });
+  d.appendChild(ch);
+
+  d.appendChild(el('div', { class: 'section-title' }, 'Z-Scores by Label Set'));
+  const rows = Object.entries(R.all_zscores).map(([set, sc]) => {
+    const tr = el('tr');
+    tr.appendChild(el('td', { style: 'font-weight:600' }, LSET[set] || set));
+    ['q1', 'q2', 'q3'].forEach(q => {
+      const v = sc[q].z;
+      const td = el('td', { 'data-prov': prov('results.json', `all_zscores.${set}.${q}.z`, v, `${AXIS[q]} z-score for ${LSET[set]||set}`), class: v >= 0 ? 'z-pos' : 'z-neg' });
+      td.textContent = (v >= 0 ? '+' : '') + fmt(v, 2);
+      tr.appendChild(td);
+    });
+    return tr;
+  });
+  d.appendChild(makeTable(['Label Set', 'Q1', 'Q2', 'Q3'], rows));
+  return d;
+}
+
+function renderProportionality(R) {
+  const p = R.proportionality;
+  const d = el('div', { id: 'tab-proportionality', class: 'tab-content' });
+  d.appendChild(el('div', { class: 'section-title' }, 'Distance Proportionality'));
+  d.appendChild(el('div', { class: 'section-desc' }, 'Mean cosine distance between clause pairs, bucketed by number of differing axes (0–3).'));
+
+  const labs = ['0 (same cell)', '1', '2', '3 (all different)'];
+  const rows = [0,1,2,3].map(i => {
+    const s = p[String(i)]; const tr = el('tr');
+    tr.appendChild(el('td', {}, labs[i]));
+    tr.appendChild(el('td', { 'data-prov': prov('results.json', `proportionality.${i}.mean_distance`, s.mean_distance, `Mean cosine distance for ${i}-axis-differing pairs`) }, fmt(s.mean_distance, 4)));
+    tr.appendChild(el('td', {}, fmt(s.stdev, 4)));
+    tr.appendChild(el('td', {}, fmt(s.n_pairs, 0)));
+    return tr;
+  });
+  d.appendChild(makeTable(['Axes Differing', 'Mean Distance', 'SD', 'n Pairs'], rows));
+
+  const cards = el('div', { class: 'cards' });
+  [['Monotone', p.monotone ? 'Yes' : 'No', 'proportionality.monotone', 'Monotone ordering of distances'],
+   ['Bootstrap p', fmt(p.monotone_bootstrap_p, 3), 'proportionality.monotone_bootstrap_p', 'Bootstrap p-value (500 resamples)']
+  ].forEach(([label, value, key, desc]) => {
+    const c = el('div', { class: 'card', 'data-prov': prov('results.json', key, value, desc) });
+    c.appendChild(el('div', { class: 'label' }, label));
+    c.appendChild(el('div', { class: 'value' }, value));
+    cards.appendChild(c);
+  });
+  d.appendChild(cards);
+
+  const ch = el('div', { class: 'chart-wrap' });
+  barChart(ch, [0,1,2,3].map(i => ({ label: labs[i], v: p[String(i)].mean_distance, k: `proportionality.${i}.mean_distance` })),
+    { file: 'results.json', keyPfx: 'proportionality', descPfx: 'Mean cosine distance,' });
+  d.appendChild(ch);
+  return d;
+}
+
+function renderLanguages(R) {
+  const d = el('div', { id: 'tab-languages', class: 'tab-content' });
+  d.appendChild(el('div', { class: 'section-title' }, `Per-Language Z-Scores (${Object.keys(R.per_lang).length} languages)`));
+
+  const sorted = Object.entries(R.per_lang).sort((a, b) => (b[1].q3?.z || 0) - (a[1].q3?.z || 0));
+  const rows = sorted.map(([lang, sc]) => {
+    const tr = el('tr');
+    tr.appendChild(el('td', { style: 'font-weight:600' }, lang));
+    tr.appendChild(el('td', { 'data-prov': prov('results.json', `lang_counts.${lang}`, R.lang_counts[lang], `Clause count for ${lang}`) }, fmt(R.lang_counts[lang] || 0, 0)));
+    [['q1', sc.q1], ['q2', sc.q2], ['q3', sc.q3], ['act_face', sc.act_face], ['site_face', sc.site_face], ['resolution_face', sc.resolution_face], ['full_27cell', sc.full_27cell]].forEach(([k, v]) => {
+      if (!v) { tr.appendChild(el('td', {}, '—')); return; }
+      const td = el('td', { 'data-prov': prov('results.json', `per_lang.${lang}.${k}.z`, v.z, `${k} z-score for ${lang}`), class: v.z >= 0 ? 'z-pos' : 'z-neg' });
+      td.textContent = (v.z >= 0 ? '+' : '') + fmt(v.z, 2);
+      tr.appendChild(td);
+    });
+    return tr;
+  });
+  d.appendChild(makeTable(['Lang', 'n', 'Q1', 'Q2', 'Q3', 'Act', 'Site', 'Res', '27'], rows));
+  return d;
+}
+
+function renderCells(R, H) {
+  const d = el('div', { id: 'tab-cells', class: 'tab-content' });
+
+  d.appendChild(el('div', { class: 'section-title' }, '27-Cell Distribution (Consensus)'));
+  const sorted = Object.entries(R.phasepost.consensus).sort((a, b) => b[1] - a[1]);
+  const rows = sorted.map(([cell, count]) => {
+    const tr = el('tr');
+    tr.appendChild(el('td', { 'data-prov': prov('results.json', `phasepost.consensus.${cell}`, count, `Consensus count for ${cell}`) }, cell));
+    tr.appendChild(el('td', {}, fmt(count, 0)));
+    return tr;
+  });
+  d.appendChild(makeTable(['Cell', 'Count'], rows));
+
+  d.appendChild(el('div', { class: 'section-title' }, 'Operator Frequencies'));
+  const ch = el('div', { class: 'chart-wrap' });
+  const freqs = H.act_face.test_D.observed_frequencies;
+  barChart(ch, Object.entries(freqs).sort((a, b) => b[1] - a[1]).map(([op, f]) => ({ label: op, v: f, k: `act_face.test_D.observed_frequencies.${op}` })),
+    { file: 'helix_geometry.json', keyPfx: 'act_face.test_D.observed_frequencies', descPfx: 'Frequency for', horiz: true });
+  d.appendChild(ch);
+  return d;
+}
+
+function renderClassifier(C) {
+  const d = el('div', { id: 'tab-classifier', class: 'tab-content' });
+  d.appendChild(el('div', { class: 'section-title' }, 'Centroid Classifier Accuracy'));
+
+  const rows = Object.entries(C).map(([level, v]) => {
+    const tr = el('tr');
+    tr.appendChild(el('td', { style: 'font-weight:600' }, level));
+    tr.appendChild(el('td', { 'data-prov': prov('centroid_results.json', `${level}.accuracy_heldout`, v.accuracy_heldout, `Held-out accuracy for ${level}`) }, fmt(v.accuracy_heldout * 100, 1) + '%'));
+    tr.appendChild(el('td', {}, fmt(v.accuracy_insample * 100, 1) + '%'));
+    tr.appendChild(el('td', {}, fmt(v.chance_baseline * 100, 1) + '%'));
+    tr.appendChild(el('td', { 'data-prov': prov('centroid_results.json', `${level}.multiple_of_chance`, v.multiple_of_chance, `Multiple of chance for ${level}`), style: 'font-weight:700;color:var(--accent)' }, fmt(v.multiple_of_chance, 2) + '×'));
+    return tr;
+  });
+  d.appendChild(makeTable(['Level', 'Held-out', 'In-sample', 'Chance', 'Multiple'], rows));
+
+  const pc = C['Full 27-cell'].per_cell;
+  if (pc && Object.keys(pc).length) {
+    d.appendChild(el('div', { class: 'section-title' }, 'Per-Cell Accuracy (27-cell)'));
+    const prows = Object.entries(pc).sort((a, b) => b[1].accuracy - a[1].accuracy).map(([cell, v]) => {
+      const tr = el('tr');
+      tr.appendChild(el('td', {}, cell));
+      tr.appendChild(el('td', { 'data-prov': prov('centroid_results.json', `Full 27-cell.per_cell.${cell}.accuracy`, v.accuracy, `Accuracy for ${cell}`) }, fmt(v.accuracy * 100, 1) + '%'));
+      tr.appendChild(el('td', { 'data-prov': prov('centroid_results.json', `Full 27-cell.per_cell.${cell}.n`, v.n, `Sample count for ${cell}`) }, fmt(v.n, 0)));
+      tr.appendChild(el('td', {}, fmt(v.mean_margin, 4)));
+      return tr;
+    });
+    d.appendChild(makeTable(['Cell', 'Accuracy', 'n', 'Margin'], prows));
+  }
+  return d;
+}
+
+function renderHelix(R, H) {
+  const d = el('div', { id: 'tab-helix', class: 'tab-content' });
+  const ht = R.helix_tests.consensus;
+
+  // Entropy
+  d.appendChild(el('div', { class: 'section-title' }, 'Directional Entropy'));
+  const ent = ht.test1_directional_entropy;
+  const ecards = el('div', { class: 'cards' });
+  [['H(Q1)', ent.H_q1], ['H(Q2)', ent.H_q2], ['H(Q2|Q1)', ent.H_q2_given_q1], ['H(Q1|Q2)', ent.H_q1_given_q2],
+   ['Asymmetry', ent.asymmetry_bits + ' bits'], ['Direction', ent.direction]
+  ].forEach(([label, value]) => {
+    const c = el('div', { class: 'card', 'data-prov': prov('results.json', `helix_tests.consensus.test1_directional_entropy`, value, label) });
+    c.appendChild(el('div', { class: 'label' }, label));
+    c.appendChild(el('div', { class: 'value', style: 'font-size:1.1rem' }, String(value)));
+    ecards.appendChild(c);
+  });
+  d.appendChild(ecards);
+
+  // Frequency prediction
+  const topo = ht.test3_topology_prediction;
+  d.appendChild(el('div', { class: 'section-title' }, 'Frequency Rank Prediction'));
+  const tcards = el('div', { class: 'cards' });
+  [['Spearman r', fmt(topo.spearman_r_rank, 4)], ['Top-3 Match', topo.top3_match ? 'Yes' : 'No'], ['STRUCT Dominates', topo.structure_dominates ? 'Yes' : 'No']
+  ].forEach(([label, value]) => {
+    const c = el('div', { class: 'card', 'data-prov': prov('results.json', `helix_tests.consensus.test3_topology_prediction`, value, label) });
+    c.appendChild(el('div', { class: 'label' }, label));
+    c.appendChild(el('div', { class: 'value', style: 'font-size:1.1rem' }, value));
+    tcards.appendChild(c);
+  });
+  d.appendChild(tcards);
+
+  // Per-face helix geometry
+  [['act_face', 'Act Face (Operators)'], ['site_face', 'Site Face (Terrain)'], ['resolution_face', 'Resolution Face (Stance)']].forEach(([face, name]) => {
+    const F = H[face]; if (!F) return;
+    d.appendChild(el('div', { class: 'section-title' }, name));
+
+    // Test A summary
+    const tA = F.test_A;
+    const ac = el('div', { class: 'cards' });
+    [['Spearman r', fmt(tA.spearman_r, 4)], ['p-value', fmt(tA.spearman_p, 4)],
+     ['Within-triad', fmt(tA.mean_within_triad_dist, 4)], ['Across-triad', fmt(tA.mean_across_triad_dist, 4)],
+     ['W vs A p', fmt(tA.within_vs_across_p, 4)]
+    ].forEach(([label, value]) => {
+      const c = el('div', { class: 'card', 'data-prov': prov('helix_geometry.json', `${face}.test_A`, value, label) });
+      c.appendChild(el('div', { class: 'label' }, label));
+      c.appendChild(el('div', { class: 'value', style: 'font-size:1rem' }, value));
+      ac.appendChild(c);
+    });
+    d.appendChild(ac);
+
+    // Test B
+    const tB = F.test_B;
+    const bc = el('div', { class: 'cards', style: 'margin-top:8px' });
+    [['Convex', `${tB.n_convex}/${tB.n_triples} (${fmt(tB.pct_convex*100,0)}%)`], ['Perm p', fmt(tB.permutation_p, 3)]
+    ].forEach(([label, value]) => {
+      const c = el('div', { class: 'card', 'data-prov': prov('helix_geometry.json', `${face}.test_B`, value, label) });
+      c.appendChild(el('div', { class: 'label' }, label));
+      c.appendChild(el('div', { class: 'value', style: 'font-size:1rem' }, value));
+      bc.appendChild(c);
+    });
+    d.appendChild(bc);
+
+    // Test C: Nearest centroid
+    const tC = F.test_C;
+    const crows = Object.entries(tC.confusion_by_operator).map(([op, v]) => {
+      const tr = el('tr');
+      tr.appendChild(el('td', { style: 'font-weight:600' }, op));
+      tr.appendChild(el('td', { 'data-prov': prov('helix_geometry.json', `${face}.test_C.confusion_by_operator.${op}.nearest_centroid`, v.nearest_centroid, `Nearest centroid for ${op}`) }, v.nearest_centroid));
+      tr.appendChild(el('td', {}, fmt(v.distance_to_nearest, 4)));
+      tr.appendChild(el('td', {}, String(v.helix_distance_to_nearest)));
+      const atd = el('td'); atd.innerHTML = v.nearest_is_adjacent ? '<span class="badge badge-green">Yes</span>' : '<span class="badge badge-red">No</span>';
+      tr.appendChild(atd);
+      return tr;
+    });
+    d.appendChild(makeTable(['Position', 'Nearest', 'Distance', 'Helix Dist', 'Adjacent'], crows));
+
+    // Test D (frequency)
+    if (F.test_D && !isNaN(F.test_D.spearman_r)) {
+      const tD = F.test_D;
+      const drows = Object.entries(tD.observed_rank).sort((a, b) => a[1] - b[1]).map(([op, rank]) => {
+        const tr = el('tr');
+        tr.appendChild(el('td', { style: 'font-weight:600' }, op));
+        tr.appendChild(el('td', {}, String(tD.theory_rank[op])));
+        tr.appendChild(el('td', {}, String(rank)));
+        tr.appendChild(el('td', { 'data-prov': prov('helix_geometry.json', `${face}.test_D.observed_frequencies.${op}`, tD.observed_frequencies[op], `Frequency for ${op}`) }, fmt(tD.observed_frequencies[op]*100,1)+'%'));
+        return tr;
+      });
+      d.appendChild(makeTable(['Operator', 'Theory Rank', 'Observed Rank', 'Frequency'], drows));
+    }
+  });
+  return d;
+}
+
+function renderCoordGeo(CG, R) {
+  const d = el('div', { id: 'tab-coordgeo', class: 'tab-content' });
+  d.appendChild(el('div', { class: 'section-title' }, 'Coordinate Systems'));
+
+  const csrows = Object.entries(CG.coordinate_systems).map(([k, v]) => {
+    const tr = el('tr');
+    tr.appendChild(el('td', { style: 'font-weight:600', 'data-prov': prov('coord_geometry.json', `coordinate_systems.${k}`, k, v.description) }, k));
+    tr.appendChild(el('td', {}, v.description));
+    tr.appendChild(el('td', {}, v.values.map(x => fmt(x, 4)).join(', ')));
+    return tr;
+  });
+  d.appendChild(makeTable(['System', 'Description', 'Values'], csrows));
+
+  d.appendChild(el('div', { class: 'section-title' }, 'Correlations with Embedding Distance'));
+  const corrows = Object.entries(CG.correlations_with_embedding_distance).map(([k, v]) => {
+    const tr = el('tr');
+    tr.appendChild(el('td', {}, k.replace(/_/g, ' ')));
+    tr.appendChild(el('td', { 'data-prov': prov('coord_geometry.json', `correlations_with_embedding_distance.${k}`, v, `Correlation of ${k}`) }, fmt(v, 4)));
+    return tr;
+  });
+  d.appendChild(makeTable(['Weighting', 'Correlation'], corrows));
+
+  d.appendChild(el('div', { class: 'section-title' }, 'Per-Axis Correlations'));
+  const parows = Object.entries(CG.per_axis_correlations).map(([k, v]) => {
+    const tr = el('tr');
+    tr.appendChild(el('td', {}, k));
+    tr.appendChild(el('td', { 'data-prov': prov('coord_geometry.json', `per_axis_correlations.${k}`, v, `Per-axis correlation for ${k}`) }, fmt(v, 4)));
+    return tr;
+  });
+  d.appendChild(makeTable(['Axis × Weighting', 'Correlation'], parows));
+
+  const interp = CG.interpretation;
+  const ic = el('div', { class: 'cards' });
+  [['Best Predictor', interp.best_predictor], ['Best Correlation', fmt(interp.best_correlation, 4)], ['Mixed > Uniform', interp.mixed_beats_uniform ? 'Yes' : 'No']
+  ].forEach(([label, value]) => {
+    const c = el('div', { class: 'card', 'data-prov': prov('coord_geometry.json', 'interpretation', value, label) });
+    c.appendChild(el('div', { class: 'label' }, label));
+    c.appendChild(el('div', { class: 'value', style: 'font-size:1rem' }, String(value)));
+    ic.appendChild(c);
+  });
+  d.appendChild(ic);
+
+  // Axis embedding distances
+  if (R.coord_geometry) {
+    d.appendChild(el('div', { class: 'section-title' }, 'Centroid Embedding Distances'));
+    ['consensus', 'combined'].forEach(set => {
+      const cg = R.coord_geometry[set]; if (!cg) return;
+      d.appendChild(el('div', { class: 'section-desc', style: 'font-weight:600;color:var(--text)' }, set));
+      ['mode', 'domain', 'object'].forEach(axis => {
+        const ax = cg[axis]; if (!ax) return;
+        const arows = Object.entries(ax.embedding_distances).map(([pair, dist]) => {
+          const tr = el('tr');
+          tr.appendChild(el('td', {}, pair));
+          tr.appendChild(el('td', { 'data-prov': prov('results.json', `coord_geometry.${set}.${axis}.embedding_distances.${pair}`, dist, `Embedding dist for ${pair}`) }, fmt(dist, 6)));
+          tr.appendChild(el('td', {}, fmt(ax.coordinate_distances[pair], 4)));
+          return tr;
+        });
+        d.appendChild(makeTable([axis, 'Embedding Dist', 'Coord Dist'], arows));
+      });
+    });
+  }
+  return d;
+}
+
+function renderComposite(CT) {
+  const d = el('div', { id: 'tab-composite', class: 'tab-content' });
+  d.appendChild(el('div', { class: 'section-title' }, 'Geometric Primitivity'));
+  d.appendChild(el('div', { class: 'section-desc' }, 'Reconstruction errors per position — higher = more primitive (harder to approximate from others).'));
+
+  [['act_face', 'Act Face (Operators)'], ['site_face', 'Site Face (Terrain)'], ['resolution_face', 'Resolution Face (Stance)']].forEach(([face, name]) => {
+    const F = CT[face]; if (!F) return;
+    d.appendChild(el('div', { class: 'section-title' }, name));
+
+    const sc = el('div', { class: 'cards' });
+    [['MDS Stress', fmt(F.mds_stress, 4), `${face}.mds_stress`], ['Theory Match', fmt(F.summary.theory_match_rate*100, 0)+'%', `${face}.summary.theory_match_rate`]
+    ].forEach(([label, value, key]) => {
+      const c = el('div', { class: 'card', 'data-prov': prov('composite_test.json', key, value, label) });
+      c.appendChild(el('div', { class: 'label' }, label));
+      c.appendChild(el('div', { class: 'value', style: 'font-size:1rem' }, value));
+      sc.appendChild(c);
+    });
+    d.appendChild(sc);
+
+    // Bar chart
+    const ch = el('div', { class: 'chart-wrap' });
+    barChart(ch, Object.entries(F.reconstruction).sort((a, b) => b[1].reconstruction_error - a[1].reconstruction_error)
+      .map(([k, v]) => ({ label: k, v: v.reconstruction_error, k: `${face}.reconstruction.${k}.reconstruction_error` })),
+      { file: 'composite_test.json', keyPfx: `${face}.reconstruction`, descPfx: 'Recon error for', horiz: true });
+    d.appendChild(ch);
+
+    // Table
+    const rrows = Object.entries(F.reconstruction).sort((a, b) => b[1].reconstruction_error - a[1].reconstruction_error).map(([pos, v]) => {
+      const tr = el('tr');
+      tr.appendChild(el('td', { style: 'font-weight:600' }, pos));
+      tr.appendChild(el('td', { 'data-prov': prov('composite_test.json', `${face}.reconstruction.${pos}.reconstruction_error`, v.reconstruction_error, `Recon error for ${pos}`) }, fmt(v.reconstruction_error, 4)));
+      tr.appendChild(el('td', { 'data-prov': prov('composite_test.json', `${face}.reconstruction.${pos}.top_contributor`, v.top_contributor, `Top contributor to ${pos}`) }, v.top_contributor));
+      tr.appendChild(el('td', {}, fmt(v.top_contributor_weight, 4)));
+      const htd = el('td'); htd.innerHTML = F.convex_hull[pos]?.is_primitive ? '<span class="badge badge-green">Yes</span>' : '<span class="badge badge-red">No</span>';
+      tr.appendChild(htd);
+      return tr;
+    });
+    d.appendChild(makeTable(['Position', 'Error', 'Top Contributor', 'Weight', 'Hull Primitive'], rrows));
+
+    // Cross-axis
+    const xrows = Object.entries(F.cross_axis).map(([pos, v]) => {
+      const tr = el('tr');
+      tr.appendChild(el('td', { style: 'font-weight:600' }, pos));
+      tr.appendChild(el('td', {}, v.mode_family.join(', ')));
+      tr.appendChild(el('td', { 'data-prov': prov('composite_test.json', `${face}.cross_axis.${pos}.error_from_mode`, v.error_from_mode, `Mode-family error for ${pos}`) }, fmt(v.error_from_mode, 4)));
+      tr.appendChild(el('td', {}, v.domain_family.join(', ')));
+      tr.appendChild(el('td', { 'data-prov': prov('composite_test.json', `${face}.cross_axis.${pos}.error_from_domain`, v.error_from_domain, `Domain-family error for ${pos}`) }, fmt(v.error_from_domain, 4)));
+      const mtd = el('td'); mtd.innerHTML = v.more_mode_composite ? '<span class="badge badge-accent">Mode</span>' : '<span class="badge badge-yellow">Domain</span>';
+      tr.appendChild(mtd);
+      return tr;
+    });
+    d.appendChild(makeTable(['Position', 'Mode Fam', 'Mode Err', 'Domain Fam', 'Domain Err', 'Recovered by'], xrows));
+  });
+  return d;
+}
+
+function renderFigures() {
+  const d = el('div', { id: 'tab-figures', class: 'tab-content' });
+  d.appendChild(el('div', { class: 'section-title' }, `Figures (${FIGURES.length})`));
+  const grid = el('div', { class: 'figures-grid' });
+  FIGURES.forEach(f => {
+    const url = RAW_BASE + 'figures/' + f;
+    const card = el('div', { class: 'figure-card', 'data-prov': prov('figures/' + f, f, f, `Figure: ${f.replace(/_/g, ' ').replace('.png', '')}`) });
+    const img = el('img', { src: url, alt: f });
+    img.onerror = function() { this.style.display = 'none'; };
+    card.appendChild(img);
+    card.appendChild(el('div', { class: 'caption' }, f.replace(/_/g, ' ').replace('.png', '')));
+    grid.appendChild(card);
+  });
+  d.appendChild(grid);
+  return d;
+}
+
+/* ── Main ──────────────────────────────────────────────────────────────── */
+function render(data) {
+  const { results: R, centroid: C, coord: CG, helix: H, composite: CT } = data;
+  const content = document.getElementById('content');
+  content.innerHTML = '';
+  [renderOverview(R, C, H, CT), renderZscores(R), renderProportionality(R), renderLanguages(R),
+   renderCells(R, H), renderClassifier(C), renderHelix(R, H), renderCoordGeo(CG, R),
+   renderComposite(CT), renderFigures()
+  ].forEach(s => content.appendChild(s));
+}
+
+async function init() {
+  initTabs();
+  try {
+    const [results, centroid, coord, helix, composite] = await Promise.all(
+      FILES.map(f => fetch(RAW_BASE + f).then(r => { if (!r.ok) throw new Error(`${f}: ${r.status}`); return r.json(); }))
+    );
+    render({ results, centroid, coord, helix, composite });
+  } catch (err) {
+    document.getElementById('content').innerHTML = `<div class="error-box" style="margin:2rem 0">
+      <strong>Error:</strong> ${err.message}<br><br>
+      ${FILES.map(f => `<a href="${RAW_BASE}${f}" target="_blank">${f}</a>`).join(' · ')}
+    </div>`;
+  }
+}
+init();
+</script>
+</body>
+</html>
