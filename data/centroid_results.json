@@ -1,0 +1,183 @@
+{
+  "Triads (3 groups)": {
+    "accuracy_insample": 0.6588,
+    "accuracy_heldout": 0.6585,
+    "accuracy_all": 0.5878,
+    "chance_baseline": 0.3333,
+    "multiple_of_chance": 1.98,
+    "n_centroids": 3,
+    "high_margin_pct": 0.5171,
+    "per_cell": {}
+  },
+  "Operators (9 groups)": {
+    "accuracy_insample": 0.4556,
+    "accuracy_heldout": 0.4428,
+    "accuracy_all": 0.3641,
+    "chance_baseline": 0.1111,
+    "multiple_of_chance": 3.99,
+    "n_centroids": 9,
+    "high_margin_pct": 0.3881,
+    "per_cell": {}
+  },
+  "Site face (9)": {
+    "accuracy_insample": 0.4958,
+    "accuracy_heldout": 0.4683,
+    "accuracy_all": 0.4034,
+    "chance_baseline": 0.1111,
+    "multiple_of_chance": 4.21,
+    "n_centroids": 9,
+    "high_margin_pct": 0.4374,
+    "per_cell": {}
+  },
+  "Resolution face (9)": {
+    "accuracy_insample": 0.4898,
+    "accuracy_heldout": 0.4623,
+    "accuracy_all": 0.4041,
+    "chance_baseline": 0.1111,
+    "multiple_of_chance": 4.16,
+    "n_centroids": 9,
+    "high_margin_pct": 0.4293,
+    "per_cell": {}
+  },
+  "Full 27-cell": {
+    "accuracy_insample": 0.3892,
+    "accuracy_heldout": 0.3355,
+    "accuracy_all": 0.2792,
+    "chance_baseline": 0.037,
+    "multiple_of_chance": 9.06,
+    "n_centroids": 27,
+    "high_margin_pct": 0.3214,
+    "per_cell": {
+      "ALT(Clearing, Atmosphere)": {
+        "accuracy": 0.0,
+        "n": 5,
+        "mean_margin": 0.0208
+      },
+      "ALT(Dissecting, Lens)": {
+        "accuracy": 0.3026,
+        "n": 76,
+        "mean_margin": 0.0198
+      },
+      "ALT(Unraveling, Paradigm)": {
+        "accuracy": 0.3333,
+        "n": 36,
+        "mean_margin": 0.016
+      },
+      "CON(Binding, Link)": {
+        "accuracy": 0.3492,
+        "n": 461,
+        "mean_margin": 0.0147
+      },
+      "CON(Tending, Field)": {
+        "accuracy": 0.28,
+        "n": 50,
+        "mean_margin": 0.0187
+      },
+      "CON(Tracing, Network)": {
+        "accuracy": 0.3429,
+        "n": 70,
+        "mean_margin": 0.0167
+      },
+      "INS(Composing, Kind)": {
+        "accuracy": 0.5,
+        "n": 20,
+        "mean_margin": 0.0256
+      },
+      "INS(Cultivating, Void)": {
+        "accuracy": 0.3333,
+        "n": 24,
+        "mean_margin": 0.0218
+      },
+      "INS(Making, Entity)": {
+        "accuracy": 0.387,
+        "n": 323,
+        "mean_margin": 0.0181
+      },
+      "NUL(Clearing, Void)": {
+        "accuracy": 0.0,
+        "n": 5,
+        "mean_margin": 0.0205
+      },
+      "NUL(Dissecting, Entity)": {
+        "accuracy": 0.3226,
+        "n": 31,
+        "mean_margin": 0.018
+      },
+      "NUL(Unraveling, Kind)": {
+        "accuracy": 0.2,
+        "n": 5,
+        "mean_margin": 0.0259
+      },
+      "REC(Composing, Paradigm)": {
+        "accuracy": 0.1429,
+        "n": 14,
+        "mean_margin": 0.0152
+      },
+      "REC(Cultivating, Atmosphere)": {
+        "accuracy": 0.0,
+        "n": 5,
+        "mean_margin": 0.0165
+      },
+      "REC(Making, Lens)": {
+        "accuracy": 0.2857,
+        "n": 49,
+        "mean_margin": 0.0154
+      },
+      "SEG(Clearing, Field)": {
+        "accuracy": 0.0,
+        "n": 10,
+        "mean_margin": 0.0138
+      },
+      "SEG(Dissecting, Link)": {
+        "accuracy": 0.2903,
+        "n": 62,
+        "mean_margin": 0.015
+      },
+      "SEG(Unraveling, Network)": {
+        "accuracy": 0.4419,
+        "n": 43,
+        "mean_margin": 0.0218
+      },
+      "SIG(Binding, Entity)": {
+        "accuracy": 0.3571,
+        "n": 56,
+        "mean_margin": 0.0209
+      },
+      "SIG(Tending, Void)": {
+        "accuracy": 0.1111,
+        "n": 9,
+        "mean_margin": 0.0291
+      },
+      "SUP(Binding, Lens)": {
+        "accuracy": 0.3377,
+        "n": 305,
+        "mean_margin": 0.0167
+      },
+      "SUP(Tending, Atmosphere)": {
+        "accuracy": 0.1818,
+        "n": 22,
+        "mean_margin": 0.0143
+      },
+      "SUP(Tracing, Paradigm)": {
+        "accuracy": 0.3088,
+        "n": 68,
+        "mean_margin": 0.0215
+      },
+      "SYN(Composing, Network)": {
+        "accuracy": 0.3913,
+        "n": 23,
+        "mean_margin": 0.0233
+      },
+      "SYN(Cultivating, Field)": {
+        "accuracy": 0.1,
+        "n": 10,
+        "mean_margin": 0.0233
+      },
+      "SYN(Making, Link)": {
+        "accuracy": 0.3115,
+        "n": 61,
+        "mean_margin": 0.0158
+      }
+    }
+  }
+}

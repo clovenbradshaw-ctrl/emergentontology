@@ -1,0 +1,805 @@
+EO LEXICAL ANALYSIS — EXEMPLAR REPORT
+Top exemplars per cell and face position, ranked by discrimination margin.
+Margin = how far a clause is from its nearest competing centroid.
+Higher margin = clause is more unambiguously in this cell than any other.
+27-cell composite margin = minimum margin across all four faces simultaneously.
+
+==========================================================================
+  ACT FACE — Mode × Domain — The Nine Operators
+==========================================================================
+
+  What transformation is happening. The Act face crosses how an operatio
+  n is structured (Mode: differentiating/relating/generating) with what 
+  level of reality it operates on (Domain: existence/structure/significa
+  nce). The 9 operators are the primary vocabulary of transformation in 
+  EO. Each operator names a distinct kind of act.
+
+  Margin summary (best exemplar per position, highest to lowest):
+    SIG                            Δ=0.126  █████████████████████████
+    ALT                            Δ=0.117  ███████████████████████
+    SYN                            Δ=0.113  ██████████████████████
+    NUL                            Δ=0.098  ███████████████████
+    SEG                            Δ=0.095  ███████████████████
+    INS                            Δ=0.084  ████████████████
+    SUP                            Δ=0.079  ███████████████
+    CON                            Δ=0.066  █████████████
+    REC                            Δ=0.063  ████████████
+
+  NUL
+  ───
+  Recognize absence. The precondition of all other operations — before difference can be registered, absence must be acknowledged.
+  Language distribution (top 20): grc(4), it(3), es(2), id(1), ja(1)
+
+  #    Lang      sim       Δ  Clause
+  ──── ────── ────── ───────  ──────────────────────────────────────────────────
+  1    it      0.431   0.098  "La SpaceAfter=Norajina non esiste più".
+  2    es      0.291   0.094  Como no existen asentamientos permanentes, también es la isla deshabitada mayor de...
+  3    grc     0.402   0.089  οἱ δὲ παραγενόμενοι ὑπηρέται οὐχ εὗρον αὐτοὺς ἐν τῇ φυλακῇ
+  4    grc     0.288   0.088  τῆς δὲ Σπάρτης Ἀναξανδρίδης μὲν ὁ Λέοντος οὐκέτι περιεὼν ἐβασίλευε ἀλλὰ ἐτετελευτήκεε
+  5    grc     0.350   0.085  ὃς ἀνῃρέθη καὶ πάντες ὅσοι ἐπείθοντο αὐτῷ διελύθησαν καὶ ἐγένοντο εἰς οὐδέν
+
+  SIG
+  ───
+  Register difference. The minimal act of distinction — something becomes noticeable.
+  Language distribution (top 20): de(20)
+  ⚠ Language concentration: 20/20 top exemplars are de. Results may reflect corpus artifact, not operator semantics.
+
+  #    Lang      sim       Δ  Clause
+  ──── ────── ────── ───────  ──────────────────────────────────────────────────
+  1    de      0.426   0.126  Musste auch nich lange auf einen Termin warten und Wartezeiten waren meistens auch...
+  2    de      0.396   0.109  Pizza gibt es dort, auch wenn die Wartezeiten manchmal etwas lang werden können.
+  3    de      0.413   0.105  Wenn man etwas braucht kann man das auch noch mitnehmen.
+  4    de      0.422   0.105  nach fast einer weiteren Stunde, nachdem sich mein Verlobter mehrmals erkundigt un...
+  5    de      0.427   0.104  Wir freuen uns auf ein Wiedersehen jetzt im Dezember.
+
+  INS
+  ───
+  Create instance. Something new comes into existence as a discrete event.
+  Language distribution (top 20): he(6), hu(3), ta(2), ur(2), ko(2)
+
+  #    Lang      sim       Δ  Clause
+  ──── ────── ────── ───────  ──────────────────────────────────────────────────
+  1    ja      0.242   0.084  199X年、TOKYO湾南方に巨大隕石が落下、次いで大型台風がTOKYOを襲った。
+  2    he      0.300   0.082  במחנה פליטים סמוך לשכם נפגע תושב מקומי מפגיעת רימון גז מדמיע, שנורה בידי חיילים.
+  3    hi      0.337   0.081  फलुजा स्थित एक प्रमुख अस्पताल के डॉक्टर ने बताया कि इस हमले में ११ लोग मारे गए और ...
+  4    nl      0.360   0.079  Het toestel raasde dwars door de bovenleiding, waarbij een enorme steekvlam ontsto...
+  5    ta      0.290   0.079  உக்ரைன் நாட்டில் பஸ் ஒன்றின் மீது ரயில் மோதியதில் 37 பேர் உயிரிழந்தனர்.
+
+  SEG
+  ───
+  Draw boundary. Partition, divide, separate — something is set apart from its surroundings.
+  Language distribution (top 20): sv(8), uk(2), da(2), sk(1), ja(1)
+
+  #    Lang      sim       Δ  Clause
+  ──── ────── ────── ───────  ──────────────────────────────────────────────────
+  1    sk      0.405   0.095  Samozrejme , že sa mala rozdeliť na tri rovnaké diely .
+  2    ja      0.397   0.090  柵などをくぐると別行動になる。
+  3    sv      0.304   0.082  Industriländerna (USA, Sovjet, Sverige etc) använder en mycket större del av sin n...
+  4    sv      0.320   0.080  Han utgår från tumregeln att u-ländernas befolkning är fördelad med 80 procent på ...
+  5    sr      0.457   0.073  Mnogi istaknuti članovi su otišli iz stranke.
+
+  CON
+  ───
+  Connect across boundary. Hold two things in relation.
+  Language distribution (top 20): hr(5), pl(5), sr(4), hi(1), no(1)
+
+  #    Lang      sim       Δ  Clause
+  ──── ────── ────── ───────  ──────────────────────────────────────────────────
+  1    hr      0.378   0.066  Makedonski predsjednik Đorđe Ivanov i njegov kolega Vaclav Klaus nazočili su u uto...
+  2    hi      0.282   0.065  मुकेश अपनी पत्नी नीता के साथ आनंद जैन की बेटी की शादी में शामिल होंगे ।
+  3    no      0.348   0.064  Mandag 7. april vil de to landenes flagg få plass sammen med de andre utenfor NATO...
+  4    pl      0.378   0.064  Małe dziecko w różowej czapce jest trzymane przez mężczyznę w czerwonej bluzce, a ...
+  5    sr      0.396   0.063  Diplomatski dnevnik: Zemlje regiona razgovaraju o saradnji
+
+  SYN
+  ───
+  Merge into emergent whole. Parts integrate into something that is more than their sum.
+  Language distribution (top 20): hi(11), ur(4), sk(1), pt(1), ta(1)
+
+  #    Lang      sim       Δ  Clause
+  ──── ────── ────── ───────  ──────────────────────────────────────────────────
+  1    sk      0.326   0.113  Zrekonštruuje Legislatívnu radu vlády Slovenskej republiky s cieľom jej aktívnejši...
+  2    hi      0.315   0.109  केंद्र की कोशिश है कि कानून लागू करने से पहले इस कार्यक्रम के तहत काम पाने वाले लो...
+  3    hi      0.429   0.107  इस पर विस्तृत योजना तैयार की जा रही है ।
+  4    ur      0.343   0.106  اجلاس مےں نئے ٹیکس قانون کا بھی جائزہ لیا جائےگا جو کہ موجودہ انکم ٹیکس قانون کی ج...
+  5    hi      0.380   0.103  लेकिन अब नई ऊर्जा नीति में इस योजना को पूरी तरह से लाइसेंस मुक्त करने का प्रस्ताव ...
+
+  ALT
+  ───
+  Change value within frame. Reframe without changing the frame itself.
+  Language distribution (top 20): ru(6), vi(2), ja(1), sv(1), en(1)
+
+  #    Lang      sim       Δ  Clause
+  ──── ────── ────── ───────  ──────────────────────────────────────────────────
+  1    ja      0.362   0.117  どうやら書き込み数がそのまま視聴率と相関しているとは言えないようだ。
+  2    sv      0.427   0.102  - Jag är själv inte särskilt villig att dra långtgående slutsatser ur materialet, ...
+  3    en      0.254   0.095  You people think it is race, but it is not.
+  4    cs      0.444   0.093  Nemohu přece věřit statistice, když sám vím, jak nahodile se údaje zjišťují, tvrdí...
+  5    ar      0.329   0.091  وما يصح لمقالة انتقادية في مجلة اسبوعية لا يصح بالضرورة موضوعا للوكالة.
+
+  SUP
+  ───
+  Hold contradictions simultaneously. Two incompatible things are both present.
+  Language distribution (top 20): vi(5), sk(4), tr(4), cs(2), wo(1)
+
+  #    Lang      sim       Δ  Clause
+  ──── ────── ────── ───────  ──────────────────────────────────────────────────
+  1    sk      0.422   0.079  “ Dobre , chlapče , “ súhlasil Fil .
+  2    vi      0.305   0.069  Ông Chương nhớ có một lần bà vợ hàng xóm nói rất thích căn nhà ông ...
+  3    wo      0.465   0.068  Mu ni ko: "aah, gis naa benn bi de muy gudd fan gi, bi ci des kay a ma wóorul".
+  4    sk      0.426   0.067  “ I mne sa raz snívalo , že budem učiť najväčšieho hrdinu všetkých čias , “ vyhlás...
+  5    tr      0.372   0.066  Herkesin zamanı önemli, dedi Kerem.
+
+  REC
+  ───
+  Change the frame itself. The interpretive structure undergoes transformation.
+  Language distribution (top 20): fr(5), de(4), it(4), ar(1), pt(1)
+
+  #    Lang      sim       Δ  Clause
+  ──── ────── ────── ───────  ──────────────────────────────────────────────────
+  1    de      0.400   0.063  Ich muss sagen, insgesamt habe ich einen eher negativen ersten Eindruck von diesem...
+  2    ar      0.284   0.055  ووجه غرين، الساعي الى احراز الذهب الاولمبي، انذارا الى الذين يشككون في قدرته على ت...
+  3    it      0.374   0.053  E forse il finanziere toscano ha colto l'occasione per una piccola vendetta nei co...
+  4    fr      0.334   0.052  Dans la chanson "Nigivir", toujours en grand provocateur, Francky Vincent règle se...
+  5    pt      0.386   0.051  Apesar da veracidade ainda hoje comprovável, na ocasião Fernando Henrique me fez g...
+
+==========================================================================
+  SITE FACE — Domain × Object — Nine Terrain Types
+==========================================================================
+
+  Where in reality the target is located. The Site face crosses what lev
+  el of reality (Domain: existence/structure/significance) with what gra
+  in of object (Object: condition/entity/pattern). The 9 terrain types d
+  escribe the phenomenological address of a target before any operation 
+  is performed. Reading the Site face tells you what kind of thing you a
+  re working with.
+
+  Margin summary (best exemplar per position, highest to lowest):
+    Atmosphere                     Δ=0.131  ██████████████████████████
+    Paradigm                       Δ=0.117  ███████████████████████
+    Network                        Δ=0.109  █████████████████████
+    Lens                           Δ=0.103  ████████████████████
+    Void                           Δ=0.092  ██████████████████
+    Entity                         Δ=0.089  █████████████████
+    Kind                           Δ=0.089  █████████████████
+    Field                          Δ=0.086  █████████████████
+    Link                           Δ=0.072  ██████████████
+
+  Void
+  ────
+  Existence × Condition. The ambient substrate of being — what is present as background before anything is picked out.
+  Language distribution (top 20): hi(5), ta(3), ko(3), pt(2), ur(2)
+
+  #    Lang      sim       Δ  Clause
+  ──── ────── ────── ───────  ──────────────────────────────────────────────────
+  1    hi      0.283   0.092  उत्तर भारत के कई स्थानों में बृहस्पतिवार की सुबह तक भारी वर्षा रिकॉर्ड की गई ।
+  2    ta      0.300   0.074  2022-ம் ஆண்டில் gஎர்மனியில் அணுஉலைக் கூடங்களே இல்லாத நிலை ஏற்பட வேண்டும் என்பது தா...
+  3    hi      0.319   0.072  सप्ताह के दौरान औसत से ३२ फीसदी कम पानी बरसा ।
+  4    pt      0.396   0.071  Porque a produção por hectare em África tem diminuído drasticamente, o campo está ...
+  5    vi      0.314   0.070  Trời tối hẳn và đối tượng chìm vào biển người hối hả ...
+
+  Entity
+  ──────
+  Existence × Entity. A specific existent — this thing, graspable, nameable.
+  Language distribution (top 20): fr(5), ta(3), ja(2), es(2), he(2)
+
+  #    Lang      sim       Δ  Clause
+  ──── ────── ────── ───────  ──────────────────────────────────────────────────
+  1    fr      0.218   0.089  Il renoua avec le succès vers la fin de la guerre, avant de mourir en 1925.
+  2    fr      0.285   0.083  Vers la même période (la date est incertaine), ils détruisirent une légion romaine.
+  3    it      0.369   0.083  Poco dopo li fucilarono davanti a una folla delirante:
+  4    ja      0.264   0.077  男性は全身を強打してまもなく死亡。
+  5    fr      0.284   0.075  En juillet 1941, une première attaque aérienne s'abattit sur la ville, quatre autr...
+
+  Kind
+  ────
+  Existence × Pattern. A type or category — not any particular instance but the recurring class.
+  Language distribution (top 20): sv(10), ru(2), hu(2), id(1), pl(1)
+
+  #    Lang      sim       Δ  Clause
+  ──── ────── ────── ───────  ──────────────────────────────────────────────────
+  1    sv      0.378   0.089  Under den tid som det tar att läsa den här meningen föds elva människor till världen.
+  2    sv      0.387   0.083  Spädbarnsdödligheten har minskat särskilt kraftigt; det är inte så att varje kvinn...
+  3    sv      0.303   0.080  Ungefär en procent av befolkningen har haft eller har denna sjukdom.
+  4    sv      0.365   0.080  Många svåra sjukdomar som malaria, smittkoppor och spetälska trängs alltmer tillba...
+  5    id      0.233   0.076  Lambda Indonesia dan organisasi sejenis lainnya bermunculan pada akhir tahun 1980-...
+
+  Field
+  ─────
+  Structure × Condition. The ambient relational environment — the implicit rules nobody names but everyone navigates.
+  Language distribution (top 20): es(7), fr(5), sl(2), zh(1), hr(1)
+
+  #    Lang      sim       Δ  Clause
+  ──── ────── ────── ───────  ──────────────────────────────────────────────────
+  1    fr      0.299   0.086  La commune dispose de 2 865 ha de terres arables et de 3 872 ha de pâturages.
+  2    fr      0.359   0.074  On y retrouve les lieux de culte, la place, la mairie, et les magasins de toutes s...
+  3    sl      0.376   0.074  V Čepincih je obilo možnosti za pešačenje in kolesarjenje, saj poti vodijo na vse ...
+  4    fr      0.296   0.070  L'économie de la commune est dut aux entreprises individuelles, transport routier ...
+  5    fr      0.301   0.069  Le tracé du parc est conçu pour accueillir les pavillons des exposants.
+
+  Link
+  ────
+  Structure × Entity. A specific connection — this bond, this dependency.
+  Language distribution (top 20): ur(6), ar(4), hi(3), en(2), sr(1)
+
+  #    Lang      sim       Δ  Clause
+  ──── ────── ────── ───────  ──────────────────────────────────────────────────
+  1    ur      0.292   0.072  ڈی ایم وکاس گوتھلوال اور ایس پی نونیت کمار رانا کو اس معاملے کی جانچ کے لیے مقرر ک...
+  2    ar      0.255   0.071  وتولى جون نكومو الذي كان وزيرا للادارة المحلية في الحكومة السابقة وزارة الداخلية ب...
+  3    ur      0.289   0.069  جبکہ جناب شیخ عبید بن عثمان العمودی اور جناب غلام حامد خان نقشبندی چشتی قادری مہما...
+  4    ur      0.285   0.067  اس اجلاس میں نومنتخب رکن اسمبلی گجویل ٹی نرساریڈی شرکت کریں گے۔
+  5    sr      0.442   0.067  On je nadgledao transfer zajedno sa arhitektom novog muzeja Bernarom Čumijem, 25 a...
+
+  Network
+  ───────
+  Structure × Pattern. An architecture of connections — the system as recurring structure.
+  Language distribution (top 20): it(5), ro(4), sv(3), sk(2), zh(2)
+
+  #    Lang      sim       Δ  Clause
+  ──── ────── ────── ───────  ──────────────────────────────────────────────────
+  1    it      0.373   0.109  Il credito relativo è privilegiato a norma delle leggi speciali.
+  2    sk      0.355   0.090  Pripraví návrhy na úpravu kľúčových inštitútov v oblasti všeobecnej časti občiansk...
+  3    bg      0.379   0.088  Режимът на обектите на държавната и общинската собственост се определя със закон.
+  4    sl      0.340   0.086  Določbe o minimalni plači veljajo za vse delodajalce, ki zaposlujejo delavce v Rep...
+  5    sk      0.384   0.086  Vytvorí tiež predpoklady pre unifikáciu právnej terminológie ako podmienky zvýšeni...
+
+  Atmosphere
+  ──────────
+  Significance × Condition. The ambient interpretive weather — what makes certain readings feel obvious.
+  Language distribution (top 20): de(13), ja(4), ko(2), fr(1)
+  ⚠ Language concentration: 13/20 top exemplars are de. Results may reflect corpus artifact, not operator semantics.
+
+  #    Lang      sim       Δ  Clause
+  ──── ────── ────── ───────  ──────────────────────────────────────────────────
+  1    de      0.496   0.131  Sauberkeit, Ordnung und Freundlichkeit brauche ich hier nicht zu erwähnen, denn da...
+  2    de      0.457   0.125  Ein richtiges Landgasthaus in dem man sich wohl fühlt.
+  3    de      0.450   0.122  Das essen ist sehr lecker und man hat viel auf dem Teller, es ist wirklich kaum zu...
+  4    de      0.420   0.119  Das Team ist super nett, ich fühle mich sehr gut aufgeboben und der Wohlfühlfaktor...
+  5    de      0.502   0.119  Hier kann man ein paar schöne Stunden verbringen, denn auch die Gäste sind stehts ...
+
+  Lens
+  ────
+  Significance × Entity. A specific reading or frame applied to one situation.
+  Language distribution (top 20): vi(5), ar(3), tr(2), ur(2), sk(2)
+
+  #    Lang      sim       Δ  Clause
+  ──── ────── ────── ───────  ──────────────────────────────────────────────────
+  1    ar      0.333   0.103  وعلق عليه بقوله "كان خطابا عظيما".
+  2    vi      0.293   0.102  Hùng nói năng rất cảnh giác và cuối cùng anh ta hỏi : " thế sao mày biết tên thật ...
+  3    vi      0.285   0.101  Hùng giật mình : " Sao tôi không biết ông nhỉ ? " .
+  4    tr      0.314   0.096  Hiç bilmiyorum nasıl bir kadın olduğunu, dedi.
+  5    tr      0.274   0.088  Nasıl bir kadın o? diye sordum.
+
+  Paradigm
+  ────────
+  Significance × Pattern. A worldview or interpretive framework through which everything is filtered.
+  Language distribution (top 20): fi(8), it(2), no(2), cs(2), ko(1)
+
+  #    Lang      sim       Δ  Clause
+  ──── ────── ────── ───────  ──────────────────────────────────────────────────
+  1    fi      0.416   0.117  Todellisuus on usein kuitenkin muuta: moni ei halua myöntää julkisesti, että seksi...
+  2    fi      0.367   0.102  Voimme uskotella itsellemme, ettei seksi ole tärkeää, että tyydytyksen saaminen ei...
+  3    ko      0.283   0.100  몽정을 할 경우 심리적인 죄책감이나 부끄러움을 느끼는 사람이 상당수이며 이것은 올바른 성의식이 확립되지 않았기 때문이라 할 수 있다.
+  4    fi      0.341   0.097  Häpeää tunteva luulee, että hänen pitäisi olla toisenlainen.
+  5    it      0.385   0.094  Per lo stesso motivo però, spesso, fanno fatica ad ammettere che qualcun altro sia...
+
+==========================================================================
+  RESOLUTION FACE — Mode × Object — Nine Engagement Stances
+==========================================================================
+
+  At what grain the transformation lands. The Resolution face crosses ho
+  w an operation is structured (Mode: differentiating/relating/generatin
+  g) with what grain of object it targets (Object: condition/entity/patt
+  ern). The 9 stances describe the actor's relationship to the target — 
+  not what they are doing or where, but how they are engaging.
+
+  Margin summary (best exemplar per position, highest to lowest):
+    Tending                        Δ=0.142  ████████████████████████████
+    Clearing                       Δ=0.125  ████████████████████████
+    Cultivating                    Δ=0.109  █████████████████████
+    Unraveling                     Δ=0.088  █████████████████
+    Dissecting                     Δ=0.087  █████████████████
+    Making                         Δ=0.087  █████████████████
+    Composing                      Δ=0.081  ████████████████
+    Binding                        Δ=0.077  ███████████████
+    Tracing                        Δ=0.067  █████████████
+
+  Clearing
+  ────────
+  Differentiating × Condition. Dissolving ambient conditions — making space before analysis.
+  ⚠ 6 exemplar(s) with negative margin excluded (closer to a competing centroid than their own).
+  Language distribution (top 20): es(5), pt(4), ja(2), ca(2), nl(2)
+
+  #    Lang      sim       Δ  Clause
+  ──── ────── ────── ───────  ──────────────────────────────────────────────────
+  1    ja      0.352   0.125  平地は西部の佐須川流域を除き、大規模なものはほとんど無い。
+  2    es      0.326   0.093  Como no existen asentamientos permanentes, también es la isla deshabitada mayor de...
+  3    ar      0.286   0.091  ولا توجد في هذه الجمهورية سوى طريق واحدة ولا يصلها خط سكة الحديد.
+  4    ja      0.256   0.079  総面積の2.08%が水地域となっている。
+  5    es      0.402   0.071  El pueblo es sólo espectador del problema, y sus representantes parlamentarios no ...
+
+  Dissecting
+  ──────────
+  Differentiating × Entity. Taking apart a specific thing — investigation, surgery.
+  Language distribution (top 20): hi(3), ur(3), en(2), nl(2), cs(2)
+
+  #    Lang      sim       Δ  Clause
+  ──── ────── ────── ───────  ──────────────────────────────────────────────────
+  1    en      0.270   0.087  He did not give them the number of troops they requested.
+  2    hi      0.358   0.087  हालांकि मुखर्जी ने इन संगठनों के नाम का खुलासा नहीं किया ।
+  3    ur      0.344   0.087  انہوں نے کہا کہ انفٹ شعیب اختر کو ٹیم میں نہیں رکھا جا سکتا تھا -
+  4    ur      0.323   0.081  انہوں نے کہا کہ کپتان یونس خاں کی ناراضگی کے بارے میں باتیں درست نہیں ہیں -
+  5    nl      0.431   0.077  Ze verweten hem niet dat hij zich door ontactisch optreden uit de regering had lat...
+
+  Unraveling
+  ──────────
+  Differentiating × Pattern. Deconstructing a regularity — showing how a recurring structure works.
+  Language distribution (top 20): sv(7), fi(3), no(2), ru(2), ko(1)
+
+  #    Lang      sim       Δ  Clause
+  ──── ────── ────── ───────  ──────────────────────────────────────────────────
+  1    sv      0.416   0.088  Den lär inte ut de praktiska kunskaper som behövs för att förbättra jordbruket t ex .
+  2    fi      0.408   0.086  Todellisuus on usein kuitenkin muuta: moni ei halua myöntää julkisesti, että seksi...
+  3    sv      0.413   0.086  Då har man alltså inte räknat med barn under skolåldern.
+  4    ko      0.319   0.082  부의 혈통만이 성으로 표현되고 모의 혈통은 성에 반영되지 않게 되어 개인의 혈통관계가 모두 성에 반영되지 못한다.
+  5    no      0.359   0.077  Det beste, de viktigste lærdommene, lærer vi ikke noe av.
+
+  Tending
+  ───────
+  Relating × Condition. Maintaining conditions — the gardener's stance.
+  Language distribution (top 20): de(14), ja(2), ko(2), es(1), fr(1)
+  ⚠ Language concentration: 14/20 top exemplars are de. Results may reflect corpus artifact, not operator semantics.
+
+  #    Lang      sim       Δ  Clause
+  ──── ────── ────── ───────  ──────────────────────────────────────────────────
+  1    de      0.514   0.142  Dabei sitzt man drinnen wie draußen in angenehm freundlicher und ruhiger Umgebung.
+  2    de      0.481   0.142  Hier kann man ein paar schöne Stunden verbringen, denn auch die Gäste sind stehts ...
+  3    de      0.482   0.141  Das Ambiente stimmt, die Verkäufer sind nett.
+  4    de      0.477   0.141  Es bietet nette Atmosphäre und eine motivierte und zuvorkommende Bedienung.
+  5    de      0.420   0.138  Ein richtiges Landgasthaus in dem man sich wohl fühlt.
+
+  Binding
+  ───────
+  Relating × Entity. Connecting specific things — tying this to that.
+  Language distribution (top 20): la(8), no(3), vi(3), ar(2), sk(1)
+
+  #    Lang      sim       Δ  Clause
+  ──── ────── ────── ───────  ──────────────────────────────────────────────────
+  1    la      0.322   0.077  tunc accessit ad eum mater filiorum Zebedaei cum filiis suis adorans et petens ali...
+  2    la      0.286   0.070  hic est Filius meus dilectus in quo mihi conplacui
+  3    la      0.288   0.068  hic est Filius meus dilectus in quo mihi bene conplacuit
+  4    no      0.342   0.067  - Naturligvis elsker jeg presidenten vår, sa hun etter forestillingen.
+  5    sk      0.390   0.066  “ Amy , “ povedal a jemne ma chytil za lakeť .
+
+  Tracing
+  ───────
+  Relating × Pattern. Mapping regularities — the analyst's stance.
+  Language distribution (top 20): it(3), sv(3), es(2), fr(2), ja(2)
+
+  #    Lang      sim       Δ  Clause
+  ──── ────── ────── ───────  ──────────────────────────────────────────────────
+  1    zh      0.248   0.067  大部分的心智圖法工具軟體都具有類似的型式和功能）
+  2    es      0.391   0.066  Estos roles incluyen una figura de autoridad, las tareas que cada uno debe cumplir...
+  3    no      0.347   0.065  Som vi spør, vil vi også få svar.
+  4    ur      0.297   0.062  تمام معنی باہم مناسبت رکھتے ہےں اور سب کا خلاصہ یہ ہے کہ آدمی اللہ تعالیٰ سے صحیح ...
+  5    la      0.311   0.062  omnia ergo quaecumque vultis ut faciant vobis homines et vos facite eis
+
+  Cultivating
+  ───────────
+  Generating × Condition. Producing conditions for emergence without producing the thing itself.
+  Language distribution (top 20): hi(6), ur(4), ko(3), hu(1), zh(1)
+
+  #    Lang      sim       Δ  Clause
+  ──── ────── ────── ───────  ──────────────────────────────────────────────────
+  1    hi      0.347   0.109  मुंबई शहर में भी भारी वर्षा की वजह से रेल और सड़क यातायात आंशिक रूप से बाधित रहा ।
+  2    hi      0.367   0.108  जबकि मुंबई शहर में भी भारी वर्षा की वजह से रेल और सड़क यातायात आंशिक रूप से बाधित ...
+  3    hi      0.288   0.102  उत्तर भारत के कई स्थानों में बृहस्पतिवार की सुबह तक भारी वर्षा रिकॉर्ड की गई ।
+  4    ur      0.399   0.098  تیز ہواؤں کی وجہ سے برقی سربراہی میں بھی خلل پڑا۔
+  5    hu      0.349   0.092  A hófúvás a MÁV teljes hálózatán fennakadásokat okozott, mindenütt legalább 30 per...
+
+  Making
+  ──────
+  Generating × Entity. Producing a specific thing — the gravity well of language.
+  Language distribution (top 20): fr(4), zh(3), ta(3), ar(2), it(2)
+
+  #    Lang      sim       Δ  Clause
+  ──── ────── ────── ───────  ──────────────────────────────────────────────────
+  1    ar      0.275   0.087  واثارت هذه العملية تظاهرات دامية في الاراضي الفلسطينية في ايلول/سبتمبر 1996 اوقعت ...
+  2    fr      0.273   0.080  Vers la même période (la date est incertaine), ils détruisirent une légion romaine.
+  3    fr      0.275   0.078  En juillet 1941, une première attaque aérienne s'abattit sur la ville, quatre autr...
+  4    zh      0.204   0.077  1992年，此地經過維修，成立浙東革命根據地紀念館。
+  5    ar      0.304   0.075  واكد ان "بطارية المدفعية قصفت على الفور.
+
+  Composing
+  ─────────
+  Generating × Pattern. Producing regularities or structures that recur.
+  Language distribution (top 20): sr(3), hr(3), tr(2), hi(2), ru(2)
+
+  #    Lang      sim       Δ  Clause
+  ──── ────── ────── ───────  ──────────────────────────────────────────────────
+  1    sr      0.406   0.081  Odbici za proizvode intelektualne svojine biće smanjeni sa 40 na 20 odsto, u pokuš...
+  2    tr      0.355   0.075  Sanayi mallarında asgari garanti süresi bir yıldan iki yıla çıkarılıyor.
+  3    sl      0.472   0.073  Sistem je treba spreminjati postopno, na daljši rok.
+  4    tr      0.366   0.072  Taksitli satışlarda temerrüde düşen tüketiciye sağlanan haklar genişletiliyor.
+  5    hi      0.285   0.069  केंद्र की कोशिश है कि कानून लागू करने से पहले इस कार्यक्रम के तहत काम पाने वाले लो...
+
+==========================================================================
+  FULL 27-CELL ADDRESS — All Three Axes
+==========================================================================
+
+  Complete specification: operator(Resolution, Site). Each cell simultan
+  eously encodes the Act face (what), the Site face (where), and the Res
+  olution face (how). The composite margin ranks exemplars that are unam
+  biguous on all three faces simultaneously — the most discriminative in
+  stances in the corpus.
+
+  Margin summary (best exemplar per position, highest to lowest):
+    ALT(Dissecting, Lens)          Δ=0.081  ████████████████
+    ALT(Unraveling, Paradigm)      Δ=0.067  █████████████
+    SYN(Composing, Network)        Δ=0.065  ████████████
+    CON(Binding, Link)             Δ=0.062  ████████████
+    INS(Making, Entity)            Δ=0.059  ███████████
+    SUP(Binding, Lens)             Δ=0.051  ██████████
+    INS(Cultivating, Void)         Δ=0.049  █████████
+    SUP(Tracing, Paradigm)         Δ=0.048  █████████
+    SEG(Unraveling, Network)       Δ=0.047  █████████
+    SEG(Clearing, Field)           Δ=0.042  ████████
+    NUL(Unraveling, Kind)          Δ=0.042  ████████
+    NUL(Clearing, Void)            Δ=0.039  ███████
+    NUL(Dissecting, Entity)        Δ=0.039  ███████
+    SUP(Tending, Atmosphere)       Δ=0.038  ███████
+    CON(Tending, Field)            Δ=0.032  ██████
+    SEG(Dissecting, Link)          Δ=0.029  █████
+    SYN(Making, Link)              Δ=0.027  █████
+    CON(Tracing, Network)          Δ=0.026  █████
+    INS(Composing, Kind)           Δ=0.025  █████
+    SIG(Binding, Entity)           Δ=0.025  █████
+    ALT(Clearing, Atmosphere)      Δ=0.024  ████
+    REC(Cultivating, Atmosphere)   Δ=0.022  ████
+    SYN(Cultivating, Field)        Δ=0.018  ███
+    SIG(Tending, Void)             Δ=0.017  ███
+    REC(Making, Lens)              Δ=0.016  ███
+    REC(Composing, Paradigm)       Δ=0.016  ███
+    SIG(Tracing, Kind)             Δ=0.001  
+
+  NUL(Clearing, Void)
+  ───────────────────
+  ⚠ 43 exemplar(s) with negative margin excluded (closer to a competing centroid than their own).
+  Language distribution (top 20): es(2), ar(1), pt(1)
+
+  #    Lang      sim       Δ  Clause
+  ──── ────── ────── ───────  ──────────────────────────────────────────────────
+  1    es      0.456   0.039  Las habitaciones tenian las paredes desconchadas, no funcionaba el aire acondicion...
+  2    ar      0.408   0.025  ولا توجد في هذه الجمهورية سوى طريق واحدة ولا يصلها خط سكة الحديد.
+  3    es      0.441   0.019  Como no existen asentamientos permanentes, también es la isla deshabitada mayor de...
+  4    pt      0.471   0.003  Não existe, pois, um conceito «operacional» de urgência, como bem atestam as urgên...
+
+  NUL(Dissecting, Entity)
+  ───────────────────────
+  ⚠ 74 exemplar(s) with negative margin excluded (closer to a competing centroid than their own).
+  Language distribution (top 20): grc(6), ja(2), it(2), nl(2), eu(1)
+
+  #    Lang      sim       Δ  Clause
+  ──── ────── ────── ───────  ──────────────────────────────────────────────────
+  1    eu      0.367   0.039  Joan den urtean ez ziren ez Jan Ullrich ez Marco Pantani izan.
+  2    grc     0.371   0.035  ὃς ἀνῃρέθη καὶ πάντες ὅσοι ἐπείθοντο αὐτῷ διελύθησαν καὶ ἐγένοντο εἰς οὐδέν
+  3    fr      0.355   0.034  On en avait vue une dizaine au premier contrôle mais pas celle là.
+  4    grc     0.305   0.033  τῆς δὲ Σπάρτης Ἀναξανδρίδης μὲν ὁ Λέοντος οὐκέτι περιεὼν ἐβασίλευε ἀλλὰ ἐτετελευτήκεε
+  5    ja      0.301   0.021  犯人は検挙されておらず、2012年8月現在未解決。
+
+  NUL(Unraveling, Kind)
+  ─────────────────────
+  ⚠ 82 exemplar(s) with negative margin excluded (closer to a competing centroid than their own).
+  Language distribution (top 20): la(3), en(1), da(1), sv(1), got(1)
+
+  #    Lang      sim       Δ  Clause
+  ──── ────── ────── ───────  ──────────────────────────────────────────────────
+  1    en      0.230   0.042  Male cats very seldom live past 14-15 years.
+  2    la      0.469   0.013  omnis ergo arbor quae non facit fructum bonum exciditur et in ignem mittitur
+  3    la      0.468   0.012  omnis arbor quae non facit fructum bonum exciditur et in ignem mittitur
+  4    da      0.340   0.011  Der findes ikke opgørelser over, hvor mange millioner kroner pladebranchen kaster ...
+  5    sv      0.444   0.008  Om pensionären är en gift kvinna utgår f n inte barntillägg.
+
+  SIG(Binding, Entity)
+  ────────────────────
+  ⚠ 62 exemplar(s) with negative margin excluded (closer to a competing centroid than their own).
+  Language distribution (top 20): de(4), it(3), la(3), grc(2), ta(2)
+
+  #    Lang      sim       Δ  Clause
+  ──── ────── ────── ───────  ──────────────────────────────────────────────────
+  1    grc     0.322   0.025  ἦν δέ τις ἄνθρωπος ἐκεῖ τριάκοντα καὶ ὀκτὼ ἔτη ἔχων ἐν τῇ ἀσθενείᾳ αὐτοῦ
+  2    it      0.440   0.018  Sono venuti in due su una macchina scura, forse una Golf - racconta -.
+  3    it      0.377   0.018  Da una, Luigi sorride con i due bambini Castiglioni, anche loro ammazzati ieri, me...
+  4    de      0.437   0.014  nach fast einer weiteren Stunde, nachdem sich mein Verlobter mehrmals erkundigt un...
+  5    la      0.368   0.013  defuncto autem Herode ecce apparuit angelus Domini in somnis Ioseph in Aegypto dicens
+
+  SIG(Tending, Void)
+  ──────────────────
+  ⚠ 94 exemplar(s) with negative margin excluded (closer to a competing centroid than their own).
+  Language distribution (top 20): pt(2), zh(1), he(1), no(1), sk(1)
+
+  #    Lang      sim       Δ  Clause
+  ──── ────── ────── ───────  ──────────────────────────────────────────────────
+  1    pt      0.359   0.017  Era uma época em que os cariocas imperavam em campo e fora dele.
+  2    pt      0.420   0.012  Quando chega ao palco a assistência já está rendida.
+  3    zh      0.204   0.004  光在東京就有上千家佛朗明哥舞蹈學校。
+  4    he      0.404   0.003  היה שקט מוחלט בסמטה, וכמעט חושך.
+  5    no      0.377   0.002  Det snødde da vi ankom stedet, og det var ca. null grader.»
+
+  SIG(Tracing, Kind)
+  ──────────────────
+  ⚠ 75 exemplar(s) with negative margin excluded (closer to a competing centroid than their own).
+  Language distribution (top 20): pt(1)
+
+  #    Lang      sim       Δ  Clause
+  ──── ────── ────── ───────  ──────────────────────────────────────────────────
+  1    pt      0.469   0.001  Mas toda a gente fuma (às escondidas) incluindo os proibicionistas.
+
+  INS(Composing, Kind)
+  ────────────────────
+  ⚠ 82 exemplar(s) with negative margin excluded (closer to a competing centroid than their own).
+  Language distribution (top 20): hu(4), ro(2), fr(1), ca(1), id(1)
+
+  #    Lang      sim       Δ  Clause
+  ──── ────── ────── ───────  ──────────────────────────────────────────────────
+  1    fr      0.149   0.025  Les cuisinières apparaissent début XIXe siècle avec les gaz manufacturés.
+  2    ca      0.446   0.025  Cada dia n'aconsegueixen volar uns quants.
+  3    id      0.255   0.023  Lambda Indonesia dan organisasi sejenis lainnya bermunculan pada akhir tahun 1980-...
+  4    hu      0.402   0.021  Új népszokás született, aki unatkozik, kimegy a ház elé, és elhányja a havat.
+  5    ko      0.251   0.018  이러한 인문주의가 다시 꽃피게 되는 것은 15세기가 되어서였다.
+
+  INS(Cultivating, Void)
+  ──────────────────────
+  ⚠ 68 exemplar(s) with negative margin excluded (closer to a competing centroid than their own).
+  Language distribution (top 20): hi(4), it(3), ko(2), pl(2), nl(2)
+
+  #    Lang      sim       Δ  Clause
+  ──── ────── ────── ───────  ──────────────────────────────────────────────────
+  1    ko      0.364   0.049  1월에는 20여 년 만에 발생한 기록적인 한파와 폭설로 인해 여러 가지 사건 사고가 발생했다.
+  2    ko      0.381   0.042  그러나 다음날인 6일 새벽에는 대전을 비롯한 충청지역에 비 내리는 곳이 많겠다.
+  3    hi      0.286   0.032  असम में ९० लाख से ज्यादा लोग बाढ़ से प्रभावित हुए हैं ।
+  4    ro      0.411   0.030  Iarna era pe sfârșite și primăvara începuse să înflorească timid prin margini de p...
+  5    it      0.399   0.029  la luce solare si offuscò e i funghi ereditarono la terra.
+
+  INS(Making, Entity)
+  ───────────────────
+  Language distribution (top 20): he(4), it(3), fr(2), ar(2), hu(2)
+
+  #    Lang      sim       Δ  Clause
+  ──── ────── ────── ───────  ──────────────────────────────────────────────────
+  1    hi      0.346   0.059  फलुजा स्थित एक प्रमुख अस्पताल के डॉक्टर ने बताया कि इस हमले में ११ लोग मारे गए और ...
+  2    fr      0.293   0.059  Vers la même période (la date est incertaine), ils détruisirent une légion romaine.
+  3    ta      0.291   0.059  உக்ரைன் நாட்டில் பஸ் ஒன்றின் மீது ரயில் மோதியதில் 37 பேர் உயிரிழந்தனர்.
+  4    fr      0.297   0.058  En juillet 1941, une première attaque aérienne s'abattit sur la ville, quatre autr...
+  5    ko      0.310   0.057  이 사고로 갓길에서 사진을 찍고 있던 사진 동호회 회원 54살 이 모 씨 등 3명이 숨지고, 1명이 다쳤습니다.
+
+  SEG(Clearing, Field)
+  ────────────────────
+  ⚠ 71 exemplar(s) with negative margin excluded (closer to a competing centroid than their own).
+  Language distribution (top 20): zh(4), ja(3), es(3), tr(2), ru(2)
+
+  #    Lang      sim       Δ  Clause
+  ──── ────── ────── ───────  ──────────────────────────────────────────────────
+  1    ja      0.306   0.042  総面積の2.08%が水地域となっている。
+  2    tr      0.417   0.032  Bu geniş coğrafyada küçük gruplar halinde yaşıyorlardı.
+  3    zh      0.266   0.025  以早、中、晚三個年代劃界，分四個墓葬群。
+  4    es      0.339   0.024  Tellius se encuentra dividida en varias naciones que son gobernadas por beorcs o l...
+  5    zh      0.210   0.022  農民人均純收入2439元，增長19.2%，城鎮居民人均消費支出8787元，增長8.6%。
+
+  SEG(Dissecting, Link)
+  ─────────────────────
+  ⚠ 34 exemplar(s) with negative margin excluded (closer to a competing centroid than their own).
+  Language distribution (top 20): sr(6), hr(5), ru(2), nl(1), grc(1)
+
+  #    Lang      sim       Δ  Clause
+  ──── ────── ────── ───────  ──────────────────────────────────────────────────
+  1    hr      0.452   0.029  Član Predsjedništva BiH Komšić podnio ostavku u svojoj stranci
+  2    sr      0.452   0.028  Član Predsedništva BiH Komšić podneo ostavku u svojoj stranci
+  3    sr      0.459   0.026  Ali, Ivanov je isključio Prištinu iz svoje turneje.
+  4    nl      0.409   0.026  De Montenegrijnse partij SNP is woest dat zij buiten de uitlevering van Milosevic ...
+  5    hr      0.447   0.026  Ali, Ivanov je isključio Prištinu iz svojeg obilaska regije.
+
+  SEG(Unraveling, Network)
+  ────────────────────────
+  ⚠ 3 exemplar(s) with negative margin excluded (closer to a competing centroid than their own).
+  Language distribution (top 20): sv(7), sk(3), uk(3), cs(2), pl(1)
+
+  #    Lang      sim       Δ  Clause
+  ──── ────── ────── ───────  ──────────────────────────────────────────────────
+  1    sk      0.382   0.047  Zaujímavejší je ale ďalší zákon z tohto zákonníka , ktorý povoľuje židom mať na sv...
+  2    sv      0.429   0.044  Industriländerna (USA, Sovjet, Sverige etc) använder en mycket större del av sin n...
+  3    sv      0.390   0.030  U-länderna använder 25 kronor per år och person till utbildning, industriländerna ...
+  4    sv      0.442   0.030  Att märka är att de angivna beloppen utgår utöver folkpensionen.
+  5    sv      0.408   0.028  Inkomst av annat förvärvsarbete än anställning kan undantas från ATP.
+
+  CON(Binding, Link)
+  ──────────────────
+  Language distribution (top 20): hr(4), sr(4), tr(2), pl(2), hi(1)
+
+  #    Lang      sim       Δ  Clause
+  ──── ────── ────── ───────  ──────────────────────────────────────────────────
+  1    hi      0.295   0.062  मुकेश अपनी पत्नी नीता के साथ आनंद जैन की बेटी की शादी में शामिल होंगे ।
+  2    ur      0.302   0.058  جبکہ جناب شیخ عبید بن عثمان العمودی اور جناب غلام حامد خان نقشبندی چشتی قادری مہما...
+  3    hr      0.402   0.051  Glavni tajnik NATO-a Jaap de Hoop Scheffer (desno) i Crvenkovski razgovaraju s izv...
+  4    tr      0.396   0.049  Save ile birlikte dün gece geç saatlerde özel bir uçakla Ankara'ya gelen for, Türk...
+  5    en      0.203   0.049  Please contact Sherri Sera (713/853-5984) or Bill Dorsey (713/646-6505) for the we...
+
+  CON(Tending, Field)
+  ───────────────────
+  ⚠ 47 exemplar(s) with negative margin excluded (closer to a competing centroid than their own).
+  Language distribution (top 20): es(4), ko(2), pl(2), fr(2), cs(2)
+
+  #    Lang      sim       Δ  Clause
+  ──── ────── ────── ───────  ──────────────────────────────────────────────────
+  1    ko      0.340   0.032  2층에는 등산, 캠핑, 텐트 이월특가 상품들이 있더군요.
+  2    pl      0.379   0.029  Ludzie spacerują i siedzą na plaży, a jedna z osób puszcza latawiec.
+  3    fr      0.247   0.027  Le territoire communal est desservi par les lignes Q et R du réseau L'Aile Bleue.
+  4    es      0.382   0.025  Cuenta con una amplia extensión verde y arbolada, en la cual se instalan los campa...
+  5    es      0.383   0.024  * Tambien podras encontrar nuestro material en Conciertos, Fiestas, Txarlas, Jorna...
+
+  CON(Tracing, Network)
+  ─────────────────────
+  ⚠ 24 exemplar(s) with negative margin excluded (closer to a competing centroid than their own).
+  Language distribution (top 20): ro(5), ca(2), sl(2), id(2), en(1)
+
+  #    Lang      sim       Δ  Clause
+  ──── ────── ────── ───────  ──────────────────────────────────────────────────
+  1    en      0.216   0.026  Well, they have a variety of sports that they play like basketball, soccer, etc.
+  2    ro      0.358   0.022  4. Principatul Andorra și fiecare stat membru al Comunității Europene care dorește...
+  3    ko      0.288   0.019  모음과 동일하게 로마자 아브어 표기와 국제음성기호를 동시 게재한다.
+  4    eu      0.398   0.018  Lurralde historikoek babes zibilaren zabalkundean parte hartuko dute dagozkien agi...
+  5    ca      0.355   0.018  Els programes d'inserció consisteixen en la Borsa de Treball del Servei Català de ...
+
+  SYN(Composing, Network)
+  ───────────────────────
+  ⚠ 1 exemplar(s) with negative margin excluded (closer to a competing centroid than their own).
+  Language distribution (top 20): ca(3), ur(2), hi(2), bg(2), sr(2)
+
+  #    Lang      sim       Δ  Clause
+  ──── ────── ────── ───────  ──────────────────────────────────────────────────
+  1    ur      0.435   0.065  اجلاس مےں نئے ٹیکس قانون کا بھی جائزہ لیا جائےگا جو کہ موجودہ انکم ٹیکس قانون کی ج...
+  2    hi      0.388   0.058  इस दौरान इस कानून को लेकर राज्यों के साथ विचार - विमर्श किया जाएगा व इसके दिशा - न...
+  3    sl      0.523   0.052  Sistem je treba spreminjati postopno, na daljši rok.
+  4    hi      0.372   0.051  केंद्र की कोशिश है कि कानून लागू करने से पहले इस कार्यक्रम के तहत काम पाने वाले लो...
+  5    ja      0.391   0.049  また、使用期限が明記されていない用途についても2014年に見直しをすることが明記されている。
+
+  SYN(Cultivating, Field)
+  ───────────────────────
+  ⚠ 86 exemplar(s) with negative margin excluded (closer to a competing centroid than their own).
+  Language distribution (top 20): cs(5), zh(3), es(2), hu(1), tr(1)
+
+  #    Lang      sim       Δ  Clause
+  ──── ────── ────── ───────  ──────────────────────────────────────────────────
+  1    hu      0.367   0.018  A két ország kapcsolatait terhelő vitás kérdések — elsősorban a rendezetlen orosz ...
+  2    zh      0.285   0.015  德國工業同時在民用事業方面有很大的貢獻；令德國不再依賴英國的材料與產品。
+  3    cs      0.367   0.013  Jak dodává, i když je to dnes velmi těžké a nákladné, snaží se do půdy dostat toli...
+  4    zh      0.262   0.011  在大選中，各政黨展開激烈競選，發生了從政治攻訐到武力挾持等各式各樣的選舉伎倆，賄選更十分常見。
+  5    cs      0.276   0.008  Celková průmyslová výroba se v březnu zvýšila proti stejnému měsíci loni o 0.9 % a...
+
+  SYN(Making, Link)
+  ─────────────────
+  ⚠ 21 exemplar(s) with negative margin excluded (closer to a competing centroid than their own).
+  Language distribution (top 20): ca(4), ar(3), ta(2), ur(2), hi(2)
+
+  #    Lang      sim       Δ  Clause
+  ──── ────── ────── ───────  ──────────────────────────────────────────────────
+  1    es      0.358   0.027  Los delegados eligieron a los miembros del nuevo AVNOJ, que aprobó un programa de ...
+  2    ko      0.342   0.022  또 제주지법 민사과에 선거효력정지 및 직무집행정지에 대한 가처분 신청을 할 계획이다.
+  3    ta      0.299   0.019  இந்த கொலை மிரட்டல் இ-மெயில் குறித்து மத்தியக் குற்றப் பிரிவு போலீஸ் விசாரணைக்கு மா...
+  4    ur      0.255   0.017  سی بی آئی نے کیس کی تحقیقات کولکتہ ہائیکورٹ کی ہدایت پر کی تھی۔
+  5    zh      0.266   0.016  他企圖將河南省及山西省變成自己的地盤。
+
+  ALT(Clearing, Atmosphere)
+  ─────────────────────────
+  ⚠ 95 exemplar(s) with negative margin excluded (closer to a competing centroid than their own).
+  Language distribution (top 20): fi(1), ru(1), nl(1), ja(1), en(1)
+
+  #    Lang      sim       Δ  Clause
+  ──── ────── ────── ───────  ──────────────────────────────────────────────────
+  1    fi      0.395   0.024  Harmi vaan, että näissä superpakkasissa ei tee mieli lähteä ulos missään sukkahous...
+  2    ru      0.465   0.008  Мы ж не в Думе, не на ТВ - давайте говорить честно.
+  3    nl      0.382   0.002  Het is buiten twijfel dat hier wel wat erg veel aan het verkeer wordt opgeofferd.
+  4    ja      0.439   0.001  コンサートや記者会見ではなく,素の状態だったせいもあるかもしれませんが。
+  5    en      0.270   0.001  I thought the UK was completely devoid of good NYC style pizza.
+
+  ALT(Dissecting, Lens)
+  ─────────────────────
+  Language distribution (top 20): vi(4), hi(3), he(3), cs(2), en(2)
+
+  #    Lang      sim       Δ  Clause
+  ──── ────── ────── ───────  ──────────────────────────────────────────────────
+  1    ur      0.380   0.081  انہوں نے کہا کہ کپتان یونس خاں کی ناراضگی کے بارے میں باتیں درست نہیں ہیں -
+  2    hi      0.418   0.065  उन्होंने कहा कि इस बारे में कोई निष्कर्ष नहीं निकाला जा सकता कि भाजपा और इसके नेता...
+  3    cs      0.466   0.057  Jen jedno nechtěli přiznat - že by štěpný materiál mohl pocházet z Ruska.
+  4    cs      0.491   0.057  Kroupa také odmítl vyvozovat z tohoto případu útoky proti privatizaci jako takové.
+  5    vi      0.360   0.055  Trước những câu hỏi của chồng , Thu không có lời giải thích thuyết phục .
+
+  ALT(Unraveling, Paradigm)
+  ─────────────────────────
+  Language distribution (top 20): fi(4), ru(2), pl(2), vi(2), en(2)
+
+  #    Lang      sim       Δ  Clause
+  ──── ────── ────── ───────  ──────────────────────────────────────────────────
+  1    fi      0.453   0.067  Todellisuus on usein kuitenkin muuta: moni ei halua myöntää julkisesti, että seksi...
+  2    he      0.368   0.064  עם זאת, גם הקרנות בעלות השמות הגדולים אינן בהכרח מעיינות החשיבה הליברלית הסטריאוטי...
+  3    fi      0.352   0.059  Se voi pinnallisesti näyttää seksuaaliselta vapaudelta, mutta tällaiselta ihmiselt...
+  4    ru      0.358   0.058  Доказать нельзя ничего (вернее - можно доказать что угодно).
+  5    pl      0.465   0.057  Kontrast ten może nawet świadczyć o jakiejś obojętności czy martwocie religijnej p...
+
+  SUP(Binding, Lens)
+  ──────────────────
+  Language distribution (top 20): vi(5), no(3), da(3), sk(2), tr(2)
+
+  #    Lang      sim       Δ  Clause
+  ──── ────── ────── ───────  ──────────────────────────────────────────────────
+  1    sk      0.430   0.051  “ Dobre , chlapče , “ súhlasil Fil .
+  2    vi      0.358   0.050  Có lẽ vì lịch sự Hùng cũng nói : " Tôi cũng thấy hình như gặp ông ở đâu " .
+  3    no      0.391   0.050  - Naturligvis elsker jeg presidenten vår, sa hun etter forestillingen.
+  4    tr      0.388   0.048  Evet, buraya bir şey anlatmak için gelmiştim, dedi Kerem.
+  5    da      0.390   0.047  - De er s'gu ret flot, sagde jeg.
+
+  SUP(Tending, Atmosphere)
+  ────────────────────────
+  ⚠ 53 exemplar(s) with negative margin excluded (closer to a competing centroid than their own).
+  Language distribution (top 20): ja(5), ko(3), no(3), tr(2), uk(2)
+
+  #    Lang      sim       Δ  Clause
+  ──── ────── ────── ───────  ──────────────────────────────────────────────────
+  1    ko      0.395   0.038  푸짐한 음식과 밑반찬이 많고, 시설이 청결하고 사장님이 인심이 넓다.
+  2    ko      0.429   0.036  사장님도 좋은 분 같으시고 손님 만나 얘기 나누기 좋은 장소입니다.
+  3    ja      0.456   0.028  寡黙なご主人も店の雰囲気をいっそう引き立てています。
+  4    ko      0.363   0.028  국내산 고기와 싱싱한 야채를 마음껏 저렴한 가격에 먹을 수 있어서 좋았습니다.
+  5    ja      0.423   0.028  お店の雰囲気もよく、隣の席との間隔も丁度よく、リラックス出来ますので食べすぎちゃいますね。
+
+  SUP(Tracing, Paradigm)
+  ──────────────────────
+  Language distribution (top 20): fi(4), ur(3), hi(2), sv(2), no(1)
+
+  #    Lang      sim       Δ  Clause
+  ──── ────── ────── ───────  ──────────────────────────────────────────────────
+  1    ur      0.318   0.048  اسی کو تقویٰ کہتے ہےں اور اس پر عمل کرنے والے کو متقی کہتے ہیں۔
+  2    ur      0.346   0.046  تمام معنی باہم مناسبت رکھتے ہےں اور سب کا خلاصہ یہ ہے کہ آدمی اللہ تعالیٰ سے صحیح ...
+  3    no      0.363   0.045  Som vi spør, vil vi også få svar.
+  4    hi      0.335   0.041  कहते हैं मोहब्बत और जंग में सब कुछ जायज है ।
+  5    ja      0.308   0.038  その喜びと,闘いとを共有して生きるのが同志である。
+
+  REC(Composing, Paradigm)
+  ────────────────────────
+  ⚠ 94 exemplar(s) with negative margin excluded (closer to a competing centroid than their own).
+  Language distribution (top 20): ca(2), id(1), he(1), hu(1), da(1)
+
+  #    Lang      sim       Δ  Clause
+  ──── ────── ────── ───────  ──────────────────────────────────────────────────
+  1    id      0.346   0.016  Hakekat belajar demikian membuat banyak pendidik mengubah perspektif, praktik, dan...
+  2    he      0.334   0.009  כאשר מגיעים הדברים למדיניות ציבורית, כסף שמרן מקבל יותר תמורת הדולר שלו.
+  3    ca      0.428   0.008  Produeixen més repulsió aquests pinochetistes vergonyants de les tertúlies radiofò...
+  4    hu      0.447   0.004  Ennek a "hatása" is meg van írva a darabban, hiszen egyre inkább hamissá válnak az...
+  5    da      0.390   0.004  Nu vil englænderne også tænke en ekstra gang.
+
+  REC(Cultivating, Atmosphere)
+  ────────────────────────────
+  ⚠ 97 exemplar(s) with negative margin excluded (closer to a competing centroid than their own).
+  Language distribution (top 20): pt(2), fi(1)
+
+  #    Lang      sim       Δ  Clause
+  ──── ────── ────── ───────  ──────────────────────────────────────────────────
+  1    fi      0.393   0.022  Pahvilaatikoiden röykkiöt nurkissa ja komeroissa ovat harmaita ja luovat lopun tun...
+  2    pt      0.407   0.012  A câmera de Raoul Coutard conseguiu transformar Paris numa cidade gélida, sem cont...
+  3    pt      0.430   0.005  Cada dia que passa torna mais evidente que o voto dos eleitores do Entre Douro e M...
+
+  REC(Making, Lens)
+  ─────────────────
+  ⚠ 75 exemplar(s) with negative margin excluded (closer to a competing centroid than their own).
+  Language distribution (top 20): pt(4), it(3), he(2), fi(2), ru(1)
+
+  #    Lang      sim       Δ  Clause
+  ──── ────── ────── ───────  ──────────────────────────────────────────────────
+  1    ru      0.324   0.016  Его обвиняют в разжигании религиозной розни - унижении христиан, "особенно правосл...
+  2    ar      0.301   0.013  ووجه غرين، الساعي الى احراز الذهب الاولمبي، انذارا الى الذين يشككون في قدرته على ت...
+  3    pt      0.389   0.011  «Estupor do cão a querer morder!»
+  4    es      0.203   0.009  El supervillano de las historietas DC, Monocle, es un óptico que crea un monóculo ...
+  5    it      0.339   0.009  Allora mi sono innervosita e ho temuto la beffa.
+
+==========================================================================
+  END OF EXEMPLAR REPORT
+==========================================================================
