@@ -2,7 +2,7 @@
 ==========================================================================
   EO LEXICAL ANALYSIS v2 — RESULTS REPORT
 ==========================================================================
-  Generated: 2026-03-18 15:39
+  Generated: 2026-03-18 17:06
   Corpus:    19,764 total embedded | 9,221 consensus across 41 languages
   Models:    
 
@@ -33,6 +33,11 @@
     (2) Pairwise ARI between axes < 0.10 (axes are independent)
     (3) Q2 z-score exceeds Q1 z-score in 20+ languages (Domain primacy)
     (4) Inter-model kappa > 0.5 on Q1, > 0.4 on Q2, > 0.35 on Q3
+
+  Note: operator frequency rank prediction (Test D) is computed but
+  not reported as a primary result. Small n (9 operators) limits
+  interpretability.
+
 
 ==========================================================================
   RESULT 1 — PER-AXIS Z-SCORES
@@ -312,33 +317,6 @@
   ordinal position predicts Domain ordinal complexity. The direction
   and magnitude of the correlation is a stronger claim than ARI — it
   tests ordered structure, not just association.
-
-
-── Test 3 — Helix Topology Predicts Cell Frequency Distribution ────────
-
-  EO makes specific predictions about which cells should be gravity
-  wells and which should be deserts, based on which operations are
-  structurally "unmarked" in language. This is a much stronger claim
-  than ARI — it specifies the exact topology of the frequency
-  distribution.
-
-
-  Predicted top-3 gravity wells: CON, INS, SUP
-  Observed top-3 gravity wells:  CON, SUP, INS
-  Top-3 prediction: ✓ CORRECT
-
-  Domain frequency distribution:
-    STRUCTURE       45.2%  ██████████████████████
-    SIGNIFICANCE    30.8%  ███████████████
-    EXISTENCE       23.9%  ███████████
-  Structure dominates: ✓
-
-  Spearman rank correlation (theory vs observed): r=0.9833  p=0.0
-
-  Top-3 gravity well prediction ✓ correct: observed ['CON', 'SUP',
-  'INS'] vs predicted {CON, INS, SUP}. Structure domain dominates
-  (45.2% of clauses). Spearman rank correlation with theory-predicted
-  ordering: r=0.983 (p=0.000).
 
 
 ==========================================================================
