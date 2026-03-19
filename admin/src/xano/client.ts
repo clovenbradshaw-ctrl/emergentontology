@@ -198,22 +198,91 @@ export interface XanoCurrentRecord {
   lastModified: string;   // ISO timestamp
 }
 
-/** Fetch all current-state records via the private (decrypted) endpoint. */
-export async function fetchAllCurrentRecords(): Promise<XanoCurrentRecord[]> {
-  if (!_privateEndpoint) {
-    throw new Error('Private endpoint not unlocked — please log in first.');
+/**
+ * Normalise a Xano response that may be a flat array or a paginated wrapper.
+ * Returns the array of records either way.
+ */
+function unwrapResponse(data: unknown): XanoCurrentRecord[] {
+  if (Array.isArray(data)) return data as XanoCurrentRecord[];
+  if (data && typeof data === 'object' && 'items' in data) {
+    return (data as PaginatedResponse<XanoCurrentRecord>).items;
   }
-  const resp = await fetch(`${XANO_BASE}/${_privateEndpoint}`, {
+  return data ? [data as XanoCurrentRecord] : [];
+}
+
+/**
+ * Fetch a single page of current-state records via the private endpoint.
+ * Returns both the records and pagination metadata.
+ */
+export async function fetchCurrentRecordsPage(
+  pagination?: PaginationParams,
+): Promise<PaginatedResponse<XanoCurrentRecord>> {
+  const resp = await fetch(privateUrl(undefined, pagination), {
     signal: AbortSignal.timeout(20_000),
   });
   if (!resp.ok) {
     const body = await resp.text().catch(() => '');
     throw new Error(`Xano current fetch failed: HTTP ${resp.status} — ${body}`);
   }
-  return (await resp.json()) as XanoCurrentRecord[];
+  const data = await resp.json();
+  // Handle both paginated wrapper and flat array responses
+  if (data && typeof data === 'object' && 'items' in data) {
+    return data as PaginatedResponse<XanoCurrentRecord>;
+  }
+  // Legacy flat array response — wrap it
+  const items = Array.isArray(data) ? data : [data];
+  return {
+    items,
+    curPage: 1,
+    nextPage: null,
+    prevPage: null,
+    itemsReceived: items.length,
+    itemsTotal: items.length,
+  };
+}
+
+/** Fetch all current-state records via the private (decrypted) endpoint. */
+export async function fetchAllCurrentRecords(): Promise<XanoCurrentRecord[]> {
+  if (!_privateEndpoint) {
+    throw new Error('Private endpoint not unlocked — please log in first.');
+  }
+  // Fetch first page with a large per_page to minimise round-trips
+  const first = await fetchCurrentRecordsPage({ page: 1, per_page: 200 });
+  const all: XanoCurrentRecord[] = [...first.items];
+
+  // If there are more pages, fetch them in parallel
+  if (first.itemsTotal > first.itemsReceived) {
+    const totalPages = Math.ceil(first.itemsTotal / (first.items.length || 200));
+    const pagePromises: Promise<PaginatedResponse<XanoCurrentRecord>>[] = [];
+    for (let p = 2; p <= totalPages; p++) {
+      pagePromises.push(fetchCurrentRecordsPage({ page: p, per_page: 200 }));
+    }
+    const pages = await Promise.all(pagePromises);
+    for (const page of pages) {
+      all.push(...page.items);
+    }
+  }
+
+  return all;
 }
 
 // ── Filtered fetchers ────────────────────────────────────────────────────────
+
+/** Pagination parameters for paginated Xano endpoints. */
+export interface PaginationParams {
+  page?: number;
+  per_page?: number;
+}
+
+/** Paginated response wrapper returned by Xano list endpoints. */
+export interface PaginatedResponse<T> {
+  items: T[];
+  curPage: number;
+  nextPage: number | null;
+  prevPage: number | null;
+  itemsReceived: number;
+  itemsTotal: number;
+}
 
 /** Query parameters supported by the eowikicurrent endpoint. */
 export interface CurrentRecordFilters {
@@ -227,13 +296,16 @@ export interface CurrentRecordFilters {
  * Build a URL for the private endpoint with optional query parameters.
  * Throws if the private endpoint hasn't been unlocked.
  */
-function privateUrl(params?: Record<string, string>): string {
+function privateUrl(params?: Record<string, string>, pagination?: PaginationParams): string {
   if (!_privateEndpoint) {
     throw new Error('Private endpoint not unlocked — please log in first.');
   }
   const url = `${XANO_BASE}/${_privateEndpoint}`;
-  if (!params || Object.keys(params).length === 0) return url;
-  const qs = new URLSearchParams(params).toString();
+  const allParams: Record<string, string> = { ...params };
+  if (pagination?.page != null) allParams.page = String(pagination.page);
+  if (pagination?.per_page != null) allParams.per_page = String(pagination.per_page);
+  if (Object.keys(allParams).length === 0) return url;
+  const qs = new URLSearchParams(allParams).toString();
   return `${url}?${qs}`;
 }
 
@@ -254,8 +326,8 @@ export async function fetchCurrentRecordByRecordId(
   }
   const data = await resp.json();
 
-  // Xano may return a single object or an array — normalise to array
-  const allRecords: XanoCurrentRecord[] = Array.isArray(data) ? data : [data];
+  // Xano may return a paginated wrapper, single object, or an array — normalise
+  const allRecords: XanoCurrentRecord[] = unwrapResponse(data);
   // Filter to only records matching the requested record_id — in case
   // the server-side filter is ignored and all records are returned.
   const records = allRecords.filter((r) => r && r.record_id === recordId);
@@ -273,10 +345,12 @@ export async function fetchCurrentRecordByRecordId(
 /**
  * Fetch current-state records with server-side filters.
  * Any combination of content_type, status, visibility can be passed.
+ * Optionally accepts pagination params; defaults to fetching all results.
  * Returns matching records (empty array if none match).
  */
 export async function fetchFilteredCurrentRecords(
   filters: CurrentRecordFilters,
+  pagination?: PaginationParams,
 ): Promise<XanoCurrentRecord[]> {
   const params: Record<string, string> = {};
   if (filters.content_type) params.content_type = filters.content_type;
@@ -284,7 +358,7 @@ export async function fetchFilteredCurrentRecords(
   if (filters.visibility) params.visibility = filters.visibility;
   if (filters.record_id) params.record_id = filters.record_id;
 
-  const resp = await fetch(privateUrl(params), {
+  const resp = await fetch(privateUrl(params, pagination), {
     signal: AbortSignal.timeout(20_000),
   });
   if (!resp.ok) {
@@ -292,7 +366,7 @@ export async function fetchFilteredCurrentRecords(
     throw new Error(`Xano filtered fetch failed: HTTP ${resp.status} — ${body}`);
   }
   const data = await resp.json();
-  return Array.isArray(data) ? data : [data];
+  return unwrapResponse(data);
 }
 
 /** Create a new current-state record (first write for this record_id). */

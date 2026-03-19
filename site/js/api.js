@@ -3,7 +3,7 @@
  *
  * Fetches content from two sources in order:
  *   1. Static JSON files (generated at build time by the projector)
- *   2. Xano public API (get_public_eowiki with server-side filtering)
+ *   2. Xano current-state API (get_eowikicurrent — pre-computed, no replay)
  *   3. N8N webhook fallback (legacy, fetches all records)
  *
  * The Xano endpoint supports query parameters:
@@ -21,8 +21,8 @@
 
 import { BASE, API_URL, API_TIMEOUT, SUBSTACK_FEED_URL } from './config.js';
 
-// Xano public endpoint — supports server-side filtering via query params.
-var XANO_PUBLIC = 'https://xvkq-pq7i-idtl.n7d.xano.io/api:GGzWIVAW/get_public_eowiki';
+// Xano current-state endpoint — returns pre-computed current state, no replay needed.
+var XANO_PUBLIC = 'https://xvkq-pq7i-idtl.n7d.xano.io/api:GGzWIVAW/get_eowikicurrent';
 
 // ── State ────────────────────────────────────────────────────────────────────
 
@@ -73,8 +73,8 @@ function fetchXanoRecord(recordId, extraParams) {
     })
     .then(function (data) {
       if (!data) return null;
-      // Xano may return a single object or an array
-      var records = Array.isArray(data) ? data : [data];
+      // Xano may return a paginated wrapper, single object, or an array
+      var records = Array.isArray(data) ? data : (data.items ? data.items : [data]);
       // Filter to only records matching the requested record_id — in case
       // the server ignores the filter and returns all records
       var matches = records.filter(function (r) { return r && r.record_id === recordId; });

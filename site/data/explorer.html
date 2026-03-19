@@ -171,13 +171,6 @@
 
     .site-footer { text-align: center; padding: 1.5rem; color: var(--text-dim); font-size: .8rem; border-top: 1px solid var(--border); }
 
-    /* Two-column layout */
-    .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; align-items: start; }
-    .two-col > * { min-width: 0; }
-
-    @media (max-width: 900px) {
-      .two-col { grid-template-columns: 1fr; }
-    }
     @media (max-width: 640px) {
       .site-header { flex-wrap: wrap; gap: 1rem; }
       main { padding: 1rem; }
@@ -294,8 +287,8 @@ function zBadge(z) {
 /* ── SVG Bar Chart ───────────────────────────────────────────────────────── */
 function barChart(container, data, opts = {}) {
   const { file, keyPfx, descPfx, horiz, threshold, colorFn } = opts;
-  const m = { t: 24, r: 20, b: horiz ? 12 : 24, l: horiz ? 120 : 48 };
-  const barH = horiz ? 22 : 36, gap = horiz ? 5 : 8, n = data.length;
+  const m = { t: 24, r: 20, b: horiz ? 12 : 50, l: horiz ? 120 : 48 };
+  const barH = 22, gap = 5, n = data.length;
   const accent = getComputedStyle(document.documentElement).getPropertyValue('--accent').trim() || '#7c6fcd';
   const red = getComputedStyle(document.documentElement).getPropertyValue('--red').trim() || '#f87171';
 
@@ -354,6 +347,7 @@ function barChart(container, data, opts = {}) {
       svg.appendChild(r);
       const lb = document.createElementNS(ns, 'text');
       lb.setAttribute('x', x + barH/2); lb.setAttribute('y', H - m.b + 12); lb.setAttribute('text-anchor', 'middle'); lb.setAttribute('font-size', '9');
+      lb.setAttribute('transform', `rotate(40 ${x+barH/2} ${H-m.b+12})`);
       lb.textContent = d.label; svg.appendChild(lb);
       const vt = document.createElementNS(ns, 'text');
       vt.setAttribute('x', x + barH/2); vt.setAttribute('y', y - 3); vt.setAttribute('text-anchor', 'middle');
@@ -443,7 +437,7 @@ document.getElementById('theme-toggle').addEventListener('click', () => {
 function renderOverview(R, C, H, CT) {
   const d = el('div', { id: 'tab-overview', class: 'tab-content active' });
 
-  // Summary cards (full width)
+  // Summary cards
   const cards = el('div', { class: 'cards' });
   [
     ['Consensus Clauses', fmt(R.n_clauses, 0), 'results.json', 'n_clauses', 'Clauses where both models agreed on all three axes'],
@@ -462,13 +456,8 @@ function renderOverview(R, C, H, CT) {
   });
   d.appendChild(cards);
 
-  // Two-column layout for tables
-  const twocol = el('div', { class: 'two-col' });
-  const colL = el('div');
-  const colR = el('div');
-
-  // LEFT: Per-axis z-scores + Face z-scores
-  colL.appendChild(el('div', { class: 'section-title' }, 'Per-Axis Z-Scores (Consensus)'));
+  // Per-axis z-scores
+  d.appendChild(el('div', { class: 'section-title' }, 'Per-Axis Z-Scores (Consensus)'));
   const rows1 = ['q1', 'q2', 'q3'].map(q => {
     const s = R.zscores[q];
     const tr = el('tr');
@@ -480,9 +469,10 @@ function renderOverview(R, C, H, CT) {
     const btd = el('td'); btd.innerHTML = zBadge(s.z); tr.appendChild(btd);
     return tr;
   });
-  colL.appendChild(makeTable(['Axis', 'Z-score', 'Separation', 'Signal'], rows1));
+  d.appendChild(makeTable(['Axis', 'Z-score', 'Separation', 'Signal'], rows1));
 
-  colL.appendChild(el('div', { class: 'section-title' }, 'Face Z-Scores'));
+  // Face z-scores
+  d.appendChild(el('div', { class: 'section-title' }, 'Face Z-Scores'));
   const rows2 = Object.entries(R.face_zscores).map(([k, v]) => {
     const tr = el('tr');
     tr.appendChild(el('td', { 'data-prov': prov('results.json', `face_zscores.${k}.z`, v.z, `${FACE[k]} z-score`) }, FACE[k]));
@@ -491,10 +481,10 @@ function renderOverview(R, C, H, CT) {
     ztd.textContent = '+' + fmt(v.z, 2); tr.appendChild(ztd);
     return tr;
   });
-  colL.appendChild(makeTable(['Grouping', 'Groups', 'Z-score'], rows2));
+  d.appendChild(makeTable(['Grouping', 'Groups', 'Z-score'], rows2));
 
-  // RIGHT: Kappa + ARI
-  colR.appendChild(el('div', { class: 'section-title' }, 'Inter-Model Agreement (κ)'));
+  // Kappa
+  d.appendChild(el('div', { class: 'section-title' }, 'Inter-Model Agreement (κ)'));
   const rows3 = ['q1', 'q2', 'q3'].map(q => {
     const v = R.kappas.claude_vs_gpt4[q];
     const tr = el('tr');
@@ -502,9 +492,10 @@ function renderOverview(R, C, H, CT) {
     tr.appendChild(el('td', { 'data-prov': prov('results.json', `kappas.claude_vs_gpt4.${q}`, v, `Cohen's κ for ${AXIS[q]}`) }, fmt(v, 3)));
     return tr;
   });
-  colR.appendChild(makeTable(['Axis', 'κ'], rows3));
+  d.appendChild(makeTable(['Axis', 'κ'], rows3));
 
-  colR.appendChild(el('div', { class: 'section-title' }, 'Axis Independence (ARI)'));
+  // ARI
+  d.appendChild(el('div', { class: 'section-title' }, 'Axis Independence (ARI)'));
   const rows4 = [['q1_vs_q2', 'Q1 vs Q2'], ['q1_vs_q3', 'Q1 vs Q3'], ['q2_vs_q3', 'Q2 vs Q3']].map(([k, label]) => {
     const v = R.ari[k];
     const tr = el('tr');
@@ -512,11 +503,7 @@ function renderOverview(R, C, H, CT) {
     tr.appendChild(el('td', { 'data-prov': prov('results.json', `ari.${k}`, v, `ARI between ${label}`) }, fmt(v, 4)));
     return tr;
   });
-  colR.appendChild(makeTable(['Pair', 'ARI'], rows4));
-
-  twocol.appendChild(colL);
-  twocol.appendChild(colR);
-  d.appendChild(twocol);
+  d.appendChild(makeTable(['Pair', 'ARI'], rows4));
 
   return d;
 }
@@ -524,19 +511,13 @@ function renderOverview(R, C, H, CT) {
 function renderZscores(R) {
   const d = el('div', { id: 'tab-zscores', class: 'tab-content' });
 
-  const twocol = el('div', { class: 'two-col' });
-  const colL = el('div');
-  const colR = el('div');
-
-  // LEFT: Face Z-Scores chart
-  colL.appendChild(el('div', { class: 'section-title' }, 'Face Z-Scores'));
+  d.appendChild(el('div', { class: 'section-title' }, 'Face Z-Scores'));
   const ch = el('div', { class: 'chart-wrap' });
   barChart(ch, Object.entries(R.face_zscores).map(([k, v]) => ({ label: FACE[k], v: v.z, k: `face_zscores.${k}.z` })),
     { file: 'results.json', keyPfx: 'face_zscores', descPfx: 'Z-score for', threshold: Z_THRESHOLD });
-  colL.appendChild(ch);
+  d.appendChild(ch);
 
-  // RIGHT: Z-Scores by Label Set table
-  colR.appendChild(el('div', { class: 'section-title' }, 'Z-Scores by Label Set'));
+  d.appendChild(el('div', { class: 'section-title' }, 'Z-Scores by Label Set'));
   const rows = Object.entries(R.all_zscores).map(([set, sc]) => {
     const tr = el('tr');
     tr.appendChild(el('td', { style: 'font-weight:600' }, LSET[set] || set));
@@ -548,11 +529,7 @@ function renderZscores(R) {
     });
     return tr;
   });
-  colR.appendChild(makeTable(['Label Set', 'Q1', 'Q2', 'Q3'], rows));
-
-  twocol.appendChild(colL);
-  twocol.appendChild(colR);
-  d.appendChild(twocol);
+  d.appendChild(makeTable(['Label Set', 'Q1', 'Q2', 'Q3'], rows));
   return d;
 }
 

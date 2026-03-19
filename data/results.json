@@ -135,8 +135,8 @@
           "DIFFERENTIATING\u2194GENERATING": 2,
           "RELATING\u2194GENERATING": 1
         },
-        "pearson_r": NaN,
-        "pearson_p": NaN,
+        "pearson_r": null,
+        "pearson_p": null,
         "directional": {
           "DIF_REL_dist": 0.097794,
           "REL_GEN_dist": 0.06474,
@@ -156,8 +156,8 @@
           "EXISTENCE\u2194SIGNIFICANCE": 2.4142,
           "STRUCTURE\u2194SIGNIFICANCE": 0.4142
         },
-        "pearson_r": NaN,
-        "pearson_p": NaN,
+        "pearson_r": null,
+        "pearson_p": null,
         "directional": {
           "E_S_dist": 0.066113,
           "S_Sig_dist": 0.103657,
@@ -178,8 +178,8 @@
           "CONDITION\u2194PATTERN": 1.2509,
           "ENTITY\u2194PATTERN": 0.6651
         },
-        "pearson_r": NaN,
-        "pearson_p": NaN,
+        "pearson_r": null,
+        "pearson_p": null,
         "directional": {
           "CON_ENT_dist": 0.131524,
           "ENT_PAT_dist": 0.164757,
@@ -203,8 +203,8 @@
           "DIFFERENTIATING\u2194GENERATING": 2,
           "RELATING\u2194GENERATING": 1
         },
-        "pearson_r": NaN,
-        "pearson_p": NaN,
+        "pearson_r": null,
+        "pearson_p": null,
         "directional": {
           "DIF_REL_dist": 0.058727,
           "REL_GEN_dist": 0.039362,
@@ -224,8 +224,8 @@
           "EXISTENCE\u2194SIGNIFICANCE": 2.4142,
           "STRUCTURE\u2194SIGNIFICANCE": 0.4142
         },
-        "pearson_r": NaN,
-        "pearson_p": NaN,
+        "pearson_r": null,
+        "pearson_p": null,
         "directional": {
           "E_S_dist": 0.035714,
           "S_Sig_dist": 0.067612,
@@ -246,8 +246,8 @@
           "CONDITION\u2194PATTERN": 1.2509,
           "ENTITY\u2194PATTERN": 0.6651
         },
-        "pearson_r": NaN,
-        "pearson_p": NaN,
+        "pearson_r": null,
+        "pearson_p": null,
         "directional": {
           "CON_ENT_dist": 0.08247,
           "ENT_PAT_dist": 0.1059,

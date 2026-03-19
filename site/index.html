@@ -563,11 +563,22 @@
     from { opacity: 0; transform: translateY(-10px) scale(0.98); }
     to { opacity: 1; transform: translateY(0) scale(1); }
   }
-  .search-input {
-    width: 100%; padding: 1rem 1.2rem; border: none; outline: none;
-    font-size: 1rem; font-family: 'Inter', sans-serif; background: transparent;
-    color: var(--text); border-bottom: 1px solid var(--border);
+  .search-box-header {
+    display: flex; align-items: center; border-bottom: 1px solid var(--border);
   }
+  .search-input {
+    flex: 1; padding: 1rem 1.2rem; border: none; outline: none;
+    font-size: 1rem; font-family: 'Inter', sans-serif; background: transparent;
+    color: var(--text); border-bottom: none;
+  }
+  .search-close {
+    display: flex; align-items: center; justify-content: center;
+    width: 2.2rem; height: 2.2rem; margin-right: 0.5rem;
+    background: none; border: 1px solid var(--border); border-radius: 6px;
+    color: var(--text-dim); font-size: 1.2rem; cursor: pointer;
+    transition: background .15s, color .15s; flex-shrink: 0;
+  }
+  .search-close:hover { background: var(--bg2); color: var(--text); }
   .search-results { max-height: 300px; overflow-y: auto; padding: 0.5rem; }
   .search-result {
     padding: 0.6rem 0.8rem; cursor: pointer; border-radius: 6px;
@@ -580,6 +591,50 @@
   }
   .search-result .sr-title { font-weight: 500; }
   .search-empty { padding: 1.5rem; text-align: center; color: var(--text-faint); font-size: 0.88rem; }
+
+  /* ── Image Lightbox ── */
+  .image-lightbox-overlay {
+    position: fixed; inset: 0; z-index: 300;
+    background: rgba(0,0,0,0.85);
+    display: flex; align-items: center; justify-content: center;
+    padding: 2rem;
+  }
+  .image-lightbox-overlay[hidden] { display: none; }
+  .image-lightbox-close {
+    position: absolute; top: 1rem; right: 1rem;
+    width: 2.5rem; height: 2.5rem;
+    background: rgba(255,255,255,0.15); border: 1px solid rgba(255,255,255,0.25);
+    border-radius: 50%; color: #fff; font-size: 1.5rem;
+    cursor: pointer; display: flex; align-items: center; justify-content: center;
+    transition: background .15s; z-index: 2;
+  }
+  .image-lightbox-close:hover { background: rgba(255,255,255,0.3); }
+  .image-lightbox-content {
+    display: flex; flex-direction: column; align-items: center;
+    max-width: 90vw; max-height: 85vh;
+  }
+  .image-lightbox-img {
+    max-width: 90vw; max-height: 75vh; object-fit: contain;
+    border-radius: 8px; box-shadow: 0 8px 40px rgba(0,0,0,0.4);
+  }
+  .image-lightbox-footer {
+    display: flex; align-items: center; gap: 1.5rem;
+    margin-top: 1rem; color: rgba(255,255,255,0.8); font-size: 0.9rem;
+  }
+  .image-lightbox-caption { font-style: italic; }
+  .image-lightbox-github {
+    color: rgba(255,255,255,0.7); text-decoration: none;
+    padding: 0.3rem 0.8rem; border: 1px solid rgba(255,255,255,0.3);
+    border-radius: 6px; font-size: 0.82rem; transition: all .15s;
+    white-space: nowrap;
+  }
+  .image-lightbox-github:hover {
+    color: #fff; background: rgba(255,255,255,0.15);
+    border-color: rgba(255,255,255,0.5);
+  }
+
+  /* ── Clickable image hint ── */
+  .block-image { cursor: zoom-in; }
 
   /* ── Article Link Modal ── */
   .article-link-modal-overlay {
@@ -1123,6 +1178,7 @@
       <a class="topnav-link" data-view="blog" onclick="showView('blog')">Blog</a>
       <a class="topnav-link" data-view="experiments" onclick="showView('experiments')">Experiments</a>
       <a class="topnav-link" data-view="documents" onclick="showView('documents')">Documents</a>
+      <a class="topnav-link" href="data/explorer.html" style="opacity:.85">Empirical Grounding</a>
     </div>
   </div>
   <div class="topnav-right">
@@ -1138,14 +1194,29 @@
   <a data-view="blog" onclick="showView('blog');closeMobileNav()">Blog</a>
   <a data-view="experiments" onclick="showView('experiments');closeMobileNav()">Experiments</a>
   <a data-view="documents" onclick="showView('documents');closeMobileNav()">Documents</a>
+  <a href="data/explorer.html" onclick="closeMobileNav()">Empirical Grounding</a>
 </div>
 
 <div class="reading-progress" id="readingProgress"></div>
 
 <div class="search-overlay" id="searchOverlay">
   <div class="search-box">
-    <input class="search-input" id="searchInput" placeholder="Search pages…" autocomplete="off">
+    <div class="search-box-header">
+      <input class="search-input" id="searchInput" placeholder="Search pages…" autocomplete="off">
+      <button class="search-close" id="searchClose" aria-label="Close search">&times;</button>
+    </div>
     <div class="search-results" id="searchResults"></div>
+  </div>
+</div>
+
+<div class="image-lightbox-overlay" id="imageLightbox" hidden>
+  <button class="image-lightbox-close" id="imageLightboxClose" aria-label="Close">&times;</button>
+  <div class="image-lightbox-content">
+    <img class="image-lightbox-img" id="imageLightboxImg" src="" alt="">
+    <div class="image-lightbox-footer" id="imageLightboxFooter">
+      <span class="image-lightbox-caption" id="imageLightboxCaption"></span>
+      <a class="image-lightbox-github" id="imageLightboxGithub" href="https://github.com/clovenbradshaw-ctrl/emergentontology" target="_blank" rel="noopener noreferrer">View on GitHub</a>
+    </div>
   </div>
 </div>
 
@@ -1180,6 +1251,7 @@
       <a href="#__blog" onclick="showView('blog');return false;">Blog</a>
       <a href="#__experiments" onclick="showView('experiments');return false;">Experiments</a>
       <a href="#__documents" onclick="showView('documents');return false;">Documents</a>
+      <a href="data/explorer.html">Empirical Grounding</a>
     </nav>
   </div>
 </footer>
@@ -3111,6 +3183,10 @@ sOvl.addEventListener('click', function(e) {
   if (e.target === sOvl) sOvl.classList.remove('open');
 });
 
+document.getElementById('searchClose').addEventListener('click', function() {
+  sOvl.classList.remove('open');
+});
+
 document.addEventListener('keydown', function(e) {
   if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
     e.preventDefault();
@@ -3372,6 +3448,48 @@ function activateScripts(container) {
   s.src = 'https://cdn.jsdelivr.net/npm/marked@14/marked.min.js';
   s.defer = true;
   document.head.appendChild(s);
+})();
+
+// ── Image Lightbox ────────────────────────────────────────────────────────────
+
+(function() {
+  var lbOverlay = document.getElementById('imageLightbox');
+  var lbImg = document.getElementById('imageLightboxImg');
+  var lbCaption = document.getElementById('imageLightboxCaption');
+  var lbClose = document.getElementById('imageLightboxClose');
+  var lbGithub = document.getElementById('imageLightboxGithub');
+  if (!lbOverlay) return;
+
+  function openLightbox(src, alt, caption) {
+    lbImg.src = src;
+    lbImg.alt = alt || '';
+    lbCaption.textContent = caption || alt || '';
+    lbOverlay.hidden = false;
+    document.body.style.overflow = 'hidden';
+  }
+
+  function closeLightbox() {
+    lbOverlay.hidden = true;
+    lbImg.src = '';
+    document.body.style.overflow = '';
+  }
+
+  lbClose.addEventListener('click', closeLightbox);
+  lbOverlay.addEventListener('click', function(e) {
+    if (e.target === lbOverlay) closeLightbox();
+  });
+  document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape' && !lbOverlay.hidden) closeLightbox();
+  });
+
+  document.addEventListener('click', function(e) {
+    var fig = e.target.closest('.block-image');
+    if (!fig) return;
+    var img = fig.querySelector('img');
+    if (!img) return;
+    var figcap = fig.querySelector('figcaption');
+    openLightbox(img.src, img.alt, figcap ? figcap.textContent : '');
+  });
 })();
 
 // ── Boot ──────────────────────────────────────────────────────────────────────
