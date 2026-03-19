@@ -180,6 +180,27 @@ function showCopyFeedback(btn) {
 var LINK_STOP = {};
 'the a an and or of to in is it for on by at as be do if no so up we he my not but are was has had its can all may you how why what when from with this that will been have they their them into than then each also more some about which would other could'.split(' ').forEach(function (w) { LINK_STOP[w] = true; });
 
+// Map URL path prefixes to content_type values
+var PREFIX_TO_TYPE = { wiki: 'wiki', blog: 'blog', exp: 'experiment', doc: 'document', page: 'page' };
+var INTERNAL_LINK_RE = /^\/(wiki|blog|exp|doc|page)\/([^\/]+)\/?$/;
+
+function parseInternalHref(href) {
+  if (!href) return null;
+  try {
+    var path = href;
+    // Handle full URLs on same origin
+    if (href.indexOf('http') === 0) {
+      var u = new URL(href);
+      if (u.origin !== location.origin) return null;
+      path = u.pathname;
+    }
+    if (BASE && path.indexOf(BASE) === 0) path = path.slice(BASE.length);
+    var m = path.match(INTERNAL_LINK_RE);
+    if (!m) return null;
+    return { type: PREFIX_TO_TYPE[m[1]] || m[1], slug: m[2] };
+  } catch (e) { return null; }
+}
+
 function findCandidates(slug, type, maxResults) {
   maxResults = maxResults || 8;
   var idx = window.__eoSiteIndex;
@@ -191,8 +212,8 @@ function findCandidates(slug, type, maxResults) {
     if (w.length >= 3 && !LINK_STOP[w]) keywords[w] = true;
   });
 
-  // Find the exact target first
-  var contentType = type === 'experiment' ? 'experiment' : 'wiki';
+  // Resolve the content type (support all types, not just wiki/experiment)
+  var contentType = type || 'wiki';
   var exact = null;
   var candidates = [];
 
@@ -200,7 +221,7 @@ function findCandidates(slug, type, maxResults) {
     if (e.visibility !== 'public' || e.status === 'archived') return;
 
     // Check if this is the exact target
-    if (e.slug === slug && (e.content_type === contentType || e.content_type === type)) {
+    if (e.slug === slug && e.content_type === contentType) {
       exact = e;
       return;
     }
@@ -247,7 +268,7 @@ function setupArticleLinkModal(renderFn) {
   function openModal(slug, type) {
     var candidates = findCandidates(slug, type);
     var displaySlug = slug.replace(/-/g, ' ');
-    title.textContent = 'Navigate: ' + displaySlug;
+    title.textContent = 'Related: ' + displaySlug;
 
     if (candidates.length === 0) {
       list.innerHTML = '<li class="article-link-modal-empty">No matching articles found.</li>';
@@ -257,11 +278,18 @@ function setupArticleLinkModal(renderFn) {
         var e = c.entry;
         var url = contentUrl(e.content_type, e.slug);
         var label = c.exact ? 'Exact match' : 'Related';
+        var desc = e.description ? '<span class="alm-desc">' + escHtml(truncate(e.description, 120)) + '</span>' : '';
+        var tagHtml = '';
+        if (e.tags && e.tags.length > 0) {
+          tagHtml = '<span class="alm-tags">' + e.tags.slice(0, 4).map(function (t) { return '<span class="alm-tag">' + escHtml(t) + '</span>'; }).join('') + '</span>';
+        }
         h += '<li><a href="' + url + '" data-spa-nav="true">' +
           '<span class="alm-title">' +
           '<span class="alm-type">' + (e.content_type || '').toUpperCase() + '</span>' +
           escHtml(e.title || e.slug) +
           '</span>' +
+          desc +
+          tagHtml +
           '<span class="alm-match">' + label + '</span>' +
           '</a></li>';
       });
@@ -297,6 +325,26 @@ function setupArticleLinkModal(renderFn) {
     openModal(slug, type);
   });
 
+  // Intercept clicks on inline internal links (e.g. links in rich text content)
+  document.addEventListener('click', function (e) {
+    var link = e.target.closest('a[href]');
+    if (!link) return;
+    // Skip links already handled by other systems
+    if (link.hasAttribute('data-article-link')) return;
+    if (link.hasAttribute('data-spa-nav')) return;
+    if (link.classList.contains('btn-edit')) return;
+
+    var href = link.getAttribute('href');
+    if (!href) return;
+
+    var parsed = parseInternalHref(href);
+    if (!parsed) return;
+
+    e.preventDefault();
+    e.stopPropagation();
+    openModal(parsed.slug, parsed.type);
+  });
+
   // Handle clicks on items inside the modal — SPA navigate and close
   list.addEventListener('click', function (e) {
     var link = e.target.closest('a[data-spa-nav]');
@@ -317,6 +365,11 @@ function escHtml(s) {
   return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
 }
 
+function truncate(s, max) {
+  if (!s || s.length <= max) return s;
+  return s.slice(0, max).replace(/\s+\S*$/, '') + '\u2026';
+}
+
 // ── SPA link interception ────────────────────────────────────────────────────
 
 function setupSpaNavigation(renderFn) {
@@ -328,6 +381,10 @@ function setupSpaNavigation(renderFn) {
     if (href.startsWith('http') || href.startsWith('mailto:') || href.startsWith('#')) return;
     if (link.classList.contains('btn-edit')) return; // handled by drawer
     if (link.hasAttribute('data-article-link')) return; // handled by article link modal
+    if (link.hasAttribute('data-spa-nav')) return; // handled by modal list nav
+
+    // Internal article links are handled by the modal (intercepted above)
+    if (parseInternalHref(href)) return;
 
     var resolved = new URL(href, document.baseURI);
     if (resolved.origin !== location.origin) return;
