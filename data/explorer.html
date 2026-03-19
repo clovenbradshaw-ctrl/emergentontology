@@ -347,7 +347,7 @@ function zBadge(z) {
 
 /* ── SVG Bar Chart ───────────────────────────────────────────────────────── */
 function barChart(container, data, opts = {}) {
-  const { file, keyPfx, descPfx, horiz, threshold, colorFn } = opts;
+  const { file, keyPfx, descPfx, horiz, threshold, colorFn, legend } = opts;
   const m = { t: 24, r: 20, b: horiz ? 12 : 24, l: horiz ? 120 : 48 };
   const barH = horiz ? 22 : 36, gap = horiz ? 5 : 8, n = data.length;
   const accent = getComputedStyle(document.documentElement).getPropertyValue('--accent').trim() || '#7c6fcd';
@@ -407,8 +407,8 @@ function barChart(container, data, opts = {}) {
       if (file && keyPfx) r.setAttribute('data-prov', prov(file, `${keyPfx}.${d.k}`, d.v, `${descPfx||''} ${d.label}`));
       svg.appendChild(r);
       const lb = document.createElementNS(ns, 'text');
-      lb.setAttribute('x', x + barH/2); lb.setAttribute('y', H - m.b + 12); lb.setAttribute('text-anchor', 'middle'); lb.setAttribute('font-size', '9');
-      lb.textContent = d.label; svg.appendChild(lb);
+      lb.setAttribute('x', x + barH/2); lb.setAttribute('y', H - m.b + 14); lb.setAttribute('text-anchor', 'middle'); lb.setAttribute('font-size', '10');
+      lb.textContent = legend ? String(i + 1) : d.label; svg.appendChild(lb);
       const vt = document.createElementNS(ns, 'text');
       vt.setAttribute('x', x + barH/2); vt.setAttribute('y', y - 3); vt.setAttribute('text-anchor', 'middle');
       vt.setAttribute('font-size', '9'); vt.setAttribute('font-weight', '600');
@@ -425,6 +425,22 @@ function barChart(container, data, opts = {}) {
     }
   }
   container.appendChild(svg);
+  if (legend && !horiz) {
+    const lgd = document.createElement('div');
+    lgd.style.cssText = 'display:grid; grid-template-columns:1fr 1fr; gap:4px 16px; font-size:11px; margin-top:6px; padding:0 4px;';
+    data.forEach((d, i) => {
+      const item = document.createElement('div');
+      item.style.cssText = 'display:flex; align-items:center; gap:5px;';
+      const swatch = document.createElement('span');
+      swatch.style.cssText = `display:inline-block; width:12px; height:12px; border-radius:2px; background:${colorFn ? colorFn(d) : (d.v >= 0 ? accent : red)}; flex-shrink:0;`;
+      const txt = document.createElement('span');
+      txt.textContent = `${i + 1}. ${d.label}`;
+      item.appendChild(swatch);
+      item.appendChild(txt);
+      lgd.appendChild(item);
+    });
+    container.appendChild(lgd);
+  }
 }
 
 /* ── Table builder ────────────────────────────────────────────────────────── */
@@ -588,7 +604,7 @@ function renderZscores(R) {
   colL.appendChild(el('div', { class: 'section-title' }, 'Face Z-Scores'));
   const ch = el('div', { class: 'chart-wrap' });
   barChart(ch, Object.entries(R.face_zscores).map(([k, v]) => ({ label: FACE[k], v: v.z, k: `face_zscores.${k}.z` })),
-    { file: 'results.json', keyPfx: 'face_zscores', descPfx: 'Z-score for', threshold: Z_THRESHOLD });
+    { file: 'results.json', keyPfx: 'face_zscores', descPfx: 'Z-score for', threshold: Z_THRESHOLD, legend: true });
   colL.appendChild(ch);
 
   // RIGHT: Z-Scores by Label Set table
@@ -642,7 +658,7 @@ function renderProportionality(R) {
 
   const ch = el('div', { class: 'chart-wrap' });
   barChart(ch, [0,1,2,3].map(i => ({ label: labs[i], v: p[String(i)].mean_distance, k: `proportionality.${i}.mean_distance` })),
-    { file: 'results.json', keyPfx: 'proportionality', descPfx: 'Mean cosine distance,' });
+    { file: 'results.json', keyPfx: 'proportionality', descPfx: 'Mean cosine distance,', legend: true });
   d.appendChild(ch);
   return d;
 }
