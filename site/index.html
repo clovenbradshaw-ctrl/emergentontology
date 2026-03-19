@@ -2928,7 +2928,7 @@ function buildAutoLinkIndex(currentSlug) {
       var key = term.toLowerCase();
       if (seen[key]) continue;
       seen[key] = true;
-      terms.push({ term: term, slug: p.slug, title: p.title });
+      terms.push({ term: term, slug: p.slug, title: p.title, content_type: p.content_type });
     }
   }
 
@@ -2978,7 +2978,9 @@ function autoLinkArticles(html, currentSlug) {
 
       var beforeNode = document.createTextNode(before);
       var link = document.createElement('a');
-      link.setAttribute('onclick', "navigate('" + t.slug.replace(/'/g, "\\'") + "')");
+      link.setAttribute('href', '#' + t.slug);
+      link.setAttribute('data-article-link', t.content_type || 'wiki');
+      link.setAttribute('data-article-slug', t.slug);
       link.setAttribute('class', 'auto-link');
       link.setAttribute('title', t.title);
       link.textContent = matched;
@@ -3512,6 +3514,85 @@ function activateScripts(container) {
     if (!img) return;
     var figcap = fig.querySelector('figcaption');
     openLightbox(img.src, img.alt, figcap ? figcap.textContent : '');
+  });
+})();
+
+// ── Article Link Modal ────────────────────────────────────────────────────────
+(function() {
+  var overlay = document.getElementById('article-link-modal-overlay');
+  var list = document.getElementById('article-link-modal-list');
+  var titleEl = document.getElementById('article-link-modal-title');
+  var closeBtn = document.getElementById('article-link-modal-close');
+  if (!overlay || !list || !closeBtn) return;
+
+  var TYPE_PREFIX = { wiki: 'wiki', blog: 'blog', experiment: 'exp', document: 'doc', page: 'page' };
+
+  function closeModal() {
+    overlay.classList.remove('open');
+    document.body.style.overflow = '';
+  }
+
+  function openModal(slug, type) {
+    var candidates = findRelatedArticles(slug, 8);
+    titleEl.textContent = 'Related: ' + slug.replace(/-/g, ' ');
+
+    if (candidates.length === 0) {
+      list.innerHTML = '<li class="article-link-modal-empty">No matching articles found.</li>';
+    } else {
+      var h = '';
+      candidates.forEach(function(c) {
+        var p = c.page;
+        var prefix = TYPE_PREFIX[p.content_type] || p.content_type;
+        var url = '#' + p.slug;
+        var desc = p.description ? '<span class="alm-desc">' + esc(p.description.length > 120 ? p.description.slice(0, 120) + '…' : p.description) + '</span>' : '';
+        var tagHtml = '';
+        if (p.tags && p.tags.length > 0) {
+          tagHtml = '<span class="alm-tags">' + p.tags.slice(0, 4).map(function(t) { return '<span class="alm-tag">' + esc(t) + '</span>'; }).join('') + '</span>';
+        }
+        h += '<li><a href="' + url + '" data-modal-nav="' + esc(p.slug) + '">' +
+          '<span class="alm-title">' +
+          '<span class="alm-type">' + esc((p.content_type || '').toUpperCase()) + '</span>' +
+          esc(p.title || p.slug) +
+          '</span>' +
+          desc +
+          tagHtml +
+          '</a></li>';
+      });
+      list.innerHTML = h;
+    }
+
+    overlay.classList.add('open');
+    document.body.style.overflow = 'hidden';
+  }
+
+  closeBtn.addEventListener('click', closeModal);
+  overlay.addEventListener('click', function(e) { if (e.target === overlay) closeModal(); });
+  document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape' && overlay.classList.contains('open')) {
+      e.stopImmediatePropagation();
+      closeModal();
+    }
+  });
+
+  // Intercept clicks on auto-linked articles and embed links
+  document.addEventListener('click', function(e) {
+    var link = e.target.closest('[data-article-link]');
+    if (!link) return;
+    e.preventDefault();
+    e.stopPropagation();
+    var slug = link.getAttribute('data-article-slug');
+    if (!slug) return;
+    openModal(slug, link.getAttribute('data-article-link'));
+  });
+
+  // Navigate from modal items
+  list.addEventListener('click', function(e) {
+    var link = e.target.closest('a[data-modal-nav]');
+    if (!link) return;
+    e.preventDefault();
+    closeModal();
+    var slug = link.getAttribute('data-modal-nav');
+    navigate(slug);
   });
 })();
 

@@ -121,6 +121,14 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',system-ui,sans-seri
 .ld-ring{display:inline-block;width:20px;height:20px;border:2px solid var(--border);border-top-color:var(--purple);border-radius:50%;animation:spin .7s linear infinite;vertical-align:middle;margin-right:10px}
 @keyframes spin{to{transform:rotate(360deg)}}
 .empty{padding:40px;text-align:center;color:var(--ink3)}
+/* ── Hover tooltip ── */
+.card-tooltip{position:absolute;z-index:200;background:var(--bg);border:1px solid var(--border2);border-radius:var(--radius);box-shadow:0 8px 30px rgba(0,0,0,.12);padding:14px 16px;width:280px;pointer-events:none;opacity:0;transition:opacity .15s;font-size:13px}
+.card-tooltip.visible{opacity:1}
+.card-tooltip .tt-title{font-weight:600;margin-bottom:6px;color:var(--ink)}
+.card-tooltip .tt-desc{color:var(--ink2);line-height:1.5;margin-bottom:8px}
+.card-tooltip .tt-related{font-size:11.5px;color:var(--ink3)}
+.card-tooltip .tt-related strong{color:var(--ink2);font-weight:500}
+.card-tooltip .tt-rel-item{color:var(--purple-text);margin-top:2px}
 </style>
 </head>
 <body>
@@ -367,7 +375,7 @@ function showArt(id){
           <span class="rel-lv">${rl}</span>
         </li>`;
       }).join('')}</ul>`:''}
-    <button class="open-btn" onclick="alert('Full article opens here')">Open article →</button>`;
+    <button class="open-btn" onclick="window.location.href='site/index.html#' + encodeURIComponent('${a.meta.slug || a.meta.title.toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/(^-|-$)/g,'')}')">Open article →</button>`;
   renderContent();
 }
 function closePanel(){
@@ -395,6 +403,57 @@ document.getElementById('srch').addEventListener('input',e=>{
   q=e.target.value.trim();
   renderMeta();renderContent();
 });
+function openFromHash(){
+  const hash=decodeURIComponent(window.location.hash.slice(1));
+  if(!hash||!arts.length) return;
+  const match=arts.find(a=>{
+    const slug=(a.meta.slug||a.meta.title||'').toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/(^-|-$)/g,'');
+    return slug===hash||a.meta.title.toLowerCase()===hash.replace(/-/g,' ');
+  });
+  if(match) showArt(match.id);
+}
+// ── Card hover tooltip ──
+const tooltip=document.createElement('div');
+tooltip.className='card-tooltip';
+document.body.appendChild(tooltip);
+let ttTimer=null;
+document.addEventListener('mouseover',function(e){
+  const card=e.target.closest('.card');
+  if(!card){
+    clearTimeout(ttTimer);
+    tooltip.classList.remove('visible');
+    return;
+  }
+  const onclick=card.getAttribute('onclick');
+  const idMatch=onclick&&onclick.match(/showArt\((\d+)\)/);
+  if(!idMatch) return;
+  const art=arts.find(a=>a.id===parseInt(idMatch[1]));
+  if(!art) return;
+  clearTimeout(ttTimer);
+  ttTimer=setTimeout(function(){
+    const exc=html2txt(latest(art),200);
+    const rel=related(art).slice(0,3);
+    let h='<div class="tt-title">'+art.meta.title+'</div>';
+    if(exc) h+='<div class="tt-desc">'+exc+'</div>';
+    if(rel.length){
+      h+='<div class="tt-related"><strong>Related:</strong>';
+      rel.forEach(function(r){ h+='<div class="tt-rel-item">• '+r.meta.title+'</div>'; });
+      h+='</div>';
+    }
+    tooltip.innerHTML=h;
+    const rect=card.getBoundingClientRect();
+    tooltip.style.left=Math.min(rect.right+8,window.innerWidth-290)+'px';
+    tooltip.style.top=rect.top+'px';
+    tooltip.classList.add('visible');
+  },300);
+});
+document.addEventListener('mouseout',function(e){
+  if(e.target.closest('.card')) return;
+  clearTimeout(ttTimer);
+  tooltip.classList.remove('visible');
+});
+
+window.addEventListener('hashchange',openFromHash);
 fetch(API).then(r=>r.json()).then(data=>{
   arts=data.map(row=>{
     const v=typeof row.values==='string'?JSON.parse(row.values):row.values;
@@ -405,6 +464,7 @@ fetch(API).then(r=>r.json()).then(data=>{
   renderMeta();
   renderPathBar();
   renderContent();
+  openFromHash();
 }).catch(err=>{
   document.getElementById('content-area').innerHTML=`<div class="ld">Failed to load wiki data.<br><small>${err.message}</small></div>`;
 });
