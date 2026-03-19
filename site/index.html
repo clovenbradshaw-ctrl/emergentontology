@@ -3131,13 +3131,13 @@ function renderBlock(block, page) {
     case 'wiki-embed':
       var wSlug = String(d.slug || d.wiki_id || '');
       if (!wSlug) return '';
-      return '<div class="block block-wiki-embed"><a href="#' + esc(wSlug) + '" class="wiki-embed-link">Linked wiki: ' + esc(wSlug) + '</a></div>';
+      return '<div class="block block-wiki-embed"><a class="wiki-embed-link" href="/wiki/' + esc(wSlug) + '/" data-article-link="wiki" data-article-slug="' + esc(wSlug) + '">Linked wiki: ' + esc(wSlug) + '</a></div>';
 
     case 'experiment-embed':
       var expId = String(d.exp_id || '');
       if (!expId) return '';
       var expSlug = expId.replace('experiment:', '');
-      return '<div class="block block-experiment-embed"><a href="#' + esc(expSlug) + '" class="exp-embed-link">Linked experiment: ' + esc(expSlug) + '</a></div>';
+      return '<div class="block block-experiment-embed"><a class="exp-embed-link" href="/exp/' + esc(expSlug) + '/" data-article-link="experiment" data-article-slug="' + esc(expSlug) + '">Linked experiment: ' + esc(expSlug) + '</a></div>';
 
     case 'toc':
       var tocHeadings = [];
