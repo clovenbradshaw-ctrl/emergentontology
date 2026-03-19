@@ -1167,6 +1167,8 @@
 </head>
 <body>
 
+<div id="eo-loading-bar" style="position:fixed;top:0;left:0;width:0;height:3px;background:linear-gradient(90deg,var(--purple),var(--purple-light));z-index:9999;transition:width 0.3s ease;"></div>
+
 <nav class="topnav">
   <div class="topnav-left">
     <a class="topnav-brand" id="homeBtn">
@@ -1299,25 +1301,81 @@ function classifyItem(title, tags) {
 
 var siteData = {}, siteIndex = null, allPages = [], homeConfig = null;
 
+// ── Loading bar helpers ───────────────────────────────────────────────────────
+
+var _loadingBar = null;
+function loadingBar(pct) {
+  if (!_loadingBar) _loadingBar = document.getElementById('eo-loading-bar');
+  if (!_loadingBar) return;
+  _loadingBar.style.width = Math.min(pct, 100) + '%';
+  if (pct >= 100) {
+    setTimeout(function() { _loadingBar.style.opacity = '0'; }, 300);
+    setTimeout(function() { _loadingBar.style.display = 'none'; }, 600);
+  }
+}
+
+// ── Local cache (localStorage) ────────────────────────────────────────────────
+
+var CACHE_KEY = 'eo_site_cache';
+var CACHE_TTL = 5 * 60 * 1000; // 5 minutes
+
+function loadFromLocalCache() {
+  try {
+    var raw = localStorage.getItem(CACHE_KEY);
+    if (!raw) return null;
+    var cached = JSON.parse(raw);
+    if (!cached || !cached.ts) return null;
+    if (Date.now() - cached.ts > CACHE_TTL) return null;
+    return cached;
+  } catch(e) { return null; }
+}
+
+function saveToLocalCache(data, index) {
+  try {
+    var payload = { ts: Date.now(), data: data, index: index };
+    localStorage.setItem(CACHE_KEY, JSON.stringify(payload));
+  } catch(e) { /* quota exceeded or private browsing */ }
+}
+
 // ── Data Loading ──────────────────────────────────────────────────────────────
 
 function loadData() {
+  loadingBar(10);
+
   // Load home config from generated YAML→JSON in parallel
   fetchJson('generated/home.json').then(function(data) { if (data) homeConfig = data; });
+
+  // Check localStorage cache first for instant load
+  var cached = loadFromLocalCache();
+  if (cached && cached.data) {
+    siteData = cached.data;
+    siteIndex = cached.index || null;
+    loadingBar(100);
+    buildPageList();
+    navigateFromHash();
+    // Refresh in background after rendering from cache
+    refreshApiRecords();
+    return;
+  }
+
+  loadingBar(20);
 
   // Try static JSON first, then fall back to API
   fetchJson('generated/state/index.json')
     .then(function(staticIndex) {
+      loadingBar(40);
       if (staticIndex && staticIndex.entries && staticIndex.entries.length > 0) {
         siteIndex = staticIndex;
       }
       return fetchApiRecords();
     })
     .then(function() {
+      loadingBar(100);
       buildPageList();
       navigateFromHash();
     })
     .catch(function(e) {
+      loadingBar(100);
       document.getElementById('app').innerHTML = '<div class="loader"><span>Failed to load: ' + esc(e.message) + '</span></div>';
     });
 }
@@ -1329,28 +1387,49 @@ function fetchJson(url) {
   }).catch(function() { return null; });
 }
 
+function parseApiResponse(raw) {
+  var records = Array.isArray(raw) ? raw : (raw.records || raw.items || []);
+  var byId = {};
+  for (var i = 0; i < records.length; i++) {
+    var row = records[i];
+    var rid = row.record_id;
+    if (!rid) continue;
+    if (!byId[rid] || row.lastModified > byId[rid].lastModified) {
+      var vals;
+      try { vals = typeof row.values === 'string' ? JSON.parse(row.values) : row.values; }
+      catch(e) { vals = row.values; }
+      byId[rid] = { record_id: rid, lastModified: row.lastModified, displayName: row.displayName, parsed: vals };
+    }
+  }
+  return byId;
+}
+
 function fetchApiRecords() {
+  loadingBar(50);
   return fetch(API)
-    .then(function(res) { return res.json(); })
+    .then(function(res) {
+      loadingBar(70);
+      return res.json();
+    })
     .then(function(raw) {
-      var records = Array.isArray(raw) ? raw : (raw.records || raw.items || []);
-      var byId = {};
-      for (var i = 0; i < records.length; i++) {
-        var row = records[i];
-        var rid = row.record_id;
-        if (!rid) continue;
-        if (!byId[rid] || row.lastModified > byId[rid].lastModified) {
-          var vals;
-          try { vals = typeof row.values === 'string' ? JSON.parse(row.values) : row.values; }
-          catch(e) { vals = row.values; }
-          byId[rid] = { record_id: rid, lastModified: row.lastModified, displayName: row.displayName, parsed: vals };
-        }
+      loadingBar(90);
+      siteData = parseApiResponse(raw);
+      if (!siteIndex && siteData['site:index']) {
+        siteIndex = siteData['site:index'].parsed || null;
       }
-      siteData = byId;
-      if (!siteIndex && byId['site:index']) {
-        siteIndex = byId['site:index'].parsed || null;
-      }
+      saveToLocalCache(siteData, siteIndex);
     });
+}
+
+/** Background refresh — re-fetch API data without blocking the UI. */
+function refreshApiRecords() {
+  fetch(API).then(function(res) { return res.json(); }).then(function(raw) {
+    siteData = parseApiResponse(raw);
+    if (siteData['site:index']) {
+      siteIndex = siteData['site:index'].parsed || null;
+    }
+    saveToLocalCache(siteData, siteIndex);
+  }).catch(function() { /* silent background refresh */ });
 }
 
 function buildPageList() {
