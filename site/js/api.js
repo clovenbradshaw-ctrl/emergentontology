@@ -368,6 +368,7 @@ export function loadContent(contentId) {
   return fetchJson(BASE + '/generated/state/content/' + fileName)
     .then(function (data) {
       if (data) {
+        data._source = 'static';
         _contentCache[contentId] = data;
         return data;
       }
@@ -419,6 +420,7 @@ function parseContentRecord(contentId, rec) {
       parsed.content_type = parsed.meta.content_type;
     }
 
+    parsed._source = 'current_state';
     _contentCache[contentId] = parsed;
     return parsed;
   } catch (e) {

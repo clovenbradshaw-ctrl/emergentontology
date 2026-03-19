@@ -1709,7 +1709,7 @@ export function renderWiki(el, slug) {
 
       h += '<nav class="post-nav" id="next-wiki-preview"></nav>';
 
-      h += revisionHistoryHtml(content);
+      if (content._source !== 'current_state') h += revisionHistoryHtml(content);
 
       h += '<div class="content-actions eo-admin-only" hidden>';
       h += '<a class="btn btn-edit" href="' + BASE + '/admin/#wiki/' + esc(slug) + '">Edit in Admin</a></div>';
@@ -1984,7 +1984,7 @@ export function renderExp(el, slug) {
 
       h += relatedPagesHtml(content.meta);
 
-      if (rev) h += revisionHistoryHtml(content);
+      if (rev && content._source !== 'current_state') h += revisionHistoryHtml(content);
 
       h += '<div class="content-actions eo-admin-only" hidden>';
       h += '<a class="btn btn-edit" href="' + BASE + '/admin/#exp/' + esc(slug) + '">Edit in Admin</a></div>';
@@ -2099,7 +2099,7 @@ export function renderDoc(el, slug) {
 
     h += relatedPagesHtml(content.meta);
 
-    if (rev) h += revisionHistoryHtml(content);
+    if (rev && content._source !== 'current_state') h += revisionHistoryHtml(content);
 
     h += '<div class="content-actions eo-admin-only" hidden>';
     h += '<a class="btn btn-edit" href="' + BASE + '/admin/#doc/' + esc(slug) + '">Edit in Admin</a></div>';
