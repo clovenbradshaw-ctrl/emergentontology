@@ -1257,7 +1257,7 @@
 </footer>
 
 <script>
-var API = 'https://n8n.intelechia.com/webhook/81ca952a-3387-4837-8bcd-d18e3d28e758';
+var API = 'https://xvkq-pq7i-idtl.n7d.xano.io/api:GGzWIVAW/get_eowikicurrent';
 var OPERATORS = [
   { sym:'\u2205', name:'NUL', triad:'e', slug:'nul', label:'Absence & Nullity' },
   { sym:'\u03C3', name:'SIG', triad:'e', slug:'sig', label:'Designation' },
@@ -1330,26 +1330,38 @@ function fetchJson(url) {
 }
 
 function fetchApiRecords() {
-  return fetch(API)
+  return fetchAllPages(1, []).then(function(allRecords) {
+    var byId = {};
+    for (var i = 0; i < allRecords.length; i++) {
+      var row = allRecords[i];
+      var rid = row.record_id;
+      if (!rid) continue;
+      if (!byId[rid] || row.lastModified > byId[rid].lastModified) {
+        var vals;
+        try { vals = typeof row.values === 'string' ? JSON.parse(row.values) : row.values; }
+        catch(e) { vals = row.values; }
+        byId[rid] = { record_id: rid, lastModified: row.lastModified, displayName: row.displayName, parsed: vals };
+      }
+    }
+    siteData = byId;
+    if (!siteIndex && byId['site:index']) {
+      siteIndex = byId['site:index'].parsed || null;
+    }
+    console.log('[eo] Loaded ' + allRecords.length + ' records, ' + Object.keys(byId).length + ' unique');
+  });
+}
+
+function fetchAllPages(page, accumulated) {
+  return fetch(API + '?page=' + page + '&per_page=25')
     .then(function(res) { return res.json(); })
-    .then(function(raw) {
-      var records = Array.isArray(raw) ? raw : (raw.records || raw.items || []);
-      var byId = {};
-      for (var i = 0; i < records.length; i++) {
-        var row = records[i];
-        var rid = row.record_id;
-        if (!rid) continue;
-        if (!byId[rid] || row.lastModified > byId[rid].lastModified) {
-          var vals;
-          try { vals = typeof row.values === 'string' ? JSON.parse(row.values) : row.values; }
-          catch(e) { vals = row.values; }
-          byId[rid] = { record_id: rid, lastModified: row.lastModified, displayName: row.displayName, parsed: vals };
-        }
+    .then(function(data) {
+      var records = Array.isArray(data) ? data : (data.items || []);
+      var all = accumulated.concat(records);
+      var hasMore = data.nextPage && data.curPage < data.pageTotal;
+      if (hasMore) {
+        return fetchAllPages(data.nextPage, all);
       }
-      siteData = byId;
-      if (!siteIndex && byId['site:index']) {
-        siteIndex = byId['site:index'].parsed || null;
-      }
+      return all;
     });
 }
 
