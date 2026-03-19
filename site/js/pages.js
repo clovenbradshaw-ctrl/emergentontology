@@ -14,7 +14,10 @@ import {
   revisionHistoryHtml, renderRevisionContent, revealAdmin,
   hydrateHtmlWidgets, activateScripts, timeAgo, autoSizeIframe
 } from './render.js';
-import { fetchSuggestionEvents, replaySuggestions, postReply, createTopic, openSuggestForm } from './suggest.js';
+import {
+  fetchSuggestionEvents, replaySuggestions, postReply, createTopic, openSuggestForm,
+  postUpvote, getMatrixUser, matrixLogin, matrixLogout, getDisplayName
+} from './suggest.js';
 
 // ── Sort helper ──────────────────────────────────────────────────────────────
 
@@ -2311,12 +2314,25 @@ export function renderCommunity(el) {
   setTitle('Community');
   setBreadcrumbs([{ label: 'Community', href: BASE + '/community/' }]);
 
+  var mx = getMatrixUser();
+  var authHtml = mx
+    ? '<div class="community-auth"><span class="auth-user">Signed in as <strong>' + esc(mx.display_name || mx.user_id) + '</strong></span> <button class="btn-link" id="matrix-logout">Sign out</button></div>'
+    : '<div class="community-auth"><button class="btn-link" id="matrix-login-toggle">Sign in with Matrix</button> <span class="auth-hint">or post anonymously</span></div>';
+
   el.innerHTML =
     '<header class="community-header">' +
-      '<h1>Community</h1>' +
+      '<div class="community-header-row"><h1>Community</h1>' + authHtml + '</div>' +
       '<p class="community-subtitle">Edit suggestions, questions, and discussions</p>' +
       '<button class="btn btn-primary" id="community-new-topic">New Topic</button>' +
     '</header>' +
+    '<div class="matrix-login-form" id="matrix-login-form" hidden>' +
+      '<h4>Sign in with Matrix</h4>' +
+      '<div class="eo-suggest-field"><input type="text" id="mx-homeserver" placeholder="Homeserver (e.g. matrix.org)" value="matrix.org"></div>' +
+      '<div class="eo-suggest-field"><input type="text" id="mx-user" placeholder="Username or @user:server"></div>' +
+      '<div class="eo-suggest-field"><input type="password" id="mx-password" placeholder="Password"></div>' +
+      '<div class="eo-suggest-actions"><button class="eo-suggest-cancel" id="mx-cancel">Cancel</button><button class="eo-suggest-submit" id="mx-submit">Sign In</button></div>' +
+      '<div class="eo-suggest-status" id="mx-status"></div>' +
+    '</div>' +
     '<div class="community-filters" id="community-filters">' +
       '<button class="community-filter active" data-filter="all">All</button>' +
       '<button class="community-filter" data-filter="edit">Edit Requests</button>' +
@@ -2331,6 +2347,34 @@ export function renderCommunity(el) {
   var newTopicBtn = document.getElementById('community-new-topic');
   newTopicBtn.addEventListener('click', function () {
     showNewTopicForm(el);
+  });
+
+  // Wire up Matrix login/logout
+  var loginToggle = document.getElementById('matrix-login-toggle');
+  var logoutBtn = document.getElementById('matrix-logout');
+  var loginForm = document.getElementById('matrix-login-form');
+
+  if (loginToggle) {
+    loginToggle.addEventListener('click', function () { loginForm.hidden = !loginForm.hidden; });
+  }
+  if (logoutBtn) {
+    logoutBtn.addEventListener('click', function () { matrixLogout(); renderCommunity(el); });
+  }
+
+  var mxCancel = document.getElementById('mx-cancel');
+  var mxSubmit = document.getElementById('mx-submit');
+  if (mxCancel) mxCancel.addEventListener('click', function () { loginForm.hidden = true; });
+  if (mxSubmit) mxSubmit.addEventListener('click', function () {
+    var hs = document.getElementById('mx-homeserver').value.trim();
+    var user = document.getElementById('mx-user').value.trim();
+    var pass = document.getElementById('mx-password').value;
+    var status = document.getElementById('mx-status');
+    if (!hs || !user || !pass) { status.textContent = 'All fields required.'; status.className = 'eo-suggest-status eo-status-error'; return; }
+    status.textContent = 'Signing in...';
+    status.className = 'eo-suggest-status';
+    matrixLogin(hs, user, pass)
+      .then(function () { renderCommunity(el); })
+      .catch(function (err) { status.textContent = err.message || 'Login failed.'; status.className = 'eo-suggest-status eo-status-error'; });
   });
 
   // Wire up filters
@@ -2403,6 +2447,9 @@ function renderCommunityList(filter) {
     h += '<span>' + timeAgo(sg.created_at) + '</span>';
     if (replyCount > 0) {
       h += '<span>' + replyCount + ' repl' + (replyCount === 1 ? 'y' : 'ies') + '</span>';
+    }
+    if (sg.voteCount > 0) {
+      h += '<span class="vote-count-badge">' + sg.voteCount + ' upvote' + (sg.voteCount === 1 ? '' : 's') + '</span>';
     }
     h += '</div>';
     h += '</a>';
@@ -2525,7 +2572,12 @@ function renderSuggestionDetail(el, sg) {
   h += '<span class="community-status status-' + sg.status + '">' + esc(sg.status) + '</span>';
   h += '</div>';
   h += '<h1>' + esc(latestRev ? latestRev.summary : 'Untitled') + '</h1>';
-  h += '<div class="suggestion-byline">by <strong>' + esc(sg.agent_name) + '</strong> &middot; ' + timeAgo(sg.created_at) + '</div>';
+  h += '<div class="suggestion-byline">';
+  h += 'by <strong>' + esc(sg.agent_name) + '</strong> &middot; ' + timeAgo(sg.created_at);
+  h += ' &middot; <button class="vote-btn" data-vote-target="suggestion:' + esc(sg.id) + '" data-sg="' + esc(sg.id) + '">';
+  h += '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 19V5M5 12l7-7 7 7"/></svg> ';
+  h += '<span class="vote-count">' + (sg.voteCount || 0) + '</span></button>';
+  h += '</div>';
   if (sg.target_content_id) {
     var parts = sg.target_content_id.split(':');
     var targetSlug = parts.slice(1).join(':');
@@ -2571,7 +2623,12 @@ function renderSuggestionDetail(el, sg) {
   if (sg.replies.length > 0) {
     sg.replies.forEach(function (reply) {
       h += '<div class="reply-card">';
-      h += '<div class="reply-meta"><strong>' + esc(reply.agent_name) + '</strong> &middot; ' + timeAgo(reply.ts || reply.created_at) + '</div>';
+      h += '<div class="reply-meta">';
+      h += '<strong>' + esc(reply.agent_name) + '</strong> &middot; ' + timeAgo(reply.ts || reply.created_at);
+      h += ' &middot; <button class="vote-btn" data-vote-target="' + esc(reply.id) + '" data-sg="' + esc(sg.id) + '">';
+      h += '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 19V5M5 12l7-7 7 7"/></svg> ';
+      h += '<span class="vote-count">' + (reply.voteCount || 0) + '</span></button>';
+      h += '</div>';
       h += '<div class="reply-body">' + md(reply.content) + '</div>';
       h += '</div>';
     });
@@ -2639,6 +2696,27 @@ function renderSuggestionDetail(el, sg) {
       .catch(function (err) {
         status.textContent = 'Failed to post reply. Please try again.';
         status.className = 'eo-suggest-status eo-status-error';
+      });
+  });
+
+  // Wire up upvote buttons
+  el.addEventListener('click', function (e) {
+    var btn = e.target.closest('.vote-btn');
+    if (!btn) return;
+    e.preventDefault();
+    var target = btn.getAttribute('data-vote-target');
+    var sgId = btn.getAttribute('data-sg');
+    var isReply = target.indexOf('/reply:') > -1;
+
+    btn.disabled = true;
+    postUpvote(sgId, isReply ? target : null)
+      .then(function () {
+        var countEl = btn.querySelector('.vote-count');
+        if (countEl) countEl.textContent = String(parseInt(countEl.textContent || '0', 10) + 1);
+        btn.classList.add('vote-btn-voted');
+      })
+      .catch(function () {
+        btn.disabled = false;
       });
   });
 }

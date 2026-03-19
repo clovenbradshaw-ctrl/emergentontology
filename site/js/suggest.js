@@ -97,7 +97,9 @@ export function replaySuggestions(events) {
         updated_at: evt.created_at,
         revisions: [],
         replies: [],
-        events: []
+        events: [],
+        voteCount: 0,
+        votes: {}
       };
     }
 
@@ -118,7 +120,9 @@ export function replaySuggestions(events) {
           content: operand.content || '',
           agent_name: ctx.agent_name || 'anonymous',
           ts: ctx.ts || evt.created_at,
-          created_at: evt.created_at
+          created_at: evt.created_at,
+          voteCount: 0,
+          votes: {}
         });
       } else {
         // Revision
@@ -143,7 +147,22 @@ export function replaySuggestions(events) {
       }
     } else if (evt.op === 'SIG') {
       var set = operand.set || operand;
-      if (set.status) sg.status = set.status;
+      if (set.vote === 'up') {
+        // Upvote — track on the suggestion or reply
+        var voter = set.voter || '';
+        if (subject.indexOf('/reply:') > -1) {
+          // Vote on a reply
+          var reply = sg.replies.find(function (r) { return r.id === subject; });
+          if (reply) {
+            if (!reply.votes) reply.votes = {};
+            if (!reply.votes[voter]) { reply.votes[voter] = true; reply.voteCount = (reply.voteCount || 0) + 1; }
+          }
+        } else {
+          // Vote on the suggestion itself
+          if (!sg.votes) sg.votes = {};
+          if (!sg.votes[voter]) { sg.votes[voter] = true; sg.voteCount = (sg.voteCount || 0) + 1; }
+        }
+      } else if (set.status) { sg.status = set.status; }
       if (set.merged_as) sg.merged_as = set.merged_as;
       if (set.reason) sg.reject_reason = set.reason;
     } else if (evt.op === 'NUL') {
@@ -265,11 +284,19 @@ function openModal(type) {
   status.textContent = '';
   status.className = 'eo-suggest-status';
 
-  // Restore saved name/contact
-  var savedName = localStorage.getItem('eo-suggest-name') || '';
-  var savedContact = localStorage.getItem('eo-suggest-contact') || '';
+  // Restore saved name/contact — use Matrix identity if logged in
+  var mx = getMatrixUser();
+  var savedName = mx ? (mx.display_name || mx.user_id) : (localStorage.getItem('eo-suggest-name') || '');
+  var savedContact = mx ? mx.user_id : (localStorage.getItem('eo-suggest-contact') || '');
   document.getElementById('eo-suggest-name').value = savedName;
   document.getElementById('eo-suggest-contact').value = savedContact;
+  if (mx) {
+    document.getElementById('eo-suggest-name').readOnly = true;
+    document.getElementById('eo-suggest-contact').readOnly = true;
+  } else {
+    document.getElementById('eo-suggest-name').readOnly = false;
+    document.getElementById('eo-suggest-contact').readOnly = false;
+  }
 
   _modal.classList.add('open');
   _modal.setAttribute('data-type', type);
@@ -411,6 +438,149 @@ export function createTopic(title, content, name, contact) {
   return postSuggestionEvent(event).then(function () {
     return sgId;
   });
+}
+
+// ── Upvoting ─────────────────────────────────────────────────────────────────
+
+/**
+ * Get a stable anonymous voter ID. Uses localStorage so repeat votes are
+ * deduplicated in the replay. If a Matrix user is logged in, use their MXID.
+ */
+function getVoterId() {
+  var mx = getMatrixUser();
+  if (mx) return 'mx:' + mx.user_id;
+  var id = localStorage.getItem('eo-voter-id');
+  if (!id) {
+    id = 'anon_' + Date.now().toString(36) + Math.random().toString(36).slice(2, 8);
+    localStorage.setItem('eo-voter-id', id);
+  }
+  return id;
+}
+
+/**
+ * Submit an upvote for a suggestion or a specific reply.
+ * @param {string} suggestionId - e.g. "sg_abc123"
+ * @param {string} [replySubject] - full reply subject to vote on a reply, or omit for the suggestion itself
+ */
+export function postUpvote(suggestionId, replySubject) {
+  var voterId = getVoterId();
+  var now = new Date().toISOString();
+  var target = replySubject || ('suggestion:' + suggestionId);
+
+  var event = {
+    op: 'SIG',
+    subject: target,
+    predicate: 'eo.op',
+    value: JSON.stringify({ vote: 'up', voter: voterId }),
+    context: JSON.stringify({
+      agent: voterId,
+      agent_name: getDisplayName(),
+      ts: now
+    })
+  };
+
+  return postSuggestionEvent(event);
+}
+
+/**
+ * During replay, tally votes per subject. Returns map: subject → { count, voters }
+ */
+export function tallyVotes(events) {
+  var votes = {};
+  events.forEach(function (evt) {
+    if (evt.op !== 'SIG') return;
+    var operand = {};
+    try { operand = typeof evt.value === 'string' ? JSON.parse(evt.value) : (evt.value || {}); } catch (e) {}
+    if (operand.vote !== 'up') return;
+    var voter = operand.voter || '';
+    var subject = evt.subject || '';
+    if (!votes[subject]) votes[subject] = { count: 0, voters: {} };
+    // Deduplicate: one vote per voter per subject
+    if (!votes[subject].voters[voter]) {
+      votes[subject].voters[voter] = true;
+      votes[subject].count++;
+    }
+  });
+  return votes;
+}
+
+// ── Matrix authentication (optional) ─────────────────────────────────────────
+
+var _matrixUser = null; // { user_id, access_token, homeserver, display_name }
+
+/** Get the current Matrix user, if logged in. */
+export function getMatrixUser() {
+  if (_matrixUser) return _matrixUser;
+  try {
+    var stored = localStorage.getItem('eo-matrix-user');
+    if (stored) _matrixUser = JSON.parse(stored);
+  } catch (e) {}
+  return _matrixUser;
+}
+
+/** Get the display name — Matrix name if logged in, else localStorage name, else 'anonymous'. */
+export function getDisplayName() {
+  var mx = getMatrixUser();
+  if (mx && mx.display_name) return mx.display_name;
+  if (mx && mx.user_id) return mx.user_id;
+  return localStorage.getItem('eo-suggest-name') || 'anonymous';
+}
+
+/**
+ * Log in with Matrix credentials.
+ * @param {string} homeserver - e.g. "https://matrix.org" or "matrix.org"
+ * @param {string} user - Matrix user ID (e.g. "@alice:matrix.org") or local part
+ * @param {string} password
+ */
+export function matrixLogin(homeserver, user, password) {
+  // Normalise homeserver URL
+  if (homeserver.indexOf('http') !== 0) homeserver = 'https://' + homeserver;
+  homeserver = homeserver.replace(/\/+$/, '');
+
+  var body = {
+    type: 'm.login.password',
+    identifier: { type: 'm.id.user', user: user.replace(/^@/, '').split(':')[0] },
+    password: password
+  };
+
+  return fetch(homeserver + '/_matrix/client/v3/login', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(body)
+  })
+    .then(function (r) {
+      if (!r.ok) return r.json().then(function (err) { throw new Error(err.error || 'Login failed'); });
+      return r.json();
+    })
+    .then(function (data) {
+      _matrixUser = {
+        user_id: data.user_id,
+        access_token: data.access_token,
+        homeserver: homeserver,
+        display_name: data.user_id
+      };
+      localStorage.setItem('eo-matrix-user', JSON.stringify(_matrixUser));
+
+      // Try to fetch display name
+      return fetch(homeserver + '/_matrix/client/v3/profile/' + encodeURIComponent(data.user_id) + '/displayname', {
+        headers: { 'Authorization': 'Bearer ' + data.access_token }
+      })
+        .then(function (r) { return r.ok ? r.json() : {}; })
+        .then(function (profile) {
+          if (profile.displayname) {
+            _matrixUser.display_name = profile.displayname;
+            localStorage.setItem('eo-matrix-user', JSON.stringify(_matrixUser));
+          }
+          return _matrixUser;
+        })
+        .catch(function () { return _matrixUser; });
+    });
+}
+
+/** Log out of Matrix. */
+export function matrixLogout() {
+  _matrixUser = null;
+  localStorage.removeItem('eo-matrix-user');
 }
 
 // ── Setup: wire text selection + modal events ────────────────────────────────

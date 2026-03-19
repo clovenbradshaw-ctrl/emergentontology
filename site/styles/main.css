@@ -2873,6 +2873,54 @@ main.wiki-article { display: flex; flex-direction: column; overflow: hidden; hei
   .eo-sel-btn { padding: 5px 8px; font-size: .75rem; }
 }
 
+/* ── Vote buttons ────────────────────────────────────────────────────────── */
+.vote-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  padding: 2px 8px;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: transparent;
+  color: var(--text-dim);
+  font-size: .78rem;
+  cursor: pointer;
+  font-family: var(--font-sans);
+  transition: all .15s;
+  vertical-align: middle;
+}
+.vote-btn:hover { border-color: var(--accent); color: var(--accent); }
+.vote-btn-voted { border-color: var(--accent); color: var(--accent); background: rgba(124,111,205,.1); }
+.vote-btn:disabled { opacity: .6; cursor: default; }
+.vote-count { font-weight: 600; }
+.vote-count-badge { color: var(--accent); font-weight: 500; }
+
+/* ── Matrix Auth ─────────────────────────────────────────────────────────── */
+.community-header-row { display: flex; align-items: center; justify-content: space-between; gap: 1rem; flex-wrap: wrap; }
+.community-auth { font-size: .85rem; color: var(--text-dim); }
+.community-auth .auth-user { margin-right: .25rem; }
+.auth-hint { font-size: .78rem; color: var(--text-dim); }
+.btn-link {
+  background: none;
+  border: none;
+  color: var(--link);
+  cursor: pointer;
+  font-family: var(--font-sans);
+  font-size: inherit;
+  padding: 0;
+  text-decoration: underline;
+}
+.btn-link:hover { color: var(--accent); }
+
+.matrix-login-form {
+  padding: 1rem 1.25rem;
+  margin-bottom: 1.5rem;
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+}
+.matrix-login-form h4 { margin-bottom: .75rem; }
+
 /* ── Button primary (reusable) ───────────────────────────────────────────── */
 .btn-primary {
   padding: .5rem 1.2rem;
