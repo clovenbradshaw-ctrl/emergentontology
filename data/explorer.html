@@ -1,0 +1,605 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>EO Results Explorer</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<style>
+  :root {
+    --bg: #ffffff;
+    --bg-page: #fafafa;
+    --text: #111111;
+    --text-secondary: #555555;
+    --text-muted: #888888;
+    --text-faint: #aaaaaa;
+    --purple: #6c5ce7;
+    --purple-light: #a29bfe;
+    --purple-bg: #f0eeff;
+    --purple-border: #d4d0f7;
+    --border: #e8e8e8;
+    --border-light: #f0f0f0;
+    --green: #00b894;
+    --red: #d63031;
+    --card-shadow: 0 1px 3px rgba(0,0,0,0.04), 0 1px 2px rgba(0,0,0,0.03);
+  }
+  [data-theme="dark"] {
+    --bg: #111111;
+    --bg-page: #1a1a1a;
+    --text: #e8e8e8;
+    --text-secondary: #aaaaaa;
+    --text-muted: #777777;
+    --text-faint: #555555;
+    --purple: #a29bfe;
+    --purple-light: #6c5ce7;
+    --purple-bg: #1e1a3a;
+    --purple-border: #2d2654;
+    --border: #2a2a2a;
+    --border-light: #222222;
+    --green: #55efc4;
+    --red: #ff7675;
+    --card-shadow: 0 1px 3px rgba(0,0,0,0.2);
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html { font-size: 16px; }
+  body {
+    font-family: 'Inter', -apple-system, sans-serif;
+    background: var(--bg-page);
+    color: var(--text);
+    line-height: 1.6;
+    min-height: 100vh;
+  }
+
+  /* Nav */
+  .topnav {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 0 2rem; height: 52px;
+    border-bottom: 1px solid var(--border);
+    background: var(--bg);
+    position: sticky; top: 0; z-index: 100;
+  }
+  .brand {
+    display: flex; align-items: center; gap: 0.5rem;
+    font-weight: 700; font-size: 0.92rem; color: var(--text);
+    text-decoration: none;
+  }
+  .brand-icon {
+    width: 20px; height: 20px; background: var(--purple);
+    border-radius: 4px; display: flex; align-items: center;
+    justify-content: center; color: white; font-size: 0.65rem; font-weight: 700;
+  }
+  .nav-right { display: flex; align-items: center; gap: 0.5rem; }
+  .nav-btn {
+    width: 34px; height: 34px; border-radius: 7px;
+    border: 1px solid var(--border); background: var(--bg);
+    color: var(--text-secondary); cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 0.95rem;
+  }
+  .nav-btn:hover { background: var(--border-light); color: var(--text); }
+
+  /* Layout */
+  .container {
+    max-width: 1280px; margin: 0 auto;
+    padding: 2rem 2rem;
+  }
+  .page-header {
+    margin-bottom: 1.75rem;
+  }
+  .page-title {
+    font-size: 1.6rem; font-weight: 700; letter-spacing: -0.02em;
+    margin-bottom: 0.25rem;
+  }
+  .page-subtitle {
+    font-size: 0.88rem; color: var(--text-muted);
+  }
+  .page-subtitle strong { color: var(--text-secondary); font-weight: 600; }
+
+  /* Two-column grid */
+  .two-col {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.5rem;
+    align-items: start;
+  }
+  .left-col { display: flex; flex-direction: column; gap: 1.5rem; }
+  .right-col { display: flex; flex-direction: column; gap: 1.5rem; }
+
+  /* Cards */
+  .card {
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    box-shadow: var(--card-shadow);
+    overflow: hidden;
+  }
+  .card-header {
+    padding: 1rem 1.25rem 0.75rem;
+    border-bottom: 1px solid var(--border-light);
+  }
+  .card-title {
+    font-size: 0.92rem; font-weight: 700; color: var(--text);
+    letter-spacing: -0.01em;
+  }
+  .card-desc {
+    font-size: 0.75rem; color: var(--text-muted); margin-top: 0.2rem;
+  }
+  .card-body { padding: 1.25rem; }
+
+  /* Chart container */
+  .chart-wrap {
+    position: relative; width: 100%;
+    padding: 1rem 1.25rem 1rem;
+  }
+  .chart-wrap canvas { width: 100% !important; }
+
+  /* Chart legend (custom) */
+  .chart-legend {
+    display: flex; flex-wrap: wrap; gap: 0.5rem 1rem;
+    padding: 0 1.25rem 1rem;
+  }
+  .legend-item {
+    display: flex; align-items: center; gap: 0.4rem;
+    font-size: 0.75rem; color: var(--text-secondary);
+  }
+  .legend-dot {
+    width: 10px; height: 10px; border-radius: 2px; flex-shrink: 0;
+  }
+
+  /* Z-score table */
+  .zscore-table {
+    width: 100%; border-collapse: collapse; font-size: 0.83rem;
+  }
+  .zscore-table th {
+    text-align: left; padding: 0.5rem 1rem;
+    font-size: 0.7rem; font-weight: 600; letter-spacing: 0.06em;
+    text-transform: uppercase; color: var(--text-muted);
+    background: var(--bg-page);
+    border-bottom: 1px solid var(--border);
+  }
+  .zscore-table th:not(:first-child) { text-align: right; }
+  .zscore-table td {
+    padding: 0.6rem 1rem;
+    border-bottom: 1px solid var(--border-light);
+    color: var(--text-secondary);
+  }
+  .zscore-table td:first-child { font-weight: 600; color: var(--text); }
+  .zscore-table td:not(:first-child) { text-align: right; font-family: 'JetBrains Mono', monospace; }
+  .zscore-table tr:last-child td { border-bottom: none; }
+  .z-pos { color: var(--green); }
+  .z-neg { color: var(--red); }
+  .z-neu { color: var(--text-muted); }
+
+  /* Stat grid */
+  .stat-grid {
+    display: grid; grid-template-columns: 1fr 1fr;
+    gap: 1px; background: var(--border-light);
+  }
+  .stat-item {
+    background: var(--bg); padding: 1rem 1.25rem;
+  }
+  .stat-label {
+    font-size: 0.7rem; font-weight: 600; text-transform: uppercase;
+    letter-spacing: 0.06em; color: var(--text-muted); margin-bottom: 0.25rem;
+  }
+  .stat-value {
+    font-size: 1.5rem; font-weight: 700; letter-spacing: -0.03em;
+    color: var(--text); font-family: 'JetBrains Mono', monospace;
+  }
+  .stat-sub {
+    font-size: 0.72rem; color: var(--text-faint); margin-top: 0.1rem;
+  }
+
+  /* Per-language table */
+  .lang-table {
+    width: 100%; border-collapse: collapse; font-size: 0.8rem;
+  }
+  .lang-table th {
+    text-align: left; padding: 0.45rem 1rem;
+    font-size: 0.68rem; font-weight: 600; letter-spacing: 0.06em;
+    text-transform: uppercase; color: var(--text-muted);
+    background: var(--bg-page);
+    border-bottom: 1px solid var(--border);
+    position: sticky; top: 52px; z-index: 1;
+  }
+  .lang-table th:not(:first-child) { text-align: right; }
+  .lang-table td {
+    padding: 0.45rem 1rem;
+    border-bottom: 1px solid var(--border-light);
+    color: var(--text-secondary);
+  }
+  .lang-table td:first-child { font-weight: 600; color: var(--text); }
+  .lang-table td:not(:first-child) { text-align: right; font-family: 'JetBrains Mono', monospace; }
+  .lang-table tr:last-child td { border-bottom: none; }
+  .lang-scroll { max-height: 360px; overflow-y: auto; }
+
+  /* ARI / kappa */
+  .metric-list { padding: 0 1.25rem 1rem; display: flex; flex-direction: column; gap: 0.75rem; }
+  .metric-row {
+    display: flex; align-items: center; justify-content: space-between;
+    font-size: 0.83rem;
+  }
+  .metric-label { color: var(--text-secondary); }
+  .metric-val {
+    font-family: 'JetBrains Mono', monospace; font-size: 0.82rem;
+    font-weight: 600; color: var(--text);
+  }
+  .metric-bar-wrap {
+    height: 3px; background: var(--border-light);
+    border-radius: 2px; margin-top: 3px; width: 100%;
+  }
+  .metric-bar {
+    height: 3px; background: var(--purple);
+    border-radius: 2px;
+  }
+
+  /* threshold line legend */
+  .threshold-note {
+    display: flex; align-items: center; gap: 0.4rem;
+    font-size: 0.73rem; color: var(--text-muted);
+    padding: 0 1.25rem 0.75rem;
+  }
+  .threshold-dash {
+    width: 24px; height: 0; border-top: 2px dashed #e17055;
+  }
+
+  @media (max-width: 900px) {
+    .two-col { grid-template-columns: 1fr; }
+  }
+  @media (max-width: 600px) {
+    .container { padding: 1rem; }
+    .stat-grid { grid-template-columns: 1fr 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<nav class="topnav">
+  <a class="brand" href="../index.html">
+    <span class="brand-icon">∅</span>
+    Emergent Ontology
+  </a>
+  <div class="nav-right">
+    <button class="nav-btn" id="themeBtn" title="Toggle theme">☾</button>
+  </div>
+</nav>
+
+<div class="container">
+  <div class="page-header">
+    <div class="page-title">Results Explorer</div>
+    <div class="page-subtitle" id="summaryLine">Loading…</div>
+  </div>
+
+  <div class="two-col">
+    <!-- LEFT COLUMN -->
+    <div class="left-col">
+
+      <!-- Face Z-Scores chart -->
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title">Face Z-Scores</div>
+          <div class="card-desc">Cluster separation across operator faces and the full 27-cell</div>
+        </div>
+        <div class="chart-wrap" style="height:220px">
+          <canvas id="faceChart"></canvas>
+        </div>
+        <div class="threshold-note">
+          <div class="threshold-dash"></div>
+          Significance threshold (z = 1.96)
+        </div>
+        <div class="chart-legend" id="faceLegend"></div>
+      </div>
+
+      <!-- Z-Scores by label set -->
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title">Z-Scores by Label Set</div>
+          <div class="card-desc">Per-quarter separation z-scores across annotation sources</div>
+        </div>
+        <table class="zscore-table" id="labelTable">
+          <thead>
+            <tr>
+              <th>Label Set</th>
+              <th>Q1</th>
+              <th>Q2</th>
+              <th>Q3</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
+
+    </div><!-- /left-col -->
+
+    <!-- RIGHT COLUMN -->
+    <div class="right-col">
+
+      <!-- Summary stats -->
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title">Dataset Summary</div>
+        </div>
+        <div class="stat-grid" id="statGrid"></div>
+      </div>
+
+      <!-- Inter-annotator agreement -->
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title">Inter-Annotator Agreement</div>
+          <div class="card-desc">Cohen's κ between Claude and GPT-4 annotations</div>
+        </div>
+        <div class="metric-list" id="kappaList" style="padding-top:1rem"></div>
+      </div>
+
+      <!-- ARI -->
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title">Axis Independence (ARI)</div>
+          <div class="card-desc">Adjusted Rand Index between quarter label sets</div>
+        </div>
+        <div class="metric-list" id="ariList" style="padding-top:1rem"></div>
+      </div>
+
+      <!-- Per-language z-scores -->
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title">Per-Language Z-Scores</div>
+          <div class="card-desc">Q1 / Q2 / Q3 separation by language</div>
+        </div>
+        <div class="lang-scroll">
+          <table class="lang-table" id="langTable">
+            <thead>
+              <tr>
+                <th>Lang</th>
+                <th>Q1</th>
+                <th>Q2</th>
+                <th>Q3</th>
+                <th>27-cell</th>
+              </tr>
+            </thead>
+            <tbody></tbody>
+          </table>
+        </div>
+      </div>
+
+    </div><!-- /right-col -->
+  </div><!-- /two-col -->
+</div><!-- /container -->
+
+<script>
+// ── Theme ────────────────────────────────────────────────────────────────────
+const tBtn = document.getElementById('themeBtn');
+let dk = localStorage.getItem('eo-dark') === '1';
+function applyTheme() {
+  document.documentElement.setAttribute('data-theme', dk ? 'dark' : '');
+  tBtn.textContent = dk ? '☀' : '☾';
+}
+tBtn.addEventListener('click', () => { dk = !dk; localStorage.setItem('eo-dark', dk ? '1' : '0'); applyTheme(); });
+applyTheme();
+
+// ── Helpers ──────────────────────────────────────────────────────────────────
+function zClass(z) {
+  if (z > 0.5) return 'z-pos';
+  if (z < -0.5) return 'z-neg';
+  return 'z-neu';
+}
+function zFmt(z) {
+  const s = z >= 0 ? '+' : '';
+  return s + z.toFixed(2);
+}
+function esc(s) { const d = document.createElement('div'); d.textContent = s || ''; return d.innerHTML; }
+
+// ── Load data ─────────────────────────────────────────────────────────────────
+fetch('results.json')
+  .then(r => r.json())
+  .then(render)
+  .catch(e => {
+    document.querySelector('.page-subtitle').textContent = 'Failed to load results.json: ' + e.message;
+  });
+
+function render(d) {
+  // Summary line
+  document.getElementById('summaryLine').innerHTML =
+    `<strong>${(d.n_clauses || 0).toLocaleString()}</strong> clauses · ` +
+    `<strong>${d.n_languages || 0}</strong> languages · ` +
+    `<strong>${(d.n_total_embedded || 0).toLocaleString()}</strong> embeddings`;
+
+  renderFaceChart(d.face_zscores || {});
+  renderLabelTable(d.all_zscores || {});
+  renderStats(d);
+  renderKappas(d.kappas || {});
+  renderARI(d.ari || {});
+  renderLangTable(d.per_lang || {});
+}
+
+// ── Face Z-Score Chart ────────────────────────────────────────────────────────
+function renderFaceChart(fz) {
+  const entries = Object.entries(fz);
+  const COLORS = ['#6c5ce7', '#5b8fd9', '#7c6dd8', '#4834d4'];
+  const SHORT_LABELS = entries.map(([k]) => {
+    if (k === 'operators_act') return 'Act Face';
+    if (k === 'face_site') return 'Site Face';
+    if (k === 'face_resolution') return 'Res. Face';
+    if (k === 'full_27cell') return '27-Cell';
+    return k;
+  });
+  const zValues = entries.map(([, v]) => v.z);
+
+  // Legend
+  const legendEl = document.getElementById('faceLegend');
+  entries.forEach(([k, v], i) => {
+    legendEl.innerHTML += `<div class="legend-item">
+      <div class="legend-dot" style="background:${COLORS[i]}"></div>
+      <span>${esc(v.label || SHORT_LABELS[i])}</span>
+    </div>`;
+  });
+
+  const isDark = dk;
+  const gridColor = isDark ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.06)';
+  const textColor = isDark ? '#aaaaaa' : '#888888';
+
+  const ctx = document.getElementById('faceChart').getContext('2d');
+  new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels: SHORT_LABELS,
+      datasets: [{
+        data: zValues,
+        backgroundColor: COLORS,
+        borderRadius: 5,
+        borderSkipped: false,
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          callbacks: {
+            label: (ctx) => {
+              const entry = entries[ctx.dataIndex];
+              return ` z = ${entry[1].z}  (n=${entry[1].n_groups} groups)`;
+            }
+          }
+        },
+        annotation: { /* handled via threshold line below */ }
+      },
+      scales: {
+        x: {
+          grid: { display: false },
+          ticks: { color: textColor, font: { size: 11, family: 'Inter' } }
+        },
+        y: {
+          grid: { color: gridColor },
+          ticks: { color: textColor, font: { size: 11, family: 'JetBrains Mono' } },
+          title: { display: true, text: 'z-score', color: textColor, font: { size: 10 } }
+        }
+      }
+    },
+    plugins: [{
+      id: 'threshold',
+      afterDraw(chart) {
+        const { ctx, chartArea, scales } = chart;
+        const y = scales.y.getPixelForValue(1.96);
+        ctx.save();
+        ctx.setLineDash([6, 4]);
+        ctx.strokeStyle = '#e17055';
+        ctx.lineWidth = 1.5;
+        ctx.beginPath();
+        ctx.moveTo(chartArea.left, y);
+        ctx.lineTo(chartArea.right, y);
+        ctx.stroke();
+        ctx.restore();
+      }
+    }]
+  });
+}
+
+// ── Label Set Table ───────────────────────────────────────────────────────────
+const LABEL_NAMES = {
+  consensus: 'Consensus',
+  claude: 'Claude only',
+  gpt4: 'GPT-4 only',
+  full: 'Full (best-available)',
+  combined: 'Combined (~39k)',
+  ud_only: 'UD-only'
+};
+
+function renderLabelTable(az) {
+  const tbody = document.querySelector('#labelTable tbody');
+  for (const [key, quarters] of Object.entries(az)) {
+    const name = LABEL_NAMES[key] || key;
+    const q1 = quarters.q1?.z ?? '—';
+    const q2 = quarters.q2?.z ?? '—';
+    const q3 = quarters.q3?.z ?? '—';
+    tbody.innerHTML += `<tr>
+      <td>${esc(name)}</td>
+      <td class="${zClass(q1)}">${zFmt(q1)}</td>
+      <td class="${zClass(q2)}">${zFmt(q2)}</td>
+      <td class="${zClass(q3)}">${zFmt(q3)}</td>
+    </tr>`;
+  }
+}
+
+// ── Stats ────────────────────────────────────────────────────────────────────
+function renderStats(d) {
+  const grid = document.getElementById('statGrid');
+  const items = [
+    { label: 'Clauses', value: (d.n_clauses || 0).toLocaleString(), sub: 'annotated' },
+    { label: 'Languages', value: d.n_languages || 0, sub: 'typologically diverse' },
+    { label: 'Embeddings', value: (d.n_total_embedded || 0).toLocaleString(), sub: 'vector representations' },
+    { label: 'Best Face z', value: bestFaceZ(d.face_zscores), sub: 'Full 27-cell' },
+  ];
+  grid.innerHTML = items.map(i => `
+    <div class="stat-item">
+      <div class="stat-label">${esc(i.label)}</div>
+      <div class="stat-value">${esc(String(i.value))}</div>
+      <div class="stat-sub">${esc(i.sub)}</div>
+    </div>`).join('');
+}
+
+function bestFaceZ(fz) {
+  if (!fz) return '—';
+  const vals = Object.values(fz).map(v => v.z);
+  return Math.max(...vals).toFixed(2);
+}
+
+// ── Kappas ───────────────────────────────────────────────────────────────────
+function renderKappas(kappas) {
+  const list = document.getElementById('kappaList');
+  const cg = kappas.claude_vs_gpt4 || {};
+  const quarters = [
+    { label: 'Q1 (Operator)', val: cg.q1 },
+    { label: 'Q2 (Site)', val: cg.q2 },
+    { label: 'Q3 (Resolution)', val: cg.q3 },
+  ];
+  list.innerHTML = quarters.map(q => `
+    <div>
+      <div class="metric-row">
+        <span class="metric-label">${esc(q.label)}</span>
+        <span class="metric-val">κ = ${q.val != null ? q.val.toFixed(3) : '—'}</span>
+      </div>
+      <div class="metric-bar-wrap">
+        <div class="metric-bar" style="width:${q.val != null ? Math.min(q.val * 100, 100) : 0}%"></div>
+      </div>
+    </div>`).join('');
+}
+
+// ── ARI ───────────────────────────────────────────────────────────────────────
+function renderARI(ari) {
+  const list = document.getElementById('ariList');
+  const pairs = [
+    { label: 'Q1 vs Q2', val: ari.q1_vs_q2 },
+    { label: 'Q1 vs Q3', val: ari.q1_vs_q3 },
+    { label: 'Q2 vs Q3', val: ari.q2_vs_q3 },
+  ];
+  list.innerHTML = pairs.map(p => `
+    <div>
+      <div class="metric-row">
+        <span class="metric-label">${esc(p.label)}</span>
+        <span class="metric-val">${p.val != null ? p.val.toFixed(4) : '—'}</span>
+      </div>
+      <div class="metric-bar-wrap">
+        <div class="metric-bar" style="width:${p.val != null ? Math.min(Math.abs(p.val) * 200, 100) : 0}%;background:${p.val < 0.05 ? 'var(--green)' : 'var(--purple)'}"></div>
+      </div>
+    </div>`).join('');
+}
+
+// ── Per-language table ────────────────────────────────────────────────────────
+function renderLangTable(perLang) {
+  const tbody = document.querySelector('#langTable tbody');
+  const rows = Object.entries(perLang).sort((a, b) => (b[1].q1?.z || 0) - (a[1].q1?.z || 0));
+  tbody.innerHTML = rows.map(([lang, v]) => `
+    <tr>
+      <td>${esc(lang.toUpperCase())}</td>
+      <td class="${zClass(v.q1?.z)}">${v.q1?.z != null ? zFmt(v.q1.z) : '—'}</td>
+      <td class="${zClass(v.q2?.z)}">${v.q2?.z != null ? zFmt(v.q2.z) : '—'}</td>
+      <td class="${zClass(v.q3?.z)}">${v.q3?.z != null ? zFmt(v.q3.z) : '—'}</td>
+      <td class="${zClass(v.full_27cell?.z)}">${v.full_27cell?.z != null ? zFmt(v.full_27cell.z) : '—'}</td>
+    </tr>`).join('');
+}
+</script>
+</body>
+</html>
