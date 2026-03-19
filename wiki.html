@@ -109,6 +109,39 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',system-ui,sans-seri
 .rel-lv{font-size:11px;color:var(--ink3)}
 .open-btn{width:100%;height:34px;background:var(--purple);color:#fff;border:none;border-radius:var(--radius);font-size:13px;font-family:inherit;cursor:pointer;font-weight:500;letter-spacing:.01em}
 .open-btn:hover{background:#4F46E5}
+/* ── Article view ── */
+.article-view{animation:fadeIn .25s ease-out}
+@keyframes fadeIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+.back-btn{display:inline-flex;align-items:center;gap:6px;background:none;border:none;color:var(--ink2);font-size:13px;font-family:inherit;cursor:pointer;padding:4px 0;margin-bottom:16px;transition:color .12s}
+.back-btn:hover{color:var(--purple)}
+.back-btn svg{width:14px;height:14px}
+.article-meta{display:flex;align-items:center;gap:8px;margin-bottom:8px;flex-wrap:wrap}
+.article-title{font-size:28px;font-weight:600;color:var(--ink);line-height:1.2;margin-bottom:16px;letter-spacing:-.02em}
+.article-body{font-size:15px;line-height:1.75;color:var(--ink)}
+.article-body h1{font-size:24px;font-weight:600;margin:2rem 0 .8rem;color:var(--ink)}
+.article-body h2{font-size:20px;font-weight:600;margin:2rem 0 .6rem;padding-bottom:6px;border-bottom:1px solid var(--border);color:var(--ink)}
+.article-body h3{font-size:16px;font-weight:600;margin:1.5rem 0 .5rem;color:var(--ink)}
+.article-body p{margin-bottom:1rem}
+.article-body ul,.article-body ol{margin:.6rem 0 1rem 1.5rem}
+.article-body li{margin-bottom:.4rem}
+.article-body a{color:var(--purple);text-decoration:underline;text-decoration-color:rgba(99,102,241,.4);text-underline-offset:2px}
+.article-body a:hover{text-decoration-color:var(--purple)}
+.article-body blockquote{border-left:3px solid var(--purple);padding:.5rem 1rem;margin:1rem 0;background:var(--purple-bg);border-radius:0 var(--radius) var(--radius) 0;color:var(--ink2);font-style:italic}
+.article-body code{font-family:'JetBrains Mono',monospace;font-size:.85em;background:var(--bg3);padding:.1em .35em;border-radius:3px;color:var(--purple-text)}
+.article-body pre{background:var(--ink);color:#e8e2d8;padding:1rem 1.2rem;border-radius:var(--radius);overflow-x:auto;margin:1rem 0;font-family:'JetBrains Mono',monospace;font-size:.82rem;line-height:1.6}
+.article-body pre code{background:none;padding:0;color:inherit}
+.article-body hr{border:none;border-top:1px solid var(--border);margin:2rem 0}
+.article-body img{max-width:100%;border-radius:var(--radius);margin:.8rem 0}
+.article-body strong{font-weight:600}
+/* ── Wiki link modal ── */
+.wiki-modal-overlay{position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.35);z-index:200;display:flex;align-items:center;justify-content:center;animation:fadeIn .15s ease-out}
+.wiki-modal{background:var(--bg);border-radius:12px;width:90%;max-width:520px;max-height:80vh;overflow-y:auto;box-shadow:0 20px 60px rgba(0,0,0,.15);padding:24px}
+.wiki-modal-close{float:right;background:none;border:none;cursor:pointer;color:var(--ink3);font-size:20px;line-height:1}
+.wiki-modal-close:hover{color:var(--ink)}
+.wiki-modal-title{font-size:18px;font-weight:600;color:var(--ink);margin-bottom:8px;margin-right:28px}
+.wiki-modal-exc{font-size:13.5px;color:var(--ink2);line-height:1.65;margin-bottom:14px}
+.wiki-modal-go{display:inline-flex;align-items:center;gap:6px;background:var(--purple);color:#fff;border:none;border-radius:var(--radius);padding:8px 16px;font-size:13px;font-family:inherit;cursor:pointer;font-weight:500}
+.wiki-modal-go:hover{background:#4F46E5}
 /* ── Sidebar paths ── */
 .reading-paths{margin-bottom:28px}
 .rp-title{font-size:11px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--ink3);margin-bottom:10px}
@@ -130,10 +163,10 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',system-ui,sans-seri
     <span class="logo-name">Emergent Ontology</span>
   </a>
   <nav class="nav">
-    <a href="#" class="on">Wiki</a>
-    <a href="#">Blog</a>
-    <a href="#">Experiments</a>
-    <a href="#">Documents</a>
+    <a href="wiki.html" class="on">Wiki</a>
+    <a href="index.html#blog">Blog</a>
+    <a href="index.html#experiments">Experiments</a>
+    <a href="docs/TheCompleteEOTechnicalHandbook.html">Documents</a>
   </nav>
 </header>
 <div class="page">
@@ -340,21 +373,29 @@ function showArt(id){
   const a=arts.find(x=>x.id===id);
   if(!a) return;
   selectedId=id;
+  closePanel();
   const cl=clusterOf(a);
-  const exc=html2txt(latest(a),400);
-  const rel=related(a);
+  const content=latest(a);
   const lv=(a.meta.tags||[]).filter(t=>t);
-  const panel=document.getElementById('panel');
-  panel.classList.add('open');
-  document.getElementById('panel-inner').innerHTML=`
-    <button class="panel-close" onclick="closePanel()">×</button>
-    <div class="panel-lv">
+  const rel=related(a);
+  const ago=timeAgo(a.meta.updated_at);
+  // Build article view
+  let html=`<div class="article-view">
+    <button class="back-btn" onclick="goBack()">
+      <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M10 3L5 8l5 5"/></svg>
+      Back to articles
+    </button>
+    <div class="article-meta">
       ${lv.map(t=>`<span class="ctag purple">${t}</span>`).join(' ')}
       <span class="ctag" style="background:${cl.bg};color:${cl.text};border-color:${cl.color}20">${cl.label}</span>
+      ${ago?`<span style="font-size:12px;color:var(--ink3);margin-left:4px">${ago}</span>`:''}
     </div>
-    <h2 class="panel-title">${a.meta.title}</h2>
-    <p class="panel-exc">${exc||'No preview available.'}</p>
-    ${rel.length?`
+    <h1 class="article-title">${a.meta.title}</h1>
+    ${content?`<div class="article-body">${rewriteWikiLinks(content)}</div>`
+      :`<div class="empty">This article has no content yet.</div>`}`;
+  // Related articles at bottom
+  if(rel.length){
+    html+=`<div style="margin-top:32px;padding-top:20px;border-top:1px solid var(--border)">
       <div class="panel-sh">Related articles</div>
       <ul class="rel-list">${rel.map(r=>{
         const rc=clusterOf(r);
@@ -366,14 +407,20 @@ function showArt(id){
           <span class="rel-t">${r.meta.title}</span>
           <span class="rel-lv">${rl}</span>
         </li>`;
-      }).join('')}</ul>`:''}
-    <button class="open-btn" onclick="alert('Full article opens here')">Open article →</button>`;
-  renderContent();
+      }).join('')}</ul>
+    </div>`;
+  }
+  html+=`</div>`;
+  document.getElementById('content-area').innerHTML=html;
+  // Update hash
+  const slug=(a.meta.slug||a.meta.title||'').toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'');
+  if(slug) window.location.hash=slug;
+  // Bind wiki link clicks for modals
+  bindWikiLinks();
+  window.scrollTo(0,0);
 }
 function closePanel(){
-  selectedId=null;
   document.getElementById('panel').classList.remove('open');
-  renderContent();
 }
 function togglePath(id){
   activePath=activePath===id?null:id;
@@ -395,6 +442,78 @@ document.getElementById('srch').addEventListener('input',e=>{
   q=e.target.value.trim();
   renderMeta();renderContent();
 });
+function goBack(){
+  selectedId=null;
+  window.location.hash='';
+  renderContent();
+  window.scrollTo(0,0);
+}
+function rewriteWikiLinks(html){
+  // Rewrite internal wiki-style links to use data-wiki-link for modal behavior
+  return html.replace(
+    /href="https?:\/\/[^"]*\/wiki\/([^"#]+)(#[^"]*)?"/g,
+    (match,path,hash)=>{
+      const slug=path.replace(/\//g,'-').replace(/^-|-$/g,'');
+      return `href="#" data-wiki-link="${slug}"`;
+    }
+  );
+}
+function bindWikiLinks(){
+  document.querySelectorAll('[data-wiki-link]').forEach(el=>{
+    el.addEventListener('click',e=>{
+      e.preventDefault();
+      const slug=el.dataset.wikiLink;
+      // Find matching article
+      const match=arts.find(a=>{
+        const s=(a.meta.slug||a.meta.title||'').toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'');
+        return s===slug||a.meta.title.toLowerCase().includes(slug.replace(/-/g,' '));
+      });
+      if(match){
+        showWikiModal(match);
+      }
+    });
+  });
+}
+function showWikiModal(a){
+  const cl=clusterOf(a);
+  const exc=html2txt(latest(a),300);
+  const lv=(a.meta.tags||[]).filter(t=>t);
+  const overlay=document.createElement('div');
+  overlay.className='wiki-modal-overlay';
+  overlay.innerHTML=`<div class="wiki-modal">
+    <button class="wiki-modal-close" onclick="this.closest('.wiki-modal-overlay').remove()">×</button>
+    <div style="margin-bottom:8px">
+      ${lv.map(t=>`<span class="ctag purple">${t}</span>`).join(' ')}
+      <span class="ctag" style="background:${cl.bg};color:${cl.text};border-color:${cl.color}20">${cl.label}</span>
+    </div>
+    <div class="wiki-modal-title">${a.meta.title}</div>
+    <div class="wiki-modal-exc">${exc||'No preview available.'}</div>
+    <button class="wiki-modal-go" data-id="${a.id}">Open article →</button>
+  </div>`;
+  overlay.addEventListener('click',e=>{
+    if(e.target===overlay) overlay.remove();
+  });
+  overlay.querySelector('.wiki-modal-go').addEventListener('click',()=>{
+    overlay.remove();
+    showArt(a.id);
+  });
+  document.body.appendChild(overlay);
+}
+// Handle hash navigation on load
+function navigateFromHash(){
+  const hash=window.location.hash.replace('#','');
+  if(!hash||!arts.length) return;
+  const match=arts.find(a=>{
+    const s=(a.meta.slug||a.meta.title||'').toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'');
+    return s===hash||a.meta.title.toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'')===hash;
+  });
+  if(match) showArt(match.id);
+}
+window.addEventListener('hashchange',()=>{
+  const hash=window.location.hash.replace('#','');
+  if(!hash){goBack();return;}
+  navigateFromHash();
+});
 fetch(API).then(r=>r.json()).then(data=>{
   arts=data.map(row=>{
     const v=typeof row.values==='string'?JSON.parse(row.values):row.values;
@@ -405,6 +524,7 @@ fetch(API).then(r=>r.json()).then(data=>{
   renderMeta();
   renderPathBar();
   renderContent();
+  navigateFromHash();
 }).catch(err=>{
   document.getElementById('content-area').innerHTML=`<div class="ld">Failed to load wiki data.<br><small>${err.message}</small></div>`;
 });
