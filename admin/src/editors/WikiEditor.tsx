@@ -1,11 +1,11 @@
 /**
  * WikiEditor — rich text editor for wiki pages and blog posts.
  *
- * Data flow:
+ * Data flow (current-state-first):
  *   Load  →  GET /eowikicurrent (record_id = contentId) → current state
  *            Fall back to static snapshot if no Xano record exists yet.
- *   Save  →  POST /eowiki (append INS rev event)
- *            UPSERT /eowikicurrent (update current state snapshot)
+ *   Save  →  UPSERT /eowikicurrent (update current state — authoritative)
+ *            POST /eowiki (fire-and-forget event log for change tracking)
  */
 
 import React, { useEffect, useRef, useState } from 'react';
@@ -13,7 +13,7 @@ import { useAuth } from '../auth/AuthContext';
 import { useSettings } from '../settings/SettingsContext';
 import { useXRay } from '../components/XRayOverlay';
 import {
-  addRecord,
+  logEvent,
   upsertCurrentRecord,
   eventToPayload,
   type XanoCurrentRecord,
@@ -178,11 +178,7 @@ export default function WikiEditor({ contentId, siteBase }: Props) {
     registerEvent({ id: xid, op: event.op, target: event.target, operand: event.operand, ts: event.ctx.ts, agent: event.ctx.agent, status: 'pending' });
 
     try {
-      // 1. Append to event log
-      await addRecord(eventToPayload(event));
-      registerEvent({ id: xid, op: event.op, target: event.target, operand: event.operand, ts: event.ctx.ts, agent: event.ctx.agent, status: 'sent' });
-
-      // 2. Build updated state
+      // 1. Build updated state
       const newRev: WikiRevision = { rev_id: revId, format: 'html' as WikiRevision['format'], content: editorContent, summary: summary || 'Edit', ts };
       const updatedState: WikiState = {
         meta: state?.meta ?? {},
@@ -190,9 +186,13 @@ export default function WikiEditor({ contentId, siteBase }: Props) {
         current_revision: newRev,
       };
 
-      // 3. Upsert current-state record
+      // 2. Upsert current-state record (authoritative)
       const updated = await upsertCurrentRecord(contentId, updatedState, agent, currentRecordRef.current);
       currentRecordRef.current = updated;
+
+      // 3. Fire-and-forget: log event for change tracking
+      logEvent(eventToPayload(event));
+      registerEvent({ id: xid, op: event.op, target: event.target, operand: event.operand, ts: event.ctx.ts, agent: event.ctx.agent, status: 'sent' });
 
       setState(updatedState);
       savedContentRef.current = editorContent;

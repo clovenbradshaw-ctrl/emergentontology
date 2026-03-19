@@ -1,9 +1,17 @@
 /**
  * xano/client.ts — Thin Xano API wrapper for the EOwiki.
  *
- * Two endpoints:
- *   Public:  GET /get_public_eowiki    → public records (no auth)
- *   Private: GET /<encrypted-path>     → all records (unlocked by password)
+ * Architecture (current-state-first):
+ *   Primary:   eowikicurrent  — one row per content entity (the source of truth)
+ *   Secondary: eowiki         — append-only event log (change tracking only)
+ *
+ * Reads and writes go through eowikicurrent first.  The event log is written
+ * fire-and-forget via logEvent(); if events were deleted the current state
+ * still exists and is fully self-contained.
+ *
+ * Endpoints:
+ *   Public:  GET /get_public_eowiki    → event log records (no auth)
+ *   Private: GET /<encrypted-path>     → all current-state records (unlocked by password)
  *
  * The private endpoint path is AES-256-GCM encrypted in the source using the
  * admin password as key.  On login the password decrypts the path; the
@@ -152,7 +160,11 @@ export async function fetchAllRecords(): Promise<XanoRecord[]> {
   return (await resp.json()) as XanoRecord[];
 }
 
-/** Append one EO event record to the EOwiki table. */
+/**
+ * Append one EO event record to the EOwiki event log table.
+ * The event log is used for change tracking only — the current-state table
+ * (eowikicurrent) is the authoritative source of truth.
+ */
 export async function addRecord(payload: {
   op: string;
   subject: string;
@@ -171,6 +183,18 @@ export async function addRecord(payload: {
     throw new Error(body.message ?? `Xano write failed: HTTP ${resp.status}`);
   }
   return (await resp.json()) as XanoRecord;
+}
+
+/**
+ * Fire-and-forget: log an event to the change-tracking event log.
+ * Never throws — failures are silently logged to the console.
+ * The event log is secondary to eowikicurrent; if this fails the
+ * current-state snapshot is still the authoritative record.
+ */
+export function logEvent(payload: Parameters<typeof addRecord>[0]): void {
+  addRecord(payload).catch((err) => {
+    console.warn('[logEvent] Event log write failed (non-fatal):', err);
+  });
 }
 
 // ── eowikicurrent — current-state table ───────────────────────────────────────

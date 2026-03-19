@@ -1,7 +1,12 @@
 /**
- * api.js — Data loading layer.
+ * api.js — Data loading layer (current-state-first).
  *
- * Fetches content from two sources in order:
+ * The site loads entirely from the current-state table (eowikicurrent).
+ * The event log is NOT used on the public site — it exists only for
+ * admin change tracking.  If the event log were deleted, the site
+ * continues to work normally.
+ *
+ * Sources (in priority order):
  *   1. Static JSON files (generated at build time by the projector)
  *   2. Xano current-state API (get_eowikicurrent — paginated list)
  *

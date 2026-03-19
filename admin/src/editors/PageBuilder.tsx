@@ -32,7 +32,7 @@ import { useAuth } from '../auth/AuthContext';
 import { useSettings } from '../settings/SettingsContext';
 import { useXRay } from '../components/XRayOverlay';
 import {
-  addRecord,
+  logEvent,
   upsertCurrentRecord,
   eventToPayload,
   type XanoCurrentRecord,
@@ -225,7 +225,14 @@ export default function PageBuilder({ contentId, siteBase }: Props) {
       // Deleted blocks
       const deletedBlockIds = (saved ? saved.block_order : []).filter(id => !currentBlockIds.has(id));
 
-      // Emit INS events for new blocks
+      // 1. Upsert current state snapshot (authoritative)
+      const updated = await upsertCurrentRecord(contentId, state, agent, currentRecordRef.current);
+      currentRecordRef.current = updated;
+
+      savedStateRef.current = state;
+      setIsDirty(false);
+
+      // 2. Fire-and-forget: log events for change tracking
       for (const blockId of newBlockIds) {
         const block = currentBlockMap.get(blockId);
         if (!block) continue;
@@ -233,21 +240,17 @@ export default function PageBuilder({ contentId, siteBase }: Props) {
         const afterId = idx === 0 ? null : state.block_order[idx - 1];
         const event = insBlock(contentId, { ...block, after: afterId }, agent);
         const xid = `ins-${blockId}`;
-        registerEvent({ id: xid, op: event.op, target: event.target, operand: event.operand, ts: event.ctx.ts, agent: event.ctx.agent, status: 'pending' });
-        await addRecord(eventToPayload(event));
+        logEvent(eventToPayload(event));
         registerEvent({ id: xid, op: event.op, target: event.target, operand: event.operand, ts: event.ctx.ts, agent: event.ctx.agent, status: 'sent' });
       }
 
-      // Emit NUL events for deleted blocks
       for (const blockId of deletedBlockIds) {
         const event = nulBlock(contentId, blockId, agent);
         const xid = `nul-${blockId}`;
-        registerEvent({ id: xid, op: event.op, target: event.target, operand: event.operand, ts: event.ctx.ts, agent: event.ctx.agent, status: 'pending' });
-        await addRecord(eventToPayload(event));
+        logEvent(eventToPayload(event));
         registerEvent({ id: xid, op: event.op, target: event.target, operand: event.operand, ts: event.ctx.ts, agent: event.ctx.agent, status: 'sent' });
       }
 
-      // Emit ALT events for modified or reordered existing blocks
       for (const blockId of state.block_order) {
         if (newBlockIds.includes(blockId)) continue;
         const cb = currentBlockMap.get(blockId);
@@ -267,18 +270,10 @@ export default function PageBuilder({ contentId, siteBase }: Props) {
             : [];
           const event = altBlock(contentId, blockId, patch, agent, positionChanged ? currentAfter : undefined);
           const xid = `alt-${blockId}-${Date.now()}`;
-          registerEvent({ id: xid, op: event.op, target: event.target, operand: event.operand, ts: event.ctx.ts, agent: event.ctx.agent, status: 'pending' });
-          await addRecord(eventToPayload(event));
+          logEvent(eventToPayload(event));
           registerEvent({ id: xid, op: event.op, target: event.target, operand: event.operand, ts: event.ctx.ts, agent: event.ctx.agent, status: 'sent' });
         }
       }
-
-      // Upsert current state snapshot
-      const updated = await upsertCurrentRecord(contentId, state, agent, currentRecordRef.current);
-      currentRecordRef.current = updated;
-
-      savedStateRef.current = state;
-      setIsDirty(false);
     } catch (err) {
       const msg = err instanceof Error ? err.message : String(err);
       setError(`Save failed: ${msg}`);

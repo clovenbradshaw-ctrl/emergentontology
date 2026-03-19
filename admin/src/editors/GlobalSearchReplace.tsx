@@ -10,7 +10,7 @@ import React, { useState, useCallback, useRef } from 'react';
 import { useAuth } from '../auth/AuthContext';
 import { useSettings } from '../settings/SettingsContext';
 import {
-  addRecord,
+  logEvent,
   upsertCurrentRecord,
   eventToPayload,
   type XanoCurrentRecord,
@@ -423,13 +423,13 @@ export default function GlobalSearchReplace({ siteBase }: Props) {
         meta.updated_at = new Date().toISOString();
         snapshot.meta = meta;
 
-        // 1. Append all EO events to the event log
-        for (const event of events) {
-          await addRecord(eventToPayload(event));
-        }
-
-        // 2. Upsert the updated current-state snapshot
+        // 1. Upsert the updated current-state snapshot (authoritative)
         await upsertCurrentRecord(recordId, snapshot, agent, rec);
+
+        // 2. Fire-and-forget: log events for change tracking
+        for (const event of events) {
+          logEvent(eventToPayload(event));
+        }
 
         for (const match of recordMatches) {
           replaceResults.push({ recordId, location: match.location, success: true });

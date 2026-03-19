@@ -28,7 +28,7 @@ import React, { useState, useCallback, useRef } from 'react';
 import { useAuth } from '../auth/AuthContext';
 import { useSettings } from '../settings/SettingsContext';
 import {
-  addRecord,
+  logEvent,
   upsertCurrentRecord,
   eventToPayload,
   type XanoCurrentRecord,
@@ -622,8 +622,11 @@ export default function BatchPost({ siteBase }: Props) {
             summary,
             ts,
           }, agent);
-          await addRecord(eventToPayload(event));
+          // 1. Upsert current-state snapshot (authoritative)
           const result = await upsertCurrentRecord(group.record_id, snapshot, agent, group.record);
+
+          // 2. Fire-and-forget: log event for change tracking
+          logEvent(eventToPayload(event));
 
           allResults.push({
             index: gi,
