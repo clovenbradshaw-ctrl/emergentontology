@@ -4,91 +4,134 @@
 
 A system allowing outside users to submit "pull requests" on articles (wiki, blog), which an admin can review, edit, and approve — with full provenance and edit history visible throughout.
 
-The design fits naturally into the existing EO event-sourcing architecture: PRs are a new content type (`proposal`) backed by the same `eowiki` event log and `eowikicurrent` state table, using the existing EO operators (INS, SIG, ALT, SYN, NUL).
+Suggestions live in a **separate Xano table** (`eowiki_suggestions`) — completely sandboxed from the canonical content in `eowikicurrent` and `eowiki`. Only when an admin explicitly merges a suggestion does it produce events in the real event log and update `eowikicurrent`.
 
 ---
 
 ## 1. Data Model
 
-### 1.1 New content type: `proposal`
+### 1.1 Storage: `eowiki_suggestions` table (Xano)
 
-A proposal is a first-class content entity stored in `eowikicurrent` with `record_id = "proposal:<uuid>"`.
+Suggestions use their own append-only event log with the same column schema as `eowiki`:
 
-```typescript
-interface Proposal {
-  proposal_id: string;           // "pr_" + nanoid
-  target_content_id: string;     // e.g. "wiki:operators", "blog:first-post"
-  target_revision_id: string;    // the revision the PR was branched from (base)
+| Column | Type | Description |
+|--------|------|-------------|
+| `created_at` | timestamp | Auto-set by Xano |
+| `op` | text | EO operator (`INS`, `SIG`, `ALT`, `NUL`) |
+| `subject` | text | Target path, e.g. `suggestion:<id>` or `suggestion:<id>/rev:r_N` |
+| `predicate` | text | Always `eo.op` |
+| `value` | text | JSON-stringified operand |
+| `context` | json | `{agent, ts, agent_name, agent_contact?, ip?, ...}` |
 
-  // Submitter identity
-  agent_name: string;            // display name — defaults to "anonymous"
-  agent_contact?: string;        // optional email/handle for follow-up
+**Endpoints (already created):**
+- `POST /eo_wiki_suggestions` — append a suggestion event (public, no auth)
+- `GET /eowiki_suggestions` — list all suggestion events (public, used by admin)
+- `GET /eowiki_suggestions/{id}` — get single event by ID
 
-  // The proposed content
-  proposed_revision: {
-    format: 'markdown' | 'html';
-    content: string;             // full article body (the proposed new state)
-    summary: string;             // submitter's description of the change
-  };
+### 1.2 Suggestion lifecycle as events
 
-  // Lifecycle
-  status: 'pending' | 'in_review' | 'approved' | 'merged' | 'rejected' | 'withdrawn';
-  submitted_at: string;          // ISO timestamp
-  reviewed_at?: string;
-  merged_at?: string;
+A suggestion's full history is a sequence of events in `eowiki_suggestions`, replayed to derive current state — same pattern as the main content system.
 
-  // Admin review
-  admin_notes?: string;          // private admin notes
-  admin_edited_revision?: {      // if admin edits the proposal before merging
-    format: 'markdown' | 'html';
-    content: string;
-    summary: string;
-  };
-
-  // Edit history on the PR itself
-  revisions: ProposalRevision[];
-}
-
-interface ProposalRevision {
-  rev_id: string;
-  agent: string;                 // who made this edit (submitter name or admin)
-  content: string;
-  summary: string;
-  ts: string;
-}
+**Initial submission** (public, no auth):
+```
+INS  suggestion:sg_abc123/rev:r_1
+     operand: {
+       target_content_id: "wiki:operators",
+       target_revision_id: "r_10",        // base revision (what they forked from)
+       format: "markdown",
+       content: "# Operators\n\nThe nine...",
+       summary: "Added SUP operator example"
+     }
+     context: {
+       agent: "sg_abc123",                // suggestion ID as agent
+       agent_name: "alice",               // or "anonymous" if not provided
+       agent_contact: "alice@example.com", // optional
+       ts: "2026-03-19T10:00:00Z",
+       ip: "..."                          // for rate limiting / abuse tracking
+     }
 ```
 
-### 1.2 Event shapes
+**Submitter revises their suggestion** (with token):
+```
+INS  suggestion:sg_abc123/rev:r_2
+     operand: { format, content, summary: "Fixed typo I introduced" }
+     context: { agent_name: "alice", ts: "..." }
+```
 
-All proposal lifecycle events use standard EO operators:
+**Admin changes status** (auth required):
+```
+SIG  suggestion:sg_abc123
+     operand: { set: { status: "in_review" } }
+     context: { agent: "admin", ts: "..." }
+```
 
-| Action | Op | Target | Operand |
-|--------|----|--------|---------|
-| Submit PR | `INS` | `proposal:<id>/rev:r_1` | `{format, content, summary, agent_name, agent_contact?, target_content_id, target_revision_id}` |
-| Submitter edits PR | `ALT` | `proposal:<id>/rev:r_N` | `{patch: [...], summary}` — or new `INS` revision |
-| Admin starts review | `SIG` | `proposal:<id>` | `{set: {status: 'in_review'}}` |
-| Admin edits PR | `ALT` | `proposal:<id>/rev:r_N` | `{patch: [...], summary: "admin edit: ..."}` |
-| Admin approves | `SIG` | `proposal:<id>` | `{set: {status: 'approved'}}` |
-| Admin merges | `SYN` | `<target_content_id>` | `{mode: 'proposal_merge', proposal_id, chosen: rev_id}` |
-| Admin rejects | `SIG` | `proposal:<id>` | `{set: {status: 'rejected', admin_notes: "..."}}` |
-| Submitter withdraws | `SIG` | `proposal:<id>` | `{set: {status: 'withdrawn'}}` |
-| Tombstone | `NUL` | `proposal:<id>` | `{reason: 'spam'/'policy_violation'}` |
+**Admin edits the suggestion content** (auth required):
+```
+INS  suggestion:sg_abc123/rev:r_3
+     operand: { format, content, summary: "admin: tightened intro" }
+     context: { agent: "admin", ts: "..." }
+```
+
+**Admin rejects**:
+```
+SIG  suggestion:sg_abc123
+     operand: { set: { status: "rejected", reason: "Out of scope" } }
+     context: { agent: "admin", ts: "..." }
+```
+
+**Admin merges** — this is the bridge event. Two things happen:
+1. In `eowiki_suggestions`:
+   ```
+   SIG  suggestion:sg_abc123
+        operand: { set: { status: "merged", merged_as: "r_15" } }
+        context: { agent: "admin", ts: "..." }
+   ```
+2. In the real `eowiki` + `eowikicurrent` (via existing admin write path):
+   ```
+   INS  wiki:operators/rev:r_15
+        operand: {
+          format: "markdown",
+          content: "<final merged content>",
+          summary: "Merged suggestion sg_abc123 by alice: Added SUP operator example"
+        }
+        context: {
+          agent: "admin",
+          ts: "...",
+          source_suggestion: "sg_abc123",
+          source_agent: "alice"
+        }
+   ```
+
+**Tombstone** (spam):
+```
+NUL  suggestion:sg_abc123
+     operand: { reason: "spam" }
+     context: { agent: "admin", ts: "..." }
+```
 
 ### 1.3 Provenance chain
 
-Every event carries `ctx.agent` and `ctx.ts`. The provenance chain is:
+The full audit trail for a merged suggestion:
 
 ```
-proposal:pr_abc123 created by "alice" at 2026-03-19T10:00:00Z
-  ├─ rev:r_1  INS  agent="alice"      "Initial submission"
-  ├─ rev:r_2  INS  agent="alice"      "Fixed typo in section 3"
-  ├─ SIG      agent="admin"           status → in_review
-  ├─ rev:r_3  INS  agent="admin"      "Tightened intro paragraph"
-  ├─ SIG      agent="admin"           status → approved
-  └─ SYN on wiki:operators            merged rev:r_3, source=proposal:pr_abc123
+eowiki_suggestions table:
+  suggestion:sg_abc123
+    ├─ rev:r_1  INS  agent_name="alice"    "Added SUP operator example"
+    ├─ rev:r_2  INS  agent_name="alice"    "Fixed typo I introduced"
+    ├─ SIG      agent="admin"              status → in_review
+    ├─ rev:r_3  INS  agent="admin"         "Tightened intro paragraph"
+    ├─ SIG      agent="admin"              status → approved
+    └─ SIG      agent="admin"              status → merged, merged_as → r_15
+
+eowiki table (canonical event log):
+  wiki:operators/rev:r_15
+    └─ INS  agent="admin"  source_suggestion="sg_abc123"  source_agent="alice"
+           "Merged suggestion sg_abc123 by alice: Added SUP operator example"
 ```
 
-This is fully visible in the existing X-Ray transparency mode and the history panel.
+Bidirectional links:
+- Article revision `r_15` → `source_suggestion: "sg_abc123"` (in event ctx)
+- Suggestion `sg_abc123` → `merged_as: "r_15"` (in SIG operand)
 
 ---
 
@@ -96,7 +139,7 @@ This is fully visible in the existing X-Ray transparency mode and the history pa
 
 ### 2.1 Public submission form
 
-A new route on the public site: `/propose/<content-type>/<slug>`
+New route on the public site: `/suggest/<slug>`
 
 The form collects:
 
@@ -107,168 +150,134 @@ The form collects:
 | Proposed content (markdown editor) | Yes | Pre-filled with current article content |
 | Change summary | Yes | — |
 
-The form is accessible from a "Suggest Edit" button on every published wiki/blog article.
+Accessible from a **"Suggest Edit"** button on every published wiki/blog article.
 
-### 2.2 Submission endpoint
+### 2.2 Submission mechanics
 
-A new **public Xano API endpoint** (no auth): `POST /submit_proposal`
-
-```json
-{
-  "target_content_id": "wiki:operators",
-  "target_revision_id": "r_10",
-  "agent_name": "alice",
-  "agent_contact": "alice@example.com",
-  "proposed_content": "# Operators\n\nThe nine operators...",
-  "format": "markdown",
-  "summary": "Added missing example for SUP operator"
-}
-```
-
-Server-side:
-1. Validates `target_content_id` exists and is published
-2. Rate-limits by IP (e.g., 5 submissions/hour)
-3. Creates `proposal:<id>` in `eowikicurrent` with `status: 'pending'`, `visibility: 'private'`
-4. Logs INS event to `eowiki` event log
-5. Returns `{proposal_id, status: 'pending', submitted_at}`
+1. Public site fetches current article content via existing public API
+2. User edits in a simple markdown textarea (no TipTap — keep it lightweight)
+3. On submit: `POST /eo_wiki_suggestions` with the INS event
+4. Returns the suggestion ID → user sees confirmation with status link
+5. Rate limiting: Xano function stack can check recent submissions by IP
 
 ### 2.3 Submission tracking
 
-After submission, the user gets a **proposal ID** (e.g., `pr_abc123`). They can check status at `/proposal/<id>` (public, read-only view showing status and any admin notes marked as public).
+`/suggestion/<id>` — public read-only status page:
+- Fetches events from `GET /eowiki_suggestions` filtered by `subject LIKE 'suggestion:<id>%'`
+- Replays events client-side to show: status, revision history, admin notes (public ones)
+- If merged: link to the resulting article revision
 
-Optionally: if they provided an email, they receive a **token link** allowing them to edit their proposal while it's still `pending` or `in_review`.
+### 2.4 Edit token (optional)
+
+On submission, generate a random token stored in the suggestion context. The confirmation page shows a URL like `/suggestion/<id>?token=<tok>`. With a valid token, the submitter can POST additional revision events to their own suggestion while status is `pending` or `in_review`.
 
 ---
 
 ## 3. Admin Review Flow (Auth Required)
 
-### 3.1 Proposal queue
+### 3.1 Suggestion queue
 
-New admin panel section: **Proposals** (accessible from the admin sidebar)
+New admin panel section: **Suggestions** (in admin sidebar)
 
-- Lists all proposals grouped by status: `pending` → `in_review` → `approved`
-- Each card shows: target article, submitter name, submission date, change summary
-- Sortable/filterable by target article, date, status
+- Fetches all events from `GET /eowiki_suggestions`
+- Replays client-side to derive per-suggestion state (same replay pattern as existing content)
+- Groups by status: `pending` → `in_review` → `approved` / `rejected` / `merged`
+- Each card shows: target article, agent name, submitted date, summary, revision count
 
 ### 3.2 Review interface
 
-When admin opens a proposal:
+When admin opens a suggestion:
 
-1. **Side-by-side diff view**: Current article content (left) vs. proposed content (right), with inline diffs highlighted
-2. **Proposal metadata**: submitter name, contact, submission date, target article link
-3. **Edit history timeline**: All revisions of the proposal, showing who edited what and when
-4. **Action buttons**:
-   - **Start Review** → sets status to `in_review`
-   - **Edit Proposal** → admin can modify the proposed content (creates a new revision attributed to admin)
-   - **Approve** → sets status to `approved`
-   - **Merge** → creates a SYN event on the target article, incorporating the proposal as a new revision
-   - **Reject** → sets status to `rejected` with required reason
-   - **Request Changes** → adds admin notes visible to submitter (if they have a token)
+1. **Side-by-side diff**: Current article (left) vs. proposed content (right)
+   - Uses a simple line-diff algorithm on the markdown source
+   - Additions in green, deletions in red
+2. **Metadata panel**: agent name, contact, submission date, target article link, base revision
+3. **Revision timeline**: All revisions of the suggestion, each showing author + timestamp + summary + diff from previous
+4. **Action bar**:
+   - **Start Review** → SIG status to `in_review`
+   - **Edit** → Admin modifies content, creates new revision (INS) attributed to admin
+   - **Approve** → SIG status to `approved`
+   - **Merge** → Writes to real `eowiki` + `eowikicurrent`, SIG status to `merged`
+   - **Reject** → SIG status to `rejected` with reason
+   - **Delete (spam)** → NUL tombstone
 
 ### 3.3 Merge mechanics
 
 When admin clicks **Merge**:
 
-1. A new `WikiRevision` is created on the target article via `INS` on `<target>/rev:r_N`
-   - `summary` includes: `"Merged from proposal pr_abc123 by alice"`
-   - `ctx.agent` = admin
-   - The operand includes `source_proposal: "proposal:pr_abc123"` for traceability
-2. A `SYN` event is logged: `{mode: 'proposal_merge', proposal_id: 'pr_abc123', chosen: 'r_3'}`
-3. The proposal status is updated to `merged` via `SIG`
-4. The merged revision becomes the current revision of the target article
-
-This creates a bidirectional provenance link:
-- **Article history** shows: "Revision r_11 — Merged from proposal pr_abc123 by alice"
-- **Proposal history** shows: "Merged into wiki:operators as revision r_11"
+1. Take the latest revision content from the suggestion
+2. Create a new `WikiRevision` on the target article using the existing `insRevision()` + `upsertCurrentRecord()` path
+3. The revision's `summary` includes attribution: `"Merged suggestion sg_abc123 by alice: <original summary>"`
+4. The event `ctx` includes `source_suggestion` and `source_agent` for provenance
+5. SIG the suggestion as `merged` with `merged_as` pointing to the new revision ID
+6. All writes go through the existing admin auth — the suggestion table is never touched by the main content pipeline
 
 ---
 
-## 4. Edit History & Provenance Visibility
+## 4. Why a Separate Table
 
-### 4.1 On articles (public)
+| Concern | `eowikicurrent` approach | `eowiki_suggestions` approach |
+|---------|--------------------------|-------------------------------|
+| **Trust boundary** | Untrusted data mixed with canonical content | Clean separation — suggestions can't corrupt content |
+| **Public write access** | Would need to expose `eowikicurrent` POST to public | Dedicated public endpoint, isolated table |
+| **Query performance** | Suggestions pollute content queries | Admin fetches suggestions separately |
+| **Cleanup** | Hard to purge spam without affecting content | Can truncate/purge suggestions table independently |
+| **Event replay** | Suggestion events mixed into content replay | Separate replay — content projector ignores suggestions |
+| **Merge = explicit bridge** | Implicit (already in the table) | Explicit act: admin writes to real tables on merge |
+
+The separate table acts like a staging area / inbox. The merge is an explicit, audited bridge between the two worlds.
+
+---
+
+## 5. Edit History & Provenance Visibility
+
+### 5.1 On articles (public)
 
 The existing article history/X-Ray view is extended:
-- Merged revisions show a badge: `📥 Community contribution by alice`
-- Clicking the badge links to the proposal detail view
-- The revision summary preserves the original submitter's description + admin notes
+- Merged revisions show a badge: "Community contribution by alice"
+- The `source_suggestion` in the event ctx links back to the suggestion
+- Clicking through shows the full suggestion lifecycle
 
-### 4.2 On proposals (public status page)
+### 5.2 On suggestions (public status page)
 
-`/proposal/<id>` shows:
+`/suggestion/<id>` shows:
 - Current status with timestamp
-- Original submission content
-- All revisions (numbered), each showing:
-  - Author (submitter name or "admin")
-  - Timestamp
-  - Change summary
-  - Diff from previous revision
-- Admin notes (if any are marked public)
-- If merged: link to the resulting article revision
+- All revisions (numbered), each showing author, timestamp, summary
+- If merged: link to the resulting article + revision
+- If rejected: admin's reason
 
-### 4.3 On proposals (admin view)
+### 5.3 On suggestions (admin view)
 
-Full audit trail including:
-- All events (INS, SIG, ALT, SYN) with timestamps and agents
-- IP address of submission (stored in ctx, visible only to admin)
+Full audit trail:
+- All events (INS, SIG, ALT, NUL) with timestamps and agents
+- IP of submission (in context, admin-only)
 - Private admin notes
 - Diff between any two revisions
-
----
-
-## 5. Architecture Decisions
-
-### 5.1 Why proposals are first-class content entities
-
-- Reuses the entire existing infrastructure: event log, replay, projector, X-Ray
-- No new database tables needed — just new records in `eowikicurrent` + events in `eowiki`
-- The projector can render proposal status pages as static JSON just like articles
-- Proposals are naturally included in the admin editor's content management
-
-### 5.2 Anonymous submission with optional identity
-
-- `agent_name` defaults to `"anonymous"` — zero friction for drive-by corrections
-- Named submissions build reputation over time (admin can see submission history by agent name)
-- No account system needed — identity is a self-declared string, not authenticated
-- Contact info is optional and stored only in the proposal's private context (not publicly visible)
-
-### 5.3 Rate limiting and anti-abuse
-
-- IP-based rate limiting on the Xano endpoint (configurable, default 5/hour)
-- Proposals are `visibility: 'private'` by default — never shown on the public site until merged
-- Admin can NUL-tombstone spam proposals
-- Optional: simple CAPTCHA or proof-of-work challenge on the submission form
-
-### 5.4 No real-time collaboration
-
-- Proposals are async: submitter creates, admin reviews later
-- No WebSocket/live-sync needed for proposals
-- The existing 5-minute build cycle handles merged content publication
+- Link to target article's current content for comparison
 
 ---
 
 ## 6. New Components & Routes
 
 ### Public site (`/site/js/`)
-- `propose.js` — Submission form with markdown editor, pre-filled from current article
-- `proposal-status.js` — Read-only proposal status page
-- Route: `/propose/<type>/<slug>` → submission form
-- Route: `/proposal/<id>` → status page
-- "Suggest Edit" button added to wiki/blog article pages
+- `suggest.js` — Submission form with markdown textarea, pre-filled from current article
+- `suggestion-status.js` — Read-only suggestion status/history page
+- Route: `/suggest/<slug>` → submission form
+- Route: `/suggestion/<id>` → status page
+- "Suggest Edit" button on wiki/blog article header
 
 ### Admin (`/admin/src/`)
-- `editors/ProposalQueue.tsx` — List/filter proposals by status
-- `editors/ProposalReview.tsx` — Side-by-side diff, edit, approve/reject/merge
-- `components/DiffView.tsx` — Inline diff component (line-by-line markdown diff)
-- `eo/proposals.ts` — Event constructors for proposal lifecycle
-- New route in `App.tsx`: `/admin/proposals`
+- `editors/SuggestionQueue.tsx` — List/filter suggestions by status
+- `editors/SuggestionReview.tsx` — Diff view, edit, approve/reject/merge
+- `components/DiffView.tsx` — Inline markdown diff component
+- `xano/suggestions.ts` — API client for `eowiki_suggestions` endpoints
+- `eo/suggestions.ts` — Event constructors + replay for suggestion events
+- New route in `App.tsx`: `/admin/suggestions`
 
-### Xano
-- New public endpoint: `POST /submit_proposal` (rate-limited, validates target exists)
-- Existing endpoints handle everything else (proposals are just content records)
-
-### Projector (`/tools/projector/`)
-- `src/proposals.ts` — Replay logic for proposal events → projected state
-- Renders proposal status JSON to `/site/generated/proposals/`
+### Xano (already created)
+- `POST /eo_wiki_suggestions` — append suggestion event (public)
+- `GET /eowiki_suggestions` — list all suggestion events (public, for admin + status pages)
+- `GET /eowiki_suggestions/{id}` — single event by ID
 
 ---
 
@@ -276,32 +285,37 @@ Full audit trail including:
 
 ### Journey A: Anonymous typo fix
 1. Reader notices typo on `/wiki/operators`
-2. Clicks "Suggest Edit" → taken to `/propose/wiki/operators`
+2. Clicks "Suggest Edit" → `/suggest/operators`
 3. Fixes the typo in the pre-filled markdown editor
 4. Writes summary: "Fixed typo: 'recusion' → 'recursion'"
 5. Leaves name blank → defaults to "anonymous"
-6. Submits → gets proposal ID `pr_7kx2`
-7. Admin sees new pending proposal in queue
-8. Opens it, sees the one-character diff, clicks **Merge**
-9. Article is updated with next build cycle
-10. Article history shows: "Revision r_12 — Merged from proposal pr_7kx2 by anonymous"
+6. POST to `/eo_wiki_suggestions` → gets suggestion ID `sg_7kx2`
+7. Sees confirmation: "Suggestion submitted! Track status: /suggestion/sg_7kx2"
+8. Admin sees new pending suggestion in queue
+9. Opens it, sees the one-character diff, clicks **Merge**
+10. `insRevision()` creates `wiki:operators/rev:r_12` with `source_suggestion: "sg_7kx2"`, `source_agent: "anonymous"`
+11. Article publishes on next build cycle
+12. Article history shows: "r_12 — Merged suggestion sg_7kx2 by anonymous: Fixed typo"
 
-### Journey B: Substantive contribution with admin edits
-1. "Alice" submits a rewrite of the Synthesis section with her name
-2. Admin reviews, likes the direction but edits two paragraphs
-3. Admin's edit creates revision r_2 on the proposal (attributed to admin)
-4. Admin approves and merges
-5. Article history shows the merge with Alice's name
-6. Proposal history shows both Alice's original and admin's edit
-7. Alice checks `/proposal/pr_abc123` and sees the full edit trail
+### Journey B: Named contribution with admin edits
+1. "Alice" submits a rewrite of the Synthesis section with her name + email
+2. Admin opens the suggestion, sees substantive changes in the diff
+3. Clicks "Start Review" → SIG `in_review`
+4. Admin edits two paragraphs → new revision r_2 (agent="admin")
+5. Clicks "Merge" → INS `wiki:operators/rev:r_15` with source attribution
+6. Article history: "r_15 — Merged suggestion sg_abc123 by alice"
+7. Suggestion history: r_1 (alice), r_2 (admin edit), merged as r_15
+8. Alice checks `/suggestion/sg_abc123` → sees full trail including admin's edits
 
 ---
 
 ## 8. Security Considerations
 
-- **No auth for submissions**: Proposals are sandboxed (private, no direct site impact)
-- **XSS prevention**: All submitted markdown is sanitized before rendering (existing render pipeline handles this)
-- **No file uploads**: Proposals are text-only (markdown/HTML)
-- **Rate limiting**: Prevents flooding
-- **Admin-only merge**: No proposal content reaches the public site without explicit admin action
-- **IP logging**: Stored in event ctx for abuse tracking, visible only to admin
+- **Isolation**: Suggestions never touch `eowikicurrent` or `eowiki` directly — only admin merge does
+- **XSS prevention**: All submitted markdown is sanitized through the existing render pipeline before display
+- **No file uploads**: Suggestions are text-only (markdown)
+- **Rate limiting**: IP-based, enforced in Xano function stack on the POST endpoint
+- **Admin-only merge**: No suggestion content reaches the public site without explicit admin action
+- **IP logging**: Stored in event context for abuse tracking, visible only to admin
+- **Token-based edit**: Submitters can only edit their own suggestion, only while pending/in_review
+- **Spam cleanup**: NUL tombstone + ability to purge suggestions table without affecting content
