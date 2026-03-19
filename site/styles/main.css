@@ -235,6 +235,7 @@ p { margin-bottom: .75rem; }
 
 /* Main */
 main { flex: 1; max-width: 860px; margin: 0 auto; padding: 2rem 1.5rem; width: 100%; }
+main.wiki-article { max-width: 1100px; }
 
 /* Breadcrumbs */
 .breadcrumbs ol {
@@ -423,10 +424,10 @@ main { flex: 1; max-width: 860px; margin: 0 auto; padding: 2rem 1.5rem; width: 1
 .wiki-body h1, .wiki-body h2, .wiki-body h3 { margin: 1.5rem 0 .5rem; }
 .wiki-body h1, .wiki-body h2, .wiki-body h3, .wiki-body h4 { scroll-margin-top: 60px; }
 .wiki-body p { margin-bottom: .75rem; }
-.table-scroll { margin: 1rem 0; }
-.wiki-body table, .block-text table, .all-article-body table { border-collapse: collapse; width: 100%; margin: 1rem 0; table-layout: fixed; }
-.table-scroll table { margin: 0; }
-.wiki-body th, .wiki-body td, .block-text th, .block-text td, .all-article-body th, .all-article-body td { border: 1px solid var(--border); padding: .5rem .75rem; text-align: left; overflow-x: auto; max-width: 0; }
+.table-scroll { margin: 1rem 0; overflow-x: auto; }
+.wiki-body table, .block-text table, .all-article-body table { border-collapse: collapse; width: 100%; margin: 1rem 0; }
+.table-scroll table { margin: 0; width: max-content; min-width: 100%; }
+.wiki-body th, .wiki-body td, .block-text th, .block-text td, .all-article-body th, .all-article-body td { border: 1px solid var(--border); padding: .5rem .75rem; text-align: left; }
 .wiki-body th, .block-text th, .all-article-body th { background: var(--bg2); font-weight: 600; }
 .wiki-body tr:hover, .block-text tr:hover, .all-article-body tr:hover { background: color-mix(in srgb, var(--bg2) 50%, var(--bg)); }
 .conflict-banner {
