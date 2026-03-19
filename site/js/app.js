@@ -18,9 +18,11 @@ import {
   renderBlogList, renderBlog,
   renderExpList, renderExp,
   renderDocList, renderDoc,
-  renderPage, renderAll, render404, updateNav
+  renderPage, renderAll, render404, updateNav,
+  renderCommunity, renderSuggestion, renderSuggest
 } from './pages.js';
 import { setupUI } from './ui.js';
+import { setupSuggestUI } from './suggest.js';
 
 // ── Search highlight: scroll to and highlight matching text after navigation ──
 
@@ -138,8 +140,11 @@ function render() {
         case 'doc-list':  return renderDocList(main);
         case 'doc':       return renderDoc(main, route.slug);
         case 'page':      return renderPage(main, route.slug);
-        case 'all':       return renderAll(main);
-        default:          render404(main); return Promise.resolve();
+        case 'all':        return renderAll(main);
+        case 'community':  return renderCommunity(main);
+        case 'suggestion': return renderSuggestion(main, route.slug);
+        case 'suggest':    return renderSuggest(main, route.slug);
+        default:           render404(main); return Promise.resolve();
       }
     })
     .then(function () {
@@ -158,4 +163,5 @@ function render() {
 // ── Init ─────────────────────────────────────────────────────────────────────
 
 setupUI(render);
+setupSuggestUI();
 render();

@@ -32,6 +32,9 @@ export function getRoute() {
   if (parts[0] === 'page' && parts[1]) return { page: 'page', slug: parts[1] };
   if (parts[0] === 'all') return { page: 'all' };
   if (parts[0] === 'admin') return { page: 'admin' };
+  if (parts[0] === 'community') return { page: 'community' };
+  if (parts[0] === 'suggestion' && parts[1]) return { page: 'suggestion', slug: parts[1] };
+  if (parts[0] === 'suggest' && parts[1]) return { page: 'suggest', slug: parts[1] };
 
   return { page: '404' };
 }

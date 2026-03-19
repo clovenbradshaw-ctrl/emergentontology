@@ -14,6 +14,7 @@ import {
   revisionHistoryHtml, renderRevisionContent, revealAdmin,
   hydrateHtmlWidgets, activateScripts, timeAgo, autoSizeIframe
 } from './render.js';
+import { fetchSuggestionEvents, replaySuggestions, postReply, createTopic, openSuggestForm } from './suggest.js';
 
 // ── Sort helper ──────────────────────────────────────────────────────────────
 
@@ -2301,4 +2302,369 @@ export function updateNav() {
   var fEl = document.getElementById('site-name-footer');
   if (hEl) hEl.textContent = siteName;
   if (fEl) fEl.textContent = siteName;
+}
+
+// ── Community page ────────────────────────────────────────────────────────────
+
+export function renderCommunity(el) {
+  el.className = 'community-page';
+  setTitle('Community');
+  setBreadcrumbs([{ label: 'Community', href: BASE + '/community/' }]);
+
+  el.innerHTML =
+    '<header class="community-header">' +
+      '<h1>Community</h1>' +
+      '<p class="community-subtitle">Edit suggestions, questions, and discussions</p>' +
+      '<button class="btn btn-primary" id="community-new-topic">New Topic</button>' +
+    '</header>' +
+    '<div class="community-filters" id="community-filters">' +
+      '<button class="community-filter active" data-filter="all">All</button>' +
+      '<button class="community-filter" data-filter="edit">Edit Requests</button>' +
+      '<button class="community-filter" data-filter="question">Questions</button>' +
+      '<button class="community-filter" data-filter="topic">Discussions</button>' +
+    '</div>' +
+    '<div class="community-list" id="community-list">' +
+      '<div style="text-align:center;padding:2rem;color:var(--text-dim)">Loading submissions\u2026</div>' +
+    '</div>';
+
+  // Wire up "New Topic" button
+  var newTopicBtn = document.getElementById('community-new-topic');
+  newTopicBtn.addEventListener('click', function () {
+    showNewTopicForm(el);
+  });
+
+  // Wire up filters
+  var filtersEl = document.getElementById('community-filters');
+  filtersEl.addEventListener('click', function (e) {
+    var btn = e.target.closest('.community-filter');
+    if (!btn) return;
+    filtersEl.querySelectorAll('.community-filter').forEach(function (b) { b.classList.remove('active'); });
+    btn.classList.add('active');
+    var filter = btn.getAttribute('data-filter');
+    renderCommunityList(filter);
+  });
+
+  // Load and render suggestions
+  return fetchSuggestionEvents()
+    .then(function (events) {
+      window.__eoSuggestions = replaySuggestions(events);
+      renderCommunityList('all');
+    })
+    .catch(function (err) {
+      console.error('[community] Load failed:', err);
+      document.getElementById('community-list').innerHTML =
+        '<div class="community-empty">Could not load submissions. <a href="javascript:location.reload()">Retry</a></div>';
+    });
+}
+
+function renderCommunityList(filter) {
+  var list = document.getElementById('community-list');
+  var suggestions = window.__eoSuggestions || {};
+  var items = Object.keys(suggestions).map(function (k) { return suggestions[k]; });
+
+  // Filter
+  if (filter && filter !== 'all') {
+    items = items.filter(function (sg) { return sg.type === filter; });
+  }
+
+  // Sort by most recent activity
+  items.sort(function (a, b) {
+    return (b.updated_at || b.created_at || '').localeCompare(a.updated_at || a.created_at || '');
+  });
+
+  if (items.length === 0) {
+    list.innerHTML = '<div class="community-empty">No submissions yet. Be the first to contribute!</div>';
+    return;
+  }
+
+  var h = '';
+  items.forEach(function (sg) {
+    var latestRev = sg.revisions.length > 0 ? sg.revisions[sg.revisions.length - 1] : null;
+    var summary = latestRev ? latestRev.summary : '';
+    var replyCount = sg.replies.length;
+    var typeLabel = sg.type === 'question' ? 'Question' : sg.type === 'topic' ? 'Discussion' : 'Edit Request';
+    var typeClass = sg.type === 'question' ? 'type-question' : sg.type === 'topic' ? 'type-topic' : 'type-edit';
+    var statusClass = 'status-' + sg.status;
+
+    h += '<a class="community-card" href="' + BASE + '/suggestion/' + esc(sg.id) + '/">';
+    h += '<div class="community-card-header">';
+    h += '<span class="community-type ' + typeClass + '">' + typeLabel + '</span>';
+    h += '<span class="community-status ' + statusClass + '">' + esc(sg.status) + '</span>';
+    h += '</div>';
+    h += '<div class="community-card-title">' + esc(summary || 'Untitled') + '</div>';
+    if (sg.target_content_id) {
+      h += '<div class="community-card-target">on ' + esc(sg.target_content_id) + '</div>';
+    }
+    if (latestRev && latestRev.selected_text) {
+      h += '<blockquote class="community-card-quote">\u201C' + esc(latestRev.selected_text.slice(0, 120)) + (latestRev.selected_text.length > 120 ? '\u2026' : '') + '\u201D</blockquote>';
+    }
+    h += '<div class="community-card-meta">';
+    h += '<span>by ' + esc(sg.agent_name) + '</span>';
+    h += '<span>' + timeAgo(sg.created_at) + '</span>';
+    if (replyCount > 0) {
+      h += '<span>' + replyCount + ' repl' + (replyCount === 1 ? 'y' : 'ies') + '</span>';
+    }
+    h += '</div>';
+    h += '</a>';
+  });
+
+  list.innerHTML = h;
+}
+
+function showNewTopicForm(container) {
+  var existing = document.getElementById('new-topic-form');
+  if (existing) { existing.remove(); return; }
+
+  var form = document.createElement('div');
+  form.id = 'new-topic-form';
+  form.className = 'new-topic-form';
+  form.innerHTML =
+    '<h3>Start a New Discussion</h3>' +
+    '<div class="eo-suggest-field">' +
+      '<label for="new-topic-title">Title</label>' +
+      '<input type="text" id="new-topic-title" placeholder="What do you want to discuss?">' +
+    '</div>' +
+    '<div class="eo-suggest-field">' +
+      '<label for="new-topic-content">Details</label>' +
+      '<textarea id="new-topic-content" rows="4" placeholder="Provide context or your thoughts..."></textarea>' +
+    '</div>' +
+    '<div class="eo-suggest-row">' +
+      '<div class="eo-suggest-field eo-suggest-half">' +
+        '<label for="new-topic-name">Your name <span class="eo-field-hint">(optional)</span></label>' +
+        '<input type="text" id="new-topic-name" placeholder="anonymous" value="' + esc(localStorage.getItem('eo-suggest-name') || '') + '">' +
+      '</div>' +
+      '<div class="eo-suggest-field eo-suggest-half">' +
+        '<label for="new-topic-contact">Contact <span class="eo-field-hint">(optional)</span></label>' +
+        '<input type="text" id="new-topic-contact" placeholder="email or handle" value="' + esc(localStorage.getItem('eo-suggest-contact') || '') + '">' +
+      '</div>' +
+    '</div>' +
+    '<div class="eo-suggest-actions">' +
+      '<button class="eo-suggest-cancel" id="new-topic-cancel">Cancel</button>' +
+      '<button class="eo-suggest-submit" id="new-topic-submit">Post Topic</button>' +
+    '</div>' +
+    '<div class="eo-suggest-status" id="new-topic-status"></div>';
+
+  var header = container.querySelector('.community-header');
+  header.after(form);
+
+  document.getElementById('new-topic-cancel').addEventListener('click', function () { form.remove(); });
+  document.getElementById('new-topic-submit').addEventListener('click', function () {
+    var title = document.getElementById('new-topic-title').value.trim();
+    var content = document.getElementById('new-topic-content').value.trim();
+    var name = document.getElementById('new-topic-name').value.trim();
+    var contact = document.getElementById('new-topic-contact').value.trim();
+    var status = document.getElementById('new-topic-status');
+
+    if (!title) { status.textContent = 'Please enter a title.'; status.className = 'eo-suggest-status eo-status-error'; return; }
+    if (!content) { status.textContent = 'Please enter some content.'; status.className = 'eo-suggest-status eo-status-error'; return; }
+
+    if (name) localStorage.setItem('eo-suggest-name', name);
+    if (contact) localStorage.setItem('eo-suggest-contact', contact);
+
+    status.textContent = 'Posting...';
+    status.className = 'eo-suggest-status';
+
+    createTopic(title, content, name, contact)
+      .then(function (sgId) {
+        status.innerHTML = 'Posted! <a href="' + BASE + '/suggestion/' + sgId + '/">View your topic</a>';
+        status.className = 'eo-suggest-status eo-status-success';
+        // Reload the list
+        fetchSuggestionEvents().then(function (events) {
+          window.__eoSuggestions = replaySuggestions(events);
+          renderCommunityList('all');
+        });
+      })
+      .catch(function (err) {
+        status.textContent = 'Failed to post. Please try again.';
+        status.className = 'eo-suggest-status eo-status-error';
+      });
+  });
+}
+
+// ── Suggestion detail page ───────────────────────────────────────────────────
+
+export function renderSuggestion(el, sgId) {
+  el.className = 'suggestion-page';
+  setTitle('Suggestion ' + sgId);
+  setBreadcrumbs([
+    { label: 'Community', href: BASE + '/community/' },
+    { label: sgId, href: BASE + '/suggestion/' + sgId + '/' }
+  ]);
+
+  el.innerHTML = '<div style="text-align:center;padding:3rem;color:var(--text-dim)">Loading\u2026</div>';
+
+  return fetchSuggestionEvents()
+    .then(function (events) {
+      var suggestions = replaySuggestions(events);
+      var sg = suggestions[sgId];
+
+      if (!sg) {
+        el.innerHTML = '<div class="suggestion-not-found"><h2>Suggestion not found</h2><p>The suggestion <code>' + esc(sgId) + '</code> does not exist.</p><p><a href="' + BASE + '/community/">Back to Community</a></p></div>';
+        return;
+      }
+
+      renderSuggestionDetail(el, sg);
+    })
+    .catch(function (err) {
+      console.error('[suggestion] Load failed:', err);
+      el.innerHTML = '<div style="text-align:center;padding:3rem;color:var(--text-dim)">Failed to load. <a href="javascript:location.reload()">Retry</a></div>';
+    });
+}
+
+function renderSuggestionDetail(el, sg) {
+  var latestRev = sg.revisions.length > 0 ? sg.revisions[sg.revisions.length - 1] : null;
+  var typeLabel = sg.type === 'question' ? 'Question' : sg.type === 'topic' ? 'Discussion' : 'Edit Request';
+  var typeClass = sg.type === 'question' ? 'type-question' : sg.type === 'topic' ? 'type-topic' : 'type-edit';
+
+  var h = '<article class="suggestion-detail">';
+
+  // Header
+  h += '<header class="suggestion-header">';
+  h += '<div class="suggestion-header-meta">';
+  h += '<span class="community-type ' + typeClass + '">' + typeLabel + '</span>';
+  h += '<span class="community-status status-' + sg.status + '">' + esc(sg.status) + '</span>';
+  h += '</div>';
+  h += '<h1>' + esc(latestRev ? latestRev.summary : 'Untitled') + '</h1>';
+  h += '<div class="suggestion-byline">by <strong>' + esc(sg.agent_name) + '</strong> &middot; ' + timeAgo(sg.created_at) + '</div>';
+  if (sg.target_content_id) {
+    var parts = sg.target_content_id.split(':');
+    var targetSlug = parts.slice(1).join(':');
+    var targetType = parts[0] || 'wiki';
+    h += '<div class="suggestion-target">on <a href="' + contentUrl(targetType, targetSlug) + '">' + esc(sg.target_content_id) + '</a></div>';
+  }
+  h += '</header>';
+
+  // Selected text context
+  if (latestRev && latestRev.selected_text) {
+    h += '<section class="suggestion-context">';
+    h += '<h3>Referenced text</h3>';
+    h += '<blockquote class="suggestion-quote">' + esc(latestRev.selected_text) + '</blockquote>';
+    h += '</section>';
+  }
+
+  // Content / revisions
+  h += '<section class="suggestion-content">';
+  if (sg.type === 'edit') {
+    h += '<h3>Proposed change</h3>';
+  }
+  sg.revisions.forEach(function (rev, i) {
+    h += '<div class="suggestion-revision' + (i === sg.revisions.length - 1 ? ' suggestion-revision-latest' : '') + '">';
+    if (sg.revisions.length > 1) {
+      h += '<div class="suggestion-rev-meta">Revision ' + (i + 1) + ' by ' + esc(rev.agent_name) + ' &middot; ' + timeAgo(rev.ts) + '</div>';
+    }
+    h += '<div class="suggestion-rev-body">' + md(rev.content) + '</div>';
+    h += '</div>';
+  });
+  h += '</section>';
+
+  // Status info
+  if (sg.status === 'merged' && sg.merged_as) {
+    h += '<div class="suggestion-merged-banner">Merged as revision <code>' + esc(sg.merged_as) + '</code></div>';
+  }
+  if (sg.status === 'rejected' && sg.reject_reason) {
+    h += '<div class="suggestion-rejected-banner">Rejected: ' + esc(sg.reject_reason) + '</div>';
+  }
+
+  // Replies section (Reddit-style)
+  h += '<section class="suggestion-replies" id="suggestion-replies">';
+  h += '<h3>Replies (' + sg.replies.length + ')</h3>';
+  if (sg.replies.length > 0) {
+    sg.replies.forEach(function (reply) {
+      h += '<div class="reply-card">';
+      h += '<div class="reply-meta"><strong>' + esc(reply.agent_name) + '</strong> &middot; ' + timeAgo(reply.ts || reply.created_at) + '</div>';
+      h += '<div class="reply-body">' + md(reply.content) + '</div>';
+      h += '</div>';
+    });
+  } else {
+    h += '<p class="reply-empty">No replies yet. Be the first to respond!</p>';
+  }
+  h += '</section>';
+
+  // Reply form
+  h += '<section class="reply-form-section">';
+  h += '<h3>Add a Reply</h3>';
+  h += '<div class="eo-suggest-field">';
+  h += '<textarea id="reply-content" rows="4" placeholder="Share your thoughts\u2026"></textarea>';
+  h += '</div>';
+  h += '<div class="eo-suggest-row">';
+  h += '<div class="eo-suggest-field eo-suggest-half">';
+  h += '<label for="reply-name">Your name <span class="eo-field-hint">(optional)</span></label>';
+  h += '<input type="text" id="reply-name" placeholder="anonymous" value="' + esc(localStorage.getItem('eo-suggest-name') || '') + '">';
+  h += '</div>';
+  h += '<div class="eo-suggest-field eo-suggest-half">';
+  h += '<label for="reply-contact">Contact <span class="eo-field-hint">(optional)</span></label>';
+  h += '<input type="text" id="reply-contact" placeholder="email or handle" value="' + esc(localStorage.getItem('eo-suggest-contact') || '') + '">';
+  h += '</div>';
+  h += '</div>';
+  h += '<div class="eo-suggest-actions">';
+  h += '<button class="eo-suggest-submit" id="reply-submit">Post Reply</button>';
+  h += '</div>';
+  h += '<div class="eo-suggest-status" id="reply-status"></div>';
+  h += '</section>';
+
+  h += '</article>';
+  el.innerHTML = h;
+
+  // Wire up reply submission
+  document.getElementById('reply-submit').addEventListener('click', function () {
+    var content = document.getElementById('reply-content').value.trim();
+    var name = document.getElementById('reply-name').value.trim();
+    var contact = document.getElementById('reply-contact').value.trim();
+    var status = document.getElementById('reply-status');
+
+    if (!content) {
+      status.textContent = 'Please enter a reply.';
+      status.className = 'eo-suggest-status eo-status-error';
+      return;
+    }
+
+    if (name) localStorage.setItem('eo-suggest-name', name);
+    if (contact) localStorage.setItem('eo-suggest-contact', contact);
+
+    status.textContent = 'Posting...';
+    status.className = 'eo-suggest-status';
+
+    postReply(sg.id, content, name, contact)
+      .then(function () {
+        status.textContent = 'Reply posted!';
+        status.className = 'eo-suggest-status eo-status-success';
+        document.getElementById('reply-content').value = '';
+        // Reload the page to show new reply
+        return fetchSuggestionEvents().then(function (events) {
+          var suggestions = replaySuggestions(events);
+          var updated = suggestions[sg.id];
+          if (updated) renderSuggestionDetail(el, updated);
+        });
+      })
+      .catch(function (err) {
+        status.textContent = 'Failed to post reply. Please try again.';
+        status.className = 'eo-suggest-status eo-status-error';
+      });
+  });
+}
+
+// ── Suggest form page (direct route /suggest/<slug>) ─────────────────────────
+
+export function renderSuggest(el, slug) {
+  el.className = 'suggest-page';
+  var contentId = 'wiki:' + slug;
+  setTitle('Suggest Edit \u2014 ' + slug);
+  setBreadcrumbs([
+    { label: 'Wiki', href: BASE + '/wiki/' },
+    { label: slug, href: BASE + '/wiki/' + slug + '/' },
+    { label: 'Suggest Edit', href: BASE + '/suggest/' + slug + '/' }
+  ]);
+
+  // Open the suggest modal for this article
+  openSuggestForm(slug, contentId, 'edit');
+
+  el.innerHTML =
+    '<div class="suggest-page-content">' +
+      '<h2>Suggest an edit to <a href="' + BASE + '/wiki/' + esc(slug) + '/">' + esc(slug) + '</a></h2>' +
+      '<p>Use the form above to submit your suggested change. You can also ' +
+      '<a href="' + BASE + '/wiki/' + esc(slug) + '/">go back to the article</a> ' +
+      'and highlight text to suggest a targeted edit.</p>' +
+    '</div>';
+
+  return Promise.resolve();
 }
