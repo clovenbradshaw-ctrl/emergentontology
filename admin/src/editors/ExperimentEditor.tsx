@@ -22,7 +22,7 @@ import {
   eventToPayload,
   type XanoCurrentRecord,
 } from '../xano/client';
-import { loadState, applyFreshnessUpdate } from '../xano/stateCache';
+import { loadState, applyFreshnessUpdate, fetchRevisionHistory } from '../xano/stateCache';
 import { insExpEntry, nulExpEntry, insRevision } from '../eo/events';
 import type { ExperimentEntry, WikiRevision, ContentMeta } from '../eo/types';
 import { mdToHtml } from '../eo/markdown';
@@ -38,7 +38,6 @@ interface ExpState {
   entries: ExperimentEntry[];
   meta: Record<string, unknown>;
   current_revision: WikiRevision | null;
-  revisions: WikiRevision[];
 }
 
 interface ContentEntry {
@@ -75,6 +74,7 @@ export default function ExperimentEditor({ contentId, siteBase }: Props) {
   const [summary, setSummary] = useState('');
   const savedContentRef = useRef('');
   const [contentEntries, setContentEntries] = useState<ContentEntry[]>([]);
+  const [revisions, setRevisions] = useState<WikiRevision[]>([]);
 
   // ── Load ──────────────────────────────────────────────────────────────────
 
@@ -91,13 +91,12 @@ export default function ExperimentEditor({ contentId, siteBase }: Props) {
 
       let expState = result.state;
 
-      // Normalize: ensure entries/meta/revisions exist
+      // Normalize: ensure entries/meta exist
       if (expState) {
         expState = {
           entries: expState.entries ?? [],
           meta: expState.meta ?? {},
           current_revision: expState.current_revision ?? null,
-          revisions: expState.revisions ?? [],
         };
       }
 
@@ -127,7 +126,6 @@ export default function ExperimentEditor({ contentId, siteBase }: Props) {
             entries: freshState.entries ?? [],
             meta: freshState.meta ?? {},
             current_revision: freshState.current_revision ?? null,
-            revisions: freshState.revisions ?? [],
           };
           setState(normalized);
           savedStateRef.current = normalized;
@@ -138,6 +136,13 @@ export default function ExperimentEditor({ contentId, siteBase }: Props) {
             savedContentRef.current = html;
           }
         }).catch((err) => { console.warn('[ExperimentEditor] freshness check failed:', err); });
+      }
+
+      // 3. Load revision history from eowiki event log (background)
+      if (expState) {
+        fetchRevisionHistory(contentId)
+          .then((revs) => { if (!cancelled) setRevisions(revs); })
+          .catch((err) => { console.warn('[ExperimentEditor] revision history load failed:', err); });
       }
     }
     load();
@@ -194,7 +199,6 @@ export default function ExperimentEditor({ contentId, siteBase }: Props) {
       meta: state?.meta ?? {},
       entries: [...(state?.entries ?? []), newEntry],
       current_revision: state?.current_revision ?? null,
-      revisions: state?.revisions ?? [],
     };
     setState(updatedState);
     setIsDirty(true);
@@ -209,7 +213,6 @@ export default function ExperimentEditor({ contentId, siteBase }: Props) {
       meta: state?.meta ?? {},
       entries: (state?.entries ?? []).filter((e) => e.entry_id !== entryId),
       current_revision: state?.current_revision ?? null,
-      revisions: state?.revisions ?? [],
     };
     setState(updatedState);
     setIsDirty(true);
@@ -243,7 +246,6 @@ export default function ExperimentEditor({ contentId, siteBase }: Props) {
       const updatedState: ExpState = {
         meta: state.meta,
         entries: state.entries,
-        revisions: newRev ? [...(state.revisions ?? []), newRev] : (state.revisions ?? []),
         current_revision: newRev ?? state.current_revision,
       };
 
@@ -373,11 +375,11 @@ export default function ExperimentEditor({ contentId, siteBase }: Props) {
         </ol>
       </section>
 
-      {(state?.revisions ?? []).length > 0 && (
+      {revisions.length > 0 && (
         <section className="revision-list">
-          <h3>Revisions ({state!.revisions.length})</h3>
+          <h3>Revisions ({revisions.length})</h3>
           <ol reversed>
-            {state!.revisions.slice().reverse().map((r) => (
+            {revisions.slice().reverse().map((r) => (
               <li key={r.rev_id} className="rev-item">
                 <span className="rev-id">{r.rev_id}</span>
                 <span className="rev-ts">{new Date(r.ts).toLocaleString()}</span>

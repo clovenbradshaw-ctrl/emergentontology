@@ -22,7 +22,7 @@ import {
   eventToPayload,
   type XanoCurrentRecord,
 } from '../xano/client';
-import { loadState, applyFreshnessUpdate } from '../xano/stateCache';
+import { loadState, applyFreshnessUpdate, fetchRevisionHistory } from '../xano/stateCache';
 import { insRevision, insDocAsset, nulDocAsset } from '../eo/events';
 import type { DocumentAsset, WikiRevision, ContentMeta } from '../eo/types';
 import { mdToHtml } from '../eo/markdown';
@@ -45,7 +45,6 @@ interface DocState {
   assets: DocumentAsset[];
   meta: Partial<ContentMeta>;
   current_revision: WikiRevision | null;
-  revisions: WikiRevision[];
 }
 
 interface ContentEntry {
@@ -78,6 +77,7 @@ export default function DocumentEditor({ contentId, siteBase }: Props) {
   const [saving, setSaving] = useState(false);
   const savedContentRef = useRef('');
   const [contentEntries, setContentEntries] = useState<ContentEntry[]>([]);
+  const [revisions, setRevisions] = useState<WikiRevision[]>([]);
 
   // Asset form state
   const [assetTitle, setAssetTitle] = useState('');
@@ -105,7 +105,6 @@ export default function DocumentEditor({ contentId, siteBase }: Props) {
         docState = {
           ...docState,
           assets: [],
-          revisions: docState.revisions ?? [],
           current_revision: docState.current_revision ?? null,
         };
       }
@@ -137,6 +136,11 @@ export default function DocumentEditor({ contentId, siteBase }: Props) {
             }
           }).catch((err) => { console.warn('[DocumentEditor] freshness check failed:', err); });
         }
+
+        // Load revision history from eowiki event log (background)
+        fetchRevisionHistory(contentId)
+          .then((revs) => { if (!cancelled) setRevisions(revs); })
+          .catch((err) => { console.warn('[DocumentEditor] revision history load failed:', err); });
       }
       setLoading(false);
     }
@@ -201,7 +205,6 @@ export default function DocumentEditor({ contentId, siteBase }: Props) {
       const updatedState: DocState = {
         meta: state?.meta ?? {},
         assets: state?.assets ?? [],
-        revisions: [...(state?.revisions ?? []), newRev],
         current_revision: newRev,
       };
 
@@ -427,12 +430,12 @@ export default function DocumentEditor({ contentId, siteBase }: Props) {
         </div>
       </section>
 
-      {/* ── Revisions ───────────────────────────────────────────────────── */}
-      {state && state.revisions.length > 0 && (
+      {/* ── Revisions (loaded from eowiki event log) ────────────────────── */}
+      {revisions.length > 0 && (
         <section className="revision-list">
-          <h3>Revisions ({state.revisions.length})</h3>
+          <h3>Revisions ({revisions.length})</h3>
           <ol reversed>
-            {state.revisions.slice().reverse().map((r) => (
+            {revisions.slice().reverse().map((r) => (
               <li key={r.rev_id} className="rev-item">
                 <div className="rev-item-header">
                   <span className="rev-id">{r.rev_id}</span>

@@ -18,7 +18,7 @@ import {
   eventToPayload,
   type XanoCurrentRecord,
 } from '../xano/client';
-import { loadState, fetchCurrentRecordCached, applyFreshnessUpdate } from '../xano/stateCache';
+import { loadState, fetchCurrentRecordCached, applyFreshnessUpdate, fetchRevisionHistory } from '../xano/stateCache';
 import { insRevision } from '../eo/events';
 import type { WikiRevision, ContentMeta } from '../eo/types';
 import { mdToHtml } from '../eo/markdown';
@@ -29,7 +29,6 @@ import MetadataBar from '../components/MetadataBar';
 interface WikiState {
   meta: Partial<ContentMeta>;
   current_revision: WikiRevision | null;
-  revisions: WikiRevision[];
 }
 
 interface Props {
@@ -60,6 +59,7 @@ export default function WikiEditor({ contentId, siteBase }: Props) {
   const [isDirty, setIsDirty] = useState(false);
   const savedContentRef = useRef(''); // tracks last-saved editor HTML for dirty detection
   const [contentEntries, setContentEntries] = useState<ContentEntry[]>([]);
+  const [revisions, setRevisions] = useState<WikiRevision[]>([]);
 
   // ── Load current state from Xano (with static snapshot fallback) ──────────
 
@@ -79,12 +79,11 @@ export default function WikiEditor({ contentId, siteBase }: Props) {
       let wikiState = result.state;
 
       // Normalize static snapshots that may have a different shape
-      if (wikiState && !wikiState.revisions) {
-        const snap = wikiState as unknown as { meta: ContentMeta; current_revision?: WikiRevision; revisions?: WikiRevision[] };
+      if (wikiState && !wikiState.current_revision) {
+        const snap = wikiState as unknown as { meta: ContentMeta; current_revision?: WikiRevision };
         wikiState = {
           meta: snap.meta ?? {},
           current_revision: snap.current_revision ?? null,
-          revisions: snap.revisions ?? [],
         };
       }
 
@@ -114,6 +113,11 @@ export default function WikiEditor({ contentId, siteBase }: Props) {
             }
           }).catch((err) => { console.warn('[WikiEditor] freshness check failed:', err); });
         }
+
+        // 3. Load revision history from eowiki event log (background)
+        fetchRevisionHistory(contentId)
+          .then((revs) => { if (!cancelled) setRevisions(revs); })
+          .catch((err) => { console.warn('[WikiEditor] revision history load failed:', err); });
       }
       setLoading(false);
     }
@@ -178,11 +182,10 @@ export default function WikiEditor({ contentId, siteBase }: Props) {
     registerEvent({ id: xid, op: event.op, target: event.target, operand: event.operand, ts: event.ctx.ts, agent: event.ctx.agent, status: 'pending' });
 
     try {
-      // 1. Build updated state
+      // 1. Build updated state (revisions are stored in eowiki event log, not here)
       const newRev: WikiRevision = { rev_id: revId, format: 'html' as WikiRevision['format'], content: editorContent, summary: summary || 'Edit', ts };
       const updatedState: WikiState = {
         meta: state?.meta ?? {},
-        revisions: [...(state?.revisions ?? []), newRev],
         current_revision: newRev,
       };
 
@@ -259,18 +262,18 @@ export default function WikiEditor({ contentId, siteBase }: Props) {
         </button>
       </div>
 
-      {state && state.revisions.length > 0 && (
+      {revisions.length > 0 && (
         <section className="revision-list">
-          <h3>Revisions ({state.revisions.length})</h3>
-          {!!(state.meta as Record<string, unknown>).first_public_at && (
+          <h3>Revisions ({revisions.length})</h3>
+          {!!(state?.meta as Record<string, unknown>)?.first_public_at && (
             <div className="public-since-banner">
-              Public since {new Date(String((state.meta as Record<string, unknown>).first_public_at)).toLocaleString()}
+              Public since {new Date(String((state!.meta as Record<string, unknown>).first_public_at)).toLocaleString()}
               {' — '}revisions after this date are publicly visible
             </div>
           )}
           <ol reversed>
-            {state.revisions.slice().reverse().map((r, idx, arr) => {
-              const firstPublicAt = String((state.meta as Record<string, unknown>).first_public_at ?? '');
+            {revisions.slice().reverse().map((r, idx, arr) => {
+              const firstPublicAt = String((state?.meta as Record<string, unknown>)?.first_public_at ?? '');
               const isPublicBoundary = firstPublicAt && idx < arr.length - 1 &&
                 r.ts >= firstPublicAt && arr[idx + 1].ts < firstPublicAt;
               const prevRev = idx < arr.length - 1 ? arr[idx + 1] : null;

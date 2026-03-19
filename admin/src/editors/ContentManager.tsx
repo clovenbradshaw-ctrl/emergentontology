@@ -21,7 +21,7 @@ import {
   eventToPayload,
   type XanoCurrentRecord,
 } from '../xano/client';
-import { loadState, fetchCurrentRecordCached, fetchAllCurrentRecordsCached } from '../xano/stateCache';
+import { loadState, fetchCurrentRecordCached, fetchAllCurrentRecordsCached, migrateStripRevisionHistory } from '../xano/stateCache';
 import { insIndexEntry, desContentMeta, desIndexEntry, nulIndexEntry } from '../eo/events';
 import type { ContentType, ContentStatus, Visibility, ProjectedWiki, ProjectedBlog, ProjectedPage, ProjectedExperiment, ProjectedDocument, Block, ExperimentEntry, DocumentAsset } from '../eo/types';
 import { htmlToMd } from '../eo/markdown';
@@ -165,10 +165,19 @@ export default function ContentManager({ siteBase, onOpen }: Props) {
 
       setEntries(indexEntries);
       setLoading(false);
+
+      // One-time migration: strip revisions/history from existing current-state records
+      migrateStripRevisionHistory(settings.displayName || 'migration')
+        .then(({ migrated }) => {
+          if (migrated > 0) {
+            console.info(`[ContentManager] Cleaned ${migrated} record(s) — stripped revisions/history from current state.`);
+          }
+        })
+        .catch((err) => { console.warn('[ContentManager] migration failed:', err); });
     }
 
     load();
-  }, [siteBase]);
+  }, [siteBase, settings.displayName]);
 
   // ── Create content ─────────────────────────────────────────────────────────
 
@@ -216,7 +225,6 @@ export default function ContentManager({ siteBase, onOpen }: Props) {
           updated_at: ts,
         },
         current_revision: null,
-        revisions: [],
         blocks: [],
         block_order: [],
         entries: [],
@@ -589,7 +597,6 @@ export default function ContentManager({ siteBase, onOpen }: Props) {
           updated_at: ts,
         },
         current_revision: null,
-        revisions: [],
         blocks: [],
         block_order: [],
         entries: [],

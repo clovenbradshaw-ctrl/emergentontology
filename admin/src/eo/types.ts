@@ -89,6 +89,9 @@ export interface EORawEvent {
 }
 
 // ── State snapshot (loaded from /generated/state/content/<id>.json) ──────────
+//
+// Note: `revisions` and `history` are stored in the eowiki event log,
+// not in eowikicurrent state snapshots.  Only `current_revision` is kept.
 
 export interface ProjectedPage {
   content_type: 'page';
@@ -96,7 +99,6 @@ export interface ProjectedPage {
   meta: ContentMeta;
   blocks: Block[];
   block_order: string[];
-  history: HistoryEntry[];
 }
 
 export interface ProjectedWiki {
@@ -104,10 +106,8 @@ export interface ProjectedWiki {
   content_id: string;
   meta: ContentMeta;
   current_revision: WikiRevision | null;
-  revisions: WikiRevision[];
   has_conflict: boolean;
   conflict_candidates: string[];
-  history: HistoryEntry[];
 }
 
 export interface ProjectedBlog {
@@ -115,10 +115,8 @@ export interface ProjectedBlog {
   content_id: string;
   meta: ContentMeta;
   current_revision: WikiRevision | null;
-  revisions: WikiRevision[];
   has_conflict: boolean;
   conflict_candidates: string[];
-  history: HistoryEntry[];
 }
 
 export interface ProjectedExperiment {
@@ -127,8 +125,6 @@ export interface ProjectedExperiment {
   meta: ContentMeta;
   entries: ExperimentEntry[];
   current_revision: WikiRevision | null;
-  revisions: WikiRevision[];
-  history: HistoryEntry[];
 }
 
 export interface ProjectedDocument {
@@ -137,8 +133,6 @@ export interface ProjectedDocument {
   meta: ContentMeta;
   assets: DocumentAsset[];
   current_revision: WikiRevision | null;
-  revisions: WikiRevision[];
-  history: HistoryEntry[];
 }
 
 export type ProjectedContent = ProjectedPage | ProjectedWiki | ProjectedBlog | ProjectedExperiment | ProjectedDocument;

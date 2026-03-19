@@ -12,6 +12,9 @@
  * Endpoints:
  *   Public:  GET /get_public_eowiki    → event log records (no auth)
  *   Private: GET /<encrypted-path>     → all current-state records (unlocked by password)
+ *   Private: POST /<encrypted-path>/eowiki         → admin-only changelog writes
+ *   Private: POST /<encrypted-path>/eowikicurrent  → admin-only current-state creates
+ *   Private: PATCH /<encrypted-path>/eowikicurrent/{id} → admin-only current-state updates
  *
  * The private endpoint path is AES-256-GCM encrypted in the source using the
  * admin password as key.  On login the password decrypts the path; the
@@ -164,6 +167,8 @@ export async function fetchAllRecords(): Promise<XanoRecord[]> {
  * Append one EO event record to the EOwiki event log table.
  * The event log is used for change tracking only — the current-state table
  * (eowikicurrent) is the authoritative source of truth.
+ *
+ * Requires admin authentication (private endpoint must be unlocked).
  */
 export async function addRecord(payload: {
   op: string;
@@ -172,7 +177,10 @@ export async function addRecord(payload: {
   value: string;
   context: string;
 }): Promise<XanoRecord> {
-  const resp = await fetch(`${XANO_BASE}/eowiki`, {
+  if (!_privateEndpoint) {
+    throw new Error('Private endpoint not unlocked — please log in first.');
+  }
+  const resp = await fetch(`${XANO_BASE}/${_privateEndpoint}/eowiki`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(payload),
@@ -192,6 +200,10 @@ export async function addRecord(payload: {
  * current-state snapshot is still the authoritative record.
  */
 export function logEvent(payload: Parameters<typeof addRecord>[0]): void {
+  if (!_privateEndpoint) {
+    console.warn('[logEvent] Skipped — not authenticated.');
+    return;
+  }
   addRecord(payload).catch((err) => {
     console.warn('[logEvent] Event log write failed (non-fatal):', err);
   });
@@ -411,7 +423,10 @@ export async function fetchFilteredCurrentRecords(
   return unwrapResponse(data);
 }
 
-/** Create a new current-state record (first write for this record_id). */
+/**
+ * Create a new current-state record (first write for this record_id).
+ * Requires admin authentication (private endpoint must be unlocked).
+ */
 export async function createCurrentRecord(payload: {
   record_id: string;
   displayName: string;
@@ -420,7 +435,10 @@ export async function createCurrentRecord(payload: {
   uuid: string;
   lastModified: string;
 }): Promise<XanoCurrentRecord> {
-  const resp = await fetch(`${XANO_BASE}/eowikicurrent`, {
+  if (!_privateEndpoint) {
+    throw new Error('Private endpoint not unlocked — please log in first.');
+  }
+  const resp = await fetch(`${XANO_BASE}/${_privateEndpoint}/eowikicurrent`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(payload),
@@ -433,13 +451,19 @@ export async function createCurrentRecord(payload: {
   return (await resp.json()) as XanoCurrentRecord;
 }
 
-/** Update an existing current-state record by its Xano row id. */
+/**
+ * Update an existing current-state record by its Xano row id.
+ * Requires admin authentication (private endpoint must be unlocked).
+ */
 export async function patchCurrentRecord(id: number, payload: {
   values: string;
   context: Record<string, unknown>;
   lastModified: string;
 }): Promise<XanoCurrentRecord> {
-  const resp = await fetch(`${XANO_BASE}/eowikicurrent/${id}`, {
+  if (!_privateEndpoint) {
+    throw new Error('Private endpoint not unlocked — please log in first.');
+  }
+  const resp = await fetch(`${XANO_BASE}/${_privateEndpoint}/eowikicurrent/${id}`, {
     method: 'PATCH',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(payload),
@@ -453,11 +477,27 @@ export async function patchCurrentRecord(id: number, payload: {
 }
 
 /**
+ * Remove `revisions` and `history` arrays from a state snapshot before persisting.
+ * Current state should only contain `current_revision`, not full history.
+ * Revision history belongs in the eowiki event log, not in eowikicurrent.
+ */
+function stripRevisionHistory(snapshot: unknown): unknown {
+  if (!snapshot || typeof snapshot !== 'object') return snapshot;
+  const obj = { ...(snapshot as Record<string, unknown>) };
+  delete obj.revisions;
+  delete obj.history;
+  return obj;
+}
+
+/**
  * Upsert helper: creates or patches the current-state record for a record_id.
  * Pass `existing` (from a prior load) to avoid an extra GET.
  * If `existing` is null/undefined, we look up the record from the cache before
  * creating — this prevents duplicate rows for the same record_id.
  * Generates a UUID (v4) on create for deduplication.
+ *
+ * Automatically strips `revisions` and `history` arrays — those belong in the
+ * eowiki event log, not in the current-state snapshot.
  */
 export async function upsertCurrentRecord(
   recordId: string,
@@ -488,7 +528,7 @@ export async function upsertCurrentRecord(
     meta: { status, visibility },
   };
 
-  const values = JSON.stringify(stateSnapshot);
+  const values = JSON.stringify(stripRevisionHistory(stateSnapshot));
   const lastModified = new Date().toISOString();
 
   // If caller didn't pass an existing record, try to find one in the cache

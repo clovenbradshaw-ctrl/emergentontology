@@ -352,6 +352,129 @@ _registerCacheLookup((recordId: string) => {
   });
 });
 
+// ── Revision history loader (from eowiki event log) ─────────────────────────
+
+import type { WikiRevision } from '../eo/types';
+
+/** Cache for revision history loaded from the event log. */
+const revisionHistoryCache = new Map<string, { revisions: WikiRevision[]; ts: number }>();
+
+/**
+ * Fetch revision history for a content entity from the eowiki event log.
+ * Filters events where `subject` starts with `contentId` and contains `/rev:`,
+ * then extracts WikiRevision data from the event operand.
+ *
+ * Results are cached with the same TTL as other caches.
+ */
+export async function fetchRevisionHistory(contentId: string): Promise<WikiRevision[]> {
+  const now = Date.now();
+  const cached = revisionHistoryCache.get(contentId);
+  if (cached && now - cached.ts < CACHE_TTL) {
+    return cached.revisions;
+  }
+
+  try {
+    const allRecords = await fetchAllRecords();
+    const revisions: WikiRevision[] = [];
+
+    for (const record of allRecords) {
+      // Match events like "wiki:operators/rev:r_123"
+      if (!record.subject.startsWith(contentId + '/rev:')) continue;
+      if (record.op !== 'INS') continue;
+
+      try {
+        const operand = JSON.parse(record.value) as Record<string, unknown>;
+        const rev: WikiRevision = {
+          rev_id: String(operand.rev_id ?? record.subject.split('/rev:')[1] ?? `r_${record.id}`),
+          format: (operand.format as WikiRevision['format']) ?? 'html',
+          content: String(operand.content ?? ''),
+          summary: String(operand.summary ?? ''),
+          ts: operand.ts ? String(operand.ts) : new Date(record.created_at).toISOString(),
+        };
+        revisions.push(rev);
+      } catch {
+        // Skip malformed events
+      }
+    }
+
+    // Sort by timestamp ascending
+    revisions.sort((a, b) => new Date(a.ts).getTime() - new Date(b.ts).getTime());
+
+    revisionHistoryCache.set(contentId, { revisions, ts: now });
+    return revisions;
+  } catch (err) {
+    console.warn(`[stateCache] Failed to fetch revision history for ${contentId}:`, err);
+    return cached?.revisions ?? [];
+  }
+}
+
+// ── One-time migration: strip revisions/history from current state ───────────
+
+let _migrationRan = false;
+
+/**
+ * One-time migration: strip `revisions` and `history` arrays from
+ * eowikicurrent records that still contain them.
+ *
+ * Idempotent: only patches records whose `values` JSON contains
+ * a non-empty "revisions" or "history" array. Skips already-clean records.
+ * Runs at most once per session (guarded by module-level flag).
+ */
+export async function migrateStripRevisionHistory(
+  agent: string,
+): Promise<{ migrated: number; skipped: number }> {
+  if (_migrationRan) return { migrated: 0, skipped: 0 };
+  _migrationRan = true;
+
+  const allRecords = await fetchAllCurrentRecordsCached();
+  let migrated = 0;
+  let skipped = 0;
+  const toMigrate: { record: XanoCurrentRecord; parsed: Record<string, unknown> }[] = [];
+
+  for (const record of allRecords) {
+    let parsed: Record<string, unknown>;
+    try {
+      parsed = JSON.parse(record.values);
+    } catch {
+      skipped++;
+      continue;
+    }
+
+    const hasRevisions = Array.isArray(parsed.revisions) && parsed.revisions.length > 0;
+    const hasHistory = Array.isArray(parsed.history) && parsed.history.length > 0;
+
+    if (!hasRevisions && !hasHistory) {
+      skipped++;
+      continue;
+    }
+
+    // Strip revisions and history, keep everything else
+    delete parsed.revisions;
+    delete parsed.history;
+    toMigrate.push({ record, parsed });
+  }
+
+  // Batch in chunks of 5 to avoid overwhelming the API
+  for (let i = 0; i < toMigrate.length; i += 5) {
+    const chunk = toMigrate.slice(i, i + 5);
+    const results = await Promise.allSettled(
+      chunk.map(({ record, parsed }) =>
+        upsertCurrentRecord(record.record_id, parsed, agent, record)
+      ),
+    );
+    for (const result of results) {
+      if (result.status === 'fulfilled') migrated++;
+      else {
+        console.warn('[migration] Failed to clean record:', result.reason);
+        skipped++;
+      }
+    }
+  }
+
+  console.info(`[migration] stripRevisionHistory complete: ${migrated} migrated, ${skipped} skipped.`);
+  return { migrated, skipped };
+}
+
 // ── Helpers ─────────────────────────────────────────────────────────────────
 
 function defaultStaticPath(recordId: string): string {
