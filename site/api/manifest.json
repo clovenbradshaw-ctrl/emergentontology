@@ -8,7 +8,14 @@
     "endpoint": "https://xvkq-pq7i-idtl.n7d.xano.io/api:GGzWIVAW/get_public_eowiki",
     "note": "Live database API. This is the primary content source. Query parameters are all optional.",
     "parameters": {
-      "record_id": "Fetch a single record by ID (e.g. wiki:operators, blog:first-post, site:index)",
+      "id": "Filter by Xano row ID (integer)",
+      "created_at": "Filter by creation timestamp (ISO 8601)",
+      "record_id": "Filter by record ID (e.g. wiki:operators, blog:first-post, site:index)",
+      "displayName": "Filter by display name",
+      "values": "Filter by values field (JSON string)",
+      "context": "Filter by context (JSON object)",
+      "uuid": "Filter by UUID (v4)",
+      "lastModified": "Filter by last modified timestamp (ISO 8601)",
       "content_type": "Filter by content type: wiki, blog, experiment, document, page",
       "status": "Filter by status (default: published)",
       "visibility": "Filter by visibility (default: public)"

@@ -53,37 +53,66 @@ function fetchJson(url) {
  * Fetch ALL records from the Xano paginated endpoint.
  * Iterates through pages until all records are loaded.
  * Returns a deduped map: record_id → record.
+ *
+ * @param {Object} [filters] - Optional server-side filters:
+ *   id, created_at, record_id, displayName, values, context,
+ *   uuid, lastModified (all optional, maps to Xano WHERE clauses)
  */
-function fetchAllXanoRecords() {
-  if (_apiRecords) return Promise.resolve(_apiRecords);
-  if (_apiPromise) return _apiPromise;
+function fetchAllXanoRecords(filters) {
+  // When no filters, use the cached result
+  if (!filters && _apiRecords) return Promise.resolve(_apiRecords);
+  if (!filters && _apiPromise) return _apiPromise;
 
-  console.log('[eo] Fetching all records from Xano (paginated)…');
+  console.log('[eo] Fetching records from Xano (paginated)…');
 
-  _apiPromise = fetchXanoPage(1, [])
+  var promise = fetchXanoPage(1, [], filters)
     .then(function (allRecords) {
-      _apiPromise = null;
+      if (!filters) _apiPromise = null;
       if (!allRecords || allRecords.length === 0) return null;
 
-      _apiRecords = dedup(allRecords);
-      var ids = Object.keys(_apiRecords);
+      var result = dedup(allRecords);
+      var ids = Object.keys(result);
       console.log('[eo] Fetched ' + allRecords.length + ' records, ' + ids.length + ' unique');
-      return _apiRecords;
+      if (!filters) _apiRecords = result;
+      return result;
     })
     .catch(function (e) {
-      _apiPromise = null;
+      if (!filters) _apiPromise = null;
       console.warn('[eo] Xano fetch failed:', e.message || e);
       return null;
     });
 
-  return _apiPromise;
+  if (!filters) _apiPromise = promise;
+  return promise;
+}
+
+/**
+ * Build query string from optional filter params.
+ * Supported Xano-native filters: id, created_at, record_id,
+ * displayName, values, context, uuid, lastModified.
+ */
+function buildFilterQS(filters) {
+  if (!filters) return '';
+  var parts = [];
+  var keys = ['id', 'created_at', 'record_id', 'displayName', 'values', 'context', 'uuid', 'lastModified'];
+  for (var i = 0; i < keys.length; i++) {
+    var k = keys[i];
+    if (filters[k] != null) {
+      var v = (typeof filters[k] === 'object') ? JSON.stringify(filters[k]) : String(filters[k]);
+      parts.push(encodeURIComponent(k) + '=' + encodeURIComponent(v));
+    }
+  }
+  return parts.length > 0 ? '&' + parts.join('&') : '';
 }
 
 /**
  * Fetch a single page from Xano and recurse for remaining pages.
+ * @param {number} page - Page number
+ * @param {Array} accumulated - Records accumulated so far
+ * @param {Object} [filters] - Optional server-side filters
  */
-function fetchXanoPage(page, accumulated) {
-  var url = XANO_PUBLIC + '?page=' + page + '&per_page=25';
+function fetchXanoPage(page, accumulated, filters) {
+  var url = XANO_PUBLIC + '?page=' + page + '&per_page=25' + buildFilterQS(filters);
 
   var controller = new AbortController();
   var timer = setTimeout(function () { controller.abort(); }, API_TIMEOUT);
@@ -107,7 +136,7 @@ function fetchXanoPage(page, accumulated) {
       // Check if there are more pages
       var hasMore = data.nextPage && data.curPage < data.pageTotal;
       if (hasMore) {
-        return fetchXanoPage(data.nextPage, all);
+        return fetchXanoPage(data.nextPage, all, filters);
       }
 
       console.log('[eo] Loaded ' + all.length + ' / ' + (data.itemsTotal || all.length) + ' records');

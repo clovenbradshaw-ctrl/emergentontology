@@ -145,7 +145,16 @@ export async function fetchCurrentRecordByRecordId(
 
 /** Query filters for the eowikicurrent endpoint. */
 export interface CurrentRecordFilters {
+  // Xano-native column filters (server-side WHERE clauses)
+  id?: number;
+  created_at?: string;        // ISO timestamp
   record_id?: string;
+  displayName?: string;
+  values?: string;
+  context?: Record<string, unknown>;
+  uuid?: string;
+  lastModified?: string;      // ISO timestamp
+  // Derived filters (resolved from context fields)
   content_type?: string;
   status?: string;
   visibility?: string;
@@ -157,10 +166,19 @@ export async function fetchFilteredCurrentRecords(
 ): Promise<XanoCurrentRecord[]> {
   const endpoint = getEndpoint();
   const params: Record<string, string> = {};
+  // Xano-native column filters
+  if (filters.id != null) params.id = String(filters.id);
+  if (filters.created_at) params.created_at = filters.created_at;
+  if (filters.record_id) params.record_id = filters.record_id;
+  if (filters.displayName) params.displayName = filters.displayName;
+  if (filters.values) params.values = filters.values;
+  if (filters.context != null) params.context = JSON.stringify(filters.context);
+  if (filters.uuid) params.uuid = filters.uuid;
+  if (filters.lastModified) params.lastModified = filters.lastModified;
+  // Derived context filters
   if (filters.content_type) params.content_type = filters.content_type;
   if (filters.status) params.status = filters.status;
   if (filters.visibility) params.visibility = filters.visibility;
-  if (filters.record_id) params.record_id = filters.record_id;
 
   const resp = await fetch(buildUrl(endpoint, params), {
     signal: AbortSignal.timeout(TIMEOUT_MS),
