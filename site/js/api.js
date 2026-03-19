@@ -50,11 +50,12 @@ function fetchJson(url) {
 
 /**
  * Fetch a single record from the Xano public endpoint by record_id.
- * Uses the server-side ?record_id= filter so we don't download everything.
+ * The endpoint uses pagination (page/per_page) — we request a large page
+ * and filter client-side by record_id.
  * Returns the parsed record object, or null on failure.
  */
 function fetchXanoRecord(recordId, extraParams) {
-  var url = XANO_PUBLIC + '?record_id=' + encodeURIComponent(recordId);
+  var url = XANO_PUBLIC + '?per_page=200';
   if (extraParams) {
     var keys = Object.keys(extraParams);
     for (var i = 0; i < keys.length; i++) {
