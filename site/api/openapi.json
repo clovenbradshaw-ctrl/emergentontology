@@ -127,6 +127,45 @@
         }
       }
     },
+    "/xano/get_eowikicurrent": {
+      "get": {
+        "operationId": "getEOwikiCurrent",
+        "summary": "Query current-state records with optional filters",
+        "description": "Returns paginated EOwikiCurrent records from the live Xano database. All filter parameters are optional; omit them to fetch all records. Supports pagination via page/per_page.",
+        "parameters": [
+          { "name": "id", "in": "query", "schema": { "type": "integer" }, "description": "Filter by Xano row ID" },
+          { "name": "created_at", "in": "query", "schema": { "type": "string", "format": "date-time" }, "description": "Filter by creation timestamp" },
+          { "name": "record_id", "in": "query", "schema": { "type": "string" }, "description": "Filter by record ID (e.g. wiki:operators, site:index)" },
+          { "name": "displayName", "in": "query", "schema": { "type": "string" }, "description": "Filter by display name" },
+          { "name": "values", "in": "query", "schema": { "type": "string" }, "description": "Filter by values field" },
+          { "name": "context", "in": "query", "schema": { "type": "string" }, "description": "Filter by context (JSON object)" },
+          { "name": "uuid", "in": "query", "schema": { "type": "string", "format": "uuid" }, "description": "Filter by UUID" },
+          { "name": "lastModified", "in": "query", "schema": { "type": "string", "format": "date-time" }, "description": "Filter by last modified timestamp" },
+          { "name": "page", "in": "query", "schema": { "type": "integer", "default": 1 }, "description": "Page number for pagination" },
+          { "name": "per_page", "in": "query", "schema": { "type": "integer", "default": 25 }, "description": "Records per page" }
+        ],
+        "responses": {
+          "200": {
+            "description": "Paginated list of current-state records",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "items": { "type": "array", "items": { "$ref": "#/components/schemas/CurrentRecord" } },
+                    "curPage": { "type": "integer" },
+                    "nextPage": { "type": "integer", "nullable": true },
+                    "prevPage": { "type": "integer", "nullable": true },
+                    "itemsReceived": { "type": "integer" },
+                    "itemsTotal": { "type": "integer" }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/sitemap.json": {
       "get": {
         "operationId": "getSitemap",
@@ -252,6 +291,19 @@
           "color": { "type": "string", "description": "Display color (hex)" },
           "slug": { "type": "string", "description": "URL slug" },
           "wiki_url": { "type": "string", "description": "URL to the operator's wiki page" }
+        }
+      },
+      "CurrentRecord": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "integer", "description": "Xano row ID" },
+          "created_at": { "type": "string", "format": "date-time" },
+          "record_id": { "type": "string", "description": "Content identifier (e.g. wiki:operators, site:index)" },
+          "displayName": { "type": "string" },
+          "values": { "type": "string", "description": "JSON-stringified current state snapshot" },
+          "context": { "type": "object", "description": "Metadata (agent, ts, content_type, status, visibility)" },
+          "uuid": { "type": "string", "format": "uuid" },
+          "lastModified": { "type": "string", "format": "date-time" }
         }
       },
       "Sitemap": {
