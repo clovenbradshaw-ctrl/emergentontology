@@ -472,16 +472,81 @@
 
     // ── bootstrap ────────────────────────────────────────────────────────────
 
+    const XANO_API = 'https://xvkq-pq7i-idtl.n7d.xano.io/api:GGzWIVAW/get_eowikicurrent';
+
+    async function fetchAllXanoPages() {
+      let all = [];
+      let page = 1;
+      while (true) {
+        const resp = await fetch(XANO_API + '?page=' + page + '&per_page=25');
+        if (!resp.ok) break;
+        const data = await resp.json();
+        const records = Array.isArray(data) ? data : (data.items || []);
+        all = all.concat(records);
+        if (!data.nextPage || data.curPage >= data.pageTotal) break;
+        page = data.nextPage;
+      }
+      return all;
+    }
+
+    function synthesizeIndexFromRecords(records) {
+      const CONTENT_PREFIXES = ['wiki:', 'blog:', 'experiment:', 'page:', 'document:'];
+      const entries = [];
+      for (const rec of records) {
+        const id = rec.record_id;
+        if (!id || !CONTENT_PREFIXES.some(p => id.startsWith(p))) continue;
+        let parsed;
+        try { parsed = typeof rec.values === 'string' ? JSON.parse(rec.values) : rec.values; } catch (e) { continue; }
+        const meta = parsed.meta || {};
+        if (meta.status === 'archived') continue;
+        entries.push({
+          content_id: id,
+          slug: meta.slug || id.split(':').slice(1).join(':'),
+          title: meta.title || rec.displayName || id,
+          content_type: meta.content_type || id.split(':')[0],
+          status: meta.status || 'published',
+          visibility: meta.visibility || 'public',
+          tags: meta.tags || [],
+        });
+      }
+      const nav = entries.filter(e => e.status === 'published' && e.visibility === 'public');
+      return { entries, nav };
+    }
+
     (async function boot() {
       // 1. Try to load the generated state snapshot
+      let indexLoaded = false;
       try {
         const res = await fetch('generated/state/index.json', { cache: 'no-store' });
         if (res.ok) {
           const index = await res.json();
-          applyIndex(index);
+          if (index && index.entries && index.entries.length > 0) {
+            applyIndex(index);
+            indexLoaded = true;
+          }
         }
-      } catch (_) {
-        // generated state not present yet — template content stays visible
+      } catch (_) {}
+
+      // 1b. Fall back to Xano API if static index is missing or empty
+      if (!indexLoaded) {
+        try {
+          const records = await fetchAllXanoPages();
+          if (records.length > 0) {
+            // Check for site:index record first
+            const indexRec = records.find(r => r.record_id === 'site:index');
+            let index;
+            if (indexRec) {
+              const parsed = typeof indexRec.values === 'string' ? JSON.parse(indexRec.values) : indexRec.values;
+              index = parsed;
+              if (!index.nav) {
+                index.nav = (index.entries || []).filter(e => e.status === 'published' && e.visibility === 'public');
+              }
+            } else {
+              index = synthesizeIndexFromRecords(records);
+            }
+            applyIndex(index);
+          }
+        } catch (_) {}
       }
 
       // 2. Try to load the live-sync script (present after Astro build deploys)

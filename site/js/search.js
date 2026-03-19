@@ -11,6 +11,21 @@
 
   var typeLabels = { wiki: 'Wiki', blog: 'Blog', experiment: 'Experiment', page: 'Page' };
 
+  async function fetchAllXanoPages(xanoBase) {
+    let all = [];
+    let page = 1;
+    while (true) {
+      const resp = await fetch(xanoBase + '/get_eowikicurrent?page=' + page + '&per_page=25', { signal: AbortSignal.timeout(15000) });
+      if (!resp.ok) break;
+      const data = await resp.json();
+      const records = Array.isArray(data) ? data : (data.items || []);
+      all = all.concat(records);
+      if (!data.nextPage || data.curPage >= data.pageTotal) break;
+      page = data.nextPage;
+    }
+    return all;
+  }
+
   function typeUrl(type, slug) {
     switch (type) {
       case 'wiki': return base + '/wiki/' + slug + '/';
@@ -43,34 +58,48 @@
       if (resp.ok) data = await resp.json();
     } catch (e) { /* ignore */ }
 
-    // If static index is empty, build from Xano public API
+    // If static index is empty, build from Xano public API (paginated)
     if (!data || data.length === 0) {
       try {
-        const resp = await fetch(XANO_BASE + '/get_eowikicurrent?per_page=200', { signal: AbortSignal.timeout(10000) });
-        if (resp.ok) {
-          const raw = await resp.json();
-          // Handle both paginated wrapper {items:[...]} and flat array responses
-          const records = Array.isArray(raw) ? raw : (raw && raw.items ? raw.items : []);
-          if (records.length > 0) {
-            const isCurrentFormat = records[0].record_id !== undefined && records[0].values !== undefined;
-            if (isCurrentFormat) {
-              const indexRec = records.find(r => r.record_id === 'site:index');
-              if (indexRec) {
-                const siteIndex = JSON.parse(indexRec.values);
-                const entries = (siteIndex.nav && siteIndex.nav.length > 0)
-                  ? siteIndex.nav
-                  : (siteIndex.entries || []).filter(e => e.status === 'published' && e.visibility === 'public');
-                data = entries.map(e => ({
-                  title: e.title,
-                  type: typeLabels[e.content_type] || e.content_type,
-                  url: typeUrl(e.content_type, e.slug),
-                  tags: e.tags || [],
-                  keywords: e.keywords || [],
-                  description: e.description || '',
-                  excerpt: e.description || '',
-                }));
-              }
-            }
+        const allRecords = await fetchAllXanoPages(XANO_BASE);
+        if (allRecords.length > 0) {
+          // Try site:index record first
+          const indexRec = allRecords.find(r => r.record_id === 'site:index');
+          if (indexRec) {
+            const siteIndex = JSON.parse(indexRec.values);
+            const entries = (siteIndex.nav && siteIndex.nav.length > 0)
+              ? siteIndex.nav
+              : (siteIndex.entries || []).filter(e => e.status === 'published' && e.visibility === 'public');
+            data = entries.map(e => ({
+              title: e.title,
+              type: typeLabels[e.content_type] || e.content_type,
+              url: typeUrl(e.content_type, e.slug),
+              tags: e.tags || [],
+              keywords: e.keywords || [],
+              description: e.description || '',
+              excerpt: e.description || '',
+            }));
+          } else {
+            // No site:index — build search data from individual content records
+            data = allRecords
+              .filter(r => r.record_id && r.record_id !== 'site:index' && r.values)
+              .map(r => {
+                try {
+                  const parsed = JSON.parse(r.values);
+                  const meta = parsed.meta || {};
+                  if (meta.status === 'archived') return null;
+                  return {
+                    title: meta.title || r.displayName || '',
+                    type: typeLabels[meta.content_type] || meta.content_type || '',
+                    url: typeUrl(meta.content_type, meta.slug),
+                    tags: meta.tags || [],
+                    keywords: meta.keywords || [],
+                    description: meta.description || '',
+                    excerpt: meta.description || '',
+                  };
+                } catch (e) { return null; }
+              })
+              .filter(Boolean);
           }
         }
       } catch (e) { /* ignore */ }
