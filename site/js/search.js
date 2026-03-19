@@ -46,10 +46,12 @@
     // If static index is empty, build from Xano public API
     if (!data || data.length === 0) {
       try {
-        const resp = await fetch(XANO_BASE + '/get_eowikicurrent', { signal: AbortSignal.timeout(10000) });
+        const resp = await fetch(XANO_BASE + '/get_eowikicurrent?per_page=200', { signal: AbortSignal.timeout(10000) });
         if (resp.ok) {
-          const records = await resp.json();
-          if (Array.isArray(records) && records.length > 0) {
+          const raw = await resp.json();
+          // Handle both paginated wrapper {items:[...]} and flat array responses
+          const records = Array.isArray(raw) ? raw : (raw && raw.items ? raw.items : []);
+          if (records.length > 0) {
             const isCurrentFormat = records[0].record_id !== undefined && records[0].values !== undefined;
             if (isCurrentFormat) {
               const indexRec = records.find(r => r.record_id === 'site:index');
