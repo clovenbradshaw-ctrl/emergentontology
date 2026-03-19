@@ -8,7 +8,7 @@ import { useAuth } from '../auth/AuthContext';
 import { useSettings } from '../settings/SettingsContext';
 import { useXRay } from './XRayOverlay';
 import {
-  addRecord,
+  logEvent,
   upsertCurrentRecord,
   eventToPayload,
   type XanoCurrentRecord,
@@ -80,10 +80,7 @@ export default function MetadataBar({ contentId, onTitleChange }: Props) {
 
     try {
       const desEvent = desIndexEntry(contentId, fields, agent);
-      const xid = `sig-meta-${contentId}-${Date.now()}`;
-      registerEvent({ id: xid, op: desEvent.op, target: desEvent.target, operand: desEvent.operand, ts: desEvent.ctx.ts, agent: desEvent.ctx.agent, status: 'pending' });
-      await addRecord(eventToPayload(desEvent));
-      registerEvent({ id: xid, op: desEvent.op, target: desEvent.target, operand: desEvent.operand, ts: desEvent.ctx.ts, agent: desEvent.ctx.agent, status: 'sent' });
+      const ts = desEvent.ctx.ts;
 
       const updatedEntry = { ...entry, ...fields } as IndexEntry;
       setEntry(updatedEntry);
@@ -97,6 +94,7 @@ export default function MetadataBar({ contentId, onTitleChange }: Props) {
         return { entries, nav, slug_map, built_at: new Date().toISOString() };
       }
 
+      // 1. Update current-state records (authoritative)
       const updated = await upsertCurrentRecord(
         'site:index',
         buildPayload(allEntriesRef.current),
@@ -106,19 +104,25 @@ export default function MetadataBar({ contentId, onTitleChange }: Props) {
       indexRecordRef.current = updated;
 
       // Best-effort update content's own meta
-      const metaEvent = desContentMeta(contentId, {
-        ...fields,
-        updated_at: desEvent.ctx.ts,
-      } as any, agent);
-      await addRecord(eventToPayload(metaEvent));
       try {
         const contentRec = await fetchCurrentRecordCached(contentId);
         if (contentRec) {
           const contentState = JSON.parse(contentRec.values);
-          contentState.meta = { ...contentState.meta, ...fields, updated_at: desEvent.ctx.ts };
+          contentState.meta = { ...contentState.meta, ...fields, updated_at: ts };
           await upsertCurrentRecord(contentId, contentState, agent, contentRec);
         }
       } catch { /* best-effort */ }
+
+      // 2. Fire-and-forget: log events for change tracking
+      const xid = `sig-meta-${contentId}-${Date.now()}`;
+      logEvent(eventToPayload(desEvent));
+      registerEvent({ id: xid, op: desEvent.op, target: desEvent.target, operand: desEvent.operand, ts: desEvent.ctx.ts, agent: desEvent.ctx.agent, status: 'sent' });
+
+      const metaEvent = desContentMeta(contentId, {
+        ...fields,
+        updated_at: ts,
+      } as any, agent);
+      logEvent(eventToPayload(metaEvent));
 
       if (fields.title && onTitleChange) onTitleChange(fields.title);
     } catch (err) {

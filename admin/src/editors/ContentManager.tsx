@@ -16,7 +16,7 @@ import { useAuth } from '../auth/AuthContext';
 import { useSettings } from '../settings/SettingsContext';
 import { useXRay } from '../components/XRayOverlay';
 import {
-  addRecord,
+  logEvent,
   upsertCurrentRecord,
   eventToPayload,
   type XanoCurrentRecord,
@@ -182,34 +182,7 @@ export default function ContentManager({ siteBase, onOpen }: Props) {
     const ts = new Date().toISOString();
 
     try {
-      // 1. Emit INS index event to eowiki log
-      const insEvent = insIndexEntry(contentId, {
-        slug: newSlug.trim(),
-        title: newTitle.trim(),
-        content_type: newType,
-        status: settings.defaultStatus,
-        visibility: newVisibility,
-        tags: [],
-      }, agent);
-      const xid = `ins-index-${contentId}`;
-      registerEvent({ id: xid, op: insEvent.op, target: insEvent.target, operand: insEvent.operand, ts: insEvent.ctx.ts, agent: insEvent.ctx.agent, status: 'pending' });
-      await addRecord(eventToPayload(insEvent));
-      registerEvent({ id: xid, op: insEvent.op, target: insEvent.target, operand: insEvent.operand, ts: insEvent.ctx.ts, agent: insEvent.ctx.agent, status: 'sent' });
-
-      // 2. Emit SIG content meta event
-      const desEvent = desContentMeta(contentId, {
-        content_id: contentId,
-        content_type: newType,
-        slug: newSlug.trim(),
-        title: newTitle.trim(),
-        status: settings.defaultStatus,
-        visibility: newVisibility,
-        tags: [],
-        updated_at: ts,
-      }, agent);
-      await addRecord(eventToPayload(desEvent));
-
-      // 3. Update site:index current state
+      // 1. Update site:index current state (authoritative)
       const newEntry: IndexEntry = {
         content_id: contentId,
         slug: newSlug.trim(),
@@ -230,7 +203,7 @@ export default function ContentManager({ siteBase, onOpen }: Props) {
       );
       indexRecordRef.current = updated;
 
-      // 4. Create initial current state for the new content
+      // 2. Create initial current state for the new content
       await upsertCurrentRecord(contentId, {
         meta: {
           content_id: contentId,
@@ -252,6 +225,31 @@ export default function ContentManager({ siteBase, onOpen }: Props) {
       setEntries(updatedEntries);
       setNewSlug('');
       setNewTitle('');
+
+      // 3. Fire-and-forget: log events for change tracking
+      const insEvent = insIndexEntry(contentId, {
+        slug: newSlug.trim(),
+        title: newTitle.trim(),
+        content_type: newType,
+        status: settings.defaultStatus,
+        visibility: newVisibility,
+        tags: [],
+      }, agent);
+      logEvent(eventToPayload(insEvent));
+      registerEvent({ id: `ins-index-${contentId}`, op: insEvent.op, target: insEvent.target, operand: insEvent.operand, ts: insEvent.ctx.ts, agent: insEvent.ctx.agent, status: 'sent' });
+
+      const desEvent = desContentMeta(contentId, {
+        content_id: contentId,
+        content_type: newType,
+        slug: newSlug.trim(),
+        title: newTitle.trim(),
+        status: settings.defaultStatus,
+        visibility: newVisibility,
+        tags: [],
+        updated_at: ts,
+      }, agent);
+      logEvent(eventToPayload(desEvent));
+
       onOpen(contentId, newType);
     } catch (err) {
       setError(err instanceof Error ? err.message : String(err));
@@ -268,14 +266,9 @@ export default function ContentManager({ siteBase, onOpen }: Props) {
     const agent = settings.displayName || 'editor';
 
     try {
-      // 1. Emit SIG index event
-      const desEvent = desIndexEntry(contentId, { status: newStatus }, agent);
-      const xid = `sig-status-${contentId}`;
-      registerEvent({ id: xid, op: desEvent.op, target: desEvent.target, operand: desEvent.operand, ts: desEvent.ctx.ts, agent: desEvent.ctx.agent, status: 'pending' });
-      await addRecord(eventToPayload(desEvent));
-      registerEvent({ id: xid, op: desEvent.op, target: desEvent.target, operand: desEvent.operand, ts: desEvent.ctx.ts, agent: desEvent.ctx.agent, status: 'sent' });
+      const ts = new Date().toISOString();
 
-      // 2. Update site:index current state
+      // 1. Update site:index current state (authoritative)
       const updatedEntries = entries.map((e) => e.content_id === contentId ? { ...e, status: newStatus } : e);
       const updated = await upsertCurrentRecord(
         'site:index',
@@ -286,20 +279,26 @@ export default function ContentManager({ siteBase, onOpen }: Props) {
       indexRecordRef.current = updated;
       setEntries(updatedEntries);
 
-      // 3. Also update content's own meta with new status
-      const metaEvent = desContentMeta(contentId, {
-        status: newStatus,
-        updated_at: desEvent.ctx.ts,
-      } as Partial<import('../eo/types').ContentMeta>, agent);
-      await addRecord(eventToPayload(metaEvent));
+      // 2. Also update content's own meta with new status
       try {
         const contentRec = await fetchCurrentRecordCached(contentId);
         if (contentRec) {
           const contentState = JSON.parse(contentRec.values);
-          contentState.meta = { ...contentState.meta, status: newStatus, updated_at: desEvent.ctx.ts };
+          contentState.meta = { ...contentState.meta, status: newStatus, updated_at: ts };
           await upsertCurrentRecord(contentId, contentState, agent, contentRec);
         }
       } catch (err) { console.warn('[ContentManager] state sync failed:', err); }
+
+      // 3. Fire-and-forget: log events for change tracking
+      const desEvent = desIndexEntry(contentId, { status: newStatus }, agent);
+      logEvent(eventToPayload(desEvent));
+      registerEvent({ id: `sig-status-${contentId}`, op: desEvent.op, target: desEvent.target, operand: desEvent.operand, ts: desEvent.ctx.ts, agent: desEvent.ctx.agent, status: 'sent' });
+
+      const metaEvent = desContentMeta(contentId, {
+        status: newStatus,
+        updated_at: ts,
+      } as Partial<import('../eo/types').ContentMeta>, agent);
+      logEvent(eventToPayload(metaEvent));
     } catch (err) {
       setError(err instanceof Error ? err.message : String(err));
     }
@@ -313,17 +312,12 @@ export default function ContentManager({ siteBase, onOpen }: Props) {
     const agent = settings.displayName || 'editor';
 
     try {
-      // 1. Emit SIG index event
-      const desEvent = desIndexEntry(contentId, { visibility: newVisibility }, agent);
-      const xid = `sig-visibility-${contentId}`;
-      registerEvent({ id: xid, op: desEvent.op, target: desEvent.target, operand: desEvent.operand, ts: desEvent.ctx.ts, agent: desEvent.ctx.agent, status: 'pending' });
-      await addRecord(eventToPayload(desEvent));
-      registerEvent({ id: xid, op: desEvent.op, target: desEvent.target, operand: desEvent.operand, ts: desEvent.ctx.ts, agent: desEvent.ctx.agent, status: 'sent' });
+      const ts = new Date().toISOString();
 
-      // 2. Update site:index current state — track first_public_at on initial SIG as public
+      // 1. Update site:index current state (authoritative) — track first_public_at
       const entry = entries.find((e) => e.content_id === contentId);
       const isFirstPublic = newVisibility === 'public' && entry && !entry.first_public_at;
-      const firstPublicTs = isFirstPublic ? desEvent.ctx.ts : undefined;
+      const firstPublicTs = isFirstPublic ? ts : undefined;
 
       const updatedEntries = entries.map((e) => {
         if (e.content_id !== contentId) return e;
@@ -340,14 +334,8 @@ export default function ContentManager({ siteBase, onOpen }: Props) {
       indexRecordRef.current = updated;
       setEntries(updatedEntries);
 
-      // 3. Also update content's own meta with first_public_at so editors can see it
+      // 2. Also update content's own meta with first_public_at so editors can see it
       if (firstPublicTs) {
-        const metaEvent = desContentMeta(contentId, {
-          visibility: newVisibility,
-          first_public_at: firstPublicTs,
-          updated_at: desEvent.ctx.ts,
-        } as Partial<import('../eo/types').ContentMeta>, agent);
-        await addRecord(eventToPayload(metaEvent));
         try {
           const contentRec = await fetchCurrentRecordCached(contentId);
           if (contentRec) {
@@ -356,6 +344,20 @@ export default function ContentManager({ siteBase, onOpen }: Props) {
             await upsertCurrentRecord(contentId, contentState, agent, contentRec);
           }
         } catch (err) { console.warn('[ContentManager] state sync failed:', err); }
+      }
+
+      // 3. Fire-and-forget: log events for change tracking
+      const desEvent = desIndexEntry(contentId, { visibility: newVisibility }, agent);
+      logEvent(eventToPayload(desEvent));
+      registerEvent({ id: `sig-visibility-${contentId}`, op: desEvent.op, target: desEvent.target, operand: desEvent.operand, ts: desEvent.ctx.ts, agent: desEvent.ctx.agent, status: 'sent' });
+
+      if (firstPublicTs) {
+        const metaEvent = desContentMeta(contentId, {
+          visibility: newVisibility,
+          first_public_at: firstPublicTs,
+          updated_at: ts,
+        } as Partial<import('../eo/types').ContentMeta>, agent);
+        logEvent(eventToPayload(metaEvent));
       }
     } catch (err) {
       setError(err instanceof Error ? err.message : String(err));
@@ -414,21 +416,7 @@ export default function ContentManager({ siteBase, onOpen }: Props) {
     const ts = new Date().toISOString();
 
     try {
-      // 1. Emit NUL index event to the event log
-      const nulEvent = nulIndexEntry(contentId, agent);
-      const xid = `nul-index-${contentId}`;
-      registerEvent({ id: xid, op: nulEvent.op, target: nulEvent.target, operand: nulEvent.operand, ts: nulEvent.ctx.ts, agent: nulEvent.ctx.agent, status: 'pending' });
-      await addRecord(eventToPayload(nulEvent));
-      registerEvent({ id: xid, op: nulEvent.op, target: nulEvent.target, operand: nulEvent.operand, ts: nulEvent.ctx.ts, agent: nulEvent.ctx.agent, status: 'sent' });
-
-      // 2. Emit SIG event to set content meta status to 'archived'
-      const metaEvent = desContentMeta(contentId, {
-        status: 'archived' as ContentStatus,
-        updated_at: ts,
-      } as Partial<import('../eo/types').ContentMeta>, agent);
-      await addRecord(eventToPayload(metaEvent));
-
-      // 3. Update site:index current state — remove the entry entirely
+      // 1. Update site:index current state — remove the entry (authoritative)
       const updatedEntries = entries.filter((e) => e.content_id !== contentId);
       const updated = await upsertCurrentRecord(
         'site:index',
@@ -439,7 +427,7 @@ export default function ContentManager({ siteBase, onOpen }: Props) {
       indexRecordRef.current = updated;
       setEntries(updatedEntries);
 
-      // 4. Update content's own current state to archived
+      // 2. Update content's own current state to archived
       try {
         const contentRec = await fetchCurrentRecordCached(contentId);
         if (contentRec) {
@@ -448,6 +436,17 @@ export default function ContentManager({ siteBase, onOpen }: Props) {
           await upsertCurrentRecord(contentId, contentState, agent, contentRec);
         }
       } catch (err) { console.warn('[ContentManager] state sync failed:', err); }
+
+      // 3. Fire-and-forget: log events for change tracking
+      const nulEvent = nulIndexEntry(contentId, agent);
+      logEvent(eventToPayload(nulEvent));
+      registerEvent({ id: `nul-index-${contentId}`, op: nulEvent.op, target: nulEvent.target, operand: nulEvent.operand, ts: nulEvent.ctx.ts, agent: nulEvent.ctx.agent, status: 'sent' });
+
+      const metaEvent = desContentMeta(contentId, {
+        status: 'archived' as ContentStatus,
+        updated_at: ts,
+      } as Partial<import('../eo/types').ContentMeta>, agent);
+      logEvent(eventToPayload(metaEvent));
     } catch (err) {
       setError(err instanceof Error ? err.message : String(err));
     }
@@ -461,21 +460,7 @@ export default function ContentManager({ siteBase, onOpen }: Props) {
     const ts = new Date().toISOString();
 
     try {
-      // 1. Emit SIG index event to set status back to 'draft'
-      const desEvent = desIndexEntry(contentId, { status: 'draft' }, agent);
-      const xid = `sig-restore-${contentId}`;
-      registerEvent({ id: xid, op: desEvent.op, target: desEvent.target, operand: desEvent.operand, ts: desEvent.ctx.ts, agent: desEvent.ctx.agent, status: 'pending' });
-      await addRecord(eventToPayload(desEvent));
-      registerEvent({ id: xid, op: desEvent.op, target: desEvent.target, operand: desEvent.operand, ts: desEvent.ctx.ts, agent: desEvent.ctx.agent, status: 'sent' });
-
-      // 2. Emit SIG content meta event
-      const metaEvent = desContentMeta(contentId, {
-        status: 'draft' as ContentStatus,
-        updated_at: ts,
-      } as Partial<import('../eo/types').ContentMeta>, agent);
-      await addRecord(eventToPayload(metaEvent));
-
-      // 3. Update site:index current state
+      // 1. Update site:index current state (authoritative)
       const updatedEntries = entries.map((e) =>
         e.content_id === contentId ? { ...e, status: 'draft' as ContentStatus } : e
       );
@@ -488,7 +473,7 @@ export default function ContentManager({ siteBase, onOpen }: Props) {
       indexRecordRef.current = updated;
       setEntries(updatedEntries);
 
-      // 4. Update content's own current state
+      // 2. Update content's own current state
       try {
         const contentRec = await fetchCurrentRecordCached(contentId);
         if (contentRec) {
@@ -497,6 +482,17 @@ export default function ContentManager({ siteBase, onOpen }: Props) {
           await upsertCurrentRecord(contentId, contentState, agent, contentRec);
         }
       } catch (err) { console.warn('[ContentManager] state sync failed:', err); }
+
+      // 3. Fire-and-forget: log events for change tracking
+      const desEvent = desIndexEntry(contentId, { status: 'draft' }, agent);
+      logEvent(eventToPayload(desEvent));
+      registerEvent({ id: `sig-restore-${contentId}`, op: desEvent.op, target: desEvent.target, operand: desEvent.operand, ts: desEvent.ctx.ts, agent: desEvent.ctx.agent, status: 'sent' });
+
+      const metaEvent = desContentMeta(contentId, {
+        status: 'draft' as ContentStatus,
+        updated_at: ts,
+      } as Partial<import('../eo/types').ContentMeta>, agent);
+      logEvent(eventToPayload(metaEvent));
     } catch (err) {
       setError(err instanceof Error ? err.message : String(err));
     }
@@ -509,14 +505,9 @@ export default function ContentManager({ siteBase, onOpen }: Props) {
     const agent = settings.displayName || 'editor';
 
     try {
-      // 1. Emit SIG index event
-      const desEvent = desIndexEntry(contentId, fields, agent);
-      const xid = `sig-field-${contentId}-${Date.now()}`;
-      registerEvent({ id: xid, op: desEvent.op, target: desEvent.target, operand: desEvent.operand, ts: desEvent.ctx.ts, agent: desEvent.ctx.agent, status: 'pending' });
-      await addRecord(eventToPayload(desEvent));
-      registerEvent({ id: xid, op: desEvent.op, target: desEvent.target, operand: desEvent.operand, ts: desEvent.ctx.ts, agent: desEvent.ctx.agent, status: 'sent' });
+      const ts = new Date().toISOString();
 
-      // 2. Update site:index current state
+      // 1. Update site:index current state (authoritative)
       const updatedEntries = entries.map((e) =>
         e.content_id === contentId ? { ...e, ...fields } : e
       );
@@ -529,20 +520,26 @@ export default function ContentManager({ siteBase, onOpen }: Props) {
       indexRecordRef.current = updated;
       setEntries(updatedEntries);
 
-      // 3. Best-effort update content's own meta
-      const metaEvent = desContentMeta(contentId, {
-        ...fields,
-        updated_at: desEvent.ctx.ts,
-      } as Partial<import('../eo/types').ContentMeta>, agent);
-      await addRecord(eventToPayload(metaEvent));
+      // 2. Best-effort update content's own meta
       try {
         const contentRec = await fetchCurrentRecordCached(contentId);
         if (contentRec) {
           const contentState = JSON.parse(contentRec.values);
-          contentState.meta = { ...contentState.meta, ...fields, updated_at: desEvent.ctx.ts };
+          contentState.meta = { ...contentState.meta, ...fields, updated_at: ts };
           await upsertCurrentRecord(contentId, contentState, agent, contentRec);
         }
       } catch (err) { console.warn('[ContentManager] state sync failed:', err); }
+
+      // 3. Fire-and-forget: log events for change tracking
+      const desEvent = desIndexEntry(contentId, fields, agent);
+      logEvent(eventToPayload(desEvent));
+      registerEvent({ id: `sig-field-${contentId}-${Date.now()}`, op: desEvent.op, target: desEvent.target, operand: desEvent.operand, ts: desEvent.ctx.ts, agent: desEvent.ctx.agent, status: 'sent' });
+
+      const metaEvent = desContentMeta(contentId, {
+        ...fields,
+        updated_at: ts,
+      } as Partial<import('../eo/types').ContentMeta>, agent);
+      logEvent(eventToPayload(metaEvent));
     } catch (err) {
       setError(err instanceof Error ? err.message : String(err));
     }
@@ -559,31 +556,7 @@ export default function ContentManager({ siteBase, onOpen }: Props) {
     const ts = new Date().toISOString();
 
     try {
-      const insEvent = insIndexEntry(sp.content_id, {
-        slug: sp.slug,
-        title: sp.title,
-        content_type: sp.content_type,
-        status: settings.defaultStatus,
-        visibility: 'public',
-        tags: [],
-      }, agent);
-      const xid = `ins-index-${sp.content_id}`;
-      registerEvent({ id: xid, op: insEvent.op, target: insEvent.target, operand: insEvent.operand, ts: insEvent.ctx.ts, agent: insEvent.ctx.agent, status: 'pending' });
-      await addRecord(eventToPayload(insEvent));
-      registerEvent({ id: xid, op: insEvent.op, target: insEvent.target, operand: insEvent.operand, ts: insEvent.ctx.ts, agent: insEvent.ctx.agent, status: 'sent' });
-
-      const desEvent = desContentMeta(sp.content_id, {
-        content_id: sp.content_id,
-        content_type: sp.content_type,
-        slug: sp.slug,
-        title: sp.title,
-        status: settings.defaultStatus,
-        visibility: 'public',
-        tags: [],
-        updated_at: ts,
-      }, agent);
-      await addRecord(eventToPayload(desEvent));
-
+      // 1. Update current-state records (authoritative)
       const newEntry: IndexEntry = {
         content_id: sp.content_id,
         slug: sp.slug,
@@ -623,6 +596,31 @@ export default function ContentManager({ siteBase, onOpen }: Props) {
       }, agent, null);
 
       setEntries(updatedEntries);
+
+      // 2. Fire-and-forget: log events for change tracking
+      const insEvent = insIndexEntry(sp.content_id, {
+        slug: sp.slug,
+        title: sp.title,
+        content_type: sp.content_type,
+        status: settings.defaultStatus,
+        visibility: 'public',
+        tags: [],
+      }, agent);
+      logEvent(eventToPayload(insEvent));
+      registerEvent({ id: `ins-index-${sp.content_id}`, op: insEvent.op, target: insEvent.target, operand: insEvent.operand, ts: insEvent.ctx.ts, agent: insEvent.ctx.agent, status: 'sent' });
+
+      const desEvent = desContentMeta(sp.content_id, {
+        content_id: sp.content_id,
+        content_type: sp.content_type,
+        slug: sp.slug,
+        title: sp.title,
+        status: settings.defaultStatus,
+        visibility: 'public',
+        tags: [],
+        updated_at: ts,
+      }, agent);
+      logEvent(eventToPayload(desEvent));
+
       onOpen(sp.content_id, sp.content_type);
     } catch (err) {
       setError(err instanceof Error ? err.message : String(err));

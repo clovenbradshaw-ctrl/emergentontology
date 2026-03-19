@@ -17,7 +17,7 @@ import { useAuth } from '../auth/AuthContext';
 import { useSettings } from '../settings/SettingsContext';
 import { useXRay } from '../components/XRayOverlay';
 import {
-  addRecord,
+  logEvent,
   upsertCurrentRecord,
   eventToPayload,
   type XanoCurrentRecord,
@@ -196,9 +196,7 @@ export default function DocumentEditor({ contentId, siteBase }: Props) {
     registerEvent({ id: xid, op: event.op, target: event.target, operand: event.operand, ts: event.ctx.ts, agent: event.ctx.agent, status: 'pending' });
 
     try {
-      await addRecord(eventToPayload(event));
-      registerEvent({ id: xid, op: event.op, target: event.target, operand: event.operand, ts: event.ctx.ts, agent: event.ctx.agent, status: 'sent' });
-
+      // 1. Build and save current-state snapshot (authoritative)
       const newRev: WikiRevision = { rev_id: revId, format: 'html', content: editorContent, summary: summary || 'Edit', ts };
       const updatedState: DocState = {
         meta: state?.meta ?? {},
@@ -209,6 +207,10 @@ export default function DocumentEditor({ contentId, siteBase }: Props) {
 
       const updated = await upsertCurrentRecord(contentId, updatedState, agent, currentRecordRef.current);
       currentRecordRef.current = updated;
+
+      // 2. Fire-and-forget: log event for change tracking
+      logEvent(eventToPayload(event));
+      registerEvent({ id: xid, op: event.op, target: event.target, operand: event.operand, ts: event.ctx.ts, agent: event.ctx.agent, status: 'sent' });
 
       setState(updatedState);
       savedStateRef.current = updatedState;
@@ -249,9 +251,7 @@ export default function DocumentEditor({ contentId, siteBase }: Props) {
     registerEvent({ id: xid, op: event.op, target: event.target, operand: event.operand, ts: event.ctx.ts, agent: event.ctx.agent, status: 'pending' });
 
     try {
-      await addRecord(eventToPayload(event));
-      registerEvent({ id: xid, op: event.op, target: event.target, operand: event.operand, ts: event.ctx.ts, agent: event.ctx.agent, status: 'sent' });
-
+      // 1. Save current-state snapshot (authoritative)
       const newAsset: DocumentAsset = { ...asset, deleted: false };
       const updatedState: DocState = {
         ...state!,
@@ -260,6 +260,10 @@ export default function DocumentEditor({ contentId, siteBase }: Props) {
 
       const updated = await upsertCurrentRecord(contentId, updatedState, agent, currentRecordRef.current);
       currentRecordRef.current = updated;
+
+      // 2. Fire-and-forget: log event for change tracking
+      logEvent(eventToPayload(event));
+      registerEvent({ id: xid, op: event.op, target: event.target, operand: event.operand, ts: event.ctx.ts, agent: event.ctx.agent, status: 'sent' });
 
       setState(updatedState);
       savedStateRef.current = updatedState;
@@ -285,9 +289,7 @@ export default function DocumentEditor({ contentId, siteBase }: Props) {
     registerEvent({ id: xid, op: event.op, target: event.target, operand: event.operand, ts: event.ctx.ts, agent: event.ctx.agent, status: 'pending' });
 
     try {
-      await addRecord(eventToPayload(event));
-      registerEvent({ id: xid, op: event.op, target: event.target, operand: event.operand, ts: event.ctx.ts, agent: event.ctx.agent, status: 'sent' });
-
+      // 1. Save current-state snapshot (authoritative)
       const updatedState: DocState = {
         ...state!,
         assets: (state?.assets ?? []).map(a =>
@@ -297,6 +299,10 @@ export default function DocumentEditor({ contentId, siteBase }: Props) {
 
       const updated = await upsertCurrentRecord(contentId, updatedState, agent, currentRecordRef.current);
       currentRecordRef.current = updated;
+
+      // 2. Fire-and-forget: log event for change tracking
+      logEvent(eventToPayload(event));
+      registerEvent({ id: xid, op: event.op, target: event.target, operand: event.operand, ts: event.ctx.ts, agent: event.ctx.agent, status: 'sent' });
 
       setState(updatedState);
       savedStateRef.current = updatedState;

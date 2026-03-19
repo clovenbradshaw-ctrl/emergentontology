@@ -17,7 +17,7 @@ import { useAuth } from '../auth/AuthContext';
 import { useSettings } from '../settings/SettingsContext';
 import { useXRay } from '../components/XRayOverlay';
 import {
-  addRecord,
+  logEvent,
   upsertCurrentRecord,
   eventToPayload,
   type XanoCurrentRecord,
@@ -235,45 +235,10 @@ export default function ExperimentEditor({ contentId, siteBase }: Props) {
       if (bodyChanged) {
         const revId = `r_${Date.now()}`;
         const ts = new Date().toISOString();
-        const event = insRevision(contentId, {
-          rev_id: revId,
-          format: 'html' as WikiRevision['format'],
-          content: editorContent,
-          summary: summary || 'Edit',
-          ts,
-        }, agent);
-
-        const xid = `${event.op}-${revId}`;
-        registerEvent({ id: xid, op: event.op, target: event.target, operand: event.operand, ts: event.ctx.ts, agent: event.ctx.agent, status: 'pending' });
-        await addRecord(eventToPayload(event));
-        registerEvent({ id: xid, op: event.op, target: event.target, operand: event.operand, ts: event.ctx.ts, agent: event.ctx.agent, status: 'sent' });
-
         newRev = { rev_id: revId, format: 'html' as WikiRevision['format'], content: editorContent, summary: summary || 'Edit', ts };
       }
 
-      // ── Entry log events ────────────────────────────────────────────────
-
-      // Emit INS events for new entries
-      for (const entry of state.entries) {
-        if (savedEntryIds.has(entry.entry_id)) continue;
-        const event = insExpEntry(contentId, entry, agent);
-        const xid = `ins-entry-${entry.entry_id}`;
-        registerEvent({ id: xid, op: event.op, target: event.target, operand: event.operand, ts: event.ctx.ts, agent: event.ctx.agent, status: 'pending' });
-        await addRecord(eventToPayload(event));
-        registerEvent({ id: xid, op: event.op, target: event.target, operand: event.operand, ts: event.ctx.ts, agent: event.ctx.agent, status: 'sent' });
-      }
-
-      // Emit NUL events for deleted entries
-      for (const entry of (saved?.entries ?? [])) {
-        if (currentEntryIds.has(entry.entry_id)) continue;
-        const event = nulExpEntry(contentId, entry.entry_id, agent);
-        const xid = `nul-${entry.entry_id}`;
-        registerEvent({ id: xid, op: event.op, target: event.target, operand: event.operand, ts: event.ctx.ts, agent: event.ctx.agent, status: 'pending' });
-        await addRecord(eventToPayload(event));
-        registerEvent({ id: xid, op: event.op, target: event.target, operand: event.operand, ts: event.ctx.ts, agent: event.ctx.agent, status: 'sent' });
-      }
-
-      // ── Build updated state snapshot ────────────────────────────────────
+      // ── 1. Build and save current-state snapshot (authoritative) ───────
 
       const updatedState: ExpState = {
         meta: state.meta,
@@ -282,7 +247,6 @@ export default function ExperimentEditor({ contentId, siteBase }: Props) {
         current_revision: newRev ?? state.current_revision,
       };
 
-      // Upsert current state snapshot
       const updated = await upsertCurrentRecord(contentId, updatedState, agent, currentRecordRef.current);
       currentRecordRef.current = updated;
 
@@ -291,6 +255,37 @@ export default function ExperimentEditor({ contentId, siteBase }: Props) {
       savedContentRef.current = editorContent;
       setIsDirty(false);
       setSummary('');
+
+      // ── 2. Fire-and-forget: log events for change tracking ─────────────
+
+      if (newRev) {
+        const event = insRevision(contentId, {
+          rev_id: newRev.rev_id,
+          format: newRev.format,
+          content: newRev.content,
+          summary: newRev.summary,
+          ts: newRev.ts,
+        }, agent);
+        const xid = `${event.op}-${newRev.rev_id}`;
+        logEvent(eventToPayload(event));
+        registerEvent({ id: xid, op: event.op, target: event.target, operand: event.operand, ts: event.ctx.ts, agent: event.ctx.agent, status: 'sent' });
+      }
+
+      for (const entry of state.entries) {
+        if (savedEntryIds.has(entry.entry_id)) continue;
+        const event = insExpEntry(contentId, entry, agent);
+        const xid = `ins-entry-${entry.entry_id}`;
+        logEvent(eventToPayload(event));
+        registerEvent({ id: xid, op: event.op, target: event.target, operand: event.operand, ts: event.ctx.ts, agent: event.ctx.agent, status: 'sent' });
+      }
+
+      for (const entry of (saved?.entries ?? [])) {
+        if (currentEntryIds.has(entry.entry_id)) continue;
+        const event = nulExpEntry(contentId, entry.entry_id, agent);
+        const xid = `nul-${entry.entry_id}`;
+        logEvent(eventToPayload(event));
+        registerEvent({ id: xid, op: event.op, target: event.target, operand: event.operand, ts: event.ctx.ts, agent: event.ctx.agent, status: 'sent' });
+      }
     } catch (err) {
       const msg = err instanceof Error ? err.message : String(err);
       setError(`Save failed: ${msg}`);

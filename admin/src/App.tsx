@@ -102,7 +102,7 @@ function LoginForm() {
         </form>
 
         <p className="login-note">
-          Content is stored in the Xano EOwiki event log.
+          Content is stored in the Xano current-state table.
           Session persists across browser sessions.
         </p>
       </div>

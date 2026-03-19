@@ -1,10 +1,13 @@
 /**
  * stateCache.ts — In-memory cache + unified state loader.
  *
- * Architecture:
- *   Primary:  eowikicurrent (fast snapshots) — cached in memory with TTL
- *   Fallback: static /generated/state/ files  — pre-built at deploy time
- *   Freshness: eowiki event log — checked after load to apply unseen deltas
+ * Architecture (current-state-first):
+ *   Primary:    eowikicurrent (authoritative snapshots) — cached in memory with TTL
+ *   Fallback:   static /generated/state/ files  — pre-built at deploy time
+ *   Secondary:  eowiki event log — change tracking only, never overrides current state
+ *
+ * The current-state table is fully self-contained: if the event log were
+ * deleted, the site and admin editor would continue to work normally.
  *
  * The cache eliminates the N+1 problem where every fetchCurrentRecord() call
  * re-fetched ALL records from the API. Now records are fetched once and shared
@@ -22,7 +25,6 @@ import {
   _registerCacheHook,
   _registerCacheLookup,
 } from './client';
-import { applyDelta } from '../eo/replay';
 import type { ProjectedContent, EORawEvent } from '../eo/types';
 
 // ── Cache configuration ─────────────────────────────────────────────────────
@@ -256,14 +258,19 @@ export async function loadState<T = unknown>(
 }
 
 // ── Freshness check (event-log delta) ───────────────────────────────────────
+//
+// The event log is for change-tracking only.  The current-state table
+// (eowikicurrent) is the authoritative source of truth.  These functions
+// are kept for diagnostic/observability purposes but no longer override
+// the loaded state — if newer events exist they are logged to the console
+// so admins can investigate, but the current-state snapshot is trusted.
 
 /**
  * Check the event log for events newer than a given snapshot timestamp.
  * Returns raw events scoped to the given contentId that happened after
  * the snapshot was last modified.
  *
- * This is intentionally a separate call so editors can fire it in the
- * background after the initial (fast) load from current state.
+ * Used for observability only — results do NOT override current state.
  */
 export async function fetchNewerEvents(
   contentId: string,
@@ -273,7 +280,6 @@ export async function fetchNewerEvents(
     const allRecords = await fetchAllRecords();
     const cutoff = new Date(snapshotLastModified).getTime();
 
-    // Filter to events targeting this content that are newer than the snapshot
     return allRecords
       .filter((r) => {
         const rootId = r.subject.split('/')[0];
@@ -286,48 +292,41 @@ export async function fetchNewerEvents(
 }
 
 /**
- * After an initial load from current state, check the event log for
- * any events that happened after the snapshot and apply them as deltas.
+ * Check the event log for events newer than the loaded snapshot.
  *
- * Returns the updated state if deltas were applied, or null if no updates found.
- * Optionally persists the updated snapshot back to eowikicurrent.
+ * This is an observability-only check: the current-state table is
+ * authoritative, so newer events are logged to the console but never
+ * applied on top of the snapshot.  The returned `hadUpdates` flag is
+ * always false — callers should not replace their state.
+ *
+ * @deprecated Kept for backward compatibility.  Callers can safely
+ * remove their applyFreshnessUpdate calls — the current-state table
+ * is the single source of truth.
  */
 export async function applyFreshnessUpdate<T extends ProjectedContent>(
   contentId: string,
   currentState: T,
   snapshotRecord: XanoCurrentRecord | null,
-  opts?: { persist?: boolean; agent?: string },
+  _opts?: { persist?: boolean; agent?: string },
 ): Promise<{ updated: T; hadUpdates: boolean }> {
   if (!snapshotRecord) {
     return { updated: currentState, hadUpdates: false };
   }
 
-  const newerEvents = await fetchNewerEvents(contentId, snapshotRecord.lastModified);
+  // Fire-and-forget: check for newer events for observability
+  fetchNewerEvents(contentId, snapshotRecord.lastModified)
+    .then((events) => {
+      if (events.length > 0) {
+        console.info(
+          `[stateCache] ${events.length} newer event(s) found in log for ${contentId} — ` +
+          `current-state snapshot is authoritative, events are for tracking only.`,
+        );
+      }
+    })
+    .catch(() => { /* non-fatal */ });
 
-  if (newerEvents.length === 0) {
-    return { updated: currentState, hadUpdates: false };
-  }
-
-  // Apply the delta events on top of the current snapshot
-  const updated = applyDelta(currentState, newerEvents) as T;
-
-  // Optionally persist the updated state back to eowikicurrent.
-  // upsertCurrentRecord automatically syncs the cache via the hook,
-  // so no explicit updateCachedRecord call needed here.
-  if (opts?.persist !== false && opts?.agent) {
-    try {
-      await upsertCurrentRecord(
-        contentId,
-        updated,
-        opts.agent,
-        snapshotRecord,
-      );
-    } catch (err) {
-      console.warn(`[stateCache] Could not persist freshness update for ${contentId}:`, err);
-    }
-  }
-
-  return { updated, hadUpdates: true };
+  // Always return the current state unchanged — it is the source of truth
+  return { updated: currentState, hadUpdates: false };
 }
 
 // ── Auto-register cache hooks ───────────────────────────────────────────────
