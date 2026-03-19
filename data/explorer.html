@@ -171,6 +171,60 @@
 
     .site-footer { text-align: center; padding: 1.5rem; color: var(--text-dim); font-size: .8rem; border-top: 1px solid var(--border); }
 
+    /* Guide / explainer styles */
+    .guide-text { color: var(--text); line-height: 1.7; max-width: 72ch; margin-bottom: .75rem; font-size: .9rem; }
+    .guide-text strong { color: var(--accent); }
+    .q-card {
+      background: var(--bg2); border: 1px solid var(--border); border-radius: var(--radius);
+      padding: 16px 20px; margin-bottom: 12px;
+    }
+    .q-card-header { display: flex; align-items: baseline; gap: .6rem; margin-bottom: .6rem; }
+    .q-badge {
+      font-family: var(--font-mono); font-size: .7rem; font-weight: 700;
+      background: var(--accent); color: #fff; border-radius: 4px; padding: 2px 8px;
+    }
+    .q-card-title { font-weight: 600; font-size: .95rem; }
+    .q-card-question { font-style: italic; color: var(--text-dim); font-size: .85rem; margin-bottom: .6rem; }
+    .q-opts { list-style: none; }
+    .q-opts li { display: flex; gap: .5rem; align-items: baseline; padding: 3px 0; font-size: .85rem; }
+    .q-opt-name { font-family: var(--font-mono); font-weight: 600; font-size: .8rem; min-width: 130px; flex-shrink: 0; }
+    .q-opt-desc { color: var(--text-dim); }
+    .verdict-box {
+      background: var(--bg2); border: 1px solid var(--border); border-radius: var(--radius);
+      padding: 16px 20px; margin-top: 1rem;
+    }
+    .verdict-box h3 { font-size: 1rem; margin-bottom: .5rem; }
+    .verdict-list { list-style: none; }
+    .verdict-list li { padding: 3px 0; font-size: .85rem; }
+    .v-pass { color: var(--green); font-weight: 700; margin-right: .35rem; }
+    .v-fail { color: var(--red); font-weight: 700; margin-right: .35rem; }
+
+    /* VS Code raw report */
+    .vscode-wrap {
+      background: #1e1e1e; border: 1px solid #333; border-radius: 8px; overflow: hidden;
+    }
+    .vscode-titlebar {
+      background: #252526; color: #ccc; font-family: var(--font-mono); font-size: .78rem;
+      padding: .4rem 1rem; border-bottom: 1px solid #333; display: flex; align-items: center; gap: .5rem;
+    }
+    .vscode-dot { width: 10px; height: 10px; border-radius: 50%; display: inline-block; }
+    .vscode-dot.r { background: #f14c4c; }
+    .vscode-dot.y { background: #cca700; }
+    .vscode-dot.g { background: #4ec9b0; }
+    .vscode-editor { display: flex; overflow-x: auto; max-height: 82vh; overflow-y: auto; }
+    .vscode-gutter {
+      flex-shrink: 0; padding: .75rem .5rem .75rem .75rem; text-align: right;
+      color: #858585; font-family: var(--font-mono); font-size: .75rem; line-height: 1.5;
+      user-select: none; background: #1e1e1e; border-right: 1px solid #333; min-width: 3.5rem;
+    }
+    .vscode-content {
+      flex: 1; padding: .75rem 1rem; font-family: var(--font-mono); font-size: .75rem;
+      line-height: 1.5; color: #d4d4d4; white-space: pre; overflow-x: auto;
+    }
+    .ansi-green { color: #4ec9b0; }
+    .ansi-red { color: #f14c4c; }
+    .ansi-yellow { color: #cca700; }
+
     /* Two-column layout */
     .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; align-items: start; }
     .two-col > * { min-width: 0; }
@@ -203,7 +257,7 @@
   <main>
     <section class="hero">
       <h1>Empirical Grounding <span style="color:var(--text-dim);font-weight:400;font-size:.85em">(Preliminary)</span></h1>
-      <p class="hero-sub">Live data explorer — every number fetched at runtime from the analysis JSON. Click any value to trace its provenance.</p>
+      <p class="hero-sub">Start with the Guide for a walkthrough, then explore live data from the analysis. Click any value to trace its provenance.</p>
     </section>
 
     <div class="tabs" id="tabs"></div>
@@ -386,6 +440,7 @@ function makeTable(headers, rows) {
 
 /* ── Tab definitions ──────────────────────────────────────────────────────── */
 const TABS = [
+  { id: 'guide', label: 'Guide' },
   { id: 'overview', label: 'Overview' },
   { id: 'zscores', label: 'Z-Scores' },
   { id: 'proportionality', label: 'Proportionality' },
@@ -396,6 +451,7 @@ const TABS = [
   { id: 'coordgeo', label: 'Coord Geo' },
   { id: 'composite', label: 'Composite' },
   { id: 'figures', label: 'Figures' },
+  { id: 'rawreport', label: 'Raw Report' },
 ];
 
 function initTabs() {
@@ -441,7 +497,7 @@ document.getElementById('theme-toggle').addEventListener('click', () => {
 /* ═══════════════════════════════════════════════════════════════════════════ */
 
 function renderOverview(R, C, H, CT) {
-  const d = el('div', { id: 'tab-overview', class: 'tab-content active' });
+  const d = el('div', { id: 'tab-overview', class: 'tab-content' });
 
   // Summary cards (full width)
   const cards = el('div', { class: 'cards' });
@@ -895,14 +951,212 @@ function renderFigures() {
   return d;
 }
 
+/* ── Guide (static explainer) ─────────────────────────────────────────── */
+function renderGuide() {
+  const d = el('div', { id: 'tab-guide', class: 'tab-content active' });
+
+  d.appendChild(el('div', { class: 'section-title' }, 'What is this data?'));
+  [
+    'Emergent Ontology (EO) proposes that <strong>any transformation</strong> — any event where something changes — can be located in a <strong>27-cell structure</strong> defined by three independent axes. This study tests whether those axes correspond to real, measurable dimensions in the geometry of natural language.',
+    'We took <strong>19,764 real sentences</strong> from corpora in <strong>41 languages</strong>, asked three plain questions about each sentence, then embedded the original text using an AI model that has never seen EO vocabulary. We measured whether sentences classified the same way ended up <strong>geometrically close</strong> in embedding space. No EO terminology appears anywhere in the embeddings — only the original sentences.',
+    'Two independent AI models (Claude and GPT-4) classified every sentence. Where both agreed, we call that the <strong>consensus set</strong> (9,221 clauses). The other tabs show whether the classification picks up real geometric structure or just noise.',
+  ].forEach(html => {
+    const p = el('p', { class: 'guide-text' }); p.innerHTML = html; d.appendChild(p);
+  });
+
+  d.appendChild(el('div', { class: 'section-title' }, 'The Three Questions'));
+  const intro = el('p', { class: 'guide-text' });
+  intro.innerHTML = 'Every sentence is classified by answering three independent questions. Together, the three answers place the sentence in one of 3 &times; 3 &times; 3 = <strong>27 cells</strong>.';
+  d.appendChild(intro);
+
+  // Q1
+  const q1 = el('div', { class: 'q-card' });
+  const q1h = el('div', { class: 'q-card-header' });
+  q1h.appendChild(el('span', { class: 'q-badge' }, 'Q1'));
+  q1h.appendChild(el('span', { class: 'q-card-title' }, 'Mode — What kind of transformation is this?'));
+  q1.appendChild(q1h);
+  q1.appendChild(el('div', { class: 'q-card-question' }, '"Is this transformation separating, connecting, or producing?"'));
+  const q1ul = el('ul', { class: 'q-opts' });
+  [['DIFFERENTIATING', 'Separating, pulling apart, distinguishing, cutting, analyzing. The transformation draws boundaries or dissolves existing wholes into parts.'],
+   ['RELATING', 'Connecting, linking, binding, maintaining, holding together. The transformation creates or sustains a relationship between elements.'],
+   ['GENERATING', 'Producing, creating, composing, cultivating, making. The transformation brings something new into being or assembles from components.']
+  ].forEach(([name, desc]) => {
+    const li = el('li');
+    li.appendChild(el('span', { class: 'q-opt-name' }, name));
+    li.appendChild(el('span', { class: 'q-opt-desc' }, desc));
+    q1ul.appendChild(li);
+  });
+  q1.appendChild(q1ul);
+  d.appendChild(q1);
+
+  // Q2
+  const q2 = el('div', { class: 'q-card' });
+  const q2h = el('div', { class: 'q-card-header' });
+  q2h.appendChild(el('span', { class: 'q-badge' }, 'Q2'));
+  q2h.appendChild(el('span', { class: 'q-card-title' }, 'Domain — What level is it operating on?'));
+  q2.appendChild(q2h);
+  q2.appendChild(el('div', { class: 'q-card-question' }, '"Is it operating on existence, organization, or meaning?"'));
+  const q2ul = el('ul', { class: 'q-opts' });
+  [['EXISTENCE', 'Basic being, presence, substance, survival. The domain of whether something exists at all — creation, destruction, presence, absence.'],
+   ['STRUCTURE', 'Organization, arrangement, relationship, architecture. The domain of how things are organized relative to each other.'],
+   ['SIGNIFICANCE', 'Meaning, interpretation, value, importance. The domain of what things mean, how they are evaluated, and why they matter.']
+  ].forEach(([name, desc]) => {
+    const li = el('li');
+    li.appendChild(el('span', { class: 'q-opt-name' }, name));
+    li.appendChild(el('span', { class: 'q-opt-desc' }, desc));
+    q2ul.appendChild(li);
+  });
+  q2.appendChild(q2ul);
+  d.appendChild(q2);
+
+  // Q3
+  const q3 = el('div', { class: 'q-card' });
+  const q3h = el('div', { class: 'q-card-header' });
+  q3h.appendChild(el('span', { class: 'q-badge' }, 'Q3'));
+  q3h.appendChild(el('span', { class: 'q-card-title' }, 'Object — What kind of target is being transformed?'));
+  q3.appendChild(q3h);
+  q3.appendChild(el('div', { class: 'q-card-question' }, '"Is the target a background condition, a specific thing, or a pattern?"'));
+  const q3ul = el('ul', { class: 'q-opts' });
+  [['CONDITION', 'Background, ambient, contextual, pre-figural. The target is a ground-level state or atmosphere — market confidence, organizational culture, "the vibe." (Entity type: Emanon)'],
+   ['ENTITY', 'Specific, stable, self-maintaining, bounded. The target has clear identity and holds itself together — a cell, an institution, a person, a language. (Entity type: Holon)'],
+   ['PATTERN', 'Crystallizing, emerging, in-formation. The target is a pattern still taking shape — startups, developing theories, emerging movements. (Entity type: Protogon)']
+  ].forEach(([name, desc]) => {
+    const li = el('li');
+    li.appendChild(el('span', { class: 'q-opt-name' }, name));
+    li.appendChild(el('span', { class: 'q-opt-desc' }, desc));
+    q3ul.appendChild(li);
+  });
+  q3.appendChild(q3ul);
+  d.appendChild(q3);
+
+  // 27-cell grid explanation
+  d.appendChild(el('div', { class: 'section-title' }, 'The 27-Cell Grid'));
+  const gridText = el('p', { class: 'guide-text' });
+  gridText.innerHTML = 'Combining three answers (3 &times; 3 &times; 3) produces <strong>27 cells</strong>, each representing a specific type of transformation. Each cell has a three-letter operator code (like CON, SUP, INS) and a descriptive name. Some cells are natural "gravity wells" — common transformations that language gravitates toward — while others are sparsely populated.';
+  d.appendChild(gridText);
+
+  const gwTitle = el('p', { class: 'guide-text', style: 'margin-top:.25rem' });
+  gwTitle.innerHTML = 'The three most populated cells in the consensus data:';
+  d.appendChild(gwTitle);
+
+  const gwCards = el('div', { class: 'cards', style: 'grid-template-columns: repeat(auto-fill, minmax(200px, 1fr))' });
+  [['CON — Connection', '27.1%', 'Relating × Structure × Entity — binding links together'],
+   ['INS — Instantiation', '16.9%', 'Generating × Existence × Entity — making entities exist'],
+   ['SUP — Superposition', '16.0%', 'Relating × Significance × Entity — binding lenses of meaning']
+  ].forEach(([title, pct, desc]) => {
+    const c = el('div', { class: 'card' });
+    c.appendChild(el('div', { class: 'label' }, title));
+    c.appendChild(el('div', { class: 'value' }, pct));
+    c.appendChild(el('div', { class: 'sub' }, desc));
+    gwCards.appendChild(c);
+  });
+  d.appendChild(gwCards);
+
+  // Key results summary
+  d.appendChild(el('div', { class: 'section-title' }, 'Key Results'));
+  const resText = el('p', { class: 'guide-text' });
+  resText.innerHTML = 'Four pre-committed predictions were locked before data processing. Results use the consensus label set (9,221 clauses where both Claude and GPT-4 agreed).';
+  d.appendChild(resText);
+
+  const resCards = el('div', { class: 'cards', style: 'grid-template-columns: repeat(auto-fill, minmax(220px, 1fr))' });
+  [['Per-Axis Z-Scores', 'Q1 +2.17 · Q2 +4.09 · Q3 +4.81', 'Standard deviations above chance. Full 27-cell z = +16.15.'],
+   ['Proportionality ✓', 'Monotonic', 'Distance increases with axis-difference count. Bootstrap p = 0.01.'],
+   ['Axis Independence', 'ARI: 0.03 · −0.01 · 0.18', 'Q1/Q3 and Q2/Q3 independent. Q1/Q2 at 0.185 — above 0.10 threshold.'],
+   ['Inter-Model Agreement ✓', 'κ 0.54 · 0.51 · 0.48', 'Moderate agreement across all three questions.']
+  ].forEach(([title, value, desc]) => {
+    const c = el('div', { class: 'card' });
+    c.appendChild(el('div', { class: 'label' }, title));
+    c.appendChild(el('div', { class: 'value', style: 'font-size:1rem' }, value));
+    c.appendChild(el('div', { class: 'sub' }, desc));
+    resCards.appendChild(c);
+  });
+  d.appendChild(resCards);
+
+  // Cross-linguistic
+  const clText = el('p', { class: 'guide-text' });
+  clText.innerHTML = '<strong>30 of 41 languages</strong> show significant z-scores (z > 2) for the full 27-cell structure, including Arabic, Japanese, Finnish, Latin, and Classical Chinese. The structure is not English-specific.';
+  d.appendChild(clText);
+
+  // Verdict
+  const vbox = el('div', { class: 'verdict-box' });
+  vbox.appendChild(el('h3', {}, 'Verdict'));
+  const vul = el('ul', { class: 'verdict-list' });
+  [['pass', 'Distance scales monotonically with axis-difference count'],
+   ['fail', 'All pairwise ARI < 0.10 — not met (Q1/Q2 = 0.185)'],
+   ['pass', 'Q2 z-score exceeds Q1 z-score (Domain primacy)'],
+   ['pass', 'Inter-model kappa thresholds met (Q1 > 0.50, Q2 > 0.40, Q3 > 0.35)']
+  ].forEach(([status, text]) => {
+    const li = el('li');
+    li.appendChild(el('span', { class: status === 'pass' ? 'v-pass' : 'v-fail' }, status === 'pass' ? '✓' : '✗'));
+    li.appendChild(document.createTextNode(text));
+    vul.appendChild(li);
+  });
+  vbox.appendChild(vul);
+  const vNote = el('p', { class: 'guide-text', style: 'margin-top:.6rem;margin-bottom:0' });
+  vNote.innerHTML = 'Three of four pre-committed predictions passed. One failed: Mode and Domain are not fully independent (ARI = 0.185 vs threshold of 0.10). The correlation may reflect a real structural dependency (the "helix") rather than a flaw — see the <strong>Helix</strong> tab for analysis.';
+  vbox.appendChild(vNote);
+  d.appendChild(vbox);
+
+  // Navigation hint
+  const nav = el('p', { class: 'guide-text', style: 'margin-top:1.5rem;color:var(--text-dim)' });
+  nav.innerHTML = 'Use the tabs above to explore the detailed data: <strong>Overview</strong> shows live metrics, <strong>Z-Scores</strong> breaks down by label set, <strong>Languages</strong> shows per-language results, and <strong>Raw Report</strong> shows the full plaintext analysis.';
+  d.appendChild(nav);
+
+  return d;
+}
+
+/* ── Raw Report (VS Code style) ──────────────────────────────────────── */
+function renderRawReport() {
+  const d = el('div', { id: 'tab-rawreport', class: 'tab-content' });
+
+  const wrap = el('div', { class: 'vscode-wrap' });
+  const titlebar = el('div', { class: 'vscode-titlebar' });
+  titlebar.appendChild(el('span', { class: 'vscode-dot r' }));
+  titlebar.appendChild(el('span', { class: 'vscode-dot y' }));
+  titlebar.appendChild(el('span', { class: 'vscode-dot g' }));
+  titlebar.appendChild(el('span', { style: 'margin-left:.5rem' }, 'analysis_report.txt — Emergent Ontology'));
+  wrap.appendChild(titlebar);
+
+  const editor = el('div', { class: 'vscode-editor', id: 'vscode-editor' });
+  const gutter = el('div', { class: 'vscode-gutter', id: 'vscode-gutter' });
+  const content = el('div', { class: 'vscode-content', id: 'vscode-content' });
+  content.textContent = 'Loading report...';
+  editor.appendChild(gutter);
+  editor.appendChild(content);
+  wrap.appendChild(editor);
+  d.appendChild(wrap);
+
+  // Lazy-load on first view
+  if (!window._rawReportLoaded) {
+    fetch(RAW_BASE + 'analysis_report.txt')
+      .then(r => r.text())
+      .then(raw => {
+        window._rawReportLoaded = true;
+        const lines = raw.split('\n');
+        gutter.textContent = lines.map((_, i) => i + 1).join('\n');
+        content.innerHTML = lines.map(line => {
+          let s = line.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+          s = s.replace(/\x1b\[32m/g, '<span class="ansi-green">');
+          s = s.replace(/\x1b\[31m/g, '<span class="ansi-red">');
+          s = s.replace(/\x1b\[33m/g, '<span class="ansi-yellow">');
+          s = s.replace(/\x1b\[0m/g, '</span>');
+          return s;
+        }).join('\n');
+      })
+      .catch(err => { content.textContent = 'Failed to load report: ' + err.message; });
+  }
+
+  return d;
+}
+
 /* ── Main ──────────────────────────────────────────────────────────────── */
 function render(data) {
   const { results: R, centroid: C, coord: CG, helix: H, composite: CT } = data;
   const content = document.getElementById('content');
   content.innerHTML = '';
-  [renderOverview(R, C, H, CT), renderZscores(R), renderProportionality(R), renderLanguages(R),
+  [renderGuide(), renderOverview(R, C, H, CT), renderZscores(R), renderProportionality(R), renderLanguages(R),
    renderCells(R, H), renderClassifier(C), renderHelix(R, H), renderCoordGeo(CG, R),
-   renderComposite(CT), renderFigures()
+   renderComposite(CT), renderFigures(), renderRawReport()
   ].forEach(s => content.appendChild(s));
 }
 
