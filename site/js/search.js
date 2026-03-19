@@ -46,7 +46,7 @@
     // If static index is empty, build from Xano public API
     if (!data || data.length === 0) {
       try {
-        const resp = await fetch(XANO_BASE + '/get_public_eowiki', { signal: AbortSignal.timeout(10000) });
+        const resp = await fetch(XANO_BASE + '/get_eowikicurrent', { signal: AbortSignal.timeout(10000) });
         if (resp.ok) {
           const records = await resp.json();
           if (Array.isArray(records) && records.length > 0) {
