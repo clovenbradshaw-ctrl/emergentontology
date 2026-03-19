@@ -42,24 +42,79 @@ export interface XanoCurrentRecord {
   lastModified: string;  // ISO timestamp
 }
 
-/** Build the private endpoint URL, optionally with query parameters. */
-function buildUrl(endpoint: string, params?: Record<string, string>): string {
+/** Pagination parameters for paginated Xano endpoints. */
+export interface PaginationParams {
+  page?: number;
+  per_page?: number;
+}
+
+/** Paginated response wrapper returned by Xano list endpoints. */
+export interface PaginatedResponse<T> {
+  items: T[];
+  curPage: number;
+  nextPage: number | null;
+  prevPage: number | null;
+  itemsReceived: number;
+  itemsTotal: number;
+}
+
+/**
+ * Normalise a Xano response that may be a flat array or a paginated wrapper.
+ */
+function unwrapResponse(data: unknown): XanoCurrentRecord[] {
+  if (Array.isArray(data)) return data as XanoCurrentRecord[];
+  if (data && typeof data === 'object' && 'items' in data) {
+    return (data as PaginatedResponse<XanoCurrentRecord>).items;
+  }
+  return data ? [data as XanoCurrentRecord] : [];
+}
+
+/** Build the private endpoint URL, optionally with query and pagination parameters. */
+function buildUrl(endpoint: string, params?: Record<string, string>, pagination?: PaginationParams): string {
   const url = `${XANO_BASE}/${endpoint}`;
-  if (!params || Object.keys(params).length === 0) return url;
-  const qs = new URLSearchParams(params).toString();
+  const allParams: Record<string, string> = { ...params };
+  if (pagination?.page != null) allParams.page = String(pagination.page);
+  if (pagination?.per_page != null) allParams.per_page = String(pagination.per_page);
+  if (Object.keys(allParams).length === 0) return url;
+  const qs = new URLSearchParams(allParams).toString();
   return `${url}?${qs}`;
 }
 
-export async function fetchAllCurrentRecords(): Promise<XanoCurrentRecord[]> {
-  const endpoint = getEndpoint();
-  const resp = await fetch(buildUrl(endpoint), {
+/** Fetch a single page of current-state records. */
+async function fetchPage(endpoint: string, pagination?: PaginationParams): Promise<PaginatedResponse<XanoCurrentRecord>> {
+  const resp = await fetch(buildUrl(endpoint, undefined, pagination), {
     signal: AbortSignal.timeout(TIMEOUT_MS),
   });
   if (!resp.ok) {
     const body = await resp.text().catch(() => '');
     throw new Error(`Xano fetch failed: HTTP ${resp.status} — ${body}`);
   }
-  return resp.json() as Promise<XanoCurrentRecord[]>;
+  const data = await resp.json();
+  if (data && typeof data === 'object' && 'items' in data) {
+    return data as PaginatedResponse<XanoCurrentRecord>;
+  }
+  const items = Array.isArray(data) ? data : [data];
+  return { items, curPage: 1, nextPage: null, prevPage: null, itemsReceived: items.length, itemsTotal: items.length };
+}
+
+export async function fetchAllCurrentRecords(): Promise<XanoCurrentRecord[]> {
+  const endpoint = getEndpoint();
+  const first = await fetchPage(endpoint, { page: 1, per_page: 200 });
+  const all: XanoCurrentRecord[] = [...first.items];
+
+  if (first.itemsTotal > first.itemsReceived) {
+    const totalPages = Math.ceil(first.itemsTotal / (first.items.length || 200));
+    const pagePromises: Promise<PaginatedResponse<XanoCurrentRecord>>[] = [];
+    for (let p = 2; p <= totalPages; p++) {
+      pagePromises.push(fetchPage(endpoint, { page: p, per_page: 200 }));
+    }
+    const pages = await Promise.all(pagePromises);
+    for (const page of pages) {
+      all.push(...page.items);
+    }
+  }
+
+  return all;
 }
 
 /** Fetch a single current-state record by record_id. */
@@ -75,7 +130,7 @@ export async function fetchCurrentRecordByRecordId(
     throw new Error(`Xano single-record fetch failed: HTTP ${resp.status} — ${body}`);
   }
   const data = await resp.json();
-  const records: XanoCurrentRecord[] = Array.isArray(data) ? data : data ? [data] : [];
+  const records: XanoCurrentRecord[] = unwrapResponse(data);
   // Filter to only records matching the requested record_id — in case
   // the server-side filter is ignored and all records are returned.
   const matching = records.filter((r) => r && r.record_id === recordId);
@@ -115,7 +170,7 @@ export async function fetchFilteredCurrentRecords(
     throw new Error(`Xano filtered fetch failed: HTTP ${resp.status} — ${body}`);
   }
   const data = await resp.json();
-  return Array.isArray(data) ? data : [data];
+  return unwrapResponse(data);
 }
 
 function getEndpoint(): string {

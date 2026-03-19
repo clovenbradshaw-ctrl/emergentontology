@@ -73,8 +73,8 @@ function fetchXanoRecord(recordId, extraParams) {
     })
     .then(function (data) {
       if (!data) return null;
-      // Xano may return a single object or an array
-      var records = Array.isArray(data) ? data : [data];
+      // Xano may return a paginated wrapper, single object, or an array
+      var records = Array.isArray(data) ? data : (data.items ? data.items : [data]);
       // Filter to only records matching the requested record_id — in case
       // the server ignores the filter and returns all records
       var matches = records.filter(function (r) { return r && r.record_id === recordId; });
