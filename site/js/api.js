@@ -6,11 +6,9 @@
  *   2. Xano current-state API (get_eowikicurrent — pre-computed, no replay)
  *   3. N8N webhook fallback (legacy, fetches all records)
  *
- * The Xano endpoint supports query parameters:
- *   ?record_id=wiki:operators   → single record by ID
- *   ?content_type=wiki          → filter by type
- *   ?status=published           → filter by status (default: published)
- *   ?visibility=public          → filter by visibility (default: public)
+ * The Xano endpoint uses pagination (?page=&per_page=) and returns all
+ * records as a paginated list.  We fetch once with per_page=200 and cache
+ * the result as a record_id → record map for fast lookups.
  *
  * Provides:
  *   - loadIndex()   → SiteIndex
@@ -46,46 +44,60 @@ function fetchJson(url) {
   }).catch(function () { return null; });
 }
 
-// ── Xano single-record fetch ─────────────────────────────────────────────────
+// ── Xano paginated fetch ─────────────────────────────────────────────────────
+
+var _xanoRecords = null;    // deduped map of record_id → record (from Xano)
+var _xanoPromise = null;    // in-flight Xano fetch (prevents duplicate requests)
 
 /**
- * Fetch a single record from the Xano public endpoint by record_id.
- * The endpoint uses pagination (page/per_page) — we request a large page
- * and filter client-side by record_id.
- * Returns the parsed record object, or null on failure.
+ * Fetch all records from the Xano public endpoint (paginated).
+ * Returns a deduped map: record_id → most-recent record.
+ * Results are cached so subsequent lookups don't re-fetch.
  */
-function fetchXanoRecord(recordId, extraParams) {
-  var url = XANO_PUBLIC + '?per_page=200';
-  if (extraParams) {
-    var keys = Object.keys(extraParams);
-    for (var i = 0; i < keys.length; i++) {
-      url += '&' + encodeURIComponent(keys[i]) + '=' + encodeURIComponent(extraParams[keys[i]]);
-    }
-  }
+function fetchXanoAllRecords() {
+  if (_xanoRecords) return Promise.resolve(_xanoRecords);
+  if (_xanoPromise) return _xanoPromise;
 
   var controller = new AbortController();
   var timer = setTimeout(function () { controller.abort(); }, API_TIMEOUT);
 
-  return fetch(url, { signal: controller.signal })
+  _xanoPromise = fetch(XANO_PUBLIC + '?per_page=200', { signal: controller.signal })
     .then(function (r) {
       clearTimeout(timer);
       if (!r.ok) return null;
       return r.json();
     })
     .then(function (data) {
+      _xanoPromise = null;
       if (!data) return null;
-      // Xano may return a paginated wrapper, single object, or an array
-      var records = Array.isArray(data) ? data : (data.items ? data.items : [data]);
-      // Filter to only records matching the requested record_id — in case
-      // the server ignores the filter and returns all records
-      var matches = records.filter(function (r) { return r && r.record_id === recordId; });
-      return matches[0] || null;
+      // Handle paginated wrapper {items:[...]} or flat array
+      var records = Array.isArray(data) ? data : (data.items || null);
+      if (!Array.isArray(records)) return null;
+      _xanoRecords = dedup(records);
+      var ids = Object.keys(_xanoRecords);
+      console.log('[eo] Xano: fetched ' + records.length + ' records, ' + ids.length + ' unique');
+      return _xanoRecords;
     })
     .catch(function (e) {
       clearTimeout(timer);
-      console.warn('[eo] Xano single-record fetch failed for ' + recordId + ':', e.message || e);
+      _xanoPromise = null;
+      console.warn('[eo] Xano fetch failed:', e.message || e);
       return null;
     });
+
+  return _xanoPromise;
+}
+
+/**
+ * Look up a single record from the cached Xano data by record_id.
+ * Fetches all records on first call, then serves from cache.
+ * Returns the record object, or null if not found.
+ */
+function fetchXanoRecord(recordId) {
+  return fetchXanoAllRecords().then(function (map) {
+    if (!map) return null;
+    return map[recordId] || null;
+  });
 }
 
 // ── Legacy full-fetch (N8N webhook fallback) ─────────────────────────────────
@@ -224,12 +236,12 @@ export function loadIndex() {
 }
 
 function loadIndexFromApi() {
-  // Try Xano single-record fetch for site:index first
-  return fetchXanoRecord('site:index')
-    .then(function (rec) {
-      if (rec && rec.values) {
+  // Fetch all Xano records (cached) and look for site:index
+  return fetchXanoAllRecords()
+    .then(function (map) {
+      if (map && map['site:index']) {
         try {
-          var raw = JSON.parse(rec.values);
+          var raw = JSON.parse(map['site:index'].values);
           if (raw && raw.entries) {
             console.log('[eo] Using site:index from Xano (' + raw.entries.length + ' entries)');
             _siteIndex = normalizeIndex(raw);
@@ -240,7 +252,14 @@ function loadIndexFromApi() {
         }
       }
 
-      // Xano single-record failed — fall back to N8N full fetch
+      // If we have Xano records but no site:index, synthesize from them
+      if (map) {
+        console.log('[eo] No site:index in Xano — synthesizing from content records');
+        _siteIndex = synthesizeIndex(map);
+        return _siteIndex;
+      }
+
+      // Xano failed entirely — fall back to N8N full fetch
       return loadIndexFromN8n();
     });
 }
