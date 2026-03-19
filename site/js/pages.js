@@ -1714,6 +1714,8 @@ export function renderWiki(el, slug) {
       h += '</article>';
       el.innerHTML = h;
       hydrateHtmlWidgets(el);
+      // Activate embedded scripts so HTML content with JS actually runs
+      activateScripts(el);
 
       // ── Initialize dynamic article features ──
       initWikiArticleDynamics(el);
@@ -2101,6 +2103,7 @@ export function renderDoc(el, slug) {
     el.innerHTML = h;
 
     hydrateHtmlWidgets(el);
+    activateScripts(el);
     revealAdmin();
   });
 }
@@ -2146,6 +2149,7 @@ export function renderPage(el, slug) {
     h += '</article>';
     el.innerHTML = h;
     hydrateHtmlWidgets(el);
+    activateScripts(el);
     revealAdmin();
   });
 }
