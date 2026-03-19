@@ -610,8 +610,7 @@ export default function BatchPost({ siteBase }: Props) {
 
           const newRev = { ...oldRev, rev_id: newRevId, content: group.newContent, summary, ts };
           snapshot.current_revision = newRev;
-          const revisions = [...((snapshot.revisions || []) as Array<Record<string, unknown>>), newRev];
-          snapshot.revisions = revisions;
+          // revisions are stored in eowiki event log, not in current state
           const meta = { ...((snapshot.meta || {}) as Record<string, unknown>), updated_at: ts };
           snapshot.meta = meta;
 

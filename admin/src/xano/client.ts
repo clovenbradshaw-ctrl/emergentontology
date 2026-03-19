@@ -12,6 +12,13 @@
  * Endpoints:
  *   Public:  GET /get_public_eowiki    → event log records (no auth)
  *   Private: GET /<encrypted-path>     → all current-state records (unlocked by password)
+ *   Auth'd:  POST /eowiki              → changelog writes (auth header required)
+ *   Auth'd:  POST /eowikicurrent       → current-state creates (auth header required)
+ *   Auth'd:  PATCH /eowikicurrent/{id} → current-state updates (auth header required)
+ *
+ * Write endpoints require the admin password hash as a Bearer token.
+ * The hash is derived from the decrypted private endpoint path (SHA-256),
+ * so only a logged-in admin who knows the password can write.
  *
  * The private endpoint path is AES-256-GCM encrypted in the source using the
  * admin password as key.  On login the password decrypts the path; the
@@ -59,6 +66,30 @@ const ENDPOINT_KEY = 'eo_xano_ep';
 
 // Module-level cache: decrypted private endpoint path (set on login).
 let _privateEndpoint: string | null = null;
+// Cached SHA-256 hash of the private endpoint, used as Bearer token for writes.
+let _authHash: string | null = null;
+
+/**
+ * Derive a SHA-256 hex hash of the private endpoint path.
+ * This hash is sent as a Bearer token on write requests so the Xano backend
+ * can validate the caller is an authenticated admin without exposing the
+ * raw endpoint path.
+ */
+async function deriveAuthHash(endpoint: string): Promise<string> {
+  const raw = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(endpoint));
+  return Array.from(new Uint8Array(raw)).map(b => b.toString(16).padStart(2, '0')).join('');
+}
+
+/**
+ * Build headers for authenticated write requests.
+ * Includes the admin auth hash as a Bearer token.
+ */
+function authHeaders(): Record<string, string> {
+  return {
+    'Content-Type': 'application/json',
+    ..._authHash ? { 'Authorization': `Bearer ${_authHash}` } : {},
+  };
+}
 
 // ── Types ────────────────────────────────────────────────────────────────────
 
@@ -115,6 +146,7 @@ export async function verifyPassword(password: string): Promise<boolean> {
   const ep = await decryptEndpoint(password);
   if (!ep) return false;
   _privateEndpoint = ep;
+  _authHash = await deriveAuthHash(ep);
   try { localStorage.setItem(ENDPOINT_KEY, ep); } catch { /* SSR / test */ }
   return true;
 }
@@ -123,7 +155,12 @@ export async function verifyPassword(password: string): Promise<boolean> {
 export function restoreEndpoint(): boolean {
   try {
     const ep = localStorage.getItem(ENDPOINT_KEY);
-    if (ep) { _privateEndpoint = ep; return true; }
+    if (ep) {
+      _privateEndpoint = ep;
+      // Derive auth hash async — writes will wait until this resolves
+      deriveAuthHash(ep).then(h => { _authHash = h; });
+      return true;
+    }
   } catch { /* SSR / test */ }
   return false;
 }
@@ -147,6 +184,7 @@ export function clearSession(): void {
   localStorage.removeItem(SESSION_KEY);
   localStorage.removeItem(ENDPOINT_KEY);
   _privateEndpoint = null;
+  _authHash = null;
 }
 
 // ── API calls ────────────────────────────────────────────────────────────────
@@ -164,6 +202,8 @@ export async function fetchAllRecords(): Promise<XanoRecord[]> {
  * Append one EO event record to the EOwiki event log table.
  * The event log is used for change tracking only — the current-state table
  * (eowikicurrent) is the authoritative source of truth.
+ *
+ * Requires admin authentication (private endpoint must be unlocked).
  */
 export async function addRecord(payload: {
   op: string;
@@ -172,9 +212,12 @@ export async function addRecord(payload: {
   value: string;
   context: string;
 }): Promise<XanoRecord> {
+  if (!_privateEndpoint) {
+    throw new Error('Private endpoint not unlocked — please log in first.');
+  }
   const resp = await fetch(`${XANO_BASE}/eowiki`, {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
+    headers: authHeaders(),
     body: JSON.stringify(payload),
     signal: AbortSignal.timeout(15_000),
   });
@@ -192,6 +235,10 @@ export async function addRecord(payload: {
  * current-state snapshot is still the authoritative record.
  */
 export function logEvent(payload: Parameters<typeof addRecord>[0]): void {
+  if (!_privateEndpoint) {
+    console.warn('[logEvent] Skipped — not authenticated.');
+    return;
+  }
   addRecord(payload).catch((err) => {
     console.warn('[logEvent] Event log write failed (non-fatal):', err);
   });
@@ -411,7 +458,10 @@ export async function fetchFilteredCurrentRecords(
   return unwrapResponse(data);
 }
 
-/** Create a new current-state record (first write for this record_id). */
+/**
+ * Create a new current-state record (first write for this record_id).
+ * Requires admin authentication (private endpoint must be unlocked).
+ */
 export async function createCurrentRecord(payload: {
   record_id: string;
   displayName: string;
@@ -420,9 +470,12 @@ export async function createCurrentRecord(payload: {
   uuid: string;
   lastModified: string;
 }): Promise<XanoCurrentRecord> {
+  if (!_privateEndpoint) {
+    throw new Error('Private endpoint not unlocked — please log in first.');
+  }
   const resp = await fetch(`${XANO_BASE}/eowikicurrent`, {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
+    headers: authHeaders(),
     body: JSON.stringify(payload),
     signal: AbortSignal.timeout(15_000),
   });
@@ -433,15 +486,21 @@ export async function createCurrentRecord(payload: {
   return (await resp.json()) as XanoCurrentRecord;
 }
 
-/** Update an existing current-state record by its Xano row id. */
+/**
+ * Update an existing current-state record by its Xano row id.
+ * Requires admin authentication (private endpoint must be unlocked).
+ */
 export async function patchCurrentRecord(id: number, payload: {
   values: string;
   context: Record<string, unknown>;
   lastModified: string;
 }): Promise<XanoCurrentRecord> {
+  if (!_privateEndpoint) {
+    throw new Error('Private endpoint not unlocked — please log in first.');
+  }
   const resp = await fetch(`${XANO_BASE}/eowikicurrent/${id}`, {
     method: 'PATCH',
-    headers: { 'Content-Type': 'application/json' },
+    headers: authHeaders(),
     body: JSON.stringify(payload),
     signal: AbortSignal.timeout(15_000),
   });
@@ -453,11 +512,27 @@ export async function patchCurrentRecord(id: number, payload: {
 }
 
 /**
+ * Remove `revisions` and `history` arrays from a state snapshot before persisting.
+ * Current state should only contain `current_revision`, not full history.
+ * Revision history belongs in the eowiki event log, not in eowikicurrent.
+ */
+function stripRevisionHistory(snapshot: unknown): unknown {
+  if (!snapshot || typeof snapshot !== 'object') return snapshot;
+  const obj = { ...(snapshot as Record<string, unknown>) };
+  delete obj.revisions;
+  delete obj.history;
+  return obj;
+}
+
+/**
  * Upsert helper: creates or patches the current-state record for a record_id.
  * Pass `existing` (from a prior load) to avoid an extra GET.
  * If `existing` is null/undefined, we look up the record from the cache before
  * creating — this prevents duplicate rows for the same record_id.
  * Generates a UUID (v4) on create for deduplication.
+ *
+ * Automatically strips `revisions` and `history` arrays — those belong in the
+ * eowiki event log, not in the current-state snapshot.
  */
 export async function upsertCurrentRecord(
   recordId: string,
@@ -488,7 +563,7 @@ export async function upsertCurrentRecord(
     meta: { status, visibility },
   };
 
-  const values = JSON.stringify(stateSnapshot);
+  const values = JSON.stringify(stripRevisionHistory(stateSnapshot));
   const lastModified = new Date().toISOString();
 
   // If caller didn't pass an existing record, try to find one in the cache
