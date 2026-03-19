@@ -3,7 +3,7 @@
  *
  * Fetches content from two sources in order:
  *   1. Static JSON files (generated at build time by the projector)
- *   2. Xano public API (get_public_eowiki with server-side filtering)
+ *   2. Xano current-state API (get_eowikicurrent — pre-computed, no replay)
  *   3. N8N webhook fallback (legacy, fetches all records)
  *
  * The Xano endpoint supports query parameters:
@@ -21,8 +21,8 @@
 
 import { BASE, API_URL, API_TIMEOUT, SUBSTACK_FEED_URL } from './config.js';
 
-// Xano public endpoint — supports server-side filtering via query params.
-var XANO_PUBLIC = 'https://xvkq-pq7i-idtl.n7d.xano.io/api:GGzWIVAW/get_public_eowiki';
+// Xano current-state endpoint — returns pre-computed current state, no replay needed.
+var XANO_PUBLIC = 'https://xvkq-pq7i-idtl.n7d.xano.io/api:GGzWIVAW/get_eowikicurrent';
 
 // ── State ────────────────────────────────────────────────────────────────────
 
