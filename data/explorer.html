@@ -171,6 +171,46 @@
 
     .site-footer { text-align: center; padding: 1.5rem; color: var(--text-dim); font-size: .8rem; border-top: 1px solid var(--border); }
 
+    /* Article link + Abstract */
+    .study-preamble { margin-bottom: 1.25rem; }
+    .article-link {
+      display: flex; align-items: center; gap: 12px;
+      background: var(--bg2); border: 1px solid var(--border); border-radius: var(--radius);
+      padding: 14px 18px; margin-bottom: 1rem; text-decoration: none; transition: border-color .15s, background .15s;
+    }
+    .article-link:hover { border-color: var(--accent); background: var(--bg3); text-decoration: none; }
+    .article-link-icon {
+      width: 36px; height: 36px; border-radius: 8px; background: rgba(124,111,205,.12);
+      display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+      font-size: 1.1rem; color: var(--accent);
+    }
+    .article-link-body { flex: 1; min-width: 0; }
+    .article-link-label { font-size: .7rem; text-transform: uppercase; letter-spacing: .5px; color: var(--text-dim); font-family: var(--font-mono); margin-bottom: 1px; }
+    .article-link-title { font-size: .95rem; font-weight: 600; color: var(--text); }
+    .article-link-desc { font-size: .8rem; color: var(--text-dim); margin-top: 2px; }
+    .article-link-arrow { color: var(--text-dim); font-size: 1.1rem; flex-shrink: 0; transition: transform .15s; }
+    .article-link:hover .article-link-arrow { transform: translateX(3px); }
+
+    .abstract-block {
+      background: var(--bg2); border-left: 3px solid var(--accent); border-radius: 0 var(--radius) var(--radius) 0;
+      padding: 16px 20px; margin-bottom: .25rem; font-size: .88rem; line-height: 1.7; color: var(--text);
+    }
+    .abstract-block strong { color: var(--accent); }
+    .abstract-label { font-size: .7rem; text-transform: uppercase; letter-spacing: .5px; color: var(--text-dim); font-family: var(--font-mono); margin-bottom: 6px; }
+
+    /* Glossary */
+    .glossary { display: grid; grid-template-columns: 1fr; gap: 0; margin-top: .75rem; }
+    .glossary-item {
+      display: grid; grid-template-columns: 160px 1fr; gap: 12px; align-items: baseline;
+      padding: 8px 0; border-bottom: 1px solid var(--border); font-size: .85rem;
+    }
+    .glossary-item:last-child { border-bottom: none; }
+    .glossary-term { font-family: var(--font-mono); font-weight: 600; font-size: .8rem; color: var(--accent); white-space: nowrap; }
+    .glossary-def { color: var(--text-dim); line-height: 1.55; }
+    @media (max-width: 640px) {
+      .glossary-item { grid-template-columns: 1fr; gap: 2px; }
+    }
+
     /* Guide / explainer styles */
     .guide-text { color: var(--text); line-height: 1.7; max-width: 72ch; margin-bottom: .75rem; font-size: .9rem; }
     .guide-text strong { color: var(--accent); }
@@ -259,6 +299,22 @@
       <h1>Empirical Grounding <span style="color:var(--text-dim);font-weight:400;font-size:.85em">(Preliminary)</span></h1>
       <p class="hero-sub">Start with the Guide for a walkthrough, then explore live data from the analysis. Click any value to trace its provenance.</p>
     </section>
+
+    <div class="study-preamble">
+      <a class="article-link" href="../wiki.html#lexical-analysis">
+        <div class="article-link-icon">&#x1F4D6;</div>
+        <div class="article-link-body">
+          <div class="article-link-label">Background article</div>
+          <div class="article-link-title">Lexical Analysis — How this study works</div>
+          <div class="article-link-desc">Read the full methodology: corpus construction, classification questions, embedding pipeline, and statistical tests.</div>
+        </div>
+        <span class="article-link-arrow">&rarr;</span>
+      </a>
+      <div class="abstract-block">
+        <div class="abstract-label">Abstract</div>
+        Emergent Ontology (EO) proposes that every transformation can be located in a <strong>27-cell structure</strong> defined by three independent axes: <strong>Mode</strong> (differentiating / relating / generating), <strong>Domain</strong> (existence / structure / significance), and <strong>Object</strong> (condition / entity / pattern). We test this claim against the geometry of natural language by embedding <strong>19,764 clauses</strong> from <strong>41 languages</strong> using a model that has never seen EO vocabulary, then measuring whether sentences sharing the same axis labels cluster more tightly than chance. Two independent classifiers (Claude and GPT-4) label each clause; the <strong>consensus set</strong> (9,221 clauses where both agree) shows per-axis z-scores of <strong>+2.17</strong>, <strong>+4.09</strong>, and <strong>+4.81</strong> standard deviations above chance, with cosine distance scaling monotonically by the number of differing axes. Three of four pre-committed predictions pass; one (full axis independence) fails due to a Mode&ndash;Domain correlation (ARI&nbsp;=&nbsp;0.185) that may reflect a real structural dependency rather than a classification artifact.
+      </div>
+    </div>
 
     <div class="tabs" id="tabs"></div>
     <div id="content">
@@ -1112,6 +1168,39 @@ function renderGuide() {
   vNote.innerHTML = 'Three of four pre-committed predictions passed. One failed: Mode and Domain are not fully independent (ARI = 0.185 vs threshold of 0.10). The correlation may reflect a real structural dependency (the "helix") rather than a flaw — see the <strong>Helix</strong> tab for analysis.';
   vbox.appendChild(vNote);
   d.appendChild(vbox);
+
+  // Glossary
+  d.appendChild(el('div', { class: 'section-title' }, 'Key Terms'));
+  const glossIntro = el('p', { class: 'guide-text' });
+  glossIntro.innerHTML = 'Definitions for technical terms used throughout this explorer.';
+  d.appendChild(glossIntro);
+
+  const glossary = el('div', { class: 'glossary' });
+  [
+    ['Z-score', 'Standard deviations above (or below) what random groupings produce. Measures how much more geometrically coherent the classified groups are than chance. Higher = stronger signal.'],
+    ['Cosine distance', 'Angular separation between two vectors in embedding space. 0 = identical direction, 1 = orthogonal. Used to measure semantic similarity between clauses.'],
+    ['Embedding', 'A high-dimensional numerical vector representing a sentence\'s meaning, produced by an AI model (text-embedding-3-large). No EO vocabulary appears in the embeddings — only the original sentences.'],
+    ['Consensus set', 'The 9,221 clauses where both Claude and GPT-4 independently agreed on all three axis classifications. Used as the primary dataset for most results.'],
+    ['ARI', 'Adjusted Rand Index. Measures overlap between two categorical labelings, adjusted for chance. 0 = independent, 1 = identical. Used here to test whether the three axes are truly independent.'],
+    ['Cohen\'s κ (Kappa)', 'Measures inter-rater agreement adjusted for chance. >0.4 = moderate, >0.6 = substantial. Used to quantify how much Claude and GPT-4 agree on classifications.'],
+    ['Proportionality', 'The prediction that cosine distance increases monotonically with the number of differing axis labels (0 → 1 → 2 → 3 axes different). A stronger test than mere clustering.'],
+    ['Helix', 'The proposed dependency structure where Mode feeds into Domain (Q1 → Q2), creating a non-random ordering among the nine operators. Explains the Mode–Domain correlation.'],
+    ['Centroid classifier', 'A nearest-centroid classifier that assigns each clause to the cell whose mean embedding vector is closest. Tests whether cells occupy distinct, separable regions in embedding space.'],
+    ['MDS stress', 'Goodness-of-fit for multidimensional scaling — how well pairwise distances are preserved when projected to fewer dimensions. Lower = better geometric fidelity.'],
+    ['Face', 'A 3×3 slice of the 27-cell cube: <strong>Act</strong> (Mode × Domain), <strong>Site</strong> (Domain × Object), <strong>Resolution</strong> (Mode × Object). Each face contains nine cells.'],
+    ['Operator', 'One of the nine Act-face cells: NUL (∅), SIG (σ), INS (ι), SEG (|), CON (⋈), SYN (∨), ALT (∿), SUP (⊕), REC (↬). Each is a specific Mode × Domain combination.'],
+    ['Emanon', 'Object-axis entity type for <em>background conditions</em> — ambient, contextual, pre-figural targets like market confidence, organizational culture, or "the vibe."'],
+    ['Holon', 'Object-axis entity type for <em>bounded entities</em> — specific, stable, self-maintaining things with clear identity: a cell, an institution, a person, a language.'],
+    ['Protogon', 'Object-axis entity type for <em>emerging patterns</em> — crystallizing, in-formation targets like startups, developing theories, or emerging movements.'],
+  ].forEach(([term, def]) => {
+    const item = el('div', { class: 'glossary-item' });
+    item.appendChild(el('div', { class: 'glossary-term' }, term));
+    const defEl = el('div', { class: 'glossary-def' });
+    defEl.innerHTML = def;
+    item.appendChild(defEl);
+    glossary.appendChild(item);
+  });
+  d.appendChild(glossary);
 
   // Navigation hint
   const nav = el('p', { class: 'guide-text', style: 'margin-top:1.5rem;color:var(--text-dim)' });

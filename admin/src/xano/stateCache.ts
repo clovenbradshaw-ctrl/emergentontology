@@ -161,7 +161,12 @@ export function updateCachedRecord(record: XanoCurrentRecord): void {
 const filteredCache = new Map<string, { records: XanoCurrentRecord[]; ts: number }>();
 
 function filterCacheKey(filters: CurrentRecordFilters): string {
-  return [filters.content_type, filters.status, filters.visibility].join('|');
+  return [
+    filters.id, filters.created_at, filters.record_id, filters.displayName,
+    filters.values, filters.context ? JSON.stringify(filters.context) : undefined,
+    filters.uuid, filters.lastModified,
+    filters.content_type, filters.status, filters.visibility,
+  ].join('|');
 }
 
 export async function fetchFilteredRecordsCached(
