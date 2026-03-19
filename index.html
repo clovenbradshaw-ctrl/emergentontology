@@ -83,6 +83,7 @@
       opacity: 1;
       transform: scale(1) rotate(0deg);
     }
+    .site-nav { flex: 1; overflow: hidden; }
     .site-nav ul { display: flex; gap: 1.5rem; list-style: none; }
     .site-nav a { color: var(--text-dim); font-size: .9rem; }
     .site-nav a:hover { color: var(--text); text-decoration: none; }
@@ -436,13 +437,22 @@
       const nav   = document.getElementById('nav-list');
       const types = ['wiki', 'blog', 'experiment', 'page'];
 
-      // Rebuild nav from all published entries
+      // Rebuild nav with content-type category links instead of individual entries
       nav.innerHTML = '';
-      (index.nav || []).forEach(entry => {
+      const navCategories = [
+        { type: 'wiki', label: 'Wiki', href: '#__wiki' },
+        { type: 'blog', label: 'Blog', href: '#__blog' },
+        { type: 'experiment', label: 'Experiments', href: '#__experiments' },
+        { type: 'document', label: 'Documents', href: '#__documents' }
+      ];
+      const navEntries = index.nav || [];
+      navCategories.forEach(cat => {
+        const count = navEntries.filter(e => e.content_type === cat.type).length;
+        if (count === 0) return;
         const li = document.createElement('li');
         const a  = document.createElement('a');
-        a.href        = `${typeDir(entry.content_type)}/${entry.slug}/`;
-        a.textContent = entry.title;
+        a.href        = cat.href;
+        a.textContent = cat.label;
         li.appendChild(a);
         nav.appendChild(li);
       });
