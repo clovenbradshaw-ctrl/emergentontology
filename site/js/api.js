@@ -8,7 +8,7 @@
  *
  * Sources (in priority order):
  *   1. Static JSON files (generated at build time by the projector)
- *   2. Xano current-state API (get_eowikicurrent — paginated list)
+ *   2. Xano public API (get_public_eowiki — paginated list)
  *
  * The Xano endpoint supports pagination:
  *   ?page=1&per_page=25   → paginated results (default 25 per page)
@@ -22,8 +22,8 @@
 
 import { BASE, API_TIMEOUT, SUBSTACK_FEED_URL } from './config.js';
 
-// Xano current-state endpoint — paginated list of all records.
-var XANO_PUBLIC = 'https://xvkq-pq7i-idtl.n7d.xano.io/api:GGzWIVAW/get_eowikicurrent';
+// Xano public endpoint — paginated list of all records.
+var XANO_PUBLIC = 'https://xvkq-pq7i-idtl.n7d.xano.io/api:GGzWIVAW/get_public_eowiki';
 
 // ── State ────────────────────────────────────────────────────────────────────
 
