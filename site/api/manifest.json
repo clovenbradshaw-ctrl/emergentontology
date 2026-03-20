@@ -5,7 +5,7 @@
   "base_url": "/api",
   "live_api": {
     "base_url": "https://xvkq-pq7i-idtl.n7d.xano.io/api:GGzWIVAW",
-    "endpoint": "https://xvkq-pq7i-idtl.n7d.xano.io/api:GGzWIVAW/get_public_eowiki",
+    "endpoint": "https://xvkq-pq7i-idtl.n7d.xano.io/api:GGzWIVAW/get_eowikicurrent",
     "note": "Live database API. This is the primary content source. Query parameters are all optional.",
     "parameters": {
       "id": "Filter by Xano row ID (integer)",

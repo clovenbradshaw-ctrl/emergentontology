@@ -24,7 +24,7 @@ Content is served from a live Xano database. No authentication required for publ
 
 ### Live API (primary)
 
-Base endpoint: https://xvkq-pq7i-idtl.n7d.xano.io/api:GGzWIVAW/get_public_eowiki
+Base endpoint: https://xvkq-pq7i-idtl.n7d.xano.io/api:GGzWIVAW/get_eowikicurrent
 
 Query parameters (all optional):
 - record_id={id}        → fetch a single record (e.g. wiki:operators, blog:first-post, site:index)
