@@ -162,6 +162,10 @@ function render() {
 
 // ── Init ─────────────────────────────────────────────────────────────────────
 
+// Restore saved theme immediately to avoid flash
+var savedTheme = localStorage.getItem('eo-theme') || 'dark';
+document.documentElement.setAttribute('data-theme', savedTheme);
+
 setupUI(render);
 setupSuggestUI();
 render();

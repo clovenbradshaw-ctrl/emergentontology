@@ -14,10 +14,12 @@ import { revealAdmin } from './render.js';
 export function setupUI(renderFn) {
   setupThemeToggle();
   setupSearch();
+  setupMobileMenu();
   setupAdminDrawer();
   setupAdminEscReveal();
   setupLogoCycling();
   setupButtonActions();
+  setupImageLightbox();
   setupArticleLinkModal(renderFn);
   setupSpaNavigation(renderFn);
   revealAdmin();
@@ -58,6 +60,48 @@ function setupSearch() {
       overlay.hidden = false;
       if (searchInput) searchInput.focus();
     }
+  });
+}
+
+// ── Mobile menu ─────────────────────────────────────────────────────────────
+
+function setupMobileMenu() {
+  var btn = document.getElementById('mobileMenuBtn');
+  var nav = document.getElementById('mobileNav');
+  if (!btn || !nav) return;
+  btn.addEventListener('click', function () {
+    nav.classList.toggle('open');
+  });
+  // Close mobile nav on link click
+  nav.addEventListener('click', function (e) {
+    if (e.target.closest('a')) nav.classList.remove('open');
+  });
+}
+
+// ── Image lightbox ──────────────────────────────────────────────────────────
+
+function setupImageLightbox() {
+  var overlay = document.getElementById('imageLightbox');
+  var img = document.getElementById('imageLightboxImg');
+  var caption = document.getElementById('imageLightboxCaption');
+  var closeBtn = document.getElementById('imageLightboxClose');
+  if (!overlay || !img || !closeBtn) return;
+
+  function closeLightbox() { overlay.hidden = true; }
+
+  closeBtn.addEventListener('click', closeLightbox);
+  overlay.addEventListener('click', function (e) { if (e.target === overlay) closeLightbox(); });
+  document.addEventListener('keydown', function (e) {
+    if (e.key === 'Escape' && !overlay.hidden) closeLightbox();
+  });
+
+  // Delegate: click any image inside wiki-body to open lightbox
+  document.addEventListener('click', function (e) {
+    var target = e.target.closest('.wiki-body img, .block-image img');
+    if (!target) return;
+    img.src = target.src;
+    caption.textContent = target.alt || '';
+    overlay.hidden = false;
   });
 }
 
