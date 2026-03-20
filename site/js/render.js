@@ -234,35 +234,8 @@ export function renderBlock(block, page) {
 // ── Revision history ─────────────────────────────────────────────────────────
 
 export function revisionHistoryHtml(content) {
-  var revs = content.revisions || [];
-  var h = '<section class="revision-history" id="history"><h2>Revision History</h2>';
-  if (revs.length > 0) {
-    h += '<ol class="rev-list" reversed>';
-    revs.slice().reverse().slice(0, 6).forEach(function (r) {
-      var isFirst = r.rev_id === revs[0].rev_id;
-      var opName = isFirst ? 'INS' : 'ALT';
-      h += '<li class="rev-entry rev-entry--' + opName.toLowerCase() + '">';
-      h += '<code class="eo-op eo-op-inline"><span class="eo-name">' + opName + '</span>(<span class="eo-target">' + esc(content.content_id) + '/rev:' + esc(r.rev_id) + '</span>, <span class="eo-operand">{summary: "' + esc(r.summary || '\u2026') + '"}</span>)</code>';
-      h += ' <time class="rev-ts">' + timeAgo(r.ts) + '</time>';
-      h += '</li>';
-    });
-    h += '</ol>';
-    if (revs.length > 6) {
-      h += '<details class="rev-overflow"><summary class="rev-expand-toggle">Show ' + (revs.length - 6) + ' older revision' + (revs.length - 6 !== 1 ? 's' : '') + '</summary>';
-      h += '<ol class="rev-list rev-list-older">';
-      revs.slice().reverse().slice(6).forEach(function (r) {
-        var isFirst = r.rev_id === revs[0].rev_id;
-        var opName = isFirst ? 'INS' : 'ALT';
-        h += '<li class="rev-entry"><code class="eo-op eo-op-inline"><span class="eo-name">' + opName + '</span>(<span class="eo-target">' + esc(content.content_id) + '/rev:' + esc(r.rev_id) + '</span>)</code>';
-        h += ' <time class="rev-ts">' + timeAgo(r.ts) + '</time></li>';
-      });
-      h += '</ol></details>';
-    }
-  } else {
-    h += '<ol class="rev-list"><li>No revisions yet.</li></ol>';
-  }
-  h += '</section>';
-  return h;
+  // Revision history removed — only show current content
+  return '';
 }
 
 // ── Render content body (HTML or markdown) ───────────────────────────────────
