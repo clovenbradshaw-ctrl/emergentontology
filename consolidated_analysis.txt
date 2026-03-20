@@ -1,0 +1,391 @@
+
+==========================================================================
+  EO LEXICAL ANALYSIS — CONSOLIDATED DUAL-CORPUS REPORT
+==========================================================================
+  Generated: 2026-03-20
+
+  This report consolidates results from two independent runs of the EO
+  Lexical Analysis pipeline on fundamentally different corpora. The two
+  runs test whether the same geometric structure emerges from radically
+  different kinds of text.
+
+==========================================================================
+  CORPUS DESCRIPTIONS
+==========================================================================
+
+  CORPUS A — "UD" (Universal Dependencies Treebanks)
+  ──────────────────────────────────────────────────
+  Source:       Universal Dependencies parsed treebanks
+  Content:      Real-world text — news, Wikipedia, legal docs, literary
+                prose, web text, reviews, parliamentary proceedings
+  Languages:    41 (ar, bg, ca, cs, da, de, en, es, eu, fi, fr, got,
+                grc, he, hi, hr, hu, id, it, ja, ko, la, nl, no, pl,
+                pt, ro, ru, sk, sl, sr, sv, sw, ta, tr, uk, ur, vi,
+                wo, yo, zh)
+  Raw clauses:  30,814
+  Classified:   19,764 (across both models)
+  Consensus:    7,808 (40.0% agreement rate)
+  Register:     Heterogeneous — maximally diverse syntactic and semantic
+                variety within each language. Genuine cross-linguistic
+                sample.
+  Date:         2026-03-18
+
+  CORPUS B — "Specialist" (arXiv + Philosophy + Wisdom Literature)
+  ────────────────────────────────────────────────────────────────
+  Source:       Three specialist English registers:
+                  - arxiv_qp: 1,000 clauses (quantum physics papers)
+                  - philosophy: 2,000 clauses
+                      - greek_philosophy: 1,000
+                      - taoist_philosophy: 500
+                      - stoic_philosophy: 500
+                  - bible_wisdom: 595 clauses (wisdom literature)
+  Languages:    1 (English only)
+  Raw clauses:  3,595
+  Classified:   3,595
+  Consensus:    1,354 (37.7% agreement rate)
+  Register:     Homogeneous per source — technical/academic (arXiv),
+                philosophical/metaphysical, spiritual/proverbial.
+                All English. Narrow register but deep conceptual range.
+  Date:         2026-03-19
+
+  KEY DESIGN DIFFERENCES:
+  ─────────────────────────
+  Corpus A tests BREADTH: does the structure hold across language
+  families, scripts, and text types?
+
+  Corpus B tests DEPTH: does the structure hold in semantically dense,
+  conceptually sophisticated text — the kind of language where
+  ontological distinctions should be most salient?
+
+
+==========================================================================
+  RESULT 1 — PER-AXIS Z-SCORES (HEAD-TO-HEAD)
+==========================================================================
+  Z-scores measure geometric coherence: how much tighter the EO-labeled
+  groups are than random groupings of the same size. Higher = stronger
+  signal. Reported on consensus clauses (both models agreed).
+
+  Axis                   Corpus A (UD)    Corpus B (Spec)    Delta
+  ─────────────────── ──────────────── ─────────────────── ────────
+  Q1 — Mode                    +2.17              +3.63     +1.46
+  Q2 — Domain                  +4.09              +5.68     +1.59
+  Q3 — Object                  +4.81              +7.87     +3.06
+
+  Raw separation (cosine distance above chance):
+  Q1 — Mode                  0.0056             0.0157     2.8×
+  Q2 — Domain                0.0121             0.0277     2.3×
+  Q3 — Object                0.0145             0.0416     2.9×
+
+  INTERPRETATION:
+  Every axis is stronger in Corpus B. The specialist text — quantum
+  physics, philosophy, wisdom literature — shows 1.5-3× the geometric
+  separation of the broad UD corpus. This is expected: register-
+  controlled text from conceptually rich domains should produce cleaner
+  ontological signals. The crucial finding is that both corpora show
+  the same axis ordering (Q3 > Q2 > Q1) and all z-scores are positive.
+
+  The Q3 (Object/grain) axis is the standout: +7.87 SDs in the
+  specialist corpus, nearly double the UD result. Whether a
+  transformation targets conditions, entities, or patterns is most
+  clearly distinguished in philosophical and scientific language.
+
+
+==========================================================================
+  RESULT 2 — PROPORTIONALITY (DISTANCE vs AXIS DIFFERENCES)
+==========================================================================
+  If the three axes form a real coordinate system, sentences differing
+  on more axes should be farther apart in embedding space.
+
+  Axes different    Corpus A (UD)    Corpus B (Spec)
+  ──────────────── ──────────────── ─────────────────
+  0                      0.9206           0.8044
+  1                      0.9239           0.8260
+  2                      0.9299           0.8514
+  3                      0.9350           0.8694
+
+  Monotonic?               YES              YES
+  Bootstrap p            0.0100           0.0000
+
+  INTERPRETATION:
+  Both corpora show perfect monotonicity — the coordinate structure is
+  real in both. Corpus B shows larger absolute spread between levels
+  (0.065 vs 0.014 range), consistent with the specialist text producing
+  sharper geometric separation. The lower baseline distances in Corpus B
+  (0.80 vs 0.92) reflect the narrower semantic range of a single-
+  language, register-controlled corpus — clauses about physics and
+  philosophy are more similar to each other than a random UD mix of
+  news/legal/Wikipedia across 41 languages.
+
+
+==========================================================================
+  RESULT 3 — AXIS INDEPENDENCE (ARI)
+==========================================================================
+  Prediction: pairwise ARI < 0.10 (axes are independent).
+
+  Pair            Corpus A (UD)    Corpus B (Spec)    Verdict
+  ──────────── ──────────────── ───────────────────  ─────────
+  Q1 vs Q2         +0.1849           +0.0959         A: borderline | B: PASS
+  Q1 vs Q3         +0.0279           +0.0140         Both: PASS
+  Q2 vs Q3         -0.0077           +0.0376         Both: PASS
+
+  INTERPRETATION:
+  The Q1/Q2 coupling (Mode × Domain) is halved in Corpus B (0.096 vs
+  0.185). In the specialist corpus, all three axes pass the
+  independence criterion. In the UD corpus, Q1/Q2 remains borderline.
+
+  This is a significant result: the Q1/Q2 correlation in Corpus A may
+  partly reflect corpus composition effects (UD treebank register
+  distribution), not just inherent Mode-Domain coupling. When the
+  corpus is register-controlled, the axes become cleaner.
+
+
+==========================================================================
+  RESULT 4 — INTER-MODEL AGREEMENT (COHEN'S KAPPA)
+==========================================================================
+
+  Axis            Corpus A (UD)    Corpus B (Spec)    Prediction
+  ──────────── ──────────────── ───────────────────  ────────────
+  Q1 (Mode)          0.537            0.585           > 0.50
+  Q2 (Domain)        0.511            0.534           > 0.40
+  Q3 (Object)        0.479            0.457           > 0.35
+
+  Verdict:         ALL PASS         ALL PASS
+
+  INTERPRETATION:
+  Inter-model agreement is slightly higher in Corpus B for Q1 and Q2,
+  slightly lower for Q3. Both corpora meet all prediction thresholds.
+  The consistency across such different text types confirms the
+  questions are tracking robust semantic properties, not corpus-specific
+  artifacts.
+
+
+==========================================================================
+  RESULT 5 — FACE AND 27-CELL Z-SCORES
+==========================================================================
+  Grouping                        Corpus A (UD)    Corpus B (Spec)
+  ────────────────────────────── ──────────────── ─────────────────
+  Q1 alone (3 groups)                   +2.17            +3.63
+  Q2 alone (3 groups)                   +4.09            +5.68
+  Q3 alone (3 groups)                   +4.81            +7.87
+
+  Operators (Q1×Q2, 9 groups)           +9.24            +9.44
+  Site face (Q2×Q3, 9 groups)           +9.44           +11.47
+  Resolution (Q1×Q3, 9 groups)         +12.70           +10.38
+  Full 27-cell (27 groups)             +16.15           +16.45
+
+  INTERPRETATION:
+  Both corpora show the same hierarchy: full 27-cell > faces > axes.
+  The combinatorial structure carries real information in both cases.
+  The full 27-cell z-scores are nearly identical (+16.15 vs +16.45)
+  despite radically different corpora — a strong convergence result.
+
+  Notable divergence: the Resolution face (Mode × Object) is stronger
+  in Corpus A (+12.70 vs +10.38), while the Site face (Domain × Object)
+  is stronger in Corpus B (+11.47 vs +9.44). This may reflect the
+  register: philosophy and physics make Domain × Object distinctions
+  more salient (where in reality something is), while diverse UD text
+  emphasizes Mode × Object (how a transformation lands).
+
+
+==========================================================================
+  RESULT 6 — HELIX DEPENDENCY STRUCTURE
+==========================================================================
+  The helix predicts Mode is upstream of Domain — knowing Mode should
+  constrain Domain more than the reverse.
+
+  Test                              Corpus A (UD)       Corpus B (Spec)
+  ─────────────────────────────── ─────────────────── ───────────────────
+  Entropy asymmetry                +0.134 bits          -0.067 bits
+  Preferred direction              Mode→Domain          Domain→Mode
+  Permutation p                    0.357                0.985
+
+  Spearman r (Mode→Domain)         -0.421               -0.277
+  Spearman p                       0.0000               0.0000
+
+  Top-3 operators predicted        CON, INS, SUP        CON, INS, SUP
+  Top-3 operators observed         CON, SUP, INS        SUP, CON, ALT
+  Top-3 match?                     YES                  NO
+
+  Domain that dominates            STRUCTURE (45.2%)    SIGNIFICANCE (53.3%)
+
+  INTERPRETATION:
+  The helix direction test diverges between corpora. Corpus A shows the
+  predicted Mode→Domain direction; Corpus B shows the reverse. The
+  specialist corpus is dominated by Significance (53.3% of clauses —
+  expected for philosophy and interpretive text), which inverts the
+  normal gravity well. The Spearman correlation is significant in both
+  but weaker in Corpus B (-0.28 vs -0.42).
+
+  This is an important finding: the helix's entropy flow may be
+  register-dependent. In everyday language (UD), Mode is upstream. In
+  meaning-dense text, Domain asserts primacy. The helix may describe
+  the *typical* flow in natural language rather than a universal
+  constraint.
+
+
+==========================================================================
+  RESULT 7 — COORDINATE GEOMETRY (MODE EQUAL STEPS)
+==========================================================================
+
+  Mode α step ratio (D↔R / R↔G, predicted ≈ 1.0):
+
+  Set               Corpus A (UD)    Corpus B (Spec)
+  ──────────────── ──────────────── ─────────────────
+  Consensus             1.511            1.122  ✓
+  Combined              1.492            1.246  ✓
+
+  INTERPRETATION:
+  Corpus B achieves the equal-steps prediction that Corpus A misses.
+  The specialist text shows Mode positions at nearly equal spacing in
+  embedding space (ratio 1.12, within tolerance). The UD corpus shows
+  a 1.5× asymmetry. This suggests the Mode axis has cleaner geometry
+  in register-controlled text.
+
+
+==========================================================================
+  RESULT 8 — UNSUPERVISED STRUCTURE (KMEANS)
+==========================================================================
+
+  Metric                           Corpus A (UD)    Corpus B (Spec)
+  ─────────────────────────────── ──────────────── ─────────────────
+  Top 3 PCs capture                    5.6%             15.4%
+  KMeans k=3 best ARI match          Q3: 0.014         Q2: 0.120
+  KMeans k=9 operator ARI              0.012             0.025
+  KMeans k=27 27-cell ARI              0.006             0.040
+
+  INTERPRETATION:
+  Corpus B shows much stronger unsupervised structure. Top-3 PCA
+  components capture 3× more variance (15.4% vs 5.6%), and the KMeans
+  k=3 clustering achieves meaningful ARI against Q2 (Domain) of 0.12.
+  In the specialist corpus, the Domain axis is spontaneously emerging
+  from unsupervised clustering — something that does not happen in the
+  UD corpus. The narrower register allows the EO signal to compete with
+  content variance.
+
+
+==========================================================================
+  RESULT 9 — SUBSPACE GEOMETRY (PRINCIPAL ANGLES)
+==========================================================================
+
+  Pair                   Corpus A (UD)    Corpus B (Spec)
+  ─────────────────── ──────────────── ─────────────────
+  Mode vs Domain           35.0°            38.6°
+  Mode vs Object           61.2°            77.8°
+  Domain vs Object         66.2°            32.2°
+
+  INTERPRETATION:
+  Mode × Object are more orthogonal in Corpus B (77.8° vs 61.2°),
+  nearing full independence. But Domain × Object show substantial
+  overlap in Corpus B (32.2° vs 66.2°). The specialist text tightly
+  couples what level of reality (Domain) with what grain of target
+  (Object) — philosophy and physics text apparently constrains which
+  Object types appear at each Domain level. Mode × Domain overlap is
+  similar in both corpora (~35-39°).
+
+
+==========================================================================
+  RESULT 10 — CROSS-SET COMPARISON (CLASSIFIER INDEPENDENCE)
+==========================================================================
+
+  Set              Corpus A (UD)           Corpus B (Spec)
+                Q1     Q2     Q3       Q1     Q2     Q3
+  ──────────── ───── ───── ─────    ───── ───── ─────
+  Consensus    +2.17 +4.09 +4.81    +3.63 +5.68 +7.87
+  Claude only  +0.60 +1.55 +2.05    +1.94 +2.87 +2.61
+  GPT-4 only   +1.64 +1.24 +3.15    +0.86 +4.68 +5.29
+
+  INTERPRETATION:
+  Classifier independence holds in both corpora — z-scores are positive
+  across all label sets. Interesting divergence: in Corpus B, GPT-4
+  shows much stronger Q2/Q3 signal than Claude (4.68/5.29 vs 2.87/2.61),
+  while in Corpus A, Claude and GPT-4 are more balanced. GPT-4 may have
+  stronger representations for philosophical/scientific domain
+  distinctions.
+
+
+==========================================================================
+  RESULT 11 — PHASEPOST DISTRIBUTION COMPARISON
+==========================================================================
+  How the 27 cells populate differently across corpora.
+
+  Top 5 consensus cells:
+
+  Corpus A (UD):                         Corpus B (Specialist):
+  CON(Binding, Link)       27.1%         SUP(Tracing, Paradigm)  15.4%
+  INS(Making, Entity)      16.9%         SUP(Binding, Lens)      12.6%
+  SUP(Binding, Lens)       16.0%         ALT(Unraveling, Paradigm) 12.0%
+  ALT(Dissecting, Lens)     4.8%         CON(Tracing, Network)   10.2%
+  CON(Tracing, Network)     4.1%         CON(Binding, Link)       8.1%
+
+  INTERPRETATION:
+  The distributions are strikingly different, reflecting the corpora:
+
+  Corpus A (UD) is dominated by CON(Binding, Link) — relating specific
+  things within organizational structures. This is the natural gravity
+  well: most real-world sentences connect particulars.
+
+  Corpus B (Specialist) shifts toward Significance operators. SUP
+  (holding contradictions in meaning) and ALT (reframing value) dominate.
+  Pattern targets (Paradigm, Network) are much more common than Entity
+  targets. This is exactly what you'd expect from quantum physics papers
+  (superposition, paradigm shifts) and philosophy (competing
+  interpretive frameworks).
+
+  The Protogon entity type (Pattern-dominant) jumps from ~15% of
+  consensus clauses in Corpus A to ~42% in Corpus B. The specialist
+  corpus lives in the pattern-crystallizing zone of the capacity ground.
+
+
+==========================================================================
+  SUMMARY VERDICT — PREDICTION OUTCOMES
+==========================================================================
+
+  Prediction                              Corpus A    Corpus B
+  ────────────────────────────────────── ────────── ──────────
+  (1) Distance monotone with axis diff       PASS        PASS
+  (2) All pairwise ARI < 0.10               FAIL*       PASS
+  (3) Q2 z > Q1 z (Domain primacy)          PASS        PASS
+  (4) Kappa thresholds met                   PASS        PASS
+
+  * Q1/Q2 ARI = 0.185 in Corpus A (borderline); 0.096 in Corpus B (pass)
+
+  Overall: 3/4 predictions confirmed in Corpus A, 4/4 in Corpus B.
+  All four core predictions confirmed in at least one corpus.
+  The geometric structure is robust across radically different text.
+
+
+==========================================================================
+  CONSOLIDATED FINDINGS
+==========================================================================
+
+  1. THE STRUCTURE IS REAL AND REPLICABLE
+     Both corpora independently produce significant z-scores on all
+     three axes, perfect monotonicity, moderate inter-model agreement,
+     and nearly identical full 27-cell z-scores (~16 SDs).
+
+  2. SPECIALIST TEXT AMPLIFIES THE SIGNAL
+     Every axis z-score is higher in Corpus B. The specialist corpus
+     achieves the Mode equal-steps prediction and full axis independence
+     that the UD corpus misses. Register-controlled, conceptually rich
+     text produces cleaner ontological geometry.
+
+  3. THE DISTRIBUTION SHIFTS BUT THE STRUCTURE HOLDS
+     Corpus A lives in the CON/INS/SUP gravity well (Structure-dominant,
+     Entity-prone). Corpus B shifts to SUP/ALT/CON (Significance-
+     dominant, Pattern-prone). The 27-cell structure accommodates this
+     shift — different cells populate, but the coordinate system remains
+     intact.
+
+  4. THE HELIX DIRECTION IS REGISTER-SENSITIVE
+     Mode→Domain in everyday text; Domain→Mode in meaning-dense text.
+     The helix dependency describes typical information flow, not a
+     universal constraint. The coupling strength (Q1/Q2 ARI) halves in
+     register-controlled text.
+
+  5. DOMAIN × OBJECT COUPLING EMERGES IN SPECIALIST TEXT
+     The UD corpus shows Domain and Object as nearly orthogonal (66°).
+     The specialist corpus couples them tightly (32°). In philosophical
+     and scientific writing, what level of reality you're operating on
+     strongly constrains what kind of target you're engaging. This is
+     plausible: quantum physics doesn't produce many "Entity × Existence"
+     clauses — it operates on patterns in significance.

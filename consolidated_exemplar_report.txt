@@ -1,0 +1,116 @@
+EO LEXICAL ANALYSIS — CONSOLIDATED TOP-100 EXEMPLARS
+======================================================================
+
+Top 100 most discriminative clauses across both corpus runs,
+ranked by composite margin (minimum margin across all four faces).
+
+SOURCE CORPORA:
+  Corpus A (UD): 41 languages, 19,764 classified, diverse registers
+  Corpus B (Specialist): English only, 3,595 classified — arXiv QP,
+    Greek/Taoist/Stoic philosophy, biblical wisdom literature
+
+NOTE: Discriminative exemplar analysis has only been computed for
+Corpus A so far. All 100 exemplars below are from the UD corpus.
+When Corpus B exemplars are computed, this list should be merged.
+
+----------------------------------------------------------------------
+
+  INS(Making, Entity)  (35 exemplars in top 100)
+  ────────────────────────────────────────────────────────────
+  #  7  [hi]  Δ=0.059  फलुजा स्थित एक प्रमुख अस्पताल के डॉक्टर ने बताया कि इस हमले में ११ लोग मारे गए और सात घायल हो गए ।
+  #  9  [fr]  Δ=0.059  Vers la même période (la date est incertaine), ils détruisirent une légion romaine.
+  # 10  [ta]  Δ=0.059  உக்ரைன் நாட்டில் பஸ் ஒன்றின் மீது ரயில் மோதியதில் 37 பேர் உயிரிழந்தனர்.
+  # 11  [fr]  Δ=0.058  En juillet 1941, une première attaque aérienne s'abattit sur la ville, quatre autres suivirent.
+  # 15  [ko]  Δ=0.057  이 사고로 갓길에서 사진을 찍고 있던 사진 동호회 회원 54살 이 모 씨 등 3명이 숨지고, 1명이 다쳤습니다.
+  # 16  [ur]  Δ=0.057  لوگوں نے اس کو لٹکا دیا اور پتھر مارنے لگے۔
+  # 19  [da]  Δ=0.057  Angrebet kom efter, at byen natten igennem var blevet ramt af 400 raketter.
+  # 25  [he]  Δ=0.054  ההתנגשויות החלו מיד לאחר שנודע דבר התאבדותו של פעיל מרכזי באש"ף, שהיה עצור באגף החקירות בכלא עזה.
+  # 27  [it]  Δ=0.053  In una delle chiamate giunte al "113" sarebbe stato anche annunciato lo scoppio di una bomba.
+  # 30  [es]  Δ=0.052  Lucharon primero en la Batalla del Jarama en febrero de 1937, sufriendo una gran cantidad de bajas.
+  ... and 25 more (see consolidated_exemplars.json)
+
+  ALT(Dissecting, Lens)  (15 exemplars in top 100)
+  ────────────────────────────────────────────────────────────
+  #  1  [ur]  Δ=0.081  انہوں نے کہا کہ کپتان یونس خاں کی ناراضگی کے بارے میں باتیں درست نہیں ہیں -
+  #  3  [hi]  Δ=0.065  उन्होंने कहा कि इस बारे में कोई निष्कर्ष नहीं निकाला जा सकता कि भाजपा और इसके नेता विवादित ढाँचे को ...
+  # 17  [cs]  Δ=0.057  Jen jedno nechtěli přiznat - že by štěpný materiál mohl pocházet z Ruska.
+  # 18  [cs]  Δ=0.057  Kroupa také odmítl vyvozovat z tohoto případu útoky proti privatizaci jako takové.
+  # 22  [vi]  Δ=0.055  Trước những câu hỏi của chồng , Thu không có lời giải thích thuyết phục .
+  # 23  [zh]  Δ=0.055  喬姆斯基也表示不認為受誤導。
+  # 26  [vi]  Δ=0.053  Qua những thông tin này , Hùng cho rằng khả năng ông Học là thủ phạm rất mơ hồ .
+  # 45  [en]  Δ=0.049  "Terry said he made that filing in the interest of Californians, but I find that argument has no bas...
+  # 57  [tr]  Δ=0.048  Hiç bilmiyorum nasıl bir kadın olduğunu, dedi.
+  # 60  [hi]  Δ=0.047  उन्होंने कहा कि मैं इतिहासकार नहीं हूँ, बल्कि मौजूदा राजनीति का छात्र हूँ ।
+  ... and 5 more (see consolidated_exemplars.json)
+
+  CON(Binding, Link)  (15 exemplars in top 100)
+  ────────────────────────────────────────────────────────────
+  #  6  [hi]  Δ=0.062  मुकेश अपनी पत्नी नीता के साथ आनंद जैन की बेटी की शादी में शामिल होंगे ।
+  # 12  [ur]  Δ=0.058  جبکہ جناب شیخ عبید بن عثمان العمودی اور جناب غلام حامد خان نقشبندی چشتی قادری مہمان خصوصی کی حیثیت س...
+  # 35  [hr]  Δ=0.051  Glavni tajnik NATO-a Jaap de Hoop Scheffer (desno) i Crvenkovski razgovaraju s izvjestiteljima nakon...
+  # 42  [tr]  Δ=0.049  Save ile birlikte dün gece geç saatlerde özel bir uçakla Ankara'ya gelen for, Türkiye'ye Hazine'den ...
+  # 46  [en]  Δ=0.049  Please contact Sherri Sera (713/853-5984) or Bill Dorsey (713/646-6505) for the weekly dial-in numbe...
+  # 53  [hr]  Δ=0.048  Makedonski predsjednik Đorđe Ivanov i njegov kolega Vaclav Klaus nazočili su u utorak, 22. lipnja, u...
+  # 54  [pl]  Δ=0.048  Chłopak biegnie, asekurując jadącego obok rowerem chłopca w kasku na głowie.
+  # 55  [hr]  Δ=0.048  Američki predsjednik George W. Bush (lijevo) razgovara s makedonskim predsjednikom Brankom Crvenkovs...
+  # 62  [sr]  Δ=0.047  Generalni sekretar NATO Jap de Hop Shefer (desno) i Crvenkovski obraćaju se novinarima posle sastank...
+  # 73  [hr]  Δ=0.045  Pomoćnik američke državne tajnice Daniel Fried kontaktirao je u ponedjeljak grčku ministricu vanjski...
+  ... and 5 more (see consolidated_exemplars.json)
+
+  ALT(Unraveling, Paradigm)  (14 exemplars in top 100)
+  ────────────────────────────────────────────────────────────
+  #  2  [fi]  Δ=0.067  Todellisuus on usein kuitenkin muuta: moni ei halua myöntää julkisesti, että seksi olisi suhteessa h...
+  #  5  [he]  Δ=0.064  עם זאת, גם הקרנות בעלות השמות הגדולים אינן בהכרח מעיינות החשיבה הליברלית הסטריאוטיפית כפי שלעתים קרו...
+  #  8  [fi]  Δ=0.059  Se voi pinnallisesti näyttää seksuaaliselta vapaudelta, mutta tällaiselta ihmiseltä puuttuu kyky tun...
+  # 13  [ru]  Δ=0.058  Доказать нельзя ничего (вернее - можно доказать что угодно).
+  # 20  [pl]  Δ=0.057  Kontrast ten może nawet świadczyć o jakiejś obojętności czy martwocie religijnej panującej w czasach...
+  # 21  [da]  Δ=0.056  Det er ikke det samme som ensartethed, som Molesworth beskrev.
+  # 24  [vi]  Δ=0.055  Như vậy lý do phá hoại hạnh phúc , quấy rối cuộc sống vì thù hằn tiền bạc hay địa vị là thiếu căn cứ...
+  # 28  [sl]  Δ=0.053  V ideološki interpelaciji namreč ne smemo videti nekakšne zle usode, ki bi »viktimizirala« individue...
+  # 29  [fi]  Δ=0.053  Aina toki löytyy myös niitä, jotka eivät osaa antaa anteeksi toisille, saatikka itselleen.
+  # 43  [vi]  Δ=0.049  Tâm lý đó không phù hợp với người trực tiếp đánh ghen ...
+  ... and 4 more (see consolidated_exemplars.json)
+
+  SUP(Binding, Lens)  (10 exemplars in top 100)
+  ────────────────────────────────────────────────────────────
+  # 33  [sk]  Δ=0.051  “ Dobre , chlapče , “ súhlasil Fil .
+  # 39  [vi]  Δ=0.050  Có lẽ vì lịch sự Hùng cũng nói : " Tôi cũng thấy hình như gặp ông ở đâu " .
+  # 40  [no]  Δ=0.050  - Naturligvis elsker jeg presidenten vår, sa hun etter forestillingen.
+  # 51  [tr]  Δ=0.048  Evet, buraya bir şey anlatmak için gelmiştim, dedi Kerem.
+  # 65  [da]  Δ=0.047  - De er s'gu ret flot, sagde jeg.
+  # 80  [sr]  Δ=0.045  To je bio moj motiv da glasam za njega", rekla je Selma Gunić iz Sarajeva za SETimes.
+  # 81  [pl]  Δ=0.044  Czuł, że ojciec byłby z niego dumny.
+  # 84  [da]  Δ=0.044  "Jeg vidste, at de kunne blive til et eller andet stort, så jeg gik hen og spurgte, om de kunne rapp...
+  # 91  [vi]  Δ=0.044  Xúc động và không ít bạn đọc đã động viên , góp phần chia sẻ với " nàng tiên nhỏ " .
+  # 98  [vi]  Δ=0.043  Có phải là cô biết " nó " sẽ nhắn cho cô ? " .
+
+  SYN(Composing, Network)  (5 exemplars in top 100)
+  ────────────────────────────────────────────────────────────
+  #  4  [ur]  Δ=0.065  اجلاس مےں نئے ٹیکس قانون کا بھی جائزہ لیا جائےگا جو کہ موجودہ انکم ٹیکس قانون کی جگہ لےگا۔
+  # 14  [hi]  Δ=0.058  इस दौरान इस कानून को लेकर राज्यों के साथ विचार - विमर्श किया जाएगा व इसके दिशा - निर्देश तैयार किए ज...
+  # 31  [sl]  Δ=0.052  Sistem je treba spreminjati postopno, na daljši rok.
+  # 36  [hi]  Δ=0.051  केंद्र की कोशिश है कि कानून लागू करने से पहले इस कार्यक्रम के तहत काम पाने वाले लोगों के नाम पंचायतो...
+  # 50  [ja]  Δ=0.049  また、使用期限が明記されていない用途についても2014年に見直しをすることが明記されている。
+
+  SUP(Tracing, Paradigm)  (3 exemplars in top 100)
+  ────────────────────────────────────────────────────────────
+  # 59  [ur]  Δ=0.048  اسی کو تقویٰ کہتے ہےں اور اس پر عمل کرنے والے کو متقی کہتے ہیں۔
+  # 72  [ur]  Δ=0.046  تمام معنی باہم مناسبت رکھتے ہےں اور سب کا خلاصہ یہ ہے کہ آدمی اللہ تعالیٰ سے صحیح معنی مےں ڈر جائے۔
+  # 76  [no]  Δ=0.045  Som vi spør, vil vi også få svar.
+
+  SEG(Unraveling, Network)  (2 exemplars in top 100)
+  ────────────────────────────────────────────────────────────
+  # 63  [sk]  Δ=0.047  Zaujímavejší je ale ďalší zákon z tohto zákonníka , ktorý povoľuje židom mať na svojich majetkoch ot...
+  # 86  [sv]  Δ=0.044  Industriländerna (USA, Sovjet, Sverige etc) använder en mycket större del av sin nationalprodukt på ...
+
+  INS(Cultivating, Void)  (1 exemplars in top 100)
+  ────────────────────────────────────────────────────────────
+  # 48  [ko]  Δ=0.049  1월에는 20여 년 만에 발생한 기록적인 한파와 폭설로 인해 여러 가지 사건 사고가 발생했다.
+
+======================================================================
+SUMMARY STATISTICS
+======================================================================
+  Cells represented:     9
+  Languages represented: 31
+  Margin range:          0.0813 to 0.0426
+  Source:                Corpus A (UD) — 100/100 exemplars

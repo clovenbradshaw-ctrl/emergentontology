@@ -1,0 +1,1048 @@
+{
+  "_legend": {
+    "description": "Top 100 most discriminative exemplars across both corpus runs, ranked by composite margin. Composite margin = minimum discrimination margin across all four faces (27cell, act, site, resolution). A high composite margin means the clause is unambiguously in its cell from every angle simultaneously.",
+    "corpora": {
+      "corpus_a_ud": {
+        "description": "Universal Dependencies treebanks — 41 languages, diverse registers (news, Wikipedia, legal, literary, web)",
+        "n_classified": 19764,
+        "n_consensus": 7808,
+        "n_languages": 41,
+        "date": "2026-03-18"
+      },
+      "corpus_b_specialist": {
+        "description": "arXiv quantum physics + Greek/Taoist/Stoic philosophy + biblical wisdom literature — English only",
+        "n_classified": 3595,
+        "n_consensus": 1354,
+        "n_languages": 1,
+        "date": "2026-03-19",
+        "note": "Discriminative exemplar computation not yet run for this corpus. All exemplars below are from Corpus A. When Corpus B exemplar analysis is computed, this file should be regenerated to merge both."
+      }
+    },
+    "fields": {
+      "rank": "Global rank by composite margin (1 = most discriminative across all faces)",
+      "cell": "Full 27-cell address: operator(Resolution, Site)",
+      "clause": "Original sentence from corpus (untranslated)",
+      "language": "ISO 639-1 language code",
+      "source": "Which corpus this exemplar comes from (corpus_a_ud or corpus_b_specialist)",
+      "sim_own": "Cosine similarity to own cell centroid [0-1]",
+      "margin_composite": "Minimum margin across all four faces — the ranking key",
+      "rank_in_cell": "Rank within its specific 27-cell (1 = top exemplar for that cell)"
+    }
+  },
+  "summary": {
+    "total_exemplars_evaluated": 2612,
+    "cells_represented_in_top100": 9,
+    "languages_represented_in_top100": 31,
+    "margin_range": [
+      0.0426,
+      0.0813
+    ],
+    "source_distribution": {
+      "corpus_a_ud": 100,
+      "corpus_b_specialist": 0
+    },
+    "note": "All 100 exemplars are from Corpus A (UD) because Corpus B exemplar analysis has not been computed yet."
+  },
+  "exemplars": [
+    {
+      "rank": 1,
+      "cell": "ALT(Dissecting, Lens)",
+      "clause": "انہوں نے کہا کہ کپتان یونس خاں کی ناراضگی کے بارے میں باتیں درست نہیں ہیں -",
+      "language": "ur",
+      "source": "corpus_a_ud",
+      "sim_own": 0.3798,
+      "margin_composite": 0.0813,
+      "rank_in_cell": 1
+    },
+    {
+      "rank": 2,
+      "cell": "ALT(Unraveling, Paradigm)",
+      "clause": "Todellisuus on usein kuitenkin muuta: moni ei halua myöntää julkisesti, että seksi olisi suhteessa huonoa.",
+      "language": "fi",
+      "source": "corpus_a_ud",
+      "sim_own": 0.4533,
+      "margin_composite": 0.0672,
+      "rank_in_cell": 1
+    },
+    {
+      "rank": 3,
+      "cell": "ALT(Dissecting, Lens)",
+      "clause": "उन्होंने कहा कि इस बारे में कोई निष्कर्ष नहीं निकाला जा सकता कि भाजपा और इसके नेता विवादित ढाँचे को गिराने के षडयंत्र में शामिल थे ।",
+      "language": "hi",
+      "source": "corpus_a_ud",
+      "sim_own": 0.418,
+      "margin_composite": 0.0648,
+      "rank_in_cell": 2
+    },
+    {
+      "rank": 4,
+      "cell": "SYN(Composing, Network)",
+      "clause": "اجلاس مےں نئے ٹیکس قانون کا بھی جائزہ لیا جائےگا جو کہ موجودہ انکم ٹیکس قانون کی جگہ لےگا۔",
+      "language": "ur",
+      "source": "corpus_a_ud",
+      "sim_own": 0.435,
+      "margin_composite": 0.0645,
+      "rank_in_cell": 1
+    },
+    {
+      "rank": 5,
+      "cell": "ALT(Unraveling, Paradigm)",
+      "clause": "עם זאת, גם הקרנות בעלות השמות הגדולים אינן בהכרח מעיינות החשיבה הליברלית הסטריאוטיפית כפי שלעתים קרובות מתארים אותן.",
+      "language": "he",
+      "source": "corpus_a_ud",
+      "sim_own": 0.3677,
+      "margin_composite": 0.0643,
+      "rank_in_cell": 2
+    },
+    {
+      "rank": 6,
+      "cell": "CON(Binding, Link)",
+      "clause": "मुकेश अपनी पत्नी नीता के साथ आनंद जैन की बेटी की शादी में शामिल होंगे ।",
+      "language": "hi",
+      "source": "corpus_a_ud",
+      "sim_own": 0.2948,
+      "margin_composite": 0.0622,
+      "rank_in_cell": 1
+    },
+    {
+      "rank": 7,
+      "cell": "INS(Making, Entity)",
+      "clause": "फलुजा स्थित एक प्रमुख अस्पताल के डॉक्टर ने बताया कि इस हमले में ११ लोग मारे गए और सात घायल हो गए ।",
+      "language": "hi",
+      "source": "corpus_a_ud",
+      "sim_own": 0.3462,
+      "margin_composite": 0.0595,
+      "rank_in_cell": 1
+    },
+    {
+      "rank": 8,
+      "cell": "ALT(Unraveling, Paradigm)",
+      "clause": "Se voi pinnallisesti näyttää seksuaaliselta vapaudelta, mutta tällaiselta ihmiseltä puuttuu kyky tuntea läheisyyttä, intiimiyttä ja sitoutumista seksuaalikumppaniinsa.",
+      "language": "fi",
+      "source": "corpus_a_ud",
+      "sim_own": 0.352,
+      "margin_composite": 0.0593,
+      "rank_in_cell": 3
+    },
+    {
+      "rank": 9,
+      "cell": "INS(Making, Entity)",
+      "clause": "Vers la même période (la date est incertaine), ils détruisirent une légion romaine.",
+      "language": "fr",
+      "source": "corpus_a_ud",
+      "sim_own": 0.2931,
+      "margin_composite": 0.0589,
+      "rank_in_cell": 2
+    },
+    {
+      "rank": 10,
+      "cell": "INS(Making, Entity)",
+      "clause": "உக்ரைன் நாட்டில் பஸ் ஒன்றின் மீது ரயில் மோதியதில் 37 பேர் உயிரிழந்தனர்.",
+      "language": "ta",
+      "source": "corpus_a_ud",
+      "sim_own": 0.2914,
+      "margin_composite": 0.0588,
+      "rank_in_cell": 3
+    },
+    {
+      "rank": 11,
+      "cell": "INS(Making, Entity)",
+      "clause": "En juillet 1941, une première attaque aérienne s'abattit sur la ville, quatre autres suivirent.",
+      "language": "fr",
+      "source": "corpus_a_ud",
+      "sim_own": 0.2968,
+      "margin_composite": 0.0581,
+      "rank_in_cell": 4
+    },
+    {
+      "rank": 12,
+      "cell": "CON(Binding, Link)",
+      "clause": "جبکہ جناب شیخ عبید بن عثمان العمودی اور جناب غلام حامد خان نقشبندی چشتی قادری مہمان خصوصی کی حیثیت سے شرکت کریں_گے۔",
+      "language": "ur",
+      "source": "corpus_a_ud",
+      "sim_own": 0.3021,
+      "margin_composite": 0.058,
+      "rank_in_cell": 2
+    },
+    {
+      "rank": 13,
+      "cell": "ALT(Unraveling, Paradigm)",
+      "clause": "Доказать нельзя ничего (вернее - можно доказать что угодно).",
+      "language": "ru",
+      "source": "corpus_a_ud",
+      "sim_own": 0.3577,
+      "margin_composite": 0.058,
+      "rank_in_cell": 4
+    },
+    {
+      "rank": 14,
+      "cell": "SYN(Composing, Network)",
+      "clause": "इस दौरान इस कानून को लेकर राज्यों के साथ विचार - विमर्श किया जाएगा व इसके दिशा - निर्देश तैयार किए जाएंगे ।",
+      "language": "hi",
+      "source": "corpus_a_ud",
+      "sim_own": 0.388,
+      "margin_composite": 0.0579,
+      "rank_in_cell": 2
+    },
+    {
+      "rank": 15,
+      "cell": "INS(Making, Entity)",
+      "clause": "이 사고로 갓길에서 사진을 찍고 있던 사진 동호회 회원 54살 이 모 씨 등 3명이 숨지고, 1명이 다쳤습니다.",
+      "language": "ko",
+      "source": "corpus_a_ud",
+      "sim_own": 0.3097,
+      "margin_composite": 0.0574,
+      "rank_in_cell": 5
+    },
+    {
+      "rank": 16,
+      "cell": "INS(Making, Entity)",
+      "clause": "لوگوں نے اس کو لٹکا دیا اور پتھر مارنے لگے۔",
+      "language": "ur",
+      "source": "corpus_a_ud",
+      "sim_own": 0.3433,
+      "margin_composite": 0.0574,
+      "rank_in_cell": 6
+    },
+    {
+      "rank": 17,
+      "cell": "ALT(Dissecting, Lens)",
+      "clause": "Jen jedno nechtěli přiznat - že by štěpný materiál mohl pocházet z Ruska.",
+      "language": "cs",
+      "source": "corpus_a_ud",
+      "sim_own": 0.466,
+      "margin_composite": 0.0573,
+      "rank_in_cell": 3
+    },
+    {
+      "rank": 18,
+      "cell": "ALT(Dissecting, Lens)",
+      "clause": "Kroupa také odmítl vyvozovat z tohoto případu útoky proti privatizaci jako takové.",
+      "language": "cs",
+      "source": "corpus_a_ud",
+      "sim_own": 0.4909,
+      "margin_composite": 0.0571,
+      "rank_in_cell": 4
+    },
+    {
+      "rank": 19,
+      "cell": "INS(Making, Entity)",
+      "clause": "Angrebet kom efter, at byen natten igennem var blevet ramt af 400 raketter.",
+      "language": "da",
+      "source": "corpus_a_ud",
+      "sim_own": 0.3611,
+      "margin_composite": 0.0566,
+      "rank_in_cell": 7
+    },
+    {
+      "rank": 20,
+      "cell": "ALT(Unraveling, Paradigm)",
+      "clause": "Kontrast ten może nawet świadczyć o jakiejś obojętności czy martwocie religijnej panującej w czasach proroka.",
+      "language": "pl",
+      "source": "corpus_a_ud",
+      "sim_own": 0.4651,
+      "margin_composite": 0.0566,
+      "rank_in_cell": 5
+    },
+    {
+      "rank": 21,
+      "cell": "ALT(Unraveling, Paradigm)",
+      "clause": "Det er ikke det samme som ensartethed, som Molesworth beskrev.",
+      "language": "da",
+      "source": "corpus_a_ud",
+      "sim_own": 0.4428,
+      "margin_composite": 0.0564,
+      "rank_in_cell": 6
+    },
+    {
+      "rank": 22,
+      "cell": "ALT(Dissecting, Lens)",
+      "clause": "Trước những câu hỏi của chồng , Thu không có lời giải thích thuyết phục .",
+      "language": "vi",
+      "source": "corpus_a_ud",
+      "sim_own": 0.3597,
+      "margin_composite": 0.0554,
+      "rank_in_cell": 5
+    },
+    {
+      "rank": 23,
+      "cell": "ALT(Dissecting, Lens)",
+      "clause": "喬姆斯基也表示不認為受誤導。",
+      "language": "zh",
+      "source": "corpus_a_ud",
+      "sim_own": 0.4092,
+      "margin_composite": 0.055,
+      "rank_in_cell": 6
+    },
+    {
+      "rank": 24,
+      "cell": "ALT(Unraveling, Paradigm)",
+      "clause": "Như vậy lý do phá hoại hạnh phúc , quấy rối cuộc sống vì thù hằn tiền bạc hay địa vị là thiếu căn cứ .",
+      "language": "vi",
+      "source": "corpus_a_ud",
+      "sim_own": 0.316,
+      "margin_composite": 0.0546,
+      "rank_in_cell": 7
+    },
+    {
+      "rank": 25,
+      "cell": "INS(Making, Entity)",
+      "clause": "ההתנגשויות החלו מיד לאחר שנודע דבר התאבדותו של פעיל מרכזי באש\"ף, שהיה עצור באגף החקירות בכלא עזה.",
+      "language": "he",
+      "source": "corpus_a_ud",
+      "sim_own": 0.3476,
+      "margin_composite": 0.0545,
+      "rank_in_cell": 8
+    },
+    {
+      "rank": 26,
+      "cell": "ALT(Dissecting, Lens)",
+      "clause": "Qua những thông tin này , Hùng cho rằng khả năng ông Học là thủ phạm rất mơ hồ .",
+      "language": "vi",
+      "source": "corpus_a_ud",
+      "sim_own": 0.3649,
+      "margin_composite": 0.0535,
+      "rank_in_cell": 7
+    },
+    {
+      "rank": 27,
+      "cell": "INS(Making, Entity)",
+      "clause": "In una delle chiamate giunte al \"113\" sarebbe stato anche annunciato lo scoppio di una bomba.",
+      "language": "it",
+      "source": "corpus_a_ud",
+      "sim_own": 0.4247,
+      "margin_composite": 0.0535,
+      "rank_in_cell": 9
+    },
+    {
+      "rank": 28,
+      "cell": "ALT(Unraveling, Paradigm)",
+      "clause": "V ideološki interpelaciji namreč ne smemo videti nekakšne zle usode, ki bi »viktimizirala« individue.",
+      "language": "sl",
+      "source": "corpus_a_ud",
+      "sim_own": 0.4698,
+      "margin_composite": 0.0532,
+      "rank_in_cell": 8
+    },
+    {
+      "rank": 29,
+      "cell": "ALT(Unraveling, Paradigm)",
+      "clause": "Aina toki löytyy myös niitä, jotka eivät osaa antaa anteeksi toisille, saatikka itselleen.",
+      "language": "fi",
+      "source": "corpus_a_ud",
+      "sim_own": 0.3659,
+      "margin_composite": 0.0531,
+      "rank_in_cell": 9
+    },
+    {
+      "rank": 30,
+      "cell": "INS(Making, Entity)",
+      "clause": "Lucharon primero en la Batalla del Jarama en febrero de 1937, sufriendo una gran cantidad de bajas.",
+      "language": "es",
+      "source": "corpus_a_ud",
+      "sim_own": 0.276,
+      "margin_composite": 0.0523,
+      "rank_in_cell": 10
+    },
+    {
+      "rank": 31,
+      "cell": "SYN(Composing, Network)",
+      "clause": "Sistem je treba spreminjati postopno, na daljši rok.",
+      "language": "sl",
+      "source": "corpus_a_ud",
+      "sim_own": 0.5234,
+      "margin_composite": 0.0521,
+      "rank_in_cell": 3
+    },
+    {
+      "rank": 32,
+      "cell": "INS(Making, Entity)",
+      "clause": "وقبل عامين، قتل 1082 شخصا في اكبر انفجار لانبوب نفط خلال محاولات سحب النفط منه.",
+      "language": "ar",
+      "source": "corpus_a_ud",
+      "sim_own": 0.2145,
+      "margin_composite": 0.0514,
+      "rank_in_cell": 11
+    },
+    {
+      "rank": 33,
+      "cell": "SUP(Binding, Lens)",
+      "clause": "“ Dobre , chlapče , “ súhlasil Fil .",
+      "language": "sk",
+      "source": "corpus_a_ud",
+      "sim_own": 0.4299,
+      "margin_composite": 0.0513,
+      "rank_in_cell": 1
+    },
+    {
+      "rank": 34,
+      "cell": "INS(Making, Entity)",
+      "clause": "במחנה פליטים סמוך לשכם נפגע תושב מקומי מפגיעת רימון גז מדמיע, שנורה בידי חיילים.",
+      "language": "he",
+      "source": "corpus_a_ud",
+      "sim_own": 0.3028,
+      "margin_composite": 0.0513,
+      "rank_in_cell": 12
+    },
+    {
+      "rank": 35,
+      "cell": "CON(Binding, Link)",
+      "clause": "Glavni tajnik NATO-a Jaap de Hoop Scheffer (desno) i Crvenkovski razgovaraju s izvjestiteljima nakon prošlogodišnjeg sastanka u stožeru NATO-a.",
+      "language": "hr",
+      "source": "corpus_a_ud",
+      "sim_own": 0.4016,
+      "margin_composite": 0.0511,
+      "rank_in_cell": 3
+    },
+    {
+      "rank": 36,
+      "cell": "SYN(Composing, Network)",
+      "clause": "केंद्र की कोशिश है कि कानून लागू करने से पहले इस कार्यक्रम के तहत काम पाने वाले लोगों के नाम पंचायतों में दर्ज हो जाए ।",
+      "language": "hi",
+      "source": "corpus_a_ud",
+      "sim_own": 0.3716,
+      "margin_composite": 0.0509,
+      "rank_in_cell": 4
+    },
+    {
+      "rank": 37,
+      "cell": "INS(Making, Entity)",
+      "clause": "Poco dopo li fucilarono davanti a una folla delirante:",
+      "language": "it",
+      "source": "corpus_a_ud",
+      "sim_own": 0.3731,
+      "margin_composite": 0.0508,
+      "rank_in_cell": 13
+    },
+    {
+      "rank": 38,
+      "cell": "INS(Making, Entity)",
+      "clause": "Két utas életét vesztette, és rengeteg amerikait súlyos sérüléssel kellett kórházba szállítani.",
+      "language": "hu",
+      "source": "corpus_a_ud",
+      "sim_own": 0.3712,
+      "margin_composite": 0.0507,
+      "rank_in_cell": 14
+    },
+    {
+      "rank": 39,
+      "cell": "SUP(Binding, Lens)",
+      "clause": "Có lẽ vì lịch sự Hùng cũng nói : \" Tôi cũng thấy hình như gặp ông ở đâu \" .",
+      "language": "vi",
+      "source": "corpus_a_ud",
+      "sim_own": 0.3583,
+      "margin_composite": 0.0503,
+      "rank_in_cell": 2
+    },
+    {
+      "rank": 40,
+      "cell": "SUP(Binding, Lens)",
+      "clause": "- Naturligvis elsker jeg presidenten vår, sa hun etter forestillingen.",
+      "language": "no",
+      "source": "corpus_a_ud",
+      "sim_own": 0.3911,
+      "margin_composite": 0.0497,
+      "rank_in_cell": 3
+    },
+    {
+      "rank": 41,
+      "cell": "INS(Making, Entity)",
+      "clause": "A szobrot 1925-ben I. világháborús emlékműként a Budapesti Műszaki Egyetem udvarán állították fel, s az 1950-es években döntötték le.",
+      "language": "hu",
+      "source": "corpus_a_ud",
+      "sim_own": 0.2711,
+      "margin_composite": 0.0495,
+      "rank_in_cell": 15
+    },
+    {
+      "rank": 42,
+      "cell": "CON(Binding, Link)",
+      "clause": "Save ile birlikte dün gece geç saatlerde özel bir uçakla Ankara'ya gelen for, Türkiye'ye Hazine'den Sorumlu Devlet Bakanı Ali Babacan'ın daveti üzerine geldiklerini belirtti.",
+      "language": "tr",
+      "source": "corpus_a_ud",
+      "sim_own": 0.3962,
+      "margin_composite": 0.0494,
+      "rank_in_cell": 4
+    },
+    {
+      "rank": 43,
+      "cell": "ALT(Unraveling, Paradigm)",
+      "clause": "Tâm lý đó không phù hợp với người trực tiếp đánh ghen ...",
+      "language": "vi",
+      "source": "corpus_a_ud",
+      "sim_own": 0.3694,
+      "margin_composite": 0.0493,
+      "rank_in_cell": 10
+    },
+    {
+      "rank": 44,
+      "cell": "ALT(Unraveling, Paradigm)",
+      "clause": "You people think it is race, but it is not.",
+      "language": "en",
+      "source": "corpus_a_ud",
+      "sim_own": 0.2829,
+      "margin_composite": 0.0491,
+      "rank_in_cell": 11
+    },
+    {
+      "rank": 45,
+      "cell": "ALT(Dissecting, Lens)",
+      "clause": "\"Terry said he made that filing in the interest of Californians, but I find that argument has no basis in fact.''",
+      "language": "en",
+      "source": "corpus_a_ud",
+      "sim_own": 0.3305,
+      "margin_composite": 0.049,
+      "rank_in_cell": 8
+    },
+    {
+      "rank": 46,
+      "cell": "CON(Binding, Link)",
+      "clause": "Please contact Sherri Sera (713/853-5984) or Bill Dorsey (713/646-6505) for the weekly dial-in number and passcode.",
+      "language": "en",
+      "source": "corpus_a_ud",
+      "sim_own": 0.2035,
+      "margin_composite": 0.0488,
+      "rank_in_cell": 5
+    },
+    {
+      "rank": 47,
+      "cell": "INS(Making, Entity)",
+      "clause": "Segons les primeres informacions, l'agressor va treure la pistola, va apuntar a un nen i es va girar després per disparar a la víctima.",
+      "language": "ca",
+      "source": "corpus_a_ud",
+      "sim_own": 0.4096,
+      "margin_composite": 0.0488,
+      "rank_in_cell": 16
+    },
+    {
+      "rank": 48,
+      "cell": "INS(Cultivating, Void)",
+      "clause": "1월에는 20여 년 만에 발생한 기록적인 한파와 폭설로 인해 여러 가지 사건 사고가 발생했다.",
+      "language": "ko",
+      "source": "corpus_a_ud",
+      "sim_own": 0.3642,
+      "margin_composite": 0.0486,
+      "rank_in_cell": 1
+    },
+    {
+      "rank": 49,
+      "cell": "INS(Making, Entity)",
+      "clause": "לדבריהם, היו התנגשויות בין צה\"ל לתושבים מקומיים החל משעות הבוקר המוקדמות, כאשר מאות רעולי פנים יידו אבנים על חיילים.",
+      "language": "he",
+      "source": "corpus_a_ud",
+      "sim_own": 0.3191,
+      "margin_composite": 0.0485,
+      "rank_in_cell": 17
+    },
+    {
+      "rank": 50,
+      "cell": "SYN(Composing, Network)",
+      "clause": "また、使用期限が明記されていない用途についても2014年に見直しをすることが明記されている。",
+      "language": "ja",
+      "source": "corpus_a_ud",
+      "sim_own": 0.3911,
+      "margin_composite": 0.0485,
+      "rank_in_cell": 5
+    },
+    {
+      "rank": 51,
+      "cell": "SUP(Binding, Lens)",
+      "clause": "Evet, buraya bir şey anlatmak için gelmiştim, dedi Kerem.",
+      "language": "tr",
+      "source": "corpus_a_ud",
+      "sim_own": 0.3882,
+      "margin_composite": 0.0483,
+      "rank_in_cell": 4
+    },
+    {
+      "rank": 52,
+      "cell": "INS(Making, Entity)",
+      "clause": "20 סטודנטים מאוניברסיטת ביר זית נפצעו אתמול, רובם באופן קל, ממכות של חיילים כך מסרו מקורות פלשתיניים.",
+      "language": "he",
+      "source": "corpus_a_ud",
+      "sim_own": 0.2825,
+      "margin_composite": 0.0482,
+      "rank_in_cell": 18
+    },
+    {
+      "rank": 53,
+      "cell": "CON(Binding, Link)",
+      "clause": "Makedonski predsjednik Đorđe Ivanov i njegov kolega Vaclav Klaus nazočili su u utorak, 22. lipnja, u Skopju makedonsko-češkom poslovnom forumu.",
+      "language": "hr",
+      "source": "corpus_a_ud",
+      "sim_own": 0.3821,
+      "margin_composite": 0.048,
+      "rank_in_cell": 6
+    },
+    {
+      "rank": 54,
+      "cell": "CON(Binding, Link)",
+      "clause": "Chłopak biegnie, asekurując jadącego obok rowerem chłopca w kasku na głowie.",
+      "language": "pl",
+      "source": "corpus_a_ud",
+      "sim_own": 0.3447,
+      "margin_composite": 0.0479,
+      "rank_in_cell": 7
+    },
+    {
+      "rank": 55,
+      "cell": "CON(Binding, Link)",
+      "clause": "Američki predsjednik George W. Bush (lijevo) razgovara s makedonskim predsjednikom Brankom Crvenkovskim (u sredini) i premijerom Nikolom Gruevskim na prošlotjednom samitu NATO-a u Bukureštu.",
+      "language": "hr",
+      "source": "corpus_a_ud",
+      "sim_own": 0.3829,
+      "margin_composite": 0.0478,
+      "rank_in_cell": 8
+    },
+    {
+      "rank": 56,
+      "cell": "ALT(Unraveling, Paradigm)",
+      "clause": "Sebab, orang yang paham akan agama itu takut kepada Allah SWT sehingga tidak cocok berkecimpung dalam politik yang merupakan dusta, kezhaliman, pengkhianatan, dan tipu daya.",
+      "language": "id",
+      "source": "corpus_a_ud",
+      "sim_own": 0.3219,
+      "margin_composite": 0.0478,
+      "rank_in_cell": 12
+    },
+    {
+      "rank": 57,
+      "cell": "ALT(Dissecting, Lens)",
+      "clause": "Hiç bilmiyorum nasıl bir kadın olduğunu, dedi.",
+      "language": "tr",
+      "source": "corpus_a_ud",
+      "sim_own": 0.3614,
+      "margin_composite": 0.0477,
+      "rank_in_cell": 9
+    },
+    {
+      "rank": 58,
+      "cell": "INS(Making, Entity)",
+      "clause": "Nel 1961 trucidati tredici nostri aviatori.",
+      "language": "it",
+      "source": "corpus_a_ud",
+      "sim_own": 0.3096,
+      "margin_composite": 0.0476,
+      "rank_in_cell": 19
+    },
+    {
+      "rank": 59,
+      "cell": "SUP(Tracing, Paradigm)",
+      "clause": "اسی کو تقویٰ کہتے ہےں اور اس پر عمل کرنے والے کو متقی کہتے ہیں۔",
+      "language": "ur",
+      "source": "corpus_a_ud",
+      "sim_own": 0.3184,
+      "margin_composite": 0.0475,
+      "rank_in_cell": 1
+    },
+    {
+      "rank": 60,
+      "cell": "ALT(Dissecting, Lens)",
+      "clause": "उन्होंने कहा कि मैं इतिहासकार नहीं हूँ, बल्कि मौजूदा राजनीति का छात्र हूँ ।",
+      "language": "hi",
+      "source": "corpus_a_ud",
+      "sim_own": 0.2982,
+      "margin_composite": 0.0472,
+      "rank_in_cell": 10
+    },
+    {
+      "rank": 61,
+      "cell": "ALT(Dissecting, Lens)",
+      "clause": "Đến lúc Kim phải hỏi vì sao thì ông Chương lại nói : không có chuyện gì quan trọng .",
+      "language": "vi",
+      "source": "corpus_a_ud",
+      "sim_own": 0.3338,
+      "margin_composite": 0.0472,
+      "rank_in_cell": 11
+    },
+    {
+      "rank": 62,
+      "cell": "CON(Binding, Link)",
+      "clause": "Generalni sekretar NATO Jap de Hop Shefer (desno) i Crvenkovski obraćaju se novinarima posle sastanka u glavnom štabu NATO prošle godine.",
+      "language": "sr",
+      "source": "corpus_a_ud",
+      "sim_own": 0.3886,
+      "margin_composite": 0.0471,
+      "rank_in_cell": 9
+    },
+    {
+      "rank": 63,
+      "cell": "SEG(Unraveling, Network)",
+      "clause": "Zaujímavejší je ale ďalší zákon z tohto zákonníka , ktorý povoľuje židom mať na svojich majetkoch otrokov , avšak nie kresťanských .",
+      "language": "sk",
+      "source": "corpus_a_ud",
+      "sim_own": 0.3817,
+      "margin_composite": 0.0471,
+      "rank_in_cell": 1
+    },
+    {
+      "rank": 64,
+      "cell": "ALT(Unraveling, Paradigm)",
+      "clause": "Але це зовсім не значить, що той, хто напише червону «сатану в бочці», буде митцем.",
+      "language": "uk",
+      "source": "corpus_a_ud",
+      "sim_own": 0.428,
+      "margin_composite": 0.0469,
+      "rank_in_cell": 13
+    },
+    {
+      "rank": 65,
+      "cell": "SUP(Binding, Lens)",
+      "clause": "- De er s'gu ret flot, sagde jeg.",
+      "language": "da",
+      "source": "corpus_a_ud",
+      "sim_own": 0.3903,
+      "margin_composite": 0.0468,
+      "rank_in_cell": 5
+    },
+    {
+      "rank": 66,
+      "cell": "INS(Making, Entity)",
+      "clause": "واكد ان \"بطارية المدفعية قصفت على الفور.",
+      "language": "ar",
+      "source": "corpus_a_ud",
+      "sim_own": 0.3135,
+      "margin_composite": 0.0468,
+      "rank_in_cell": 20
+    },
+    {
+      "rank": 67,
+      "cell": "ALT(Dissecting, Lens)",
+      "clause": "הוא לא חשב שהיה משהו פגום בהתנהגותו שלו.",
+      "language": "he",
+      "source": "corpus_a_ud",
+      "sim_own": 0.4041,
+      "margin_composite": 0.0467,
+      "rank_in_cell": 12
+    },
+    {
+      "rank": 68,
+      "cell": "INS(Making, Entity)",
+      "clause": "מקורות צבאיים מסרו כי בעת מרדף אחרי מיידי אבנים באזור חלחול נפצע צעיר מקומי, שניסה להשליך אבן לעבר אחד החיילים.",
+      "language": "he",
+      "source": "corpus_a_ud",
+      "sim_own": 0.3312,
+      "margin_composite": 0.0462,
+      "rank_in_cell": 21
+    },
+    {
+      "rank": 69,
+      "cell": "INS(Making, Entity)",
+      "clause": "Bigarren ebakuntza egin diote Madrilgo atentatuan zauritutako autobus gidariari.",
+      "language": "eu",
+      "source": "corpus_a_ud",
+      "sim_own": 0.4605,
+      "margin_composite": 0.046,
+      "rank_in_cell": 22
+    },
+    {
+      "rank": 70,
+      "cell": "ALT(Unraveling, Paradigm)",
+      "clause": "(Most Salafis are not militant or violent, though they tend to be rather narrow-minded in my experience, on the order of Protestant Pietists).",
+      "language": "en",
+      "source": "corpus_a_ud",
+      "sim_own": 0.2684,
+      "margin_composite": 0.046,
+      "rank_in_cell": 14
+    },
+    {
+      "rank": 71,
+      "cell": "ALT(Dissecting, Lens)",
+      "clause": "आनंद शर्मा ने कहा कि इस खबर में कोई सच्चाई नहीं है ।",
+      "language": "hi",
+      "source": "corpus_a_ud",
+      "sim_own": 0.3576,
+      "margin_composite": 0.0457,
+      "rank_in_cell": 13
+    },
+    {
+      "rank": 72,
+      "cell": "SUP(Tracing, Paradigm)",
+      "clause": "تمام معنی باہم مناسبت رکھتے ہےں اور سب کا خلاصہ یہ ہے کہ آدمی اللہ تعالیٰ سے صحیح معنی مےں ڈر جائے۔",
+      "language": "ur",
+      "source": "corpus_a_ud",
+      "sim_own": 0.3457,
+      "margin_composite": 0.0456,
+      "rank_in_cell": 2
+    },
+    {
+      "rank": 73,
+      "cell": "CON(Binding, Link)",
+      "clause": "Pomoćnik američke državne tajnice Daniel Fried kontaktirao je u ponedjeljak grčku ministricu vanjskih poslova Doru Bakoyannis kako bi razmotrili hoće li Atena odobriti daljnje pregovore.",
+      "language": "hr",
+      "source": "corpus_a_ud",
+      "sim_own": 0.3904,
+      "margin_composite": 0.0455,
+      "rank_in_cell": 10
+    },
+    {
+      "rank": 74,
+      "cell": "INS(Making, Entity)",
+      "clause": "第二次世界大戰期間，該海峽在1942年2月發生戰鬥。",
+      "language": "zh",
+      "source": "corpus_a_ud",
+      "sim_own": 0.1991,
+      "margin_composite": 0.0455,
+      "rank_in_cell": 23
+    },
+    {
+      "rank": 75,
+      "cell": "INS(Making, Entity)",
+      "clause": "Через две недели на экраны выходил боевик \"Черная молния\" - первый его самостоятельный продюсерский проект с бюджетом $15 млн.",
+      "language": "ru",
+      "source": "corpus_a_ud",
+      "sim_own": 0.2318,
+      "margin_composite": 0.0455,
+      "rank_in_cell": 24
+    },
+    {
+      "rank": 76,
+      "cell": "SUP(Tracing, Paradigm)",
+      "clause": "Som vi spør, vil vi også få svar.",
+      "language": "no",
+      "source": "corpus_a_ud",
+      "sim_own": 0.3627,
+      "margin_composite": 0.0452,
+      "rank_in_cell": 3
+    },
+    {
+      "rank": 77,
+      "cell": "INS(Making, Entity)",
+      "clause": "אתמול הושלכו ששה בקבוקי תבערה על סיורים של צה\"ל ברפיח.",
+      "language": "he",
+      "source": "corpus_a_ud",
+      "sim_own": 0.3678,
+      "margin_composite": 0.0451,
+      "rank_in_cell": 25
+    },
+    {
+      "rank": 78,
+      "cell": "INS(Making, Entity)",
+      "clause": "La pista fue primero lanzado a través de iTunes France el 28 de marzo, y globalmente en iTunes el 29 de marzo de 2011.",
+      "language": "es",
+      "source": "corpus_a_ud",
+      "sim_own": 0.2469,
+      "margin_composite": 0.045,
+      "rank_in_cell": 26
+    },
+    {
+      "rank": 79,
+      "cell": "CON(Binding, Link)",
+      "clause": "José Luis participa en representación del Grupo en las conversaciones auspiciadas por el histórico dirigente nacionalista Telesforo Monzón.",
+      "language": "es",
+      "source": "corpus_a_ud",
+      "sim_own": 0.3961,
+      "margin_composite": 0.0447,
+      "rank_in_cell": 11
+    },
+    {
+      "rank": 80,
+      "cell": "SUP(Binding, Lens)",
+      "clause": "To je bio moj motiv da glasam za njega\", rekla je Selma Gunić iz Sarajeva za SETimes.",
+      "language": "sr",
+      "source": "corpus_a_ud",
+      "sim_own": 0.4571,
+      "margin_composite": 0.0446,
+      "rank_in_cell": 6
+    },
+    {
+      "rank": 81,
+      "cell": "SUP(Binding, Lens)",
+      "clause": "Czuł, że ojciec byłby z niego dumny.",
+      "language": "pl",
+      "source": "corpus_a_ud",
+      "sim_own": 0.3766,
+      "margin_composite": 0.0445,
+      "rank_in_cell": 7
+    },
+    {
+      "rank": 82,
+      "cell": "ALT(Dissecting, Lens)",
+      "clause": "Sorry I guess I didn't read it very well.",
+      "language": "en",
+      "source": "corpus_a_ud",
+      "sim_own": 0.2059,
+      "margin_composite": 0.0444,
+      "rank_in_cell": 14
+    },
+    {
+      "rank": 83,
+      "cell": "CON(Binding, Link)",
+      "clause": "Pomoćnik američkog državnog sekretara Danijel Frid kontaktirao je šeficu grčke diplomatije Doru Bakojanis u ponedeljak, radi razgovora o tome da li bi se Atina složila sa nastavkom pregovora.",
+      "language": "sr",
+      "source": "corpus_a_ud",
+      "sim_own": 0.4119,
+      "margin_composite": 0.0443,
+      "rank_in_cell": 12
+    },
+    {
+      "rank": 84,
+      "cell": "SUP(Binding, Lens)",
+      "clause": "\"Jeg vidste, at de kunne blive til et eller andet stort, så jeg gik hen og spurgte, om de kunne rappe.\"",
+      "language": "da",
+      "source": "corpus_a_ud",
+      "sim_own": 0.3832,
+      "margin_composite": 0.0443,
+      "rank_in_cell": 8
+    },
+    {
+      "rank": 85,
+      "cell": "INS(Making, Entity)",
+      "clause": "واثارت هذه العملية تظاهرات دامية في الاراضي الفلسطينية في ايلول/سبتمبر 1996 اوقعت اكثر من 80 قتيلا في الجانبين الفلسطيني والاسرائيلي.",
+      "language": "ar",
+      "source": "corpus_a_ud",
+      "sim_own": 0.288,
+      "margin_composite": 0.0443,
+      "rank_in_cell": 27
+    },
+    {
+      "rank": 86,
+      "cell": "SEG(Unraveling, Network)",
+      "clause": "Industriländerna (USA, Sovjet, Sverige etc) använder en mycket större del av sin nationalprodukt på utbildning (fem procent) än u-länderna (tre procent).",
+      "language": "sv",
+      "source": "corpus_a_ud",
+      "sim_own": 0.4294,
+      "margin_composite": 0.0442,
+      "rank_in_cell": 2
+    },
+    {
+      "rank": 87,
+      "cell": "INS(Making, Entity)",
+      "clause": "15 جون 2004 ء کو عشرت جہاں کے ساتھ جاوید شیخ اور دیگر دو پاکستانی شہریوں علی اور غنی کو انکاؤنٹر مےں ہلاک کیا گیا تھا۔",
+      "language": "ur",
+      "source": "corpus_a_ud",
+      "sim_own": 0.2789,
+      "margin_composite": 0.0441,
+      "rank_in_cell": 28
+    },
+    {
+      "rank": 88,
+      "cell": "INS(Making, Entity)",
+      "clause": "이 사고로 택시 운전자 신씨와 포터트럭 운전자 구씨, 어린이 등 16명이 경미한 부상을 입어 병원에서 치료를 받았다.",
+      "language": "ko",
+      "source": "corpus_a_ud",
+      "sim_own": 0.2979,
+      "margin_composite": 0.0439,
+      "rank_in_cell": 29
+    },
+    {
+      "rank": 89,
+      "cell": "INS(Making, Entity)",
+      "clause": "הקהל איתר סוף סוף ערבי ויהודים חבטו בו עד זוב דם.",
+      "language": "he",
+      "source": "corpus_a_ud",
+      "sim_own": 0.3861,
+      "margin_composite": 0.0439,
+      "rank_in_cell": 30
+    },
+    {
+      "rank": 90,
+      "cell": "INS(Making, Entity)",
+      "clause": "Un nen de 6 anys va matar d'un tret una companya com a venjança a l'hora del pati.",
+      "language": "ca",
+      "source": "corpus_a_ud",
+      "sim_own": 0.3901,
+      "margin_composite": 0.0437,
+      "rank_in_cell": 31
+    },
+    {
+      "rank": 91,
+      "cell": "SUP(Binding, Lens)",
+      "clause": "Xúc động và không ít bạn đọc đã động viên , góp phần chia sẻ với \" nàng tiên nhỏ \" .",
+      "language": "vi",
+      "source": "corpus_a_ud",
+      "sim_own": 0.3413,
+      "margin_composite": 0.0436,
+      "rank_in_cell": 9
+    },
+    {
+      "rank": 92,
+      "cell": "CON(Binding, Link)",
+      "clause": "Her går de to journalistene om bord i Clintons fly",
+      "language": "no",
+      "source": "corpus_a_ud",
+      "sim_own": 0.3697,
+      "margin_composite": 0.0435,
+      "rank_in_cell": 13
+    },
+    {
+      "rank": 93,
+      "cell": "INS(Making, Entity)",
+      "clause": "اس بم سے پہلا عسکریت_پسند ہلاک ہو گیا تھا۔",
+      "language": "ur",
+      "source": "corpus_a_ud",
+      "sim_own": 0.2631,
+      "margin_composite": 0.0431,
+      "rank_in_cell": 32
+    },
+    {
+      "rank": 94,
+      "cell": "INS(Making, Entity)",
+      "clause": "Elle est publiée pour la première fois dans le n° 1107 du journal Spirou sous forme de mini-récit.",
+      "language": "fr",
+      "source": "corpus_a_ud",
+      "sim_own": 0.239,
+      "margin_composite": 0.0431,
+      "rank_in_cell": 33
+    },
+    {
+      "rank": 95,
+      "cell": "INS(Making, Entity)",
+      "clause": "چند دن بعد 21 ستمبر 2007 ء کو رضوان کی نعش ریلوے ٹریکس پر دستیاب ہوئی تھی۔",
+      "language": "ur",
+      "source": "corpus_a_ud",
+      "sim_own": 0.3038,
+      "margin_composite": 0.043,
+      "rank_in_cell": 34
+    },
+    {
+      "rank": 96,
+      "cell": "CON(Binding, Link)",
+      "clause": "Dete razgovara sa Deda Mrazom i vilenjakom u radionici Deda Mraza priređenoj za decu u centru Atine, u četvrtak (21. decembra).",
+      "language": "sr",
+      "source": "corpus_a_ud",
+      "sim_own": 0.4328,
+      "margin_composite": 0.0429,
+      "rank_in_cell": 14
+    },
+    {
+      "rank": 97,
+      "cell": "ALT(Dissecting, Lens)",
+      "clause": "Nhận thư , Kim kêu lạ vì thư không đề họ của người nhận mà chỉ ghi tên .",
+      "language": "vi",
+      "source": "corpus_a_ud",
+      "sim_own": 0.3206,
+      "margin_composite": 0.0428,
+      "rank_in_cell": 15
+    },
+    {
+      "rank": 98,
+      "cell": "SUP(Binding, Lens)",
+      "clause": "Có phải là cô biết \" nó \" sẽ nhắn cho cô ? \" .",
+      "language": "vi",
+      "source": "corpus_a_ud",
+      "sim_own": 0.2838,
+      "margin_composite": 0.0427,
+      "rank_in_cell": 10
+    },
+    {
+      "rank": 99,
+      "cell": "INS(Making, Entity)",
+      "clause": "То бе спряно на 29 декември, точно два месеца след екзекуцията на Сивков пред бар \"Жега\".",
+      "language": "bg",
+      "source": "corpus_a_ud",
+      "sim_own": 0.4551,
+      "margin_composite": 0.0427,
+      "rank_in_cell": 35
+    },
+    {
+      "rank": 100,
+      "cell": "CON(Binding, Link)",
+      "clause": "Dziecko w kamizelce ochronnej patrzy na mężczyznę w ciemnych okularach, który trzyma w ręce rybę.",
+      "language": "pl",
+      "source": "corpus_a_ud",
+      "sim_own": 0.3839,
+      "margin_composite": 0.0426,
+      "rank_in_cell": 15
+    }
+  ]
+}
