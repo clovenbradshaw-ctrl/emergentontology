@@ -325,10 +325,13 @@ function setupArticleLinkModal(renderFn) {
     openModal(slug, type);
   });
 
-  // Intercept clicks on inline internal links (e.g. links in rich text content)
+  // Intercept clicks on inline internal links inside article content bodies
+  // (e.g. cross-references in wiki text), but NOT navigation links on home/list pages
   document.addEventListener('click', function (e) {
     var link = e.target.closest('a[href]');
     if (!link) return;
+    // Only intercept links inside rendered article content
+    if (!link.closest('.wiki-body')) return;
     // Skip links already handled by other systems
     if (link.hasAttribute('data-article-link')) return;
     if (link.hasAttribute('data-spa-nav')) return;
@@ -382,9 +385,7 @@ function setupSpaNavigation(renderFn) {
     if (link.classList.contains('btn-edit')) return; // handled by drawer
     if (link.hasAttribute('data-article-link')) return; // handled by article link modal
     if (link.hasAttribute('data-spa-nav')) return; // handled by modal list nav
-
-    // Internal article links are handled by the modal (intercepted above)
-    if (parseInternalHref(href)) return;
+    if (e.defaultPrevented) return; // already handled by article modal
 
     var resolved = new URL(href, document.baseURI);
     if (resolved.origin !== location.origin) return;

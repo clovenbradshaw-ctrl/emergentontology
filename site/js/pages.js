@@ -543,7 +543,7 @@ function feedSectionHtml(title, type, entries, max) {
   h += '<div class="feed-section-header">';
   h += '<h2 class="feed-section-title">' + esc(title) + '</h2>';
   if (entries.length > max) {
-    h += '<a class="feed-section-more" href="' + BASE + type + '/">+ ' + (entries.length - max) + ' more</a>';
+    h += '<a class="feed-section-more" href="' + BASE + '/' + type + '/">+ ' + (entries.length - max) + ' more</a>';
   }
   h += '</div>';
   h += '<div class="feed-list">';
