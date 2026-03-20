@@ -15,7 +15,7 @@
     let all = [];
     let page = 1;
     while (true) {
-      const resp = await fetch(xanoBase + '/get_public_eowiki?page=' + page + '&per_page=25', { signal: AbortSignal.timeout(15000) });
+      const resp = await fetch(xanoBase + '/get_eowikicurrent?page=' + page + '&per_page=25', { signal: AbortSignal.timeout(15000) });
       if (!resp.ok) break;
       const data = await resp.json();
       const records = Array.isArray(data) ? data : (data.items || []);
