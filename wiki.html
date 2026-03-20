@@ -240,7 +240,11 @@ function html2txt(h,max=140){
   }
   return '';
 }
-function latest(a){const r=a.revisions||[];return r.length?r[r.length-1].content||'':'';}
+function latest(a){
+  // Prefer current_revision (revisions array was stripped from current state)
+  if(a.current_revision&&a.current_revision.content) return a.current_revision.content;
+  const r=a.revisions||[];return r.length?r[r.length-1].content||'':'';
+}
 function clusterOf(a){
   const t=a.meta.title.toLowerCase();
   for(const c of CLUSTERS) if(c.keys.some(k=>t.includes(k))) return c;
@@ -514,10 +518,24 @@ window.addEventListener('hashchange',()=>{
   if(!hash){goBack();return;}
   navigateFromHash();
 });
-fetch(API).then(r=>r.json()).then(data=>{
+async function fetchAllPages(){
+  let all=[],page=1;
+  while(true){
+    const sep=API.includes('?')?'&':'?';
+    const resp=await fetch(API+sep+'page='+page+'&per_page=50');
+    if(!resp.ok) break;
+    const raw=await resp.json();
+    const items=Array.isArray(raw)?raw:(raw.items||[]);
+    all=all.concat(items);
+    if(!raw.nextPage||raw.curPage>=raw.pageTotal) break;
+    page=raw.nextPage;
+  }
+  return all;
+}
+fetchAllPages().then(data=>{
   arts=data.map(row=>{
     const v=typeof row.values==='string'?JSON.parse(row.values):row.values;
-    return {id:row.id,meta:v.meta||{},revisions:v.revisions||[]};
+    return {id:row.id,meta:v.meta||{},current_revision:v.current_revision||null,revisions:v.revisions||[]};
   }).filter(a=>a.meta&&a.meta.title);
   renderLvFilters();
   renderPaths();
