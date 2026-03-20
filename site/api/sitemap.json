@@ -1,0 +1,209 @@
+{
+  "urls": [
+    {
+      "url": "/",
+      "title": "Home",
+      "type": "page",
+      "updated_at": "2026-03-20T03:44:32.843Z"
+    },
+    {
+      "url": "/wiki/emanons/",
+      "title": "Emanon",
+      "type": "wiki",
+      "updated_at": "2026-03-19T21:01:29.820Z"
+    },
+    {
+      "url": "/wiki/eo-notation/",
+      "title": "EO Notation",
+      "type": "wiki",
+      "updated_at": "2026-03-19T21:01:24.995Z"
+    },
+    {
+      "url": "/wiki/protogon/",
+      "title": "Protogon",
+      "type": "wiki",
+      "updated_at": "2026-03-19T20:48:18.440Z"
+    },
+    {
+      "url": "/wiki/bivalent-compression-and-dimensional-poverty/",
+      "title": "Bivalent Compression and Dimensional Poverty",
+      "type": "wiki",
+      "updated_at": "2026-03-19T20:48:19.729Z"
+    },
+    {
+      "url": "/wiki/eo-on-platonic-forms/",
+      "title": "EO on Platonic Forms",
+      "type": "wiki",
+      "updated_at": "2026-03-19T21:01:26.421Z"
+    },
+    {
+      "url": "/wiki/rec/",
+      "title": "REC — Recursion",
+      "type": "wiki",
+      "updated_at": "2026-03-19T21:01:28.926Z"
+    },
+    {
+      "url": "/wiki/influences-and-lineage/",
+      "title": "Influences and Lineage",
+      "type": "wiki",
+      "updated_at": "2026-03-19T21:01:31.651Z"
+    },
+    {
+      "url": "/wiki/emergent-ontology-eo/",
+      "title": "Emergent Ontology (EO)",
+      "type": "wiki",
+      "updated_at": "2026-03-19T21:01:32.675Z"
+    },
+    {
+      "url": "/wiki/time-as-emergent-dimension/",
+      "title": "Time as Emergent Dimension",
+      "type": "wiki",
+      "updated_at": "2026-03-19T04:05:45.769Z"
+    },
+    {
+      "url": "/wiki/the-three-triads/",
+      "title": "The Three Triads",
+      "type": "wiki",
+      "updated_at": "2026-03-11T21:57:32.197Z"
+    },
+    {
+      "url": "/wiki/holons/",
+      "title": "Holons",
+      "type": "wiki",
+      "updated_at": "2026-03-11T21:57:32.625Z"
+    },
+    {
+      "url": "/wiki/ground-figure-pattern/",
+      "title": "Ground / Figure / Pattern",
+      "type": "wiki",
+      "updated_at": "2026-03-19T04:05:46.043Z"
+    },
+    {
+      "url": "/wiki/degrees-of-freedom/",
+      "title": "Degrees of Freedom",
+      "type": "wiki",
+      "updated_at": "2026-03-19T20:48:32.876Z"
+    },
+    {
+      "url": "/wiki/decomposability/",
+      "title": "Decomposability",
+      "type": "wiki",
+      "updated_at": "2026-03-19T21:01:31.013Z"
+    },
+    {
+      "url": "/wiki/the-nine-operators/",
+      "title": "The Nine Operators",
+      "type": "wiki",
+      "updated_at": "2026-03-19T21:01:34.434Z"
+    },
+    {
+      "url": "/wiki/the-triadic-minimum/",
+      "title": "The Triadic Minimum",
+      "type": "wiki",
+      "updated_at": "2026-03-19T21:01:35.016Z"
+    },
+    {
+      "url": "/wiki/the-integral-lineage/",
+      "title": "The Integral Lineage",
+      "type": "wiki",
+      "updated_at": "2026-03-19T20:48:42.175Z"
+    },
+    {
+      "url": "/wiki/the-eo-phase-space-cube/",
+      "title": "The EO capacity ground",
+      "type": "wiki",
+      "updated_at": "2026-03-19T21:01:35.675Z"
+    },
+    {
+      "url": "/wiki/ins/",
+      "title": "INS",
+      "type": "wiki",
+      "updated_at": "2026-03-19T21:01:36.215Z"
+    },
+    {
+      "url": "/wiki/quantum-weirdness-in-eo-contained-but-not-tamed/",
+      "title": "Quantum Weirdness in EO: Contained but not Tamed",
+      "type": "wiki",
+      "updated_at": "2026-03-19T21:01:36.563Z"
+    },
+    {
+      "url": "/wiki/mvp-minimum-viable-prompt/",
+      "title": "MVP: Minimum Viable Prompt",
+      "type": "wiki",
+      "updated_at": "2026-03-19T21:01:37.696Z"
+    },
+    {
+      "url": "/wiki/the-three-arrows/",
+      "title": "The Three Arrows",
+      "type": "wiki",
+      "updated_at": "2026-03-19T21:01:36.818Z"
+    },
+    {
+      "url": "/wiki/the-experience-engine/",
+      "title": "The Experience Engine",
+      "type": "wiki",
+      "updated_at": "2026-03-19T21:01:38.314Z"
+    },
+    {
+      "url": "/wiki/the-pythagorean-theorem-plato-s-meno-x-and-eo/",
+      "title": "The Pythagorean Theorem, Plato's Meno, √x and EO",
+      "type": "wiki",
+      "updated_at": "2026-03-19T21:01:38.161Z"
+    },
+    {
+      "url": "/wiki/spencer-brown-s-laws-of-form-and-eo/",
+      "title": "Spencer-Brown's 'Laws of Form' and EO",
+      "type": "wiki",
+      "updated_at": "2026-03-19T04:05:52.173Z"
+    },
+    {
+      "url": "/wiki/ancient-astronomy-eo-saving-the-appearances/",
+      "title": "Ancient Astronomy & EO: Saving the Appearances",
+      "type": "wiki",
+      "updated_at": "2026-03-15T16:29:26.621Z"
+    },
+    {
+      "url": "/doc/eo-lexical-analysis-v2-results-report/",
+      "title": "EO LEXICAL ANALYSIS v2 — RESULTS REPORT",
+      "type": "document",
+      "updated_at": "2026-03-19T01:02:16.527Z"
+    },
+    {
+      "url": "/wiki/canonical-example-the-act-face-the-operators/",
+      "title": "Canonical Example: The Act Face (The Operators)",
+      "type": "wiki",
+      "updated_at": "2026-03-19T21:01:42.062Z"
+    },
+    {
+      "url": "/wiki/canonical-examples-the-site-face/",
+      "title": "Canonical Examples: The Site Face",
+      "type": "wiki",
+      "updated_at": "2026-03-19T03:37:25.724Z"
+    },
+    {
+      "url": "/wiki/canonical-examples-the-resolution-face/",
+      "title": "Canonical Examples: The Resolution Face",
+      "type": "wiki",
+      "updated_at": "2026-03-19T01:25:52.015Z"
+    },
+    {
+      "url": "/api/manifest.json",
+      "title": "API Manifest",
+      "type": "api",
+      "updated_at": "2026-03-20T03:44:32.843Z"
+    },
+    {
+      "url": "/llms.txt",
+      "title": "LLMs.txt",
+      "type": "meta",
+      "updated_at": "2026-03-20T03:44:32.843Z"
+    },
+    {
+      "url": "/docs/technicalmanual.txt",
+      "title": "Technical Manual",
+      "type": "docs",
+      "updated_at": "2026-03-20T03:44:32.843Z"
+    }
+  ],
+  "generated_at": "2026-03-20T03:44:32.843Z"
+}
