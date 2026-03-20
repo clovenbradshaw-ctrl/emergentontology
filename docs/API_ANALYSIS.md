@@ -171,12 +171,12 @@ User types in search box
 ```
 npm run build
   -> fetchAllCurrentRecords()              [Xano paginated GET, parallel pages]
-  -> discoverContentRooms()                [Matrix POST /publicRooms]
-  -> For each room:
-      -> resolveAlias()                    [Matrix GET /directory/room]
-      -> fetchRoomEvents()                 [Matrix GET /messages, paginated with retry]
-      -> fetchRoomState()                  [Matrix GET /state]
+  -> parse site:index and content records
   -> render to static JSON + HTML
+
+NOTE: fetch_matrix.ts exists with full implementations (discoverContentRooms,
+resolveAlias, fetchRoomEvents, fetchRoomState) but is NEVER IMPORTED by
+index.ts. The projector reads only from Xano, not Matrix.
 ```
 
 ### On Suggestion Submit (Public Site)
@@ -192,13 +192,13 @@ User submits suggestion form
 ```
                         BUILD TIME
   -------------------------------------------------------
-  Matrix Rooms --fetch_matrix.ts--> Projector
-                                       |
   Xano Current --fetch_xano.ts---> Projector
                                        |
                                        v
                                Static JSON files
                             /generated/state/*.json
+
+  (fetch_matrix.ts exists but is NOT imported by index.ts)
   -------------------------------------------------------
                              |
                              v
@@ -234,7 +234,7 @@ User submits suggestion form
 
 ## 7. Key Patterns
 
-- **Current-state-first**: Xano `eowikicurrent` is the source of truth for reads. The event log (`eowiki`) is secondary/tracking-only.
+- **Event log as intended canonical source**: The public event log (`GET /get_public_eowiki`) is designed to be the canonical source from which current state is generated. In practice, `eowikicurrent` snapshots have become the de facto source of truth, with the event log written fire-and-forget.
 - **Static-first loading**: Both public site and admin try static JSON before hitting the API, reducing load.
 - **Fire-and-forget logging**: `logEvent()` never blocks the UI — failures are console-warned only.
 - **In-memory caching**: Admin uses 30s TTL cache (`stateCache.ts`); public site caches permanently per session.
@@ -247,57 +247,68 @@ User submits suggestion form
 
 ## 8. Evaluation: Does This Actually Make Sense?
 
+### The intended architecture vs. reality
+
+The system was designed as **event-sourced**: the public event log (`GET /get_public_eowiki`) is the canonical public source of truth, and current state should be *generated* from it by replaying events. Evidence for this intent:
+
+- A full replay engine exists at `admin/src/eo/replay.ts` — `applyDelta()` handles page blocks (INS/ALT/NUL with JSON patch), wiki revisions, experiment entries, and blog posts. Complete, working code.
+- `xanoToRaw()` in `client.ts:609` converts Xano event records into `EORawEvent` format ready for replay.
+- The suggestion system (`site/js/suggest.js`) **actually works this way**: `replaySuggestions()` takes raw events from `GET /eowiki_suggestions` and replays them client-side to build current suggestion state — INS creates, SIG upvotes, NUL deletes. This is the intended pattern, fully working.
+- Matrix was the original event store; `fetch_matrix.ts` in the projector has complete room discovery and event pagination.
+- The types in `admin/src/eo/types.ts` define `EORawEvent`, `EOEvent`, and `ProjectedContent` — the full event-sourced vocabulary.
+
+**But the code has drifted to current-state-first**, bypassing the event log:
+
+- `applyFreshnessUpdate()` in `stateCache.ts:311` is marked `@deprecated` — always returns `hadUpdates: false`, never applies delta events. Comment: "current-state snapshot is authoritative, events are for tracking only."
+- `replay.ts` is **completely unused** — no file imports `applyDelta()`.
+- The projector (`tools/projector/src/index.ts`) only imports from `fetch_xano.js` (current-state snapshots) — `fetch_matrix.ts` is never imported despite existing with full implementations.
+- Admin editors save directly to `eowikicurrent` as the primary write, with `logEvent()` to the event log as fire-and-forget.
+
+**The result: the architecture claims to be event-sourced but isn't.** The event log is written to, but nothing reads it back to generate state (except the suggestion system and revision history display).
+
 ### What works well
 
-1. **Static-first loading is smart.** The public site tries pre-built JSON before hitting Xano. This means the site works even if Xano is down, and most page loads never touch the API at all. Good resilience.
+1. **Static-first loading.** The public site tries pre-built JSON before hitting any API. Site works even if Xano is down.
 
-2. **Current-state-first is pragmatic.** Skipping event replay for reads avoids the complexity and latency of a full event-sourced read path. For a CMS with ~dozens of content items, this is the right call.
+2. **The suggestion system is the architectural model.** `suggest.js:replaySuggestions()` replays events to build state — this is how the rest of the system was designed to work. It's cleanly separated, correctly implemented, and proves the event-replay pattern works.
 
 3. **Admin cache with 30s TTL is well-designed.** `stateCache.ts` smartly falls back from full-cache lookup to single-record server-side filter to full refetch. Avoids N+1 patterns.
 
-4. **Fire-and-forget event logging doesn't block saves.** The UI stays responsive because `logEvent()` is non-blocking. Since `eowikicurrent` is authoritative, a missed log event doesn't corrupt state.
-
-5. **Suggestion system is cleanly separated.** Own endpoints, own table, no interference with content APIs.
+4. **The replay engine is solid code.** `eo/replay.ts` handles INS/ALT/NUL operations, JSON patch application, block ordering, and all content types. It's just not wired up.
 
 ### What doesn't make sense
 
+#### CRITICAL: Event log and current state can diverge with no recovery
+The event log (`get_public_eowiki`) is written via fire-and-forget `logEvent()` (`client.ts:237`). If it fails — network error, timeout, Xano outage — the event is silently lost (only a `console.warn`). Meanwhile `eowikicurrent` is updated successfully. Over time the event log becomes an incomplete record:
+- The public API (`get_public_eowiki`) can serve stale/incomplete data
+- There's no reconciliation mechanism to detect or repair gaps
+- If replay were re-enabled, it would produce wrong state from incomplete events
+- No retry queue, no "write events BEFORE snapshots" guarantee
+
+#### HIGH: The replay pipeline is disconnected
+The intended flow was: `events → replay → current state`. The actual flow is: `editor → direct snapshot write → current state`. Specifically:
+- `replay.ts` with its complete `applyDelta()` function is never imported
+- `applyFreshnessUpdate()` was the bridge between event log and state but is now deprecated
+- The projector builds static files from `eowikicurrent` snapshots, not from event replay
+- `fetch_matrix.ts` in the projector has full implementations but is never called
+
 #### HIGH: No lost-update protection on saves
-`upsertCurrentRecord()` (`client.ts:537`) does an unconditional PATCH with no version check, no ETag, no compare-and-swap. If two editors load the same record and both save, the second save silently overwrites the first. The 30s cache TTL makes this worse — Editor A could be working with data that's already been changed by Editor B.
-
-**Concrete scenario:** Editor A loads `wiki:operators` at 0:00. Editor B loads the same record at 0:01 (served from cache). B saves at 0:05. A saves at 0:10. A's save PATCHes using the same Xano row `id` — B's changes are gone, with no warning to either user.
-
-#### HIGH: Matrix is vestigial — code exists but nothing uses it
-- The projector (`tools/projector/src/index.ts`) **only imports from `fetch_xano.js`** — `fetch_matrix.ts` is never imported
-- The admin editors write to Xano only — no calls to `sendEOEvent()` or `setStateEvent()` from any editor component
-- The architecture docs describe Matrix as the "canonical event store" but in practice **Xano is the only store that matters**
-- `matrix/client.ts` and `matrix/sdk.ts` are maintained dead code with a full Matrix JS SDK loaded on every admin page
-
-This isn't necessarily wrong — it looks like the system migrated from Matrix-first to Xano-first — but the documentation and code don't reflect reality. The build tool's trigger map in section 5 above is misleading because Matrix calls never actually fire.
+`upsertCurrentRecord()` (`client.ts:537`) does an unconditional PATCH with no version check, no ETag, no compare-and-swap. Two editors can silently overwrite each other. The 30s cache TTL makes this worse — stale reads lead to stale writes.
 
 #### MEDIUM: Public site fetches ALL records as fallback
-When static JSON is missing (e.g., projector hasn't run yet), `loadContentFromApi()` in `site/js/api.js:385` calls `fetchAllXanoRecords()` — paginating through every record at 25/page — just to find one content item. There's no `?record_id=` filter on the public endpoint (`get_eowikicurrent`), unlike the private admin endpoint.
-
-Additionally, `site/js/search.js` duplicates the same pagination logic independently with its own cache, never sharing data with `api.js`.
-
-#### MEDIUM: Event log can silently diverge from current state
-`logEvent()` is fire-and-forget. If it fails (network error, Xano outage), the current state in `eowikicurrent` is updated but the event log in `eowiki` is not. There's no retry, no queue, no reconciliation. Over time the event log can become an incomplete record of changes. This is fine if the event log is truly just an audit trail — but if anyone ever tries to replay events to reconstruct state, they'll get wrong results.
+When static JSON is missing, `loadContentFromApi()` in `site/js/api.js:385` fetches ALL records (paginated 25/page) just to find one content item. No `?record_id=` filter on the public endpoint. `site/js/search.js` duplicates the same pagination logic with its own independent cache.
 
 #### MEDIUM: No cache-busting on static files
-Static JSON files at `/generated/state/*.json` have no version hash, no `?v=` parameter, no ETag validation. After a projector build, users may see stale content until their browser cache expires. The fallback-to-Xano path only triggers on HTTP errors, not on stale data.
-
-#### LOW: Xano auth is a shared secret, not per-user
-All editors share the same Bearer token (SHA-256 of the decrypted endpoint path). There's no way to attribute writes to individual users at the Xano level. Matrix auth exists separately but isn't wired into the write path. The `agent` field in `context` is set from `settings.displayName` — a client-side string anyone can change.
-
-#### LOW: Suggestion endpoint has no rate limiting
-`POST /eo_wiki_suggestions` accepts unauthenticated requests with no rate limiting. A script could flood the suggestions table. Low severity because the impact is limited to the suggestions feature.
+Static JSON files have no version hash or ETag validation. After a projector build, users may see stale content until browser cache expires.
 
 ### Verdict
 
-**The architecture fundamentally works** for its current scale (small team, dozens of content items, moderate traffic). The static-first + Xano-current-state pattern is pragmatic and resilient.
+**The system works but has drifted from its design.** The event-sourced architecture is partially built — the replay engine exists, the event log is written to, the types are defined, and the suggestion system proves the pattern works — but the main content pipeline is disconnected from it. In practice, `eowikicurrent` direct snapshots have become the source of truth, making the event log unreliable as a canonical source.
 
-**The main risks are:**
-1. Lost updates if multiple editors are active (no optimistic locking)
-2. Confusion from Matrix code that's present but unused
-3. Inefficient fallback paths on the public site when static files are missing
+**The biggest risk:** The public event log endpoint (`get_public_eowiki`) may not accurately reflect the site's current state because events are written fire-and-forget and nothing verifies completeness.
 
-**If this system needs to scale or support concurrent editing**, the highest-priority fix would be adding a `lastModified` check to `upsertCurrentRecord()` before PATCHing. Everything else is manageable at current scale.
+**To make the architecture match its intent:**
+1. Make `logEvent()` reliable — retry with backoff, or write events BEFORE snapshots, or use a write-ahead pattern
+2. Re-enable `replay.ts` as the way to derive current state (at minimum for the projector build), or explicitly abandon event sourcing and document the current-state-first approach as intentional
+3. Add `lastModified` conflict detection to `upsertCurrentRecord()` to prevent lost updates
+4. Wire the projector to verify events against snapshots during builds (detect divergence)
