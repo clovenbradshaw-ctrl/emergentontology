@@ -1322,14 +1322,20 @@ function loadData() {
       if (staticIndex && staticIndex.entries && staticIndex.entries.length > 0) {
         siteIndex = staticIndex;
       }
-      return fetchApiRecords();
+      // Try API but don't let failures block rendering
+      return fetchApiRecords().catch(function(e) {
+        console.warn('[eo] API fetch failed, using static data:', e.message);
+      });
     })
     .then(function() {
       buildPageList();
       navigateFromHash();
     })
     .catch(function(e) {
-      document.getElementById('app').innerHTML = '<div class="loader"><span>Failed to load: ' + esc(e.message) + '</span></div>';
+      // Last resort: render with whatever data we have
+      console.error('[eo] Load error:', e.message);
+      buildPageList();
+      navigateFromHash();
     });
 }
 
@@ -1364,7 +1370,10 @@ function fetchApiRecords() {
 
 function fetchAllPages(page, accumulated) {
   return fetch(API + '?page=' + page + '&per_page=25')
-    .then(function(res) { return res.json(); })
+    .then(function(res) {
+      if (!res.ok) throw new Error('API returned ' + res.status);
+      return res.json();
+    })
     .then(function(data) {
       var records = Array.isArray(data) ? data : (data.items || []);
       var all = accumulated.concat(records);
