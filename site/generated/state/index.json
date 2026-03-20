@@ -1,0 +1,1133 @@
+{
+  "entries": [
+    {
+      "content_id": "wiki:the-three-faces-of-emergent-ontology",
+      "slug": "the-three-faces-of-emergent-ontology",
+      "title": "The Three Faces of Emergent Ontology",
+      "content_type": "wiki",
+      "status": "draft",
+      "visibility": "public",
+      "tags": [
+        "101"
+      ],
+      "updated_at": "2026-03-08T17:38:23.823Z",
+      "event_id": ""
+    },
+    {
+      "content_id": "wiki:eo-event-streaming",
+      "slug": "eo-event-streaming",
+      "title": "EO Event Streaming",
+      "content_type": "wiki",
+      "status": "draft",
+      "visibility": "public",
+      "tags": [],
+      "updated_at": "2026-03-19T21:01:30.231Z",
+      "event_id": ""
+    },
+    {
+      "content_id": "wiki:emanon",
+      "slug": "emanons",
+      "title": "Emanon",
+      "content_type": "wiki",
+      "status": "published",
+      "visibility": "public",
+      "tags": [
+        "101"
+      ],
+      "updated_at": "2026-03-19T21:01:29.820Z",
+      "event_id": ""
+    },
+    {
+      "content_id": "wiki:eo-in-15-min",
+      "slug": "eo-in-15-min",
+      "title": "EO in 15 Min",
+      "content_type": "wiki",
+      "status": "draft",
+      "visibility": "public",
+      "tags": [],
+      "updated_at": "2026-03-19T21:01:29.592Z",
+      "event_id": ""
+    },
+    {
+      "content_id": "wiki:eo-notation",
+      "slug": "eo-notation",
+      "title": "EO Notation",
+      "content_type": "wiki",
+      "status": "published",
+      "visibility": "public",
+      "tags": [
+        "201"
+      ],
+      "updated_at": "2026-03-19T21:01:24.995Z",
+      "event_id": ""
+    },
+    {
+      "content_id": "wiki:protogon",
+      "slug": "protogon",
+      "title": "Protogon",
+      "content_type": "wiki",
+      "status": "published",
+      "visibility": "public",
+      "tags": [
+        "201"
+      ],
+      "updated_at": "2026-03-19T20:48:18.440Z",
+      "event_id": ""
+    },
+    {
+      "content_id": "wiki:bivalent-compression-and-dimensional-poverty",
+      "slug": "bivalent-compression-and-dimensional-poverty",
+      "title": "Bivalent Compression and Dimensional Poverty",
+      "content_type": "wiki",
+      "status": "published",
+      "visibility": "public",
+      "tags": [
+        "301"
+      ],
+      "updated_at": "2026-03-19T20:48:19.729Z",
+      "event_id": ""
+    },
+    {
+      "content_id": "wiki:nul",
+      "slug": "nul",
+      "title": "NUL — Absence & Nullity",
+      "content_type": "wiki",
+      "status": "draft",
+      "visibility": "public",
+      "tags": [
+        "operator"
+      ],
+      "updated_at": "2026-03-10T17:27:54.518Z",
+      "event_id": ""
+    },
+    {
+      "content_id": "document:eo-handbook",
+      "slug": "eo-handbook",
+      "title": "EO Handbook",
+      "content_type": "document",
+      "status": "draft",
+      "visibility": "public",
+      "tags": [
+        "101"
+      ],
+      "updated_at": "2026-03-19T20:56:48.043Z",
+      "event_id": ""
+    },
+    {
+      "content_id": "wiki:eo-on-platonic-forms",
+      "slug": "eo-on-platonic-forms",
+      "title": "EO on Platonic Forms",
+      "content_type": "wiki",
+      "status": "published",
+      "visibility": "public",
+      "tags": [],
+      "updated_at": "2026-03-19T21:01:26.421Z",
+      "event_id": ""
+    },
+    {
+      "content_id": "wiki:rec",
+      "slug": "rec",
+      "title": "REC — Recursion",
+      "content_type": "wiki",
+      "status": "published",
+      "visibility": "public",
+      "tags": [],
+      "updated_at": "2026-03-19T21:01:28.926Z",
+      "event_id": ""
+    },
+    {
+      "content_id": "wiki:the-27-phase-posts",
+      "slug": "the-27-phase-posts",
+      "title": "The 27 Forms",
+      "content_type": "wiki",
+      "status": "draft",
+      "visibility": "public",
+      "tags": [
+        "101"
+      ],
+      "updated_at": "2026-03-19T21:01:25.585Z",
+      "event_id": ""
+    },
+    {
+      "content_id": "wiki:influences-and-lineage",
+      "slug": "influences-and-lineage",
+      "title": "Influences and Lineage",
+      "content_type": "wiki",
+      "status": "published",
+      "visibility": "public",
+      "tags": [
+        "201"
+      ],
+      "updated_at": "2026-03-19T21:01:31.651Z",
+      "event_id": ""
+    },
+    {
+      "content_id": "wiki:emergent-ontology-eo",
+      "slug": "emergent-ontology-eo",
+      "title": "Emergent Ontology (EO)",
+      "content_type": "wiki",
+      "status": "published",
+      "visibility": "public",
+      "tags": [
+        "101"
+      ],
+      "updated_at": "2026-03-19T21:01:32.675Z",
+      "event_id": ""
+    },
+    {
+      "content_id": "wiki:time-as-emergent-dimension",
+      "slug": "time-as-emergent-dimension",
+      "title": "Time as Emergent Dimension",
+      "content_type": "wiki",
+      "status": "published",
+      "visibility": "public",
+      "tags": [
+        "301"
+      ],
+      "updated_at": "2026-03-19T04:05:45.769Z",
+      "event_id": ""
+    },
+    {
+      "content_id": "wiki:the-triads",
+      "slug": "the-three-triads",
+      "title": "The Three Triads",
+      "content_type": "wiki",
+      "status": "published",
+      "visibility": "public",
+      "tags": [
+        "101"
+      ],
+      "updated_at": "2026-03-11T21:57:32.197Z",
+      "event_id": ""
+    },
+    {
+      "content_id": "wiki:holons",
+      "slug": "holons",
+      "title": "Holons",
+      "content_type": "wiki",
+      "status": "published",
+      "visibility": "public",
+      "tags": [
+        "201"
+      ],
+      "updated_at": "2026-03-11T21:57:32.625Z",
+      "event_id": ""
+    },
+    {
+      "content_id": "wiki:ground-figure-pattern",
+      "slug": "ground-figure-pattern",
+      "title": "Ground / Figure / Pattern",
+      "content_type": "wiki",
+      "status": "published",
+      "visibility": "public",
+      "tags": [
+        "101"
+      ],
+      "updated_at": "2026-03-19T04:05:46.043Z",
+      "event_id": ""
+    },
+    {
+      "content_id": "wiki:degrees-of-freedom",
+      "slug": "degrees-of-freedom",
+      "title": "Degrees of Freedom",
+      "content_type": "wiki",
+      "status": "published",
+      "visibility": "public",
+      "tags": [
+        "201"
+      ],
+      "updated_at": "2026-03-19T20:48:32.876Z",
+      "event_id": ""
+    },
+    {
+      "content_id": "wiki:decomposability",
+      "slug": "decomposability",
+      "title": "Decomposability",
+      "content_type": "wiki",
+      "status": "published",
+      "visibility": "public",
+      "tags": [
+        "301"
+      ],
+      "updated_at": "2026-03-19T21:01:31.013Z",
+      "event_id": ""
+    },
+    {
+      "content_id": "wiki:the-nine-operators",
+      "slug": "the-nine-operators",
+      "title": "The Nine Operators",
+      "content_type": "wiki",
+      "status": "published",
+      "visibility": "public",
+      "tags": [
+        "101"
+      ],
+      "updated_at": "2026-03-19T21:01:34.434Z",
+      "event_id": ""
+    },
+    {
+      "content_id": "wiki:the-triadic-minimum",
+      "slug": "the-triadic-minimum",
+      "title": "The Triadic Minimum",
+      "content_type": "wiki",
+      "status": "published",
+      "visibility": "public",
+      "tags": [
+        "101"
+      ],
+      "updated_at": "2026-03-19T21:01:35.016Z",
+      "event_id": ""
+    },
+    {
+      "content_id": "experiment:eo-terminal",
+      "slug": "eo-terminal",
+      "title": "EO Terminal",
+      "content_type": "experiment",
+      "status": "draft",
+      "visibility": "public",
+      "tags": [],
+      "updated_at": "2026-03-19T21:01:31.247Z",
+      "event_id": ""
+    },
+    {
+      "content_id": "wiki:operator-naming-in-emergent-ontology",
+      "slug": "operator-naming-in-emergent-ontology",
+      "title": "Operator Naming in Emergent Ontology",
+      "content_type": "wiki",
+      "status": "draft",
+      "visibility": "public",
+      "tags": [
+        "101"
+      ],
+      "updated_at": "2026-03-19T21:01:38.530Z",
+      "event_id": ""
+    },
+    {
+      "content_id": "blog:eo-in-5-min",
+      "slug": "eo-in-5-min",
+      "title": "EO in 5 Min",
+      "content_type": "blog",
+      "status": "draft",
+      "visibility": "public",
+      "tags": [],
+      "updated_at": "2026-03-19T21:01:37.325Z",
+      "event_id": ""
+    },
+    {
+      "content_id": "wiki:scope",
+      "slug": "scope",
+      "title": "Scope",
+      "content_type": "wiki",
+      "status": "draft",
+      "visibility": "public",
+      "tags": [],
+      "updated_at": "2026-03-19T21:01:36.354Z",
+      "event_id": ""
+    },
+    {
+      "content_id": "wiki:the-integral-lineage",
+      "slug": "the-integral-lineage",
+      "title": "The Integral Lineage",
+      "content_type": "wiki",
+      "status": "published",
+      "visibility": "public",
+      "tags": [
+        "101"
+      ],
+      "updated_at": "2026-03-19T20:48:42.175Z",
+      "event_id": ""
+    },
+    {
+      "content_id": "wiki:decal-notation",
+      "slug": "decal-notation",
+      "title": "Decal Notation",
+      "content_type": "wiki",
+      "status": "draft",
+      "visibility": "public",
+      "tags": [
+        "301"
+      ],
+      "updated_at": "2026-03-19T20:48:43.869Z",
+      "event_id": ""
+    },
+    {
+      "content_id": "experiment:eo-cube",
+      "slug": "eo-cube",
+      "title": "EO capacity ground",
+      "content_type": "experiment",
+      "status": "draft",
+      "visibility": "public",
+      "tags": [],
+      "updated_at": "2026-03-11T03:08:07.474Z",
+      "event_id": ""
+    },
+    {
+      "content_id": "wiki:coding-python-and-eo",
+      "slug": "coding-python-and-eo",
+      "title": "Coding: Python and EO",
+      "content_type": "wiki",
+      "status": "draft",
+      "visibility": "public",
+      "tags": [
+        "401"
+      ],
+      "updated_at": "2026-03-19T21:01:35.504Z",
+      "event_id": ""
+    },
+    {
+      "content_id": "wiki:the-eo-phase-space-cube",
+      "slug": "the-eo-phase-space-cube",
+      "title": "The EO capacity ground",
+      "content_type": "wiki",
+      "status": "published",
+      "visibility": "public",
+      "tags": [
+        "201"
+      ],
+      "updated_at": "2026-03-19T21:01:35.675Z",
+      "event_id": ""
+    },
+    {
+      "content_id": "wiki:ins",
+      "slug": "ins",
+      "title": "INS",
+      "content_type": "wiki",
+      "status": "published",
+      "visibility": "public",
+      "tags": [
+        "operator",
+        "101"
+      ],
+      "updated_at": "2026-03-19T21:01:36.215Z",
+      "event_id": ""
+    },
+    {
+      "content_id": "wiki:sig",
+      "slug": "sig",
+      "title": "SIG",
+      "content_type": "wiki",
+      "status": "draft",
+      "visibility": "public",
+      "tags": [
+        "operator"
+      ],
+      "updated_at": "2026-03-19T21:01:36.995Z",
+      "event_id": ""
+    },
+    {
+      "content_id": "wiki:the-observer-problem",
+      "slug": "the-observer-problem",
+      "title": "The Observer \"Problem\"",
+      "content_type": "wiki",
+      "status": "draft",
+      "visibility": "public",
+      "tags": [
+        "301"
+      ],
+      "updated_at": "2026-03-19T04:05:50.202Z",
+      "event_id": ""
+    },
+    {
+      "content_id": "wiki:quantum-weirdness-in-eo-contained-but-not-tamed",
+      "slug": "quantum-weirdness-in-eo-contained-but-not-tamed",
+      "title": "Quantum Weirdness in EO: Contained but not Tamed",
+      "content_type": "wiki",
+      "status": "published",
+      "visibility": "public",
+      "tags": [
+        "201"
+      ],
+      "updated_at": "2026-03-19T21:01:36.563Z",
+      "event_id": ""
+    },
+    {
+      "content_id": "wiki:mvp-minimum-viable-prompt",
+      "slug": "mvp-minimum-viable-prompt",
+      "title": "MVP: Minimum Viable Prompt",
+      "content_type": "wiki",
+      "status": "published",
+      "visibility": "public",
+      "tags": [
+        "101"
+      ],
+      "updated_at": "2026-03-19T21:01:37.696Z",
+      "event_id": ""
+    },
+    {
+      "content_id": "wiki:the-three-arrows",
+      "slug": "the-three-arrows",
+      "title": "The Three Arrows",
+      "content_type": "wiki",
+      "status": "published",
+      "visibility": "public",
+      "tags": [],
+      "updated_at": "2026-03-19T21:01:36.818Z",
+      "event_id": ""
+    },
+    {
+      "content_id": "wiki:the-experience-engine",
+      "slug": "the-experience-engine",
+      "title": "The Experience Engine",
+      "content_type": "wiki",
+      "status": "published",
+      "visibility": "public",
+      "tags": [],
+      "updated_at": "2026-03-19T21:01:38.314Z",
+      "event_id": ""
+    },
+    {
+      "content_id": "wiki:the-pythagorean-theorem-plato-s-meno-x-and-eo",
+      "slug": "the-pythagorean-theorem-plato-s-meno-x-and-eo",
+      "title": "The Pythagorean Theorem, Plato's Meno, √x and EO",
+      "content_type": "wiki",
+      "status": "published",
+      "visibility": "public",
+      "tags": [],
+      "updated_at": "2026-03-19T21:01:38.161Z",
+      "event_id": ""
+    },
+    {
+      "content_id": "wiki:language-is-a-projection",
+      "slug": "language-is-a-projection",
+      "title": "Language is a Projection",
+      "content_type": "wiki",
+      "status": "draft",
+      "visibility": "public",
+      "tags": [],
+      "updated_at": "2026-03-19T20:48:52.600Z",
+      "event_id": ""
+    },
+    {
+      "content_id": "blog:nine-verbs-a-closed-algebra-for-event-streaming",
+      "slug": "nine-verbs-a-closed-algebra-for-event-streaming",
+      "title": "Nine Verbs: A Closed Algebra for Event Streaming",
+      "content_type": "blog",
+      "status": "draft",
+      "visibility": "public",
+      "tags": [],
+      "updated_at": "2026-03-19T21:01:41.040Z",
+      "event_id": ""
+    },
+    {
+      "content_id": "wiki:spencer-brown-s-laws-of-form-and-eo",
+      "slug": "spencer-brown-s-laws-of-form-and-eo",
+      "title": "Spencer-Brown's 'Laws of Form' and EO",
+      "content_type": "wiki",
+      "status": "published",
+      "visibility": "public",
+      "tags": [],
+      "updated_at": "2026-03-19T04:05:52.173Z",
+      "event_id": ""
+    },
+    {
+      "content_id": "wiki:the-axis-triad-and-its-coordinates",
+      "slug": "the-axis-triad-and-its-coordinates",
+      "title": "The Axis Triad and Its Coordinates",
+      "content_type": "wiki",
+      "status": "draft",
+      "visibility": "public",
+      "tags": [],
+      "updated_at": "2026-03-15T16:59:40.344Z",
+      "event_id": ""
+    },
+    {
+      "content_id": "wiki:eo-in-60-min",
+      "slug": "eo-in-60-min",
+      "title": "EO in 60 Min",
+      "content_type": "wiki",
+      "status": "draft",
+      "visibility": "public",
+      "tags": [],
+      "updated_at": "2026-03-19T21:01:38.944Z",
+      "event_id": ""
+    },
+    {
+      "content_id": "wiki:ancient-astronomy-eo-saving-the-appearances",
+      "slug": "ancient-astronomy-eo-saving-the-appearances",
+      "title": "Ancient Astronomy & EO: Saving the Appearances",
+      "content_type": "wiki",
+      "status": "published",
+      "visibility": "public",
+      "tags": [
+        "301"
+      ],
+      "updated_at": "2026-03-15T16:29:26.621Z",
+      "event_id": ""
+    },
+    {
+      "content_id": "wiki:the-three-dimensions-of-eo",
+      "slug": "the-three-dimensions-of-eo",
+      "title": "The Three Dimensions of EO",
+      "content_type": "wiki",
+      "status": "draft",
+      "visibility": "public",
+      "tags": [],
+      "updated_at": "2026-03-19T04:05:53.009Z",
+      "event_id": ""
+    },
+    {
+      "content_id": "wiki:mhc-and-eo",
+      "slug": "mhc-and-eo",
+      "title": "MHC and EO",
+      "content_type": "wiki",
+      "status": "draft",
+      "visibility": "public",
+      "tags": [],
+      "updated_at": "2026-03-19T04:05:53.426Z",
+      "event_id": ""
+    },
+    {
+      "content_id": "wiki:emergent-organizing",
+      "slug": "emergent-organizing",
+      "title": "Emergent Organizing",
+      "content_type": "wiki",
+      "status": "draft",
+      "visibility": "public",
+      "tags": [],
+      "updated_at": "2026-03-19T04:05:53.645Z",
+      "event_id": ""
+    },
+    {
+      "content_id": "wiki:the-dependency-ordering",
+      "slug": "the-dependency-ordering",
+      "title": "The Dependency Ordering",
+      "content_type": "wiki",
+      "status": "draft",
+      "visibility": "public",
+      "tags": [],
+      "updated_at": "2026-03-19T21:01:39.624Z",
+      "event_id": ""
+    },
+    {
+      "content_id": "wiki:canonical-face-positions",
+      "slug": "canonical-face-positions",
+      "title": "Canonical Face Positions",
+      "content_type": "wiki",
+      "status": "published",
+      "visibility": "public",
+      "tags": [],
+      "updated_at": "",
+      "event_id": ""
+    },
+    {
+      "content_id": "wiki:eo-lexical-analysis-cross-linguistic-clause-classification-study",
+      "slug": "eo-lexical-analysis-cross-linguistic-clause-classification-study",
+      "title": "EO Lexical Analysis: Cross-Linguistic Clause Classification Study",
+      "content_type": "wiki",
+      "status": "published",
+      "visibility": "public",
+      "tags": [],
+      "updated_at": "",
+      "event_id": ""
+    },
+    {
+      "content_id": "document:eo-lexical-analysis-v2-results-report",
+      "slug": "eo-lexical-analysis-v2-results-report",
+      "title": "EO LEXICAL ANALYSIS v2 — RESULTS REPORT",
+      "content_type": "document",
+      "status": "published",
+      "visibility": "public",
+      "tags": [],
+      "updated_at": "2026-03-19T01:02:16.527Z",
+      "event_id": ""
+    },
+    {
+      "content_id": "wiki:canonical-example-the-act-face-the-operators",
+      "slug": "canonical-example-the-act-face-the-operators",
+      "title": "Canonical Example: The Act Face (The Operators)",
+      "content_type": "wiki",
+      "status": "published",
+      "visibility": "public",
+      "tags": [],
+      "updated_at": "2026-03-19T21:01:42.062Z",
+      "event_id": ""
+    },
+    {
+      "content_id": "wiki:canonical-examples-the-site-face",
+      "slug": "canonical-examples-the-site-face",
+      "title": "Canonical Examples: The Site Face",
+      "content_type": "wiki",
+      "status": "published",
+      "visibility": "public",
+      "tags": [],
+      "updated_at": "2026-03-19T03:37:25.724Z",
+      "event_id": ""
+    },
+    {
+      "content_id": "wiki:canonical-examples-the-resolution-face",
+      "slug": "canonical-examples-the-resolution-face",
+      "title": "Canonical Examples: The Resolution Face",
+      "content_type": "wiki",
+      "status": "published",
+      "visibility": "public",
+      "tags": [],
+      "updated_at": "2026-03-19T01:25:52.015Z",
+      "event_id": ""
+    },
+    {
+      "content_id": "document:does-meaning-have-a-shape",
+      "slug": "does-meaning-have-a-shape",
+      "title": "\"Does Meaning Have A Shape\"",
+      "content_type": "document",
+      "status": "draft",
+      "visibility": "public",
+      "tags": [],
+      "updated_at": "2026-03-19T01:42:12.022Z",
+      "event_id": ""
+    }
+  ],
+  "nav": [
+    {
+      "content_id": "wiki:emanon",
+      "slug": "emanons",
+      "title": "Emanon",
+      "content_type": "wiki",
+      "status": "published",
+      "visibility": "public",
+      "tags": [
+        "101"
+      ],
+      "updated_at": "2026-03-19T21:01:29.820Z",
+      "event_id": ""
+    },
+    {
+      "content_id": "wiki:eo-notation",
+      "slug": "eo-notation",
+      "title": "EO Notation",
+      "content_type": "wiki",
+      "status": "published",
+      "visibility": "public",
+      "tags": [
+        "201"
+      ],
+      "updated_at": "2026-03-19T21:01:24.995Z",
+      "event_id": ""
+    },
+    {
+      "content_id": "wiki:protogon",
+      "slug": "protogon",
+      "title": "Protogon",
+      "content_type": "wiki",
+      "status": "published",
+      "visibility": "public",
+      "tags": [
+        "201"
+      ],
+      "updated_at": "2026-03-19T20:48:18.440Z",
+      "event_id": ""
+    },
+    {
+      "content_id": "wiki:bivalent-compression-and-dimensional-poverty",
+      "slug": "bivalent-compression-and-dimensional-poverty",
+      "title": "Bivalent Compression and Dimensional Poverty",
+      "content_type": "wiki",
+      "status": "published",
+      "visibility": "public",
+      "tags": [
+        "301"
+      ],
+      "updated_at": "2026-03-19T20:48:19.729Z",
+      "event_id": ""
+    },
+    {
+      "content_id": "wiki:eo-on-platonic-forms",
+      "slug": "eo-on-platonic-forms",
+      "title": "EO on Platonic Forms",
+      "content_type": "wiki",
+      "status": "published",
+      "visibility": "public",
+      "tags": [],
+      "updated_at": "2026-03-19T21:01:26.421Z",
+      "event_id": ""
+    },
+    {
+      "content_id": "wiki:rec",
+      "slug": "rec",
+      "title": "REC — Recursion",
+      "content_type": "wiki",
+      "status": "published",
+      "visibility": "public",
+      "tags": [],
+      "updated_at": "2026-03-19T21:01:28.926Z",
+      "event_id": ""
+    },
+    {
+      "content_id": "wiki:influences-and-lineage",
+      "slug": "influences-and-lineage",
+      "title": "Influences and Lineage",
+      "content_type": "wiki",
+      "status": "published",
+      "visibility": "public",
+      "tags": [
+        "201"
+      ],
+      "updated_at": "2026-03-19T21:01:31.651Z",
+      "event_id": ""
+    },
+    {
+      "content_id": "wiki:emergent-ontology-eo",
+      "slug": "emergent-ontology-eo",
+      "title": "Emergent Ontology (EO)",
+      "content_type": "wiki",
+      "status": "published",
+      "visibility": "public",
+      "tags": [
+        "101"
+      ],
+      "updated_at": "2026-03-19T21:01:32.675Z",
+      "event_id": ""
+    },
+    {
+      "content_id": "wiki:time-as-emergent-dimension",
+      "slug": "time-as-emergent-dimension",
+      "title": "Time as Emergent Dimension",
+      "content_type": "wiki",
+      "status": "published",
+      "visibility": "public",
+      "tags": [
+        "301"
+      ],
+      "updated_at": "2026-03-19T04:05:45.769Z",
+      "event_id": ""
+    },
+    {
+      "content_id": "wiki:the-triads",
+      "slug": "the-three-triads",
+      "title": "The Three Triads",
+      "content_type": "wiki",
+      "status": "published",
+      "visibility": "public",
+      "tags": [
+        "101"
+      ],
+      "updated_at": "2026-03-11T21:57:32.197Z",
+      "event_id": ""
+    },
+    {
+      "content_id": "wiki:holons",
+      "slug": "holons",
+      "title": "Holons",
+      "content_type": "wiki",
+      "status": "published",
+      "visibility": "public",
+      "tags": [
+        "201"
+      ],
+      "updated_at": "2026-03-11T21:57:32.625Z",
+      "event_id": ""
+    },
+    {
+      "content_id": "wiki:ground-figure-pattern",
+      "slug": "ground-figure-pattern",
+      "title": "Ground / Figure / Pattern",
+      "content_type": "wiki",
+      "status": "published",
+      "visibility": "public",
+      "tags": [
+        "101"
+      ],
+      "updated_at": "2026-03-19T04:05:46.043Z",
+      "event_id": ""
+    },
+    {
+      "content_id": "wiki:degrees-of-freedom",
+      "slug": "degrees-of-freedom",
+      "title": "Degrees of Freedom",
+      "content_type": "wiki",
+      "status": "published",
+      "visibility": "public",
+      "tags": [
+        "201"
+      ],
+      "updated_at": "2026-03-19T20:48:32.876Z",
+      "event_id": ""
+    },
+    {
+      "content_id": "wiki:decomposability",
+      "slug": "decomposability",
+      "title": "Decomposability",
+      "content_type": "wiki",
+      "status": "published",
+      "visibility": "public",
+      "tags": [
+        "301"
+      ],
+      "updated_at": "2026-03-19T21:01:31.013Z",
+      "event_id": ""
+    },
+    {
+      "content_id": "wiki:the-nine-operators",
+      "slug": "the-nine-operators",
+      "title": "The Nine Operators",
+      "content_type": "wiki",
+      "status": "published",
+      "visibility": "public",
+      "tags": [
+        "101"
+      ],
+      "updated_at": "2026-03-19T21:01:34.434Z",
+      "event_id": ""
+    },
+    {
+      "content_id": "wiki:the-triadic-minimum",
+      "slug": "the-triadic-minimum",
+      "title": "The Triadic Minimum",
+      "content_type": "wiki",
+      "status": "published",
+      "visibility": "public",
+      "tags": [
+        "101"
+      ],
+      "updated_at": "2026-03-19T21:01:35.016Z",
+      "event_id": ""
+    },
+    {
+      "content_id": "wiki:the-integral-lineage",
+      "slug": "the-integral-lineage",
+      "title": "The Integral Lineage",
+      "content_type": "wiki",
+      "status": "published",
+      "visibility": "public",
+      "tags": [
+        "101"
+      ],
+      "updated_at": "2026-03-19T20:48:42.175Z",
+      "event_id": ""
+    },
+    {
+      "content_id": "wiki:the-eo-phase-space-cube",
+      "slug": "the-eo-phase-space-cube",
+      "title": "The EO capacity ground",
+      "content_type": "wiki",
+      "status": "published",
+      "visibility": "public",
+      "tags": [
+        "201"
+      ],
+      "updated_at": "2026-03-19T21:01:35.675Z",
+      "event_id": ""
+    },
+    {
+      "content_id": "wiki:ins",
+      "slug": "ins",
+      "title": "INS",
+      "content_type": "wiki",
+      "status": "published",
+      "visibility": "public",
+      "tags": [
+        "operator",
+        "101"
+      ],
+      "updated_at": "2026-03-19T21:01:36.215Z",
+      "event_id": ""
+    },
+    {
+      "content_id": "wiki:quantum-weirdness-in-eo-contained-but-not-tamed",
+      "slug": "quantum-weirdness-in-eo-contained-but-not-tamed",
+      "title": "Quantum Weirdness in EO: Contained but not Tamed",
+      "content_type": "wiki",
+      "status": "published",
+      "visibility": "public",
+      "tags": [
+        "201"
+      ],
+      "updated_at": "2026-03-19T21:01:36.563Z",
+      "event_id": ""
+    },
+    {
+      "content_id": "wiki:mvp-minimum-viable-prompt",
+      "slug": "mvp-minimum-viable-prompt",
+      "title": "MVP: Minimum Viable Prompt",
+      "content_type": "wiki",
+      "status": "published",
+      "visibility": "public",
+      "tags": [
+        "101"
+      ],
+      "updated_at": "2026-03-19T21:01:37.696Z",
+      "event_id": ""
+    },
+    {
+      "content_id": "wiki:the-three-arrows",
+      "slug": "the-three-arrows",
+      "title": "The Three Arrows",
+      "content_type": "wiki",
+      "status": "published",
+      "visibility": "public",
+      "tags": [],
+      "updated_at": "2026-03-19T21:01:36.818Z",
+      "event_id": ""
+    },
+    {
+      "content_id": "wiki:the-experience-engine",
+      "slug": "the-experience-engine",
+      "title": "The Experience Engine",
+      "content_type": "wiki",
+      "status": "published",
+      "visibility": "public",
+      "tags": [],
+      "updated_at": "2026-03-19T21:01:38.314Z",
+      "event_id": ""
+    },
+    {
+      "content_id": "wiki:the-pythagorean-theorem-plato-s-meno-x-and-eo",
+      "slug": "the-pythagorean-theorem-plato-s-meno-x-and-eo",
+      "title": "The Pythagorean Theorem, Plato's Meno, √x and EO",
+      "content_type": "wiki",
+      "status": "published",
+      "visibility": "public",
+      "tags": [],
+      "updated_at": "2026-03-19T21:01:38.161Z",
+      "event_id": ""
+    },
+    {
+      "content_id": "wiki:spencer-brown-s-laws-of-form-and-eo",
+      "slug": "spencer-brown-s-laws-of-form-and-eo",
+      "title": "Spencer-Brown's 'Laws of Form' and EO",
+      "content_type": "wiki",
+      "status": "published",
+      "visibility": "public",
+      "tags": [],
+      "updated_at": "2026-03-19T04:05:52.173Z",
+      "event_id": ""
+    },
+    {
+      "content_id": "wiki:ancient-astronomy-eo-saving-the-appearances",
+      "slug": "ancient-astronomy-eo-saving-the-appearances",
+      "title": "Ancient Astronomy & EO: Saving the Appearances",
+      "content_type": "wiki",
+      "status": "published",
+      "visibility": "public",
+      "tags": [
+        "301"
+      ],
+      "updated_at": "2026-03-15T16:29:26.621Z",
+      "event_id": ""
+    },
+    {
+      "content_id": "wiki:canonical-face-positions",
+      "slug": "canonical-face-positions",
+      "title": "Canonical Face Positions",
+      "content_type": "wiki",
+      "status": "published",
+      "visibility": "public",
+      "tags": [],
+      "updated_at": "",
+      "event_id": ""
+    },
+    {
+      "content_id": "wiki:eo-lexical-analysis-cross-linguistic-clause-classification-study",
+      "slug": "eo-lexical-analysis-cross-linguistic-clause-classification-study",
+      "title": "EO Lexical Analysis: Cross-Linguistic Clause Classification Study",
+      "content_type": "wiki",
+      "status": "published",
+      "visibility": "public",
+      "tags": [],
+      "updated_at": "",
+      "event_id": ""
+    },
+    {
+      "content_id": "document:eo-lexical-analysis-v2-results-report",
+      "slug": "eo-lexical-analysis-v2-results-report",
+      "title": "EO LEXICAL ANALYSIS v2 — RESULTS REPORT",
+      "content_type": "document",
+      "status": "published",
+      "visibility": "public",
+      "tags": [],
+      "updated_at": "2026-03-19T01:02:16.527Z",
+      "event_id": ""
+    },
+    {
+      "content_id": "wiki:canonical-example-the-act-face-the-operators",
+      "slug": "canonical-example-the-act-face-the-operators",
+      "title": "Canonical Example: The Act Face (The Operators)",
+      "content_type": "wiki",
+      "status": "published",
+      "visibility": "public",
+      "tags": [],
+      "updated_at": "2026-03-19T21:01:42.062Z",
+      "event_id": ""
+    },
+    {
+      "content_id": "wiki:canonical-examples-the-site-face",
+      "slug": "canonical-examples-the-site-face",
+      "title": "Canonical Examples: The Site Face",
+      "content_type": "wiki",
+      "status": "published",
+      "visibility": "public",
+      "tags": [],
+      "updated_at": "2026-03-19T03:37:25.724Z",
+      "event_id": ""
+    },
+    {
+      "content_id": "wiki:canonical-examples-the-resolution-face",
+      "slug": "canonical-examples-the-resolution-face",
+      "title": "Canonical Examples: The Resolution Face",
+      "content_type": "wiki",
+      "status": "published",
+      "visibility": "public",
+      "tags": [],
+      "updated_at": "2026-03-19T01:25:52.015Z",
+      "event_id": ""
+    }
+  ],
+  "slug_map": {
+    "the-three-faces-of-emergent-ontology": "wiki:the-three-faces-of-emergent-ontology",
+    "eo-event-streaming": "wiki:eo-event-streaming",
+    "emanons": "wiki:emanon",
+    "eo-in-15-min": "wiki:eo-in-15-min",
+    "eo-notation": "wiki:eo-notation",
+    "protogon": "wiki:protogon",
+    "bivalent-compression-and-dimensional-poverty": "wiki:bivalent-compression-and-dimensional-poverty",
+    "nul": "wiki:nul",
+    "eo-handbook": "document:eo-handbook",
+    "eo-on-platonic-forms": "wiki:eo-on-platonic-forms",
+    "rec": "wiki:rec",
+    "the-27-phase-posts": "wiki:the-27-phase-posts",
+    "influences-and-lineage": "wiki:influences-and-lineage",
+    "emergent-ontology-eo": "wiki:emergent-ontology-eo",
+    "time-as-emergent-dimension": "wiki:time-as-emergent-dimension",
+    "the-three-triads": "wiki:the-triads",
+    "holons": "wiki:holons",
+    "ground-figure-pattern": "wiki:ground-figure-pattern",
+    "degrees-of-freedom": "wiki:degrees-of-freedom",
+    "decomposability": "wiki:decomposability",
+    "the-nine-operators": "wiki:the-nine-operators",
+    "the-triadic-minimum": "wiki:the-triadic-minimum",
+    "eo-terminal": "experiment:eo-terminal",
+    "operator-naming-in-emergent-ontology": "wiki:operator-naming-in-emergent-ontology",
+    "eo-in-5-min": "blog:eo-in-5-min",
+    "scope": "wiki:scope",
+    "the-integral-lineage": "wiki:the-integral-lineage",
+    "decal-notation": "wiki:decal-notation",
+    "eo-cube": "experiment:eo-cube",
+    "coding-python-and-eo": "wiki:coding-python-and-eo",
+    "the-eo-phase-space-cube": "wiki:the-eo-phase-space-cube",
+    "ins": "wiki:ins",
+    "sig": "wiki:sig",
+    "the-observer-problem": "wiki:the-observer-problem",
+    "quantum-weirdness-in-eo-contained-but-not-tamed": "wiki:quantum-weirdness-in-eo-contained-but-not-tamed",
+    "mvp-minimum-viable-prompt": "wiki:mvp-minimum-viable-prompt",
+    "the-three-arrows": "wiki:the-three-arrows",
+    "the-experience-engine": "wiki:the-experience-engine",
+    "the-pythagorean-theorem-plato-s-meno-x-and-eo": "wiki:the-pythagorean-theorem-plato-s-meno-x-and-eo",
+    "language-is-a-projection": "wiki:language-is-a-projection",
+    "nine-verbs-a-closed-algebra-for-event-streaming": "blog:nine-verbs-a-closed-algebra-for-event-streaming",
+    "spencer-brown-s-laws-of-form-and-eo": "wiki:spencer-brown-s-laws-of-form-and-eo",
+    "the-axis-triad-and-its-coordinates": "wiki:the-axis-triad-and-its-coordinates",
+    "eo-in-60-min": "wiki:eo-in-60-min",
+    "ancient-astronomy-eo-saving-the-appearances": "wiki:ancient-astronomy-eo-saving-the-appearances",
+    "the-three-dimensions-of-eo": "wiki:the-three-dimensions-of-eo",
+    "mhc-and-eo": "wiki:mhc-and-eo",
+    "emergent-organizing": "wiki:emergent-organizing",
+    "the-dependency-ordering": "wiki:the-dependency-ordering",
+    "canonical-face-positions": "wiki:canonical-face-positions",
+    "eo-lexical-analysis-cross-linguistic-clause-classification-study": "wiki:eo-lexical-analysis-cross-linguistic-clause-classification-study",
+    "eo-lexical-analysis-v2-results-report": "document:eo-lexical-analysis-v2-results-report",
+    "canonical-example-the-act-face-the-operators": "wiki:canonical-example-the-act-face-the-operators",
+    "canonical-examples-the-site-face": "wiki:canonical-examples-the-site-face",
+    "canonical-examples-the-resolution-face": "wiki:canonical-examples-the-resolution-face",
+    "does-meaning-have-a-shape": "document:does-meaning-have-a-shape"
+  },
+  "built_at": "2026-03-20T03:44:32.809Z"
+}

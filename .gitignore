@@ -21,15 +21,13 @@ site/public/generated/build-manifest.json
 site/public/generated/styles/
 site/public/generated/js/
 
-# Projector build output (generated at build time, not committed)
-site/generated/
+# Projector build output — state files are committed for GitHub Pages
+# (no CI build step, so static JSON must be in the repo)
+site/generated/styles/
+site/generated/js/
 
-# API files generated at build time (content mirrors, index, sitemap)
-site/api/content/
-site/api/index.json
-site/api/content.json
-site/api/home.json
-site/api/sitemap.json
+# API content files are committed for GitHub Pages
+# site/api/ files are tracked
 
 # TypeScript compile output for projector
 tools/projector/dist/

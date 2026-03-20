@@ -1,0 +1,16 @@
+{
+  "content_type": "experiment",
+  "content_id": "experiment:eo-cube",
+  "meta": {
+    "content_id": "experiment:eo-cube",
+    "content_type": "experiment",
+    "slug": "eo-cube",
+    "title": "EO capacity ground",
+    "status": "draft",
+    "visibility": "public",
+    "tags": [],
+    "updated_at": "2026-03-11T03:08:07.474Z"
+  },
+  "entries": [],
+  "current_revision": null
+}

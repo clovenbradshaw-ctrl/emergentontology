@@ -1,0 +1,407 @@
+{
+  "items": [
+    {
+      "content_id": "wiki:emanon",
+      "content_type": "wiki",
+      "slug": "emanons",
+      "title": "Emanon",
+      "description": "",
+      "tags": [
+        "101"
+      ],
+      "updated_at": "2026-03-19T21:01:29.820Z",
+      "excerpt": "In Emergent Ontology (E.O.), an emanon (/ˈɛm.ə.nɒn/, EM-uh-non) is one of three entity types — alongside protogons and holons — that describe how phenomena manifest in the framework's 27-position capacity ground. Emanons are ground-dominant configurations: phenomena whose contextual or ambient chara…",
+      "url": "/wiki/emanons/",
+      "api_url": "/api/content/wiki-emanon.json"
+    },
+    {
+      "content_id": "wiki:eo-notation",
+      "content_type": "wiki",
+      "slug": "eo-notation",
+      "title": "EO Notation",
+      "description": "",
+      "tags": [
+        "201"
+      ],
+      "updated_at": "2026-03-19T21:01:24.995Z",
+      "excerpt": "EO Operator NotationEO Operator Notation is the formal syntax for expressing transformations in Emergent Ontology. It extends Polish notation (operation-first syntax) with ontological typing on arguments, register marking on operators, and hierarchical grain targeting on paths.The notation uses a si…",
+      "url": "/wiki/eo-notation/",
+      "api_url": "/api/content/wiki-eo-notation.json"
+    },
+    {
+      "content_id": "wiki:protogon",
+      "content_type": "wiki",
+      "slug": "protogon",
+      "title": "Protogon",
+      "description": "",
+      "tags": [
+        "201"
+      ],
+      "updated_at": "2026-03-19T20:48:18.440Z",
+      "excerpt": "ProtogonIn Emergent Ontology (E.O.), a protogon (/ˈproʊ.tə.ɡɒn/, PRO-tuh-gon) is one of three entity types — alongside emanons and holons — that describe how phenomena manifest in the framework's 27-position capacity ground. Protogons are pattern-dominant configurations: phenomena whose relational a…",
+      "url": "/wiki/protogon/",
+      "api_url": "/api/content/wiki-protogon.json"
+    },
+    {
+      "content_id": "wiki:bivalent-compression-and-dimensional-poverty",
+      "content_type": "wiki",
+      "slug": "bivalent-compression-and-dimensional-poverty",
+      "title": "Bivalent Compression and Dimensional Poverty",
+      "description": "",
+      "tags": [
+        "301"
+      ],
+      "updated_at": "2026-03-19T20:48:19.729Z",
+      "excerpt": "Bivalent compression is the systematic reduction of triadic (three-dimensional) logical structures into binary (two-dimensional) or unary (one-dimensional) forms. In Emergent Ontology, the term names the destination of the collapse rather than the structure being collapsed: what remains after reduct…",
+      "url": "/wiki/bivalent-compression-and-dimensional-poverty/",
+      "api_url": "/api/content/wiki-bivalent-compression-and-dimensional-poverty.json"
+    },
+    {
+      "content_id": "wiki:eo-on-platonic-forms",
+      "content_type": "wiki",
+      "slug": "eo-on-platonic-forms",
+      "title": "EO on Platonic Forms",
+      "description": "",
+      "tags": [],
+      "updated_at": "2026-03-19T21:01:26.421Z",
+      "excerpt": "Platonism and the Genealogy of SEN InflationOverviewPlatonism and the Genealogy of SEN Inflation examines Plato's four frameworks for philosophical ascent — the Divided Line, Diotima's Ladder, the Cave Allegory, and the Philosophical Education — through the lens of Emergent Ontology's three-dimensio…",
+      "url": "/wiki/eo-on-platonic-forms/",
+      "api_url": "/api/content/wiki-eo-on-platonic-forms.json"
+    },
+    {
+      "content_id": "wiki:rec",
+      "content_type": "wiki",
+      "slug": "rec",
+      "title": "REC — Recursion",
+      "description": "",
+      "tags": [],
+      "updated_at": "2026-03-19T21:01:28.926Z",
+      "excerpt": "REC (↬, Ω) is the ninth and final operator in Emergent Ontology's dependency helix. It occupies the position Generating × Significance — the pattern role within the Significance triad. Its glyph is ↬ (U+21AC, rightwards arrow with loop), chosen because it visually encodes the operator's structural f…",
+      "url": "/wiki/rec/",
+      "api_url": "/api/content/wiki-rec.json"
+    },
+    {
+      "content_id": "wiki:influences-and-lineage",
+      "content_type": "wiki",
+      "slug": "influences-and-lineage",
+      "title": "Influences and Lineage",
+      "description": "",
+      "tags": [
+        "201"
+      ],
+      "updated_at": "2026-03-19T21:01:31.651Z",
+      "excerpt": "Influences and LineageThis page traces Emergent Ontology's intellectual sources across three threads — philosophical, technical, and political — and notes where EO inherits, departs from, or claims to extend each tradition.EO is a synthesis. Its individual components have deep roots. What it propose…",
+      "url": "/wiki/influences-and-lineage/",
+      "api_url": "/api/content/wiki-influences-and-lineage.json"
+    },
+    {
+      "content_id": "wiki:emergent-ontology-eo",
+      "content_type": "wiki",
+      "slug": "emergent-ontology-eo",
+      "title": "Emergent Ontology (EO)",
+      "description": "",
+      "tags": [
+        "101"
+      ],
+      "updated_at": "2026-03-19T21:01:32.675Z",
+      "excerpt": "Emergent Ontology (/ɪˈmɜːrdʒənt ɒnˈtɒlədʒi/; abbreviated EO /ˌiːˈoʊ/) is a meta-theoretical framework built on a single claim: whatever can be expressed about transformation has tripartite structure. The underlying space — prior to any distinction, prior to any form — is khōra: undifferentiated, gen…",
+      "url": "/wiki/emergent-ontology-eo/",
+      "api_url": "/api/content/wiki-emergent-ontology-eo.json"
+    },
+    {
+      "content_id": "wiki:time-as-emergent-dimension",
+      "content_type": "wiki",
+      "slug": "time-as-emergent-dimension",
+      "title": "Time as Emergent Dimension",
+      "description": "",
+      "tags": [
+        "301"
+      ],
+      "updated_at": "2026-03-19T04:05:45.769Z",
+      "excerpt": "Emergent Ontology (EO) proposes that the three axes of its capacity ground — Identity (Mode), Space (Domain), and Time (Object) — are not three independently given dimensions. Time is the emergent third: the Pattern position of the meta-triad, produced by the interaction of Identity and Space under …",
+      "url": "/wiki/time-as-emergent-dimension/",
+      "api_url": "/api/content/wiki-time-as-emergent-dimension.json"
+    },
+    {
+      "content_id": "wiki:the-triads",
+      "content_type": "wiki",
+      "slug": "the-three-triads",
+      "title": "The Three Triads",
+      "description": "",
+      "tags": [
+        "101"
+      ],
+      "updated_at": "2026-03-11T21:57:32.197Z",
+      "excerpt": "In Emergent Ontology (EO), the nine operators are organized into three triads, each corresponding to a domain of transformation.The triadic structure is grounded in the framework's principle of the Triadic Minimum: three elements are required for stable differentiation and transformation. The three …",
+      "url": "/wiki/the-three-triads/",
+      "api_url": "/api/content/wiki-the-triads.json"
+    },
+    {
+      "content_id": "wiki:holons",
+      "content_type": "wiki",
+      "slug": "holons",
+      "title": "Holons",
+      "description": "",
+      "tags": [
+        "201"
+      ],
+      "updated_at": "2026-03-11T21:57:32.625Z",
+      "excerpt": "HolonIn Emergent Ontology (E.O.), a holon (ˈhoʊ.lɒn/ [HOH-lon]) is one of three entity types — alongside emanon and protogons — that describe how phenomena manifest in the framework's 27-position capacity ground. Holons are balanced configurations: phenomena in which figure (distinct identity), patt…",
+      "url": "/wiki/holons/",
+      "api_url": "/api/content/wiki-holons.json"
+    },
+    {
+      "content_id": "wiki:ground-figure-pattern",
+      "content_type": "wiki",
+      "slug": "ground-figure-pattern",
+      "title": "Ground / Figure / Pattern",
+      "description": "",
+      "tags": [
+        "101"
+      ],
+      "updated_at": "2026-03-19T04:05:46.043Z",
+      "excerpt": "Ground / Figure / Pattern (GFP) is the name Emergent Ontology gives to a three-role structure that recurs across all three of its independent dimensions. Within any axis, the three values stand in the same relationship: one functions as enabling condition (ground), one as differentiated element (fig…",
+      "url": "/wiki/ground-figure-pattern/",
+      "api_url": "/api/content/wiki-ground-figure-pattern.json"
+    },
+    {
+      "content_id": "wiki:degrees-of-freedom",
+      "content_type": "wiki",
+      "slug": "degrees-of-freedom",
+      "title": "Degrees of Freedom",
+      "description": "",
+      "tags": [
+        "201"
+      ],
+      "updated_at": "2026-03-19T20:48:32.876Z",
+      "excerpt": "Degrees of freedom in Emergent Ontology (E.O.) are successive liberations in what a system can know, represent, and act on. Each level is defined by a specific constraint it has escaped and a specific constraint it remains trapped in.The concept is derived from Edgar F. Codd's 1970 naming of data in…",
+      "url": "/wiki/degrees-of-freedom/",
+      "api_url": "/api/content/wiki-degrees-of-freedom.json"
+    },
+    {
+      "content_id": "wiki:decomposability",
+      "content_type": "wiki",
+      "slug": "decomposability",
+      "title": "Decomposability",
+      "description": "",
+      "tags": [
+        "301"
+      ],
+      "updated_at": "2026-03-19T21:01:31.013Z",
+      "excerpt": "Decomposability (/ˌdiːkəmˌpoʊzəˈbɪlɪti/) is the structural claim EO makes about scope: every transformation, at any scope, resolves into the nine operators — and operators at one scope are not built from operators at another scope.The same nine types apply at every level. NUL at the field scope mean…",
+      "url": "/wiki/decomposability/",
+      "api_url": "/api/content/wiki-decomposability.json"
+    },
+    {
+      "content_id": "wiki:the-nine-operators",
+      "content_type": "wiki",
+      "slug": "the-nine-operators",
+      "title": "The Nine Operators",
+      "description": "",
+      "tags": [
+        "101"
+      ],
+      "updated_at": "2026-03-19T21:01:34.434Z",
+      "excerpt": "Emergent Ontology proposes nine transformation operators — atomic kinds of change that, in combination, are claimed to be sufficient to describe any transformation in any domain. They are organized into a 3×3 lattice: three triads (Existence, Structure, Significance) crossed with three modes (Differ…",
+      "url": "/wiki/the-nine-operators/",
+      "api_url": "/api/content/wiki-the-nine-operators.json"
+    },
+    {
+      "content_id": "wiki:the-triadic-minimum",
+      "content_type": "wiki",
+      "slug": "the-triadic-minimum",
+      "title": "The Triadic Minimum",
+      "description": "",
+      "tags": [
+        "101"
+      ],
+      "updated_at": "2026-03-19T21:01:35.016Z",
+      "excerpt": "The Triadic Minimum is a foundational principle in Emergent Ontology (EO). It asserts that three elements constitute the minimal structure required for stable differentiation, relation, and transformation. According to EO, any system that attempts to model change using only binary distinctions — ins…",
+      "url": "/wiki/the-triadic-minimum/",
+      "api_url": "/api/content/wiki-the-triadic-minimum.json"
+    },
+    {
+      "content_id": "wiki:the-integral-lineage",
+      "content_type": "wiki",
+      "slug": "the-integral-lineage",
+      "title": "The Integral Lineage",
+      "description": "",
+      "tags": [
+        "101"
+      ],
+      "updated_at": "2026-03-19T20:48:42.175Z",
+      "excerpt": "Emergent Ontology and Integral TheoryThis page compares Emergent Ontology (EO) with the family of frameworks associated with the Integral tradition: the Ramakrishna–Vivekananda–Aurobindo lineage of evolutionary ontology, Jean Gebser's consciousness structures, Ken Wilber's AQAL model, and Spiral Dyn…",
+      "url": "/wiki/the-integral-lineage/",
+      "api_url": "/api/content/wiki-the-integral-lineage.json"
+    },
+    {
+      "content_id": "wiki:the-eo-phase-space-cube",
+      "content_type": "wiki",
+      "slug": "the-eo-phase-space-cube",
+      "title": "The EO capacity ground",
+      "description": "",
+      "tags": [
+        "201"
+      ],
+      "updated_at": "2026-03-19T21:01:35.675Z",
+      "excerpt": "The EO capacity ground cube is a three-dimensional continuous capacity ground in which every describable transformation has a location. It is structured by three independent axes, each exhibiting the same internal trichotomy (Ground / Figure / Pattern) at a different level of analysis. The intersect…",
+      "url": "/wiki/the-eo-phase-space-cube/",
+      "api_url": "/api/content/wiki-the-eo-phase-space-cube.json"
+    },
+    {
+      "content_id": "wiki:ins",
+      "content_type": "wiki",
+      "slug": "ins",
+      "title": "INS",
+      "description": "",
+      "tags": [
+        "operator",
+        "101"
+      ],
+      "updated_at": "2026-03-19T21:01:36.215Z",
+      "excerpt": "INS — InstantiationWhat the schema won't hold doesn't stop existing. It just stops being seen.INS (△ / α) is the third operator in the helix and the third member of the Existence triad. It sits at Generating × Existence — the position where something crosses from potential into the particular. Befor…",
+      "url": "/wiki/ins/",
+      "api_url": "/api/content/wiki-ins.json"
+    },
+    {
+      "content_id": "wiki:quantum-weirdness-in-eo-contained-but-not-tamed",
+      "content_type": "wiki",
+      "slug": "quantum-weirdness-in-eo-contained-but-not-tamed",
+      "title": "Quantum Weirdness in EO: Contained but not Tamed",
+      "description": "",
+      "tags": [
+        "201"
+      ],
+      "updated_at": "2026-03-19T21:01:36.563Z",
+      "excerpt": "OverviewSeveral features of quantum mechanics correspond to structural features that Emergent Ontology identifies across non-physical domains. Additionally, quantum programming languages (Q#, Qiskit, Silq, Cirq, Quipper) instantiate EO's operator architecture with a distribution that differs markedl…",
+      "url": "/wiki/quantum-weirdness-in-eo-contained-but-not-tamed/",
+      "api_url": "/api/content/wiki-quantum-weirdness-in-eo-contained-but-not-tamed.json"
+    },
+    {
+      "content_id": "wiki:mvp-minimum-viable-prompt",
+      "content_type": "wiki",
+      "slug": "mvp-minimum-viable-prompt",
+      "title": "MVP: Minimum Viable Prompt",
+      "description": "",
+      "tags": [
+        "101"
+      ],
+      "updated_at": "2026-03-19T21:01:37.696Z",
+      "excerpt": "Minimum Viable Prompt (MVP)The smallest seed that grows the whole tree.The minimal system prompt required for an AI to discourse competently in Emergent Ontology. \"Competently\" means: diagnose where a system is stuck, trace why, generate solutions that address the actual blockage, name costs, predic…",
+      "url": "/wiki/mvp-minimum-viable-prompt/",
+      "api_url": "/api/content/wiki-mvp-minimum-viable-prompt.json"
+    },
+    {
+      "content_id": "wiki:the-three-arrows",
+      "content_type": "wiki",
+      "slug": "the-three-arrows",
+      "title": "The Three Arrows",
+      "description": "",
+      "tags": [],
+      "updated_at": "2026-03-19T21:01:36.818Z",
+      "excerpt": "The arrow of time is not one arrow. It is three arrows from three sources, each living on a different axis of EO's capacity ground. Thermodynamics captured one of them — the one that lives on the Time axis — and called it the Second Law. The other two are structurally invisible to a framework that h…",
+      "url": "/wiki/the-three-arrows/",
+      "api_url": "/api/content/wiki-the-three-arrows.json"
+    },
+    {
+      "content_id": "wiki:the-experience-engine",
+      "content_type": "wiki",
+      "slug": "the-experience-engine",
+      "title": "The Experience Engine",
+      "description": "",
+      "tags": [],
+      "updated_at": "2026-03-19T21:01:38.314Z",
+      "excerpt": "DefinitionThe Experience Engine is a formal specification for systems that process raw experience into interpretation through perspectival context. It specifies what an honest record requires — one that preserves the distinction between what happened, how it connects, and what it means.It is defined…",
+      "url": "/wiki/the-experience-engine/",
+      "api_url": "/api/content/wiki-the-experience-engine.json"
+    },
+    {
+      "content_id": "wiki:the-pythagorean-theorem-plato-s-meno-x-and-eo",
+      "content_type": "wiki",
+      "slug": "the-pythagorean-theorem-plato-s-meno-x-and-eo",
+      "title": "The Pythagorean Theorem, Plato's Meno, √x and EO",
+      "description": "",
+      "tags": [],
+      "updated_at": "2026-03-19T21:01:38.161Z",
+      "excerpt": "√2: Pythagorean Origins and the Meno ProofThe coordinate √2 assigned to the Pattern position in EO's generative unit is not a metaphor, an approximation, or an aesthetic choice. It is the Pythagorean theorem applied to the generative unit itself: when Ground (−1) and Figure (+1) are orthogonal legs …",
+      "url": "/wiki/the-pythagorean-theorem-plato-s-meno-x-and-eo/",
+      "api_url": "/api/content/wiki-the-pythagorean-theorem-plato-s-meno-x-and-eo.json"
+    },
+    {
+      "content_id": "wiki:spencer-brown-s-laws-of-form-and-eo",
+      "content_type": "wiki",
+      "slug": "spencer-brown-s-laws-of-form-and-eo",
+      "title": "Spencer-Brown's 'Laws of Form' and EO",
+      "description": "",
+      "tags": [],
+      "updated_at": "2026-03-19T04:05:52.173Z",
+      "excerpt": "George Spencer-Brown (1923–2016) was a British mathematician, logician, and polymath whose 1969 book Laws of Form attempted to reground the fundamental basis of algebra in a single primitive act: the drawing of a distinction. The project was received variously as a reformulation of Boolean algebra, …",
+      "url": "/wiki/spencer-brown-s-laws-of-form-and-eo/",
+      "api_url": "/api/content/wiki-spencer-brown-s-laws-of-form-and-eo.json"
+    },
+    {
+      "content_id": "wiki:ancient-astronomy-eo-saving-the-appearances",
+      "content_type": "wiki",
+      "slug": "ancient-astronomy-eo-saving-the-appearances",
+      "title": "Ancient Astronomy & EO: Saving the Appearances",
+      "description": "",
+      "tags": [
+        "301"
+      ],
+      "updated_at": "2026-03-15T16:29:26.621Z",
+      "excerpt": "Saving the AppearancesSōzein ta phainomena (σῴζειν τὰ φαινόμενα) — saving the appearances — is the demand, originating in ancient Greek astronomical practice, that a theory must be faithful to the phenomena: it must contain every observation without discarding, overriding, or distorting any of them.…",
+      "url": "/wiki/ancient-astronomy-eo-saving-the-appearances/",
+      "api_url": "/api/content/wiki-ancient-astronomy-eo-saving-the-appearances.json"
+    },
+    {
+      "content_id": "document:eo-lexical-analysis-v2-results-report",
+      "content_type": "document",
+      "slug": "eo-lexical-analysis-v2-results-report",
+      "title": "EO LEXICAL ANALYSIS v2 — RESULTS REPORT",
+      "description": "",
+      "tags": [],
+      "updated_at": "2026-03-19T01:02:16.527Z",
+      "excerpt": "==========================================================================  EO LEXICAL ANALYSIS v2 — RESULTS REPORT==========================================================================  Generated: 2026-03-18 17:06  Corpus:    19,764 total embedded | 9,221 consensus across 41 languages  Models: …",
+      "url": "/doc/eo-lexical-analysis-v2-results-report/",
+      "api_url": "/api/content/document-eo-lexical-analysis-v2-results-report.json"
+    },
+    {
+      "content_id": "wiki:canonical-example-the-act-face-the-operators",
+      "content_type": "wiki",
+      "slug": "canonical-example-the-act-face-the-operators",
+      "title": "Canonical Example: The Act Face (The Operators)",
+      "description": "",
+      "tags": [],
+      "updated_at": "2026-03-19T21:01:42.062Z",
+      "excerpt": "Each position is defined here by what the embedding space actually finds most geometrically characteristic of it — not by theoretical description. Examples are the top-ranked clauses by discrimination margin: how far a clause sits from its nearest competing position. Higher margin = more unambiguous…",
+      "url": "/wiki/canonical-example-the-act-face-the-operators/",
+      "api_url": "/api/content/wiki-canonical-example-the-act-face-the-operators.json"
+    },
+    {
+      "content_id": "wiki:canonical-examples-the-site-face",
+      "content_type": "wiki",
+      "slug": "canonical-examples-the-site-face",
+      "title": "Canonical Examples: The Site Face",
+      "description": "",
+      "tags": [],
+      "updated_at": "2026-03-19T03:37:25.724Z",
+      "excerpt": "Each position defined by what the embedding space actually finds geometrically characteristic of it — the top-ranked clauses by discrimination margin. The Site face answers: where in reality is the target located? It crosses Domain with Object, describing the phenomenological terrain before any oper…",
+      "url": "/wiki/canonical-examples-the-site-face/",
+      "api_url": "/api/content/wiki-canonical-examples-the-site-face.json"
+    },
+    {
+      "content_id": "wiki:canonical-examples-the-resolution-face",
+      "content_type": "wiki",
+      "slug": "canonical-examples-the-resolution-face",
+      "title": "Canonical Examples: The Resolution Face",
+      "description": "",
+      "tags": [],
+      "updated_at": "2026-03-19T01:25:52.015Z",
+      "excerpt": "Each position defined by what the embedding space actually finds geometrically characteristic of it — the top-ranked clauses by discrimination margin. The Site face answers: where in reality is the target located? It crosses Domain with Object, describing the phenomenological terrain before any oper…",
+      "url": "/wiki/canonical-examples-the-resolution-face/",
+      "api_url": "/api/content/wiki-canonical-examples-the-resolution-face.json"
+    }
+  ],
+  "total": 30,
+  "generated_at": "2026-03-20T03:44:32.843Z"
+}
