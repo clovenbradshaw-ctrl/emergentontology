@@ -57,13 +57,11 @@ interface IndexSnapshot {
 interface WikiSnapshot {
   meta: Partial<ContentMeta>;
   current_revision: Partial<WikiRevision> | null;
-  revisions: Array<Partial<WikiRevision>>;
 }
 
 interface BlogSnapshot {
   meta: Partial<ContentMeta>;
   current_revision: Partial<WikiRevision> | null;
-  revisions: Array<Partial<WikiRevision>>;
 }
 
 interface PageSnapshot {
@@ -75,13 +73,13 @@ interface PageSnapshot {
 interface ExpSnapshot {
   meta: Partial<ContentMeta>;
   entries: Array<Partial<ExperimentEntry>>;
+  current_revision?: Partial<WikiRevision> | Record<string, unknown> | null;
 }
 
 interface DocSnapshot {
   meta: Partial<ContentMeta>;
   assets: Array<Partial<DocumentAsset>>;
   current_revision: Partial<WikiRevision> | null;
-  revisions: Array<Partial<WikiRevision>>;
 }
 
 // ──────────────────────────────────────────────────────────────────────────────
@@ -114,14 +112,6 @@ function buildWiki(
   entry: IndexSnapshot['entries'][number],
   snap: WikiSnapshot,
 ): ProjectedWiki {
-  const revisions: WikiRevision[] = (snap.revisions ?? []).map((r) => ({
-    rev_id: r.rev_id ?? '',
-    format: r.format ?? 'markdown',
-    content: r.content ?? '',
-    summary: r.summary ?? '',
-    ts: r.ts ?? '',
-    event_id: r.event_id ?? r.rev_id ?? '',
-  }));
   const cur = snap.current_revision;
   const current_revision: WikiRevision | null = cur
     ? {
@@ -138,7 +128,7 @@ function buildWiki(
     content_id: entry.content_id,
     meta: buildMeta(entry, snap),
     current_revision,
-    revisions,
+    revisions: [],
     has_conflict: false,
     conflict_candidates: [],
     history: [],
@@ -149,20 +139,23 @@ function buildBlog(
   entry: IndexSnapshot['entries'][number],
   snap: BlogSnapshot,
 ): ProjectedBlog {
-  const revisions: WikiRevision[] = (snap.revisions ?? []).map((r) => ({
-    rev_id: r.rev_id ?? '',
-    format: r.format ?? 'markdown',
-    content: r.content ?? '',
-    summary: r.summary ?? '',
-    ts: r.ts ?? '',
-    event_id: r.event_id ?? r.rev_id ?? '',
-  }));
+  const cur = snap.current_revision;
+  const current_revision: WikiRevision | null = cur
+    ? {
+        rev_id: cur.rev_id ?? '',
+        format: cur.format ?? 'markdown',
+        content: cur.content ?? '',
+        summary: cur.summary ?? '',
+        ts: cur.ts ?? '',
+        event_id: cur.event_id ?? cur.rev_id ?? '',
+      }
+    : null;
   return {
     content_type: 'blog',
     content_id: entry.content_id,
     meta: buildMeta(entry, snap),
-    current_revision: revisions.at(-1) ?? null,
-    revisions,
+    current_revision,
+    revisions: [],
     has_conflict: false,
     conflict_candidates: [],
     history: [],
@@ -205,17 +198,6 @@ function buildExperiment(
       event_id: e.event_id ?? e.entry_id ?? '',
     }))
     .filter((e) => !e.deleted);
-  // Normalize revisions from snapshot (if present)
-  const revisions = Array.isArray(snap?.revisions)
-    ? (snap.revisions as Array<Record<string, unknown>>).map((r) => ({
-        rev_id: String(r.rev_id ?? ''),
-        format: (r.format as 'markdown' | 'html') ?? 'html',
-        content: String(r.content ?? ''),
-        summary: String(r.summary ?? ''),
-        ts: String(r.ts ?? ''),
-        event_id: String(r.event_id ?? r.rev_id ?? ''),
-      }))
-    : [];
   const currentRevision = snap?.current_revision
     ? {
         rev_id: String((snap.current_revision as Record<string, unknown>).rev_id ?? ''),
@@ -225,7 +207,7 @@ function buildExperiment(
         ts: String((snap.current_revision as Record<string, unknown>).ts ?? ''),
         event_id: String((snap.current_revision as Record<string, unknown>).event_id ?? (snap.current_revision as Record<string, unknown>).rev_id ?? ''),
       }
-    : revisions.at(-1) ?? null;
+    : null;
 
   return {
     content_type: 'experiment',
@@ -233,7 +215,7 @@ function buildExperiment(
     meta: buildMeta(entry, snap),
     entries: expEntries,
     current_revision: currentRevision,
-    revisions,
+    revisions: [],
     history: [],
   };
 }
@@ -255,15 +237,6 @@ function buildDocument(
     }))
     .filter((a) => !a.deleted);
 
-  const revisions: WikiRevision[] = (snap.revisions ?? []).map((r) => ({
-    rev_id: r.rev_id ?? '',
-    format: r.format ?? 'html',
-    content: r.content ?? '',
-    summary: r.summary ?? '',
-    ts: r.ts ?? '',
-    event_id: r.event_id ?? r.rev_id ?? '',
-  }));
-
   const cur = snap.current_revision;
   const current_revision: WikiRevision | null = cur
     ? {
@@ -274,7 +247,7 @@ function buildDocument(
         ts: cur.ts ?? '',
         event_id: cur.event_id ?? cur.rev_id ?? '',
       }
-    : revisions.at(-1) ?? null;
+    : null;
 
   return {
     content_type: 'document',
@@ -282,7 +255,7 @@ function buildDocument(
     meta: buildMeta(entry, snap),
     assets,
     current_revision,
-    revisions,
+    revisions: [],
     history: [],
   };
 }
@@ -383,10 +356,10 @@ async function main() {
       let proj: ProjectedContent | null = null;
 
       if (entry.content_type === 'wiki') {
-        const snap = parseJson<WikiSnapshot>(record.values, { meta: {}, current_revision: null, revisions: [] });
+        const snap = parseJson<WikiSnapshot>(record.values, { meta: {}, current_revision: null });
         proj = buildWiki(entry, snap);
       } else if (entry.content_type === 'blog') {
-        const snap = parseJson<BlogSnapshot>(record.values, { meta: {}, current_revision: null, revisions: [] });
+        const snap = parseJson<BlogSnapshot>(record.values, { meta: {}, current_revision: null });
         proj = buildBlog(entry, snap);
       } else if (entry.content_type === 'page') {
         const snap = parseJson<PageSnapshot>(record.values, { meta: {}, blocks: [], block_order: [] });
@@ -395,7 +368,7 @@ async function main() {
         const snap = parseJson<ExpSnapshot>(record.values, { meta: {}, entries: [] });
         proj = buildExperiment(entry, snap);
       } else if (entry.content_type === 'document') {
-        const snap = parseJson<DocSnapshot>(record.values, { meta: {}, assets: [], current_revision: null, revisions: [] });
+        const snap = parseJson<DocSnapshot>(record.values, { meta: {}, assets: [], current_revision: null });
         proj = buildDocument(entry, snap);
       }
 

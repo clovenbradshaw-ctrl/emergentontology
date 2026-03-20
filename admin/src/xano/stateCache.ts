@@ -410,69 +410,85 @@ export async function fetchRevisionHistory(contentId: string): Promise<WikiRevis
 
 // ── One-time migration: strip revisions/history from current state ───────────
 
-let _migrationRan = false;
+let _migrationStatus: 'idle' | 'running' | 'done' = 'idle';
 
 /**
  * One-time migration: strip `revisions` and `history` arrays from
  * eowikicurrent records that still contain them.
  *
  * Idempotent: only patches records whose `values` JSON contains
- * a non-empty "revisions" or "history" array. Skips already-clean records.
- * Runs at most once per session (guarded by module-level flag).
+ * a "revisions" or "history" array (empty or non-empty). Skips already-clean
+ * records. Runs at most once per session — but only marks itself done on
+ * success, so a failed attempt will retry on the next page load.
  */
 export async function migrateStripRevisionHistory(
   agent: string,
 ): Promise<{ migrated: number; skipped: number }> {
-  if (_migrationRan) return { migrated: 0, skipped: 0 };
-  _migrationRan = true;
+  if (_migrationStatus !== 'idle') return { migrated: 0, skipped: 0 };
+  _migrationStatus = 'running';
 
-  const allRecords = await fetchAllCurrentRecordsCached();
-  let migrated = 0;
-  let skipped = 0;
-  const toMigrate: { record: XanoCurrentRecord; parsed: Record<string, unknown> }[] = [];
+  try {
+    const allRecords = await fetchAllCurrentRecordsCached();
+    let migrated = 0;
+    let skipped = 0;
+    const toMigrate: { record: XanoCurrentRecord; parsed: Record<string, unknown> }[] = [];
 
-  for (const record of allRecords) {
-    let parsed: Record<string, unknown>;
-    try {
-      parsed = JSON.parse(record.values);
-    } catch {
-      skipped++;
-      continue;
-    }
-
-    const hasRevisions = Array.isArray(parsed.revisions) && parsed.revisions.length > 0;
-    const hasHistory = Array.isArray(parsed.history) && parsed.history.length > 0;
-
-    if (!hasRevisions && !hasHistory) {
-      skipped++;
-      continue;
-    }
-
-    // Strip revisions and history, keep everything else
-    delete parsed.revisions;
-    delete parsed.history;
-    toMigrate.push({ record, parsed });
-  }
-
-  // Batch in chunks of 5 to avoid overwhelming the API
-  for (let i = 0; i < toMigrate.length; i += 5) {
-    const chunk = toMigrate.slice(i, i + 5);
-    const results = await Promise.allSettled(
-      chunk.map(({ record, parsed }) =>
-        upsertCurrentRecord(record.record_id, parsed, agent, record)
-      ),
-    );
-    for (const result of results) {
-      if (result.status === 'fulfilled') migrated++;
-      else {
-        console.warn('[migration] Failed to clean record:', result.reason);
+    for (const record of allRecords) {
+      let parsed: Record<string, unknown>;
+      try {
+        parsed = JSON.parse(record.values);
+      } catch {
         skipped++;
+        continue;
+      }
+
+      const hasRevisions = Array.isArray(parsed.revisions);
+      const hasHistory = Array.isArray(parsed.history);
+
+      if (!hasRevisions && !hasHistory) {
+        skipped++;
+        continue;
+      }
+
+      // Strip revisions and history, keep everything else
+      delete parsed.revisions;
+      delete parsed.history;
+      toMigrate.push({ record, parsed });
+    }
+
+    // Batch in chunks of 5 to avoid overwhelming the API
+    let failures = 0;
+    for (let i = 0; i < toMigrate.length; i += 5) {
+      const chunk = toMigrate.slice(i, i + 5);
+      const results = await Promise.allSettled(
+        chunk.map(({ record, parsed }) =>
+          upsertCurrentRecord(record.record_id, parsed, agent, record)
+        ),
+      );
+      for (const result of results) {
+        if (result.status === 'fulfilled') migrated++;
+        else {
+          console.warn('[migration] Failed to clean record:', result.reason);
+          failures++;
+          skipped++;
+        }
       }
     }
-  }
 
-  console.info(`[migration] stripRevisionHistory complete: ${migrated} migrated, ${skipped} skipped.`);
-  return { migrated, skipped };
+    // Only mark done if there were no failures — allows retry on next load
+    if (failures === 0) {
+      _migrationStatus = 'done';
+    } else {
+      _migrationStatus = 'idle';
+    }
+
+    console.info(`[migration] stripRevisionHistory complete: ${migrated} migrated, ${skipped} skipped, ${failures} failed.`);
+    return { migrated, skipped };
+  } catch (err) {
+    // Reset so the migration can retry on next page load
+    _migrationStatus = 'idle';
+    throw err;
+  }
 }
 
 // ── Helpers ─────────────────────────────────────────────────────────────────

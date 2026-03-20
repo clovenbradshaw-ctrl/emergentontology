@@ -30,6 +30,18 @@ function write(filePath: string, content: string): void {
   writeFileSync(filePath, content, 'utf-8');
 }
 
+/**
+ * Strip `revisions` and `history` arrays from a projected content object
+ * before writing to static files. Revision history belongs in the event log,
+ * not in static snapshots. Only `current_revision` is kept.
+ */
+function stripRevisionHistory(proj: ProjectedContent): Record<string, unknown> {
+  const obj = { ...proj } as Record<string, unknown>;
+  delete obj.revisions;
+  delete obj.history;
+  return obj;
+}
+
 // ──────────────────────────────────────────────────────────────────────────────
 // State JSON files
 // ──────────────────────────────────────────────────────────────────────────────
@@ -39,7 +51,7 @@ export function renderStateFiles(index: SiteIndex, contents: ProjectedContent[],
   for (const proj of contents) {
     write(
       join(cfg.out_dir, 'state', 'content', `${proj.meta.content_id.replace(':', '-')}.json`),
-      JSON.stringify(proj, null, 2)
+      JSON.stringify(stripRevisionHistory(proj), null, 2)
     );
   }
 }
@@ -150,7 +162,7 @@ export function renderApiFiles(
   for (const proj of contents) {
     write(
       join(apiDir, 'content', `${proj.meta.content_id.replace(':', '-')}.json`),
-      JSON.stringify(proj, null, 2),
+      JSON.stringify(stripRevisionHistory(proj), null, 2),
     );
   }
 
