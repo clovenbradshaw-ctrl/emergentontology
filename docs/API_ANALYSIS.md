@@ -242,3 +242,62 @@ User submits suggestion form
 - **Retry with backoff**: Build tool (`fetch_matrix.ts`) retries up to 4 times with exponential backoff (1s, 2s, 4s, 8s).
 - **Deduplication**: Public site deduplicates by `record_id`, keeping the most recently modified record.
 - **AES-256-GCM auth**: The private Xano endpoint path is encrypted in source; password decrypts it at login.
+
+---
+
+## 8. Evaluation: Does This Actually Make Sense?
+
+### What works well
+
+1. **Static-first loading is smart.** The public site tries pre-built JSON before hitting Xano. This means the site works even if Xano is down, and most page loads never touch the API at all. Good resilience.
+
+2. **Current-state-first is pragmatic.** Skipping event replay for reads avoids the complexity and latency of a full event-sourced read path. For a CMS with ~dozens of content items, this is the right call.
+
+3. **Admin cache with 30s TTL is well-designed.** `stateCache.ts` smartly falls back from full-cache lookup to single-record server-side filter to full refetch. Avoids N+1 patterns.
+
+4. **Fire-and-forget event logging doesn't block saves.** The UI stays responsive because `logEvent()` is non-blocking. Since `eowikicurrent` is authoritative, a missed log event doesn't corrupt state.
+
+5. **Suggestion system is cleanly separated.** Own endpoints, own table, no interference with content APIs.
+
+### What doesn't make sense
+
+#### HIGH: No lost-update protection on saves
+`upsertCurrentRecord()` (`client.ts:537`) does an unconditional PATCH with no version check, no ETag, no compare-and-swap. If two editors load the same record and both save, the second save silently overwrites the first. The 30s cache TTL makes this worse — Editor A could be working with data that's already been changed by Editor B.
+
+**Concrete scenario:** Editor A loads `wiki:operators` at 0:00. Editor B loads the same record at 0:01 (served from cache). B saves at 0:05. A saves at 0:10. A's save PATCHes using the same Xano row `id` — B's changes are gone, with no warning to either user.
+
+#### HIGH: Matrix is vestigial — code exists but nothing uses it
+- The projector (`tools/projector/src/index.ts`) **only imports from `fetch_xano.js`** — `fetch_matrix.ts` is never imported
+- The admin editors write to Xano only — no calls to `sendEOEvent()` or `setStateEvent()` from any editor component
+- The architecture docs describe Matrix as the "canonical event store" but in practice **Xano is the only store that matters**
+- `matrix/client.ts` and `matrix/sdk.ts` are maintained dead code with a full Matrix JS SDK loaded on every admin page
+
+This isn't necessarily wrong — it looks like the system migrated from Matrix-first to Xano-first — but the documentation and code don't reflect reality. The build tool's trigger map in section 5 above is misleading because Matrix calls never actually fire.
+
+#### MEDIUM: Public site fetches ALL records as fallback
+When static JSON is missing (e.g., projector hasn't run yet), `loadContentFromApi()` in `site/js/api.js:385` calls `fetchAllXanoRecords()` — paginating through every record at 25/page — just to find one content item. There's no `?record_id=` filter on the public endpoint (`get_eowikicurrent`), unlike the private admin endpoint.
+
+Additionally, `site/js/search.js` duplicates the same pagination logic independently with its own cache, never sharing data with `api.js`.
+
+#### MEDIUM: Event log can silently diverge from current state
+`logEvent()` is fire-and-forget. If it fails (network error, Xano outage), the current state in `eowikicurrent` is updated but the event log in `eowiki` is not. There's no retry, no queue, no reconciliation. Over time the event log can become an incomplete record of changes. This is fine if the event log is truly just an audit trail — but if anyone ever tries to replay events to reconstruct state, they'll get wrong results.
+
+#### MEDIUM: No cache-busting on static files
+Static JSON files at `/generated/state/*.json` have no version hash, no `?v=` parameter, no ETag validation. After a projector build, users may see stale content until their browser cache expires. The fallback-to-Xano path only triggers on HTTP errors, not on stale data.
+
+#### LOW: Xano auth is a shared secret, not per-user
+All editors share the same Bearer token (SHA-256 of the decrypted endpoint path). There's no way to attribute writes to individual users at the Xano level. Matrix auth exists separately but isn't wired into the write path. The `agent` field in `context` is set from `settings.displayName` — a client-side string anyone can change.
+
+#### LOW: Suggestion endpoint has no rate limiting
+`POST /eo_wiki_suggestions` accepts unauthenticated requests with no rate limiting. A script could flood the suggestions table. Low severity because the impact is limited to the suggestions feature.
+
+### Verdict
+
+**The architecture fundamentally works** for its current scale (small team, dozens of content items, moderate traffic). The static-first + Xano-current-state pattern is pragmatic and resilient.
+
+**The main risks are:**
+1. Lost updates if multiple editors are active (no optimistic locking)
+2. Confusion from Matrix code that's present but unused
+3. Inefficient fallback paths on the public site when static files are missing
+
+**If this system needs to scale or support concurrent editing**, the highest-priority fix would be adding a `lastModified` check to `upsertCurrentRecord()` before PATCHing. Everything else is manageable at current scale.
