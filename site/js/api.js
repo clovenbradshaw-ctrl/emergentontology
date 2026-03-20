@@ -420,6 +420,11 @@ function parseContentRecord(contentId, rec) {
       parsed.content_type = parsed.meta.content_type;
     }
 
+    // Normalise: derive current_revision from revisions[] if missing
+    if (!parsed.current_revision && parsed.revisions && parsed.revisions.length) {
+      parsed.current_revision = parsed.revisions[parsed.revisions.length - 1];
+    }
+
     parsed._source = 'current_state';
     _contentCache[contentId] = parsed;
     return parsed;

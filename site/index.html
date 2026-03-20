@@ -1357,6 +1357,10 @@ function fetchApiRecords() {
         var vals;
         try { vals = typeof row.values === 'string' ? JSON.parse(row.values) : row.values; }
         catch(e) { vals = row.values; }
+        // Normalise: if current_revision is missing, derive from revisions[]
+        if (vals && !vals.current_revision && vals.revisions && vals.revisions.length) {
+          vals.current_revision = vals.revisions[vals.revisions.length - 1];
+        }
         byId[rid] = { record_id: rid, lastModified: row.lastModified, displayName: row.displayName, parsed: vals };
       }
     }
@@ -2402,7 +2406,6 @@ function renderPage(slug) {
   var parsed = record.parsed;
   var meta = (parsed && parsed.meta) || {};
   var rev = parsed && parsed.current_revision;
-  var revs = (parsed && parsed.revisions) || [];
   var contentType = meta.content_type || 'page';
   var isExperiment = (contentType === 'experiment');
 
@@ -2535,27 +2538,7 @@ function renderPage(slug) {
     h += '<div class="empty-state-desc">This article hasn\u2019t been written yet.</div></div>';
   }
 
-  // Revision history (timeline style)
-  if (revs.length > 0) {
-    h += '<div style="margin-top:3rem;border-top:1px solid var(--border);padding-top:1.5rem">';
-    h += '<h2 style="font-size:1.1rem;font-weight:600;margin-bottom:1rem;color:var(--text-secondary)">Revision History</h2>';
-    h += '<div class="rev-timeline">';
-    var showRevs = revs.slice().reverse().slice(0, 6);
-    for (var i = 0; i < showRevs.length; i++) {
-      var r = showRevs[i];
-      var isFirst = r.rev_id === revs[0].rev_id;
-      h += '<div class="rev-item">';
-      h += '<div class="rev-dot"></div>';
-      h += '<div class="rev-content"><span class="rev-op">' + (isFirst ? 'INS' : 'ALT') + '</span>';
-      h += '<span>' + esc(r.summary || '\u2026') + '</span></div>';
-      h += '<span class="rev-time">' + timeAgo(r.ts) + '</span>';
-      h += '</div>';
-    }
-    if (revs.length > 6) {
-      h += '<p style="font-size:0.78rem;color:var(--text-faint);margin-top:0.5rem;padding-left:1.85rem">\u2026and ' + (revs.length - 6) + ' older revision' + (revs.length - 6 !== 1 ? 's' : '') + '</p>';
-    }
-    h += '</div></div>';
-  }
+  // Revision history removed — only show current content
 
   // Next article suggestion
   var nextArticle = findNextArticle(slug, contentType);
