@@ -1,0 +1,1195 @@
+{
+  "act_face": {
+    "test_A": {
+      "spearman_r": -0.0844,
+      "spearman_p": 0.669309,
+      "n_pairs": 28,
+      "mean_within_triad_dist": 0.44491,
+      "mean_across_triad_dist": 0.57704,
+      "within_vs_across_p": 0.0529,
+      "pairwise_distances": [
+        {
+          "op_i": "NUL",
+          "op_j": "INS",
+          "helix_dist": 2,
+          "embedding_dist": 0.34106,
+          "same_triad": true
+        },
+        {
+          "op_i": "NUL",
+          "op_j": "SEG",
+          "helix_dist": 3,
+          "embedding_dist": 0.65155,
+          "same_triad": false
+        },
+        {
+          "op_i": "NUL",
+          "op_j": "CON",
+          "helix_dist": 4,
+          "embedding_dist": 0.55386,
+          "same_triad": false
+        },
+        {
+          "op_i": "NUL",
+          "op_j": "SYN",
+          "helix_dist": 5,
+          "embedding_dist": 0.89995,
+          "same_triad": false
+        },
+        {
+          "op_i": "NUL",
+          "op_j": "ALT",
+          "helix_dist": 6,
+          "embedding_dist": 0.47047,
+          "same_triad": false
+        },
+        {
+          "op_i": "NUL",
+          "op_j": "SUP",
+          "helix_dist": 7,
+          "embedding_dist": 0.4923,
+          "same_triad": false
+        },
+        {
+          "op_i": "NUL",
+          "op_j": "REC",
+          "helix_dist": 8,
+          "embedding_dist": 0.43833,
+          "same_triad": false
+        },
+        {
+          "op_i": "INS",
+          "op_j": "SEG",
+          "helix_dist": 1,
+          "embedding_dist": 0.62647,
+          "same_triad": false
+        },
+        {
+          "op_i": "INS",
+          "op_j": "CON",
+          "helix_dist": 2,
+          "embedding_dist": 0.49623,
+          "same_triad": false
+        },
+        {
+          "op_i": "INS",
+          "op_j": "SYN",
+          "helix_dist": 3,
+          "embedding_dist": 0.8403,
+          "same_triad": false
+        },
+        {
+          "op_i": "INS",
+          "op_j": "ALT",
+          "helix_dist": 4,
+          "embedding_dist": 0.63527,
+          "same_triad": false
+        },
+        {
+          "op_i": "INS",
+          "op_j": "SUP",
+          "helix_dist": 5,
+          "embedding_dist": 0.37381,
+          "same_triad": false
+        },
+        {
+          "op_i": "INS",
+          "op_j": "REC",
+          "helix_dist": 6,
+          "embedding_dist": 0.43652,
+          "same_triad": false
+        },
+        {
+          "op_i": "SEG",
+          "op_j": "CON",
+          "helix_dist": 1,
+          "embedding_dist": 0.47863,
+          "same_triad": true
+        },
+        {
+          "op_i": "SEG",
+          "op_j": "SYN",
+          "helix_dist": 2,
+          "embedding_dist": 0.50635,
+          "same_triad": true
+        },
+        {
+          "op_i": "SEG",
+          "op_j": "ALT",
+          "helix_dist": 3,
+          "embedding_dist": 0.4407,
+          "same_triad": false
+        },
+        {
+          "op_i": "SEG",
+          "op_j": "SUP",
+          "helix_dist": 4,
+          "embedding_dist": 0.55041,
+          "same_triad": false
+        },
+        {
+          "op_i": "SEG",
+          "op_j": "REC",
+          "helix_dist": 5,
+          "embedding_dist": 0.50853,
+          "same_triad": false
+        },
+        {
+          "op_i": "CON",
+          "op_j": "SYN",
+          "helix_dist": 1,
+          "embedding_dist": 0.69729,
+          "same_triad": true
+        },
+        {
+          "op_i": "CON",
+          "op_j": "ALT",
+          "helix_dist": 2,
+          "embedding_dist": 0.5086,
+          "same_triad": false
+        },
+        {
+          "op_i": "CON",
+          "op_j": "SUP",
+          "helix_dist": 3,
+          "embedding_dist": 0.4245,
+          "same_triad": false
+        },
+        {
+          "op_i": "CON",
+          "op_j": "REC",
+          "helix_dist": 4,
+          "embedding_dist": 0.4664,
+          "same_triad": false
+        },
+        {
+          "op_i": "SYN",
+          "op_j": "ALT",
+          "helix_dist": 1,
+          "embedding_dist": 0.80009,
+          "same_triad": false
+        },
+        {
+          "op_i": "SYN",
+          "op_j": "SUP",
+          "helix_dist": 2,
+          "embedding_dist": 0.78677,
+          "same_triad": false
+        },
+        {
+          "op_i": "SYN",
+          "op_j": "REC",
+          "helix_dist": 3,
+          "embedding_dist": 0.71671,
+          "same_triad": false
+        },
+        {
+          "op_i": "ALT",
+          "op_j": "SUP",
+          "helix_dist": 1,
+          "embedding_dist": 0.45279,
+          "same_triad": true
+        },
+        {
+          "op_i": "ALT",
+          "op_j": "REC",
+          "helix_dist": 2,
+          "embedding_dist": 0.31264,
+          "same_triad": true
+        },
+        {
+          "op_i": "SUP",
+          "op_j": "REC",
+          "helix_dist": 1,
+          "embedding_dist": 0.32561,
+          "same_triad": true
+        }
+      ],
+      "interpretation": "Spearman r=-0.084 between helix chain distance and centroid embedding distance (p=0.6693, n=28 pairs). No significant correlation: helix chain distance does not predict embedding distance. The operators are not geometrically ordered."
+    },
+    "test_B": {
+      "n_triples": 5,
+      "n_convex": 2,
+      "pct_convex": 0.4,
+      "permutation_p": 0.973,
+      "triples": [
+        {
+          "triple": "INS-SEG-CON",
+          "middle_dist_to_midpoint": 0.48398,
+          "mean_other_dist": 0.45539,
+          "rank_among_others": 3,
+          "is_convex": false
+        },
+        {
+          "triple": "SEG-CON-SYN",
+          "middle_dist_to_midpoint": 0.5232,
+          "mean_other_dist": 0.63219,
+          "rank_among_others": 0,
+          "is_convex": true
+        },
+        {
+          "triple": "CON-SYN-ALT",
+          "middle_dist_to_midpoint": 0.70897,
+          "mean_other_dist": 0.38989,
+          "rank_among_others": 5,
+          "is_convex": false
+        },
+        {
+          "triple": "SYN-ALT-SUP",
+          "middle_dist_to_midpoint": 0.52037,
+          "mean_other_dist": 0.46424,
+          "rank_among_others": 4,
+          "is_convex": false
+        },
+        {
+          "triple": "ALT-SUP-REC",
+          "middle_dist_to_midpoint": 0.33502,
+          "mean_other_dist": 0.50155,
+          "rank_among_others": 0,
+          "is_convex": true
+        }
+      ],
+      "interpretation": "2/5 consecutive triples show convexity (40%, permutation p=0.9730). Convexity is not significant: the helix ordering is not geometrically embedded as a smooth curve."
+    },
+    "test_C": {
+      "confusion_by_operator": {
+        "NUL": {
+          "nearest_centroid": "INS",
+          "distance_to_nearest": 0.34106,
+          "helix_distance_to_nearest": 2,
+          "nearest_is_adjacent": false
+        },
+        "INS": {
+          "nearest_centroid": "NUL",
+          "distance_to_nearest": 0.34106,
+          "helix_distance_to_nearest": 2,
+          "nearest_is_adjacent": false
+        },
+        "SEG": {
+          "nearest_centroid": "ALT",
+          "distance_to_nearest": 0.4407,
+          "helix_distance_to_nearest": 3,
+          "nearest_is_adjacent": false
+        },
+        "CON": {
+          "nearest_centroid": "SUP",
+          "distance_to_nearest": 0.4245,
+          "helix_distance_to_nearest": 3,
+          "nearest_is_adjacent": false
+        },
+        "SYN": {
+          "nearest_centroid": "SEG",
+          "distance_to_nearest": 0.50635,
+          "helix_distance_to_nearest": 2,
+          "nearest_is_adjacent": false
+        },
+        "ALT": {
+          "nearest_centroid": "REC",
+          "distance_to_nearest": 0.31264,
+          "helix_distance_to_nearest": 2,
+          "nearest_is_adjacent": false
+        },
+        "SUP": {
+          "nearest_centroid": "REC",
+          "distance_to_nearest": 0.32561,
+          "helix_distance_to_nearest": 1,
+          "nearest_is_adjacent": true
+        },
+        "REC": {
+          "nearest_centroid": "ALT",
+          "distance_to_nearest": 0.31264,
+          "helix_distance_to_nearest": 2,
+          "nearest_is_adjacent": false
+        }
+      },
+      "confusions_toward_lower_helix": 3,
+      "confusions_toward_higher_helix": 5,
+      "adjacency_rate": 0.125,
+      "interpretation": "Of 8 operators, 3 have their nearest centroid at a lower helix position and 5 at a higher position. Confusions are symmetric or toward higher positions. No evidence of directed dependency from centroid proximity."
+    },
+    "test_D": {
+      "spearman_r": 0.9048,
+      "spearman_p": 0.002008,
+      "n_operators": 8,
+      "theory_rank": {
+        "NUL": 9,
+        "INS": 3,
+        "SEG": 5,
+        "CON": 1,
+        "SYN": 6,
+        "ALT": 4,
+        "SUP": 2,
+        "REC": 8
+      },
+      "observed_rank": {
+        "SUP": 1,
+        "CON": 2,
+        "ALT": 3,
+        "SEG": 4,
+        "INS": 5,
+        "SYN": 6,
+        "REC": 7,
+        "NUL": 8
+      },
+      "observed_frequencies": {
+        "NUL": 0.0281,
+        "INS": 0.0879,
+        "SEG": 0.0894,
+        "CON": 0.195,
+        "SYN": 0.048,
+        "ALT": 0.1935,
+        "SUP": 0.2939,
+        "REC": 0.0458
+      },
+      "interpretation": "Spearman r=+0.905 between theory-predicted and observed frequency rank (p=0.0020). Strong agreement: the helix-predicted gravity wells (CON, SUP, INS) and deserts (NUL, REC) match the observed frequency distribution. The frequency structure is not accidental \u2014 it reflects the helix's prediction of which operations are 'unmarked' in language."
+    }
+  },
+  "site_face": {
+    "test_A": {
+      "spearman_r": 0.1594,
+      "spearman_p": 0.35297,
+      "n_pairs": 36,
+      "mean_within_triad_dist": 0.48497,
+      "mean_across_triad_dist": 0.56727,
+      "within_vs_across_p": 0.2992,
+      "pairwise_distances": [
+        {
+          "op_i": "Void",
+          "op_j": "Entity",
+          "helix_dist": 1,
+          "embedding_dist": 0.34045,
+          "same_triad": true
+        },
+        {
+          "op_i": "Void",
+          "op_j": "Kind",
+          "helix_dist": 2,
+          "embedding_dist": 0.31363,
+          "same_triad": true
+        },
+        {
+          "op_i": "Void",
+          "op_j": "Field",
+          "helix_dist": 3,
+          "embedding_dist": 0.32573,
+          "same_triad": false
+        },
+        {
+          "op_i": "Void",
+          "op_j": "Link",
+          "helix_dist": 4,
+          "embedding_dist": 0.72083,
+          "same_triad": false
+        },
+        {
+          "op_i": "Void",
+          "op_j": "Network",
+          "helix_dist": 5,
+          "embedding_dist": 0.92515,
+          "same_triad": false
+        },
+        {
+          "op_i": "Void",
+          "op_j": "Atmosphere",
+          "helix_dist": 6,
+          "embedding_dist": 0.35195,
+          "same_triad": false
+        },
+        {
+          "op_i": "Void",
+          "op_j": "Lens",
+          "helix_dist": 7,
+          "embedding_dist": 0.65969,
+          "same_triad": false
+        },
+        {
+          "op_i": "Void",
+          "op_j": "Paradigm",
+          "helix_dist": 8,
+          "embedding_dist": 0.63898,
+          "same_triad": false
+        },
+        {
+          "op_i": "Entity",
+          "op_j": "Kind",
+          "helix_dist": 1,
+          "embedding_dist": 0.40473,
+          "same_triad": true
+        },
+        {
+          "op_i": "Entity",
+          "op_j": "Field",
+          "helix_dist": 2,
+          "embedding_dist": 0.45824,
+          "same_triad": false
+        },
+        {
+          "op_i": "Entity",
+          "op_j": "Link",
+          "helix_dist": 3,
+          "embedding_dist": 0.60771,
+          "same_triad": false
+        },
+        {
+          "op_i": "Entity",
+          "op_j": "Network",
+          "helix_dist": 4,
+          "embedding_dist": 0.94051,
+          "same_triad": false
+        },
+        {
+          "op_i": "Entity",
+          "op_j": "Atmosphere",
+          "helix_dist": 5,
+          "embedding_dist": 0.48973,
+          "same_triad": false
+        },
+        {
+          "op_i": "Entity",
+          "op_j": "Lens",
+          "helix_dist": 6,
+          "embedding_dist": 0.54138,
+          "same_triad": false
+        },
+        {
+          "op_i": "Entity",
+          "op_j": "Paradigm",
+          "helix_dist": 7,
+          "embedding_dist": 0.70259,
+          "same_triad": false
+        },
+        {
+          "op_i": "Kind",
+          "op_j": "Field",
+          "helix_dist": 1,
+          "embedding_dist": 0.2617,
+          "same_triad": false
+        },
+        {
+          "op_i": "Kind",
+          "op_j": "Link",
+          "helix_dist": 2,
+          "embedding_dist": 0.64059,
+          "same_triad": false
+        },
+        {
+          "op_i": "Kind",
+          "op_j": "Network",
+          "helix_dist": 3,
+          "embedding_dist": 0.81747,
+          "same_triad": false
+        },
+        {
+          "op_i": "Kind",
+          "op_j": "Atmosphere",
+          "helix_dist": 4,
+          "embedding_dist": 0.29345,
+          "same_triad": false
+        },
+        {
+          "op_i": "Kind",
+          "op_j": "Lens",
+          "helix_dist": 5,
+          "embedding_dist": 0.56756,
+          "same_triad": false
+        },
+        {
+          "op_i": "Kind",
+          "op_j": "Paradigm",
+          "helix_dist": 6,
+          "embedding_dist": 0.437,
+          "same_triad": false
+        },
+        {
+          "op_i": "Field",
+          "op_j": "Link",
+          "helix_dist": 1,
+          "embedding_dist": 0.4859,
+          "same_triad": true
+        },
+        {
+          "op_i": "Field",
+          "op_j": "Network",
+          "helix_dist": 2,
+          "embedding_dist": 0.78496,
+          "same_triad": true
+        },
+        {
+          "op_i": "Field",
+          "op_j": "Atmosphere",
+          "helix_dist": 3,
+          "embedding_dist": 0.19332,
+          "same_triad": false
+        },
+        {
+          "op_i": "Field",
+          "op_j": "Lens",
+          "helix_dist": 4,
+          "embedding_dist": 0.45496,
+          "same_triad": false
+        },
+        {
+          "op_i": "Field",
+          "op_j": "Paradigm",
+          "helix_dist": 5,
+          "embedding_dist": 0.35249,
+          "same_triad": false
+        },
+        {
+          "op_i": "Link",
+          "op_j": "Network",
+          "helix_dist": 1,
+          "embedding_dist": 0.83825,
+          "same_triad": true
+        },
+        {
+          "op_i": "Link",
+          "op_j": "Atmosphere",
+          "helix_dist": 2,
+          "embedding_dist": 0.56269,
+          "same_triad": false
+        },
+        {
+          "op_i": "Link",
+          "op_j": "Lens",
+          "helix_dist": 3,
+          "embedding_dist": 0.39758,
+          "same_triad": false
+        },
+        {
+          "op_i": "Link",
+          "op_j": "Paradigm",
+          "helix_dist": 4,
+          "embedding_dist": 0.58838,
+          "same_triad": false
+        },
+        {
+          "op_i": "Network",
+          "op_j": "Atmosphere",
+          "helix_dist": 1,
+          "embedding_dist": 0.80616,
+          "same_triad": false
+        },
+        {
+          "op_i": "Network",
+          "op_j": "Lens",
+          "helix_dist": 2,
+          "embedding_dist": 0.87823,
+          "same_triad": false
+        },
+        {
+          "op_i": "Network",
+          "op_j": "Paradigm",
+          "helix_dist": 3,
+          "embedding_dist": 0.70235,
+          "same_triad": false
+        },
+        {
+          "op_i": "Atmosphere",
+          "op_j": "Lens",
+          "helix_dist": 1,
+          "embedding_dist": 0.41384,
+          "same_triad": true
+        },
+        {
+          "op_i": "Atmosphere",
+          "op_j": "Paradigm",
+          "helix_dist": 2,
+          "embedding_dist": 0.34728,
+          "same_triad": true
+        },
+        {
+          "op_i": "Lens",
+          "op_j": "Paradigm",
+          "helix_dist": 1,
+          "embedding_dist": 0.43567,
+          "same_triad": true
+        }
+      ],
+      "interpretation": "Spearman r=+0.159 between helix chain distance and centroid embedding distance (p=0.3530, n=36 pairs). No significant correlation: helix chain distance does not predict embedding distance. The operators are not geometrically ordered."
+    },
+    "test_B": {
+      "n_triples": 7,
+      "n_convex": 5,
+      "pct_convex": 0.714,
+      "permutation_p": 0.365,
+      "triples": [
+        {
+          "triple": "Void-Entity-Kind",
+          "middle_dist_to_midpoint": 0.31673,
+          "mean_other_dist": 0.51358,
+          "rank_among_others": 2,
+          "is_convex": true
+        },
+        {
+          "triple": "Entity-Kind-Field",
+          "middle_dist_to_midpoint": 0.24056,
+          "mean_other_dist": 0.45138,
+          "rank_among_others": 1,
+          "is_convex": true
+        },
+        {
+          "triple": "Kind-Field-Link",
+          "middle_dist_to_midpoint": 0.24045,
+          "mean_other_dist": 0.44905,
+          "rank_among_others": 0,
+          "is_convex": true
+        },
+        {
+          "triple": "Field-Link-Network",
+          "middle_dist_to_midpoint": 0.56644,
+          "mean_other_dist": 0.47786,
+          "rank_among_others": 4,
+          "is_convex": false
+        },
+        {
+          "triple": "Link-Network-Atmosphere",
+          "middle_dist_to_midpoint": 0.79027,
+          "mean_other_dist": 0.36405,
+          "rank_among_others": 6,
+          "is_convex": false
+        },
+        {
+          "triple": "Network-Atmosphere-Lens",
+          "middle_dist_to_midpoint": 0.47926,
+          "mean_other_dist": 0.56221,
+          "rank_among_others": 1,
+          "is_convex": true
+        },
+        {
+          "triple": "Atmosphere-Lens-Paradigm",
+          "middle_dist_to_midpoint": 0.3672,
+          "mean_other_dist": 0.46089,
+          "rank_among_others": 2,
+          "is_convex": true
+        }
+      ],
+      "interpretation": "5/7 consecutive triples show convexity (71%, permutation p=0.3650). Convexity is not significant: the helix ordering is not geometrically embedded as a smooth curve."
+    },
+    "test_C": {
+      "confusion_by_operator": {
+        "Void": {
+          "nearest_centroid": "Kind",
+          "distance_to_nearest": 0.31363,
+          "helix_distance_to_nearest": 2,
+          "nearest_is_adjacent": false
+        },
+        "Entity": {
+          "nearest_centroid": "Void",
+          "distance_to_nearest": 0.34045,
+          "helix_distance_to_nearest": 1,
+          "nearest_is_adjacent": true
+        },
+        "Kind": {
+          "nearest_centroid": "Field",
+          "distance_to_nearest": 0.2617,
+          "helix_distance_to_nearest": 1,
+          "nearest_is_adjacent": true
+        },
+        "Field": {
+          "nearest_centroid": "Atmosphere",
+          "distance_to_nearest": 0.19332,
+          "helix_distance_to_nearest": 3,
+          "nearest_is_adjacent": false
+        },
+        "Link": {
+          "nearest_centroid": "Lens",
+          "distance_to_nearest": 0.39758,
+          "helix_distance_to_nearest": 3,
+          "nearest_is_adjacent": false
+        },
+        "Network": {
+          "nearest_centroid": "Paradigm",
+          "distance_to_nearest": 0.70235,
+          "helix_distance_to_nearest": 3,
+          "nearest_is_adjacent": false
+        },
+        "Atmosphere": {
+          "nearest_centroid": "Field",
+          "distance_to_nearest": 0.19332,
+          "helix_distance_to_nearest": 3,
+          "nearest_is_adjacent": false
+        },
+        "Lens": {
+          "nearest_centroid": "Link",
+          "distance_to_nearest": 0.39758,
+          "helix_distance_to_nearest": 3,
+          "nearest_is_adjacent": false
+        },
+        "Paradigm": {
+          "nearest_centroid": "Atmosphere",
+          "distance_to_nearest": 0.34728,
+          "helix_distance_to_nearest": 2,
+          "nearest_is_adjacent": false
+        }
+      },
+      "confusions_toward_lower_helix": 4,
+      "confusions_toward_higher_helix": 5,
+      "adjacency_rate": 0.222,
+      "interpretation": "Of 9 operators, 4 have their nearest centroid at a lower helix position and 5 at a higher position. Confusions are symmetric or toward higher positions. No evidence of directed dependency from centroid proximity."
+    },
+    "test_D": {
+      "spearman_r": NaN,
+      "spearman_p": NaN,
+      "n_operators": 9,
+      "theory_rank": {
+        "Void": null,
+        "Entity": null,
+        "Kind": null,
+        "Field": null,
+        "Link": null,
+        "Network": null,
+        "Atmosphere": null,
+        "Lens": null,
+        "Paradigm": null
+      },
+      "observed_rank": {
+        "Paradigm": 1,
+        "Lens": 2,
+        "Network": 3,
+        "Link": 4,
+        "Entity": 5,
+        "Kind": 6,
+        "Void": 7,
+        "Atmosphere": 8,
+        "Field": 9
+      },
+      "observed_frequencies": {
+        "Void": 0.0222,
+        "Entity": 0.0827,
+        "Kind": 0.0295,
+        "Field": 0.0177,
+        "Link": 0.1226,
+        "Network": 0.192,
+        "Atmosphere": 0.0207,
+        "Lens": 0.2208,
+        "Paradigm": 0.2917
+      },
+      "interpretation": "Spearman r=+nan between theory-predicted and observed frequency rank (p=nan). Moderate or weak agreement with theory-predicted rank."
+    }
+  },
+  "resolution_face": {
+    "test_A": {
+      "spearman_r": 0.1755,
+      "spearman_p": 0.305954,
+      "n_pairs": 36,
+      "mean_within_triad_dist": 0.52446,
+      "mean_across_triad_dist": 0.54399,
+      "within_vs_across_p": 0.772,
+      "pairwise_distances": [
+        {
+          "op_i": "Clearing",
+          "op_j": "Dissecting",
+          "helix_dist": 1,
+          "embedding_dist": 0.46969,
+          "same_triad": true
+        },
+        {
+          "op_i": "Clearing",
+          "op_j": "Unraveling",
+          "helix_dist": 2,
+          "embedding_dist": 0.40325,
+          "same_triad": true
+        },
+        {
+          "op_i": "Clearing",
+          "op_j": "Tending",
+          "helix_dist": 3,
+          "embedding_dist": 0.25107,
+          "same_triad": false
+        },
+        {
+          "op_i": "Clearing",
+          "op_j": "Binding",
+          "helix_dist": 4,
+          "embedding_dist": 0.60727,
+          "same_triad": false
+        },
+        {
+          "op_i": "Clearing",
+          "op_j": "Tracing",
+          "helix_dist": 5,
+          "embedding_dist": 0.39006,
+          "same_triad": false
+        },
+        {
+          "op_i": "Clearing",
+          "op_j": "Cultivating",
+          "helix_dist": 6,
+          "embedding_dist": 0.31504,
+          "same_triad": false
+        },
+        {
+          "op_i": "Clearing",
+          "op_j": "Making",
+          "helix_dist": 7,
+          "embedding_dist": 0.37651,
+          "same_triad": false
+        },
+        {
+          "op_i": "Clearing",
+          "op_j": "Composing",
+          "helix_dist": 8,
+          "embedding_dist": 0.73223,
+          "same_triad": false
+        },
+        {
+          "op_i": "Dissecting",
+          "op_j": "Unraveling",
+          "helix_dist": 1,
+          "embedding_dist": 0.40188,
+          "same_triad": true
+        },
+        {
+          "op_i": "Dissecting",
+          "op_j": "Tending",
+          "helix_dist": 2,
+          "embedding_dist": 0.49062,
+          "same_triad": false
+        },
+        {
+          "op_i": "Dissecting",
+          "op_j": "Binding",
+          "helix_dist": 3,
+          "embedding_dist": 0.49301,
+          "same_triad": false
+        },
+        {
+          "op_i": "Dissecting",
+          "op_j": "Tracing",
+          "helix_dist": 4,
+          "embedding_dist": 0.46914,
+          "same_triad": false
+        },
+        {
+          "op_i": "Dissecting",
+          "op_j": "Cultivating",
+          "helix_dist": 5,
+          "embedding_dist": 0.74361,
+          "same_triad": false
+        },
+        {
+          "op_i": "Dissecting",
+          "op_j": "Making",
+          "helix_dist": 6,
+          "embedding_dist": 0.50756,
+          "same_triad": false
+        },
+        {
+          "op_i": "Dissecting",
+          "op_j": "Composing",
+          "helix_dist": 7,
+          "embedding_dist": 0.82041,
+          "same_triad": false
+        },
+        {
+          "op_i": "Unraveling",
+          "op_j": "Tending",
+          "helix_dist": 1,
+          "embedding_dist": 0.40629,
+          "same_triad": false
+        },
+        {
+          "op_i": "Unraveling",
+          "op_j": "Binding",
+          "helix_dist": 2,
+          "embedding_dist": 0.56662,
+          "same_triad": false
+        },
+        {
+          "op_i": "Unraveling",
+          "op_j": "Tracing",
+          "helix_dist": 3,
+          "embedding_dist": 0.29992,
+          "same_triad": false
+        },
+        {
+          "op_i": "Unraveling",
+          "op_j": "Cultivating",
+          "helix_dist": 4,
+          "embedding_dist": 0.62324,
+          "same_triad": false
+        },
+        {
+          "op_i": "Unraveling",
+          "op_j": "Making",
+          "helix_dist": 5,
+          "embedding_dist": 0.53316,
+          "same_triad": false
+        },
+        {
+          "op_i": "Unraveling",
+          "op_j": "Composing",
+          "helix_dist": 6,
+          "embedding_dist": 0.72417,
+          "same_triad": false
+        },
+        {
+          "op_i": "Tending",
+          "op_j": "Binding",
+          "helix_dist": 1,
+          "embedding_dist": 0.48125,
+          "same_triad": true
+        },
+        {
+          "op_i": "Tending",
+          "op_j": "Tracing",
+          "helix_dist": 2,
+          "embedding_dist": 0.30453,
+          "same_triad": true
+        },
+        {
+          "op_i": "Tending",
+          "op_j": "Cultivating",
+          "helix_dist": 3,
+          "embedding_dist": 0.36044,
+          "same_triad": false
+        },
+        {
+          "op_i": "Tending",
+          "op_j": "Making",
+          "helix_dist": 4,
+          "embedding_dist": 0.43637,
+          "same_triad": false
+        },
+        {
+          "op_i": "Tending",
+          "op_j": "Composing",
+          "helix_dist": 5,
+          "embedding_dist": 0.80986,
+          "same_triad": false
+        },
+        {
+          "op_i": "Binding",
+          "op_j": "Tracing",
+          "helix_dist": 1,
+          "embedding_dist": 0.60161,
+          "same_triad": true
+        },
+        {
+          "op_i": "Binding",
+          "op_j": "Cultivating",
+          "helix_dist": 2,
+          "embedding_dist": 0.62305,
+          "same_triad": false
+        },
+        {
+          "op_i": "Binding",
+          "op_j": "Making",
+          "helix_dist": 3,
+          "embedding_dist": 0.53391,
+          "same_triad": false
+        },
+        {
+          "op_i": "Binding",
+          "op_j": "Composing",
+          "helix_dist": 4,
+          "embedding_dist": 0.88172,
+          "same_triad": false
+        },
+        {
+          "op_i": "Tracing",
+          "op_j": "Cultivating",
+          "helix_dist": 1,
+          "embedding_dist": 0.57514,
+          "same_triad": false
+        },
+        {
+          "op_i": "Tracing",
+          "op_j": "Making",
+          "helix_dist": 2,
+          "embedding_dist": 0.5051,
+          "same_triad": false
+        },
+        {
+          "op_i": "Tracing",
+          "op_j": "Composing",
+          "helix_dist": 3,
+          "embedding_dist": 0.61226,
+          "same_triad": false
+        },
+        {
+          "op_i": "Cultivating",
+          "op_j": "Making",
+          "helix_dist": 1,
+          "embedding_dist": 0.38205,
+          "same_triad": true
+        },
+        {
+          "op_i": "Cultivating",
+          "op_j": "Composing",
+          "helix_dist": 2,
+          "embedding_dist": 0.86919,
+          "same_triad": true
+        },
+        {
+          "op_i": "Making",
+          "op_j": "Composing",
+          "helix_dist": 1,
+          "embedding_dist": 0.80665,
+          "same_triad": true
+        }
+      ],
+      "interpretation": "Spearman r=+0.175 between helix chain distance and centroid embedding distance (p=0.3060, n=36 pairs). No significant correlation: helix chain distance does not predict embedding distance. The operators are not geometrically ordered."
+    },
+    "test_B": {
+      "n_triples": 7,
+      "n_convex": 5,
+      "pct_convex": 0.714,
+      "permutation_p": 0.392,
+      "triples": [
+        {
+          "triple": "Clearing-Dissecting-Unraveling",
+          "middle_dist_to_midpoint": 0.36855,
+          "mean_other_dist": 0.42415,
+          "rank_among_others": 2,
+          "is_convex": true
+        },
+        {
+          "triple": "Dissecting-Unraveling-Tending",
+          "middle_dist_to_midpoint": 0.31404,
+          "mean_other_dist": 0.43854,
+          "rank_among_others": 2,
+          "is_convex": true
+        },
+        {
+          "triple": "Unraveling-Tending-Binding",
+          "middle_dist_to_midpoint": 0.34297,
+          "mean_other_dist": 0.48087,
+          "rank_among_others": 0,
+          "is_convex": true
+        },
+        {
+          "triple": "Tending-Binding-Tracing",
+          "middle_dist_to_midpoint": 0.50195,
+          "mean_other_dist": 0.42132,
+          "rank_among_others": 5,
+          "is_convex": false
+        },
+        {
+          "triple": "Binding-Tracing-Cultivating",
+          "middle_dist_to_midpoint": 0.50392,
+          "mean_other_dist": 0.48351,
+          "rank_among_others": 3,
+          "is_convex": false
+        },
+        {
+          "triple": "Tracing-Cultivating-Making",
+          "middle_dist_to_midpoint": 0.39691,
+          "mean_other_dist": 0.4093,
+          "rank_among_others": 3,
+          "is_convex": true
+        },
+        {
+          "triple": "Cultivating-Making-Composing",
+          "middle_dist_to_midpoint": 0.46053,
+          "mean_other_dist": 0.53688,
+          "rank_among_others": 3,
+          "is_convex": true
+        }
+      ],
+      "interpretation": "5/7 consecutive triples show convexity (71%, permutation p=0.3920). Convexity is not significant: the helix ordering is not geometrically embedded as a smooth curve."
+    },
+    "test_C": {
+      "confusion_by_operator": {
+        "Clearing": {
+          "nearest_centroid": "Tending",
+          "distance_to_nearest": 0.25107,
+          "helix_distance_to_nearest": 3,
+          "nearest_is_adjacent": false
+        },
+        "Dissecting": {
+          "nearest_centroid": "Unraveling",
+          "distance_to_nearest": 0.40188,
+          "helix_distance_to_nearest": 1,
+          "nearest_is_adjacent": true
+        },
+        "Unraveling": {
+          "nearest_centroid": "Tracing",
+          "distance_to_nearest": 0.29992,
+          "helix_distance_to_nearest": 3,
+          "nearest_is_adjacent": false
+        },
+        "Tending": {
+          "nearest_centroid": "Clearing",
+          "distance_to_nearest": 0.25107,
+          "helix_distance_to_nearest": 3,
+          "nearest_is_adjacent": false
+        },
+        "Binding": {
+          "nearest_centroid": "Tending",
+          "distance_to_nearest": 0.48125,
+          "helix_distance_to_nearest": 1,
+          "nearest_is_adjacent": true
+        },
+        "Tracing": {
+          "nearest_centroid": "Unraveling",
+          "distance_to_nearest": 0.29992,
+          "helix_distance_to_nearest": 3,
+          "nearest_is_adjacent": false
+        },
+        "Cultivating": {
+          "nearest_centroid": "Clearing",
+          "distance_to_nearest": 0.31504,
+          "helix_distance_to_nearest": 6,
+          "nearest_is_adjacent": false
+        },
+        "Making": {
+          "nearest_centroid": "Clearing",
+          "distance_to_nearest": 0.37651,
+          "helix_distance_to_nearest": 7,
+          "nearest_is_adjacent": false
+        },
+        "Composing": {
+          "nearest_centroid": "Tracing",
+          "distance_to_nearest": 0.61226,
+          "helix_distance_to_nearest": 3,
+          "nearest_is_adjacent": false
+        }
+      },
+      "confusions_toward_lower_helix": 6,
+      "confusions_toward_higher_helix": 3,
+      "adjacency_rate": 0.222,
+      "interpretation": "Of 9 operators, 6 have their nearest centroid at a lower helix position and 3 at a higher position. Directional asymmetry toward lower helix positions: operators are more similar to their prerequisites than their successors. Consistent with helix dependency direction."
+    },
+    "test_D": {
+      "spearman_r": NaN,
+      "spearman_p": NaN,
+      "n_operators": 9,
+      "theory_rank": {
+        "Clearing": null,
+        "Dissecting": null,
+        "Unraveling": null,
+        "Tending": null,
+        "Binding": null,
+        "Tracing": null,
+        "Cultivating": null,
+        "Making": null,
+        "Composing": null
+      },
+      "observed_rank": {
+        "Tracing": 1,
+        "Binding": 2,
+        "Unraveling": 3,
+        "Dissecting": 4,
+        "Making": 5,
+        "Composing": 6,
+        "Tending": 7,
+        "Cultivating": 8,
+        "Clearing": 9
+      },
+      "observed_frequencies": {
+        "Clearing": 0.0103,
+        "Dissecting": 0.113,
+        "Unraveling": 0.1876,
+        "Tending": 0.031,
+        "Binding": 0.2171,
+        "Tracing": 0.2592,
+        "Cultivating": 0.0192,
+        "Making": 0.096,
+        "Composing": 0.0665
+      },
+      "interpretation": "Spearman r=+nan between theory-predicted and observed frequency rank (p=nan). Moderate or weak agreement with theory-predicted rank."
+    }
+  }
+}

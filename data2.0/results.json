@@ -1,0 +1,772 @@
+{
+  "zscores": {
+    "q1": {
+      "z": 3.63,
+      "separation": 0.01573
+    },
+    "q2": {
+      "z": 5.68,
+      "separation": 0.02774
+    },
+    "q3": {
+      "z": 7.87,
+      "separation": 0.04158
+    }
+  },
+  "all_zscores": {
+    "consensus": {
+      "q1": {
+        "z": 3.63,
+        "separation": 0.01573
+      },
+      "q2": {
+        "z": 5.68,
+        "separation": 0.02774
+      },
+      "q3": {
+        "z": 7.87,
+        "separation": 0.04158
+      }
+    },
+    "claude": {
+      "q1": {
+        "z": 1.94,
+        "separation": 0.00932
+      },
+      "q2": {
+        "z": 2.87,
+        "separation": 0.01289
+      },
+      "q3": {
+        "z": 2.61,
+        "separation": 0.01246
+      }
+    },
+    "gpt4": {
+      "q1": {
+        "z": 0.86,
+        "separation": 0.00414
+      },
+      "q2": {
+        "z": 4.68,
+        "separation": 0.02113
+      },
+      "q3": {
+        "z": 5.29,
+        "separation": 0.02283
+      }
+    },
+    "full": {
+      "q1": {
+        "z": 2.25,
+        "separation": 0.00982
+      },
+      "q2": {
+        "z": 3.14,
+        "separation": 0.01532
+      },
+      "q3": {
+        "z": 4.78,
+        "separation": 0.02191
+      }
+    },
+    "combined": {
+      "q1": {
+        "z": 1.47,
+        "separation": 0.00802
+      },
+      "q2": {
+        "z": 6.18,
+        "separation": 0.0309
+      },
+      "q3": {
+        "z": 2.88,
+        "separation": 0.01256
+      }
+    },
+    "ud_only": {
+      "q1": {
+        "z": 3.63,
+        "separation": 0.01573
+      },
+      "q2": {
+        "z": 5.68,
+        "separation": 0.02774
+      },
+      "q3": {
+        "z": 7.87,
+        "separation": 0.04158
+      }
+    }
+  },
+  "full_zscores": {
+    "q1": {
+      "z": 2.245,
+      "n": 3595
+    },
+    "q2": {
+      "z": 3.137,
+      "n": 3595
+    },
+    "q3": {
+      "z": 4.785,
+      "n": 3595
+    }
+  },
+  "full_face_zscores": {
+    "operators_act": {
+      "z": 8.852
+    },
+    "full_27cell": {
+      "z": 15.222
+    }
+  },
+  "coord_geometry": {
+    "consensus": {
+      "mode": {
+        "n_positions": 3,
+        "embedding_distances": {
+          "DIFFERENTIATING\u2194RELATING": 0.067498,
+          "DIFFERENTIATING\u2194GENERATING": 0.134894,
+          "RELATING\u2194GENERATING": 0.075746
+        },
+        "coordinate_distances": {
+          "DIFFERENTIATING\u2194RELATING": 1,
+          "DIFFERENTIATING\u2194GENERATING": 2,
+          "RELATING\u2194GENERATING": 1
+        },
+        "pearson_r": NaN,
+        "pearson_p": NaN,
+        "directional": {
+          "DIF_REL_dist": 0.067498,
+          "REL_GEN_dist": 0.075746,
+          "step_ratio": 1.1222,
+          "equal_steps_met": true
+        }
+      },
+      "domain": {
+        "n_positions": 3,
+        "embedding_distances": {
+          "EXISTENCE\u2194STRUCTURE": 0.263,
+          "EXISTENCE\u2194SIGNIFICANCE": 0.162181,
+          "STRUCTURE\u2194SIGNIFICANCE": 0.165023
+        },
+        "coordinate_distances": {
+          "EXISTENCE\u2194STRUCTURE": 2,
+          "EXISTENCE\u2194SIGNIFICANCE": 2.4142,
+          "STRUCTURE\u2194SIGNIFICANCE": 0.4142
+        },
+        "pearson_r": NaN,
+        "pearson_p": NaN,
+        "directional": {
+          "E_S_dist": 0.263,
+          "S_Sig_dist": 0.165023,
+          "observed_ratio": 1.5937,
+          "predicted_ratio": 4.8284,
+          "prediction_met": false
+        }
+      },
+      "object": {
+        "n_positions": 3,
+        "embedding_distances": {
+          "CONDITION\u2194ENTITY": 0.187467,
+          "CONDITION\u2194PATTERN": 0.247697,
+          "ENTITY\u2194PATTERN": 0.175655
+        },
+        "coordinate_distances": {
+          "CONDITION\u2194ENTITY": 0.5858,
+          "CONDITION\u2194PATTERN": 1.2509,
+          "ENTITY\u2194PATTERN": 0.6651
+        },
+        "pearson_r": NaN,
+        "pearson_p": NaN,
+        "directional": {
+          "CON_ENT_dist": 0.187467,
+          "ENT_PAT_dist": 0.175655,
+          "CON_PAT_dist": 0.247697,
+          "pred_CON_ENT": 0.5858,
+          "pred_ENT_PAT": 0.6651,
+          "additive_holds": false
+        }
+      }
+    },
+    "combined": {
+      "mode": {
+        "n_positions": 3,
+        "embedding_distances": {
+          "DIFFERENTIATING\u2194RELATING": 0.042751,
+          "DIFFERENTIATING\u2194GENERATING": 0.089783,
+          "RELATING\u2194GENERATING": 0.053275
+        },
+        "coordinate_distances": {
+          "DIFFERENTIATING\u2194RELATING": 1,
+          "DIFFERENTIATING\u2194GENERATING": 2,
+          "RELATING\u2194GENERATING": 1
+        },
+        "pearson_r": NaN,
+        "pearson_p": NaN,
+        "directional": {
+          "DIF_REL_dist": 0.042751,
+          "REL_GEN_dist": 0.053275,
+          "step_ratio": 1.2462,
+          "equal_steps_met": true
+        }
+      },
+      "domain": {
+        "n_positions": 3,
+        "embedding_distances": {
+          "EXISTENCE\u2194STRUCTURE": 0.163964,
+          "EXISTENCE\u2194SIGNIFICANCE": 0.096334,
+          "STRUCTURE\u2194SIGNIFICANCE": 0.099366
+        },
+        "coordinate_distances": {
+          "EXISTENCE\u2194STRUCTURE": 2,
+          "EXISTENCE\u2194SIGNIFICANCE": 2.4142,
+          "STRUCTURE\u2194SIGNIFICANCE": 0.4142
+        },
+        "pearson_r": NaN,
+        "pearson_p": NaN,
+        "directional": {
+          "E_S_dist": 0.163964,
+          "S_Sig_dist": 0.099366,
+          "observed_ratio": 1.6501,
+          "predicted_ratio": 4.8284,
+          "prediction_met": false
+        }
+      },
+      "object": {
+        "n_positions": 3,
+        "embedding_distances": {
+          "CONDITION\u2194ENTITY": 0.070235,
+          "CONDITION\u2194PATTERN": 0.146793,
+          "ENTITY\u2194PATTERN": 0.101177
+        },
+        "coordinate_distances": {
+          "CONDITION\u2194ENTITY": 0.5858,
+          "CONDITION\u2194PATTERN": 1.2509,
+          "ENTITY\u2194PATTERN": 0.6651
+        },
+        "pearson_r": NaN,
+        "pearson_p": NaN,
+        "directional": {
+          "CON_ENT_dist": 0.070235,
+          "ENT_PAT_dist": 0.101177,
+          "CON_PAT_dist": 0.146793,
+          "pred_CON_ENT": 0.5858,
+          "pred_ENT_PAT": 0.6651,
+          "additive_holds": false
+        }
+      }
+    }
+  },
+  "proportionality": {
+    "0": {
+      "mean_distance": 0.8043789335313719,
+      "n_pairs": 5000,
+      "stdev": 0.11695408188074935
+    },
+    "1": {
+      "mean_distance": 0.8260237760319841,
+      "n_pairs": 5000,
+      "stdev": 0.1108079677882306
+    },
+    "2": {
+      "mean_distance": 0.8514470101878513,
+      "n_pairs": 5000,
+      "stdev": 0.09991446730455433
+    },
+    "3": {
+      "mean_distance": 0.8694267013097647,
+      "n_pairs": 5000,
+      "stdev": 0.09559483459541794
+    },
+    "monotone": true,
+    "monotone_bootstrap_p": 0.0
+  },
+  "ari": {
+    "q1_vs_q2": 0.09589811219103386,
+    "q1_vs_q3": 0.013994878670453285,
+    "q2_vs_q3": 0.03756777986533594
+  },
+  "all_ari": {
+    "consensus": {
+      "q1_vs_q2": 0.09589811219103386,
+      "q1_vs_q3": 0.013994878670453285,
+      "q2_vs_q3": 0.03756777986533594
+    },
+    "claude": {
+      "q1_vs_q2": 0.06845839356631346,
+      "q1_vs_q3": 0.009550229720382808,
+      "q2_vs_q3": 0.028977236347160068
+    },
+    "gpt4": {
+      "q1_vs_q2": 0.06072580498921337,
+      "q1_vs_q3": 0.002438691164111036,
+      "q2_vs_q3": 0.0232342310170328
+    },
+    "full": {
+      "q1_vs_q2": 0.0682416962016974,
+      "q1_vs_q3": 0.009475823417396246,
+      "q2_vs_q3": 0.028973112156480664
+    },
+    "combined": {
+      "q1_vs_q2": 0.06287511436383499,
+      "q1_vs_q3": 0.006912366066283827,
+      "q2_vs_q3": 0.027260339535916393
+    },
+    "ud_only": {
+      "q1_vs_q2": 0.09589811219103386,
+      "q1_vs_q3": 0.013994878670453285,
+      "q2_vs_q3": 0.03756777986533594
+    }
+  },
+  "kappas": {
+    "claude_vs_gpt4": {
+      "q1": 0.585,
+      "q2": 0.534,
+      "q3": 0.457
+    }
+  },
+  "helix_tests": {
+    "consensus": {
+      "test1_directional_entropy": {
+        "H_q1": 1.4677,
+        "H_q2": 1.4011,
+        "H_q2_given_q1": 1.2546,
+        "H_q1_given_q2": 1.3213,
+        "asymmetry_bits": -0.0666,
+        "asymmetry_pval": 0.985,
+        "direction": "Domain\u2192Mode",
+        "interpretation": "H(Q1|Q2) > H(Q2|Q1): Mode is more constrained by Domain than Domain by Mode. Unexpected under the helix \u2014 Domain would be upstream of Mode."
+      },
+      "test2_ordinal_correlation": {
+        "spearman_r": -0.2767,
+        "spearman_p": 0.0,
+        "n_sample": 1354,
+        "interpretation": "Spearman r=-0.277 (p=0.0000). Significant non-zero correlation: Mode ordinal position predicts Domain ordinal complexity. The direction and magnitude of the correlation is a stronger claim than ARI \u2014 it tests ordered structure, not just association."
+      },
+      "test3_topology_prediction": {
+        "spearman_r_rank": 0.8833,
+        "spearman_p_rank": 0.0016,
+        "top3_predicted": [
+          "CON",
+          "INS",
+          "SUP"
+        ],
+        "top3_observed": [
+          "SUP",
+          "CON",
+          "ALT"
+        ],
+        "top3_match": false,
+        "structure_dominates": false,
+        "domain_frequencies": {
+          "EXISTENCE": 0.1344,
+          "STRUCTURE": 0.3323,
+          "SIGNIFICANCE": 0.5332
+        },
+        "op_frequencies": {
+          "NUL": 0.0281,
+          "SIG": 0.0185,
+          "INS": 0.0879,
+          "SEG": 0.0894,
+          "CON": 0.195,
+          "SYN": 0.048,
+          "ALT": 0.1935,
+          "SUP": 0.2939,
+          "REC": 0.0458
+        },
+        "interpretation": "Top-3 gravity well prediction \u2717 incorrect: observed ['SUP', 'CON', 'ALT'] vs predicted {CON, INS, SUP}. Structure domain does not dominate (33.2% of clauses). Spearman rank correlation with theory-predicted ordering: r=0.883 (p=0.002)."
+      }
+    },
+    "combined": {
+      "test1_directional_entropy": {
+        "H_q1": 1.5133,
+        "H_q2": 1.4491,
+        "H_q2_given_q1": 1.3658,
+        "H_q1_given_q2": 1.4301,
+        "asymmetry_bits": -0.0642,
+        "asymmetry_pval": 0.801,
+        "direction": "Domain\u2192Mode",
+        "interpretation": "H(Q1|Q2) > H(Q2|Q1): Mode is more constrained by Domain than Domain by Mode. Unexpected under the helix \u2014 Domain would be upstream of Mode."
+      },
+      "test2_ordinal_correlation": {
+        "spearman_r": -0.2255,
+        "spearman_p": 0.0,
+        "n_sample": 7182,
+        "interpretation": "Spearman r=-0.226 (p=0.0000). Significant non-zero correlation: Mode ordinal position predicts Domain ordinal complexity. The direction and magnitude of the correlation is a stronger claim than ARI \u2014 it tests ordered structure, not just association."
+      },
+      "test3_topology_prediction": {
+        "spearman_r_rank": 0.8833,
+        "spearman_p_rank": 0.0016,
+        "top3_predicted": [
+          "CON",
+          "INS",
+          "SUP"
+        ],
+        "top3_observed": [
+          "SUP",
+          "CON",
+          "ALT"
+        ],
+        "top3_match": false,
+        "structure_dominates": false,
+        "domain_frequencies": {
+          "EXISTENCE": 0.1344,
+          "STRUCTURE": 0.3323,
+          "SIGNIFICANCE": 0.5332
+        },
+        "op_frequencies": {
+          "NUL": 0.0281,
+          "SIG": 0.0185,
+          "INS": 0.0879,
+          "SEG": 0.0894,
+          "CON": 0.195,
+          "SYN": 0.048,
+          "ALT": 0.1935,
+          "SUP": 0.2939,
+          "REC": 0.0458
+        },
+        "interpretation": "Top-3 gravity well prediction \u2717 incorrect: observed ['SUP', 'CON', 'ALT'] vs predicted {CON, INS, SUP}. Structure domain does not dominate (33.2% of clauses). Spearman rank correlation with theory-predicted ordering: r=0.883 (p=0.002)."
+      }
+    }
+  },
+  "subspace_geometry": {
+    "consensus": {
+      "principal_angles": {
+        "Mode_vs_Domain": {
+          "principal_angles_deg": [
+            38.57,
+            89.67
+          ],
+          "cos_angles": [
+            0.7819,
+            0.0057
+          ],
+          "min_angle_deg": 38.57,
+          "max_angle_deg": 89.67,
+          "interpretation": "Min principal angle = 38.6\u00b0. Below 45\u00b0 \u2014 substantial subspace overlap: the two axes are not geometrically separable."
+        },
+        "Mode_vs_Object": {
+          "principal_angles_deg": [
+            77.83,
+            78.71
+          ],
+          "cos_angles": [
+            0.2108,
+            0.1957
+          ],
+          "min_angle_deg": 77.83,
+          "max_angle_deg": 78.71,
+          "interpretation": "Min principal angle = 77.8\u00b0. Near 90\u00b0 \u2014 the two subspaces are nearly orthogonal: the axes are geometrically independent in embedding space."
+        },
+        "Domain_vs_Object": {
+          "principal_angles_deg": [
+            32.19,
+            78.77
+          ],
+          "cos_angles": [
+            0.8463,
+            0.1947
+          ],
+          "min_angle_deg": 32.19,
+          "max_angle_deg": 78.77,
+          "interpretation": "Min principal angle = 32.2\u00b0. Below 45\u00b0 \u2014 substantial subspace overlap: the two axes are not geometrically separable."
+        }
+      },
+      "lda": {
+        "mode": {
+          "n_components": 2,
+          "explained_variance_ratio": [
+            0.6803,
+            0.3197
+          ]
+        },
+        "domain": {
+          "n_components": 2,
+          "explained_variance_ratio": [
+            0.6317,
+            0.3683
+          ]
+        },
+        "site": {
+          "n_components": 2,
+          "explained_variance_ratio": [
+            0.4002,
+            0.2581
+          ]
+        },
+        "resolution": {
+          "n_components": 2,
+          "explained_variance_ratio": [
+            0.4245,
+            0.2407
+          ]
+        }
+      }
+    },
+    "combined": {
+      "principal_angles": {
+        "Mode_vs_Domain": {
+          "principal_angles_deg": [
+            37.85,
+            89.14
+          ],
+          "cos_angles": [
+            0.7896,
+            0.015
+          ],
+          "min_angle_deg": 37.85,
+          "max_angle_deg": 89.14,
+          "interpretation": "Min principal angle = 37.9\u00b0. Below 45\u00b0 \u2014 substantial subspace overlap: the two axes are not geometrically separable."
+        },
+        "Mode_vs_Object": {
+          "principal_angles_deg": [
+            76.1,
+            85.81
+          ],
+          "cos_angles": [
+            0.2402,
+            0.073
+          ],
+          "min_angle_deg": 76.1,
+          "max_angle_deg": 85.81,
+          "interpretation": "Min principal angle = 76.1\u00b0. Near 90\u00b0 \u2014 the two subspaces are nearly orthogonal: the axes are geometrically independent in embedding space."
+        },
+        "Domain_vs_Object": {
+          "principal_angles_deg": [
+            29.51,
+            81.31
+          ],
+          "cos_angles": [
+            0.8703,
+            0.1511
+          ],
+          "min_angle_deg": 29.51,
+          "max_angle_deg": 81.31,
+          "interpretation": "Min principal angle = 29.5\u00b0. Below 45\u00b0 \u2014 substantial subspace overlap: the two axes are not geometrically separable."
+        }
+      },
+      "lda": {
+        "mode": {
+          "n_components": 2,
+          "explained_variance_ratio": [
+            0.6311,
+            0.3689
+          ]
+        },
+        "domain": {
+          "n_components": 2,
+          "explained_variance_ratio": [
+            0.6491,
+            0.3509
+          ]
+        },
+        "site": {
+          "n_components": 2,
+          "explained_variance_ratio": [
+            0.3552,
+            0.2958
+          ]
+        },
+        "resolution": {
+          "n_components": 2,
+          "explained_variance_ratio": [
+            0.339,
+            0.2723
+          ]
+        }
+      }
+    }
+  },
+  "n_clauses": 1354,
+  "n_languages": 1,
+  "n_total_embedded": 3595,
+  "models": [
+    "claude",
+    "gpt4"
+  ],
+  "per_lang": {
+    "en": {
+      "q1": {
+        "z": 3.63,
+        "separation": 0.0157
+      },
+      "q2": {
+        "z": 5.68,
+        "separation": 0.0277
+      },
+      "q3": {
+        "z": 7.87,
+        "separation": 0.0416
+      },
+      "act_face": {
+        "z": 9.44,
+        "separation": 0.0331
+      },
+      "site_face": {
+        "z": 11.47,
+        "separation": 0.0444
+      },
+      "resolution_face": {
+        "z": 10.38,
+        "separation": 0.037
+      },
+      "full_27cell": {
+        "z": 16.45,
+        "separation": 0.0529
+      }
+    }
+  },
+  "lang_counts": {
+    "en": 1354
+  },
+  "face_zscores": {
+    "operators_act": {
+      "z": 9.44,
+      "separation": 0.03312,
+      "n_groups": 9,
+      "label": "Operators (Q1\u00d7Q2 Act face, 9 groups)"
+    },
+    "face_site": {
+      "z": 11.47,
+      "separation": 0.0444,
+      "n_groups": 9,
+      "label": "Site face (Q2\u00d7Q3, 9 groups)"
+    },
+    "face_resolution": {
+      "z": 10.38,
+      "separation": 0.03697,
+      "n_groups": 9,
+      "label": "Resolution face (Q1\u00d7Q3, 9 groups)"
+    },
+    "full_27cell": {
+      "z": 16.45,
+      "separation": 0.05292,
+      "n_groups": 27,
+      "label": "Full 27-cell (Q1\u00d7Q2\u00d7Q3, 27 groups)"
+    }
+  },
+  "unsupervised": {
+    "pca_variance": {
+      "pcs_for_50pct": 51,
+      "pcs_for_80pct": 51,
+      "top3_variance": 0.154
+    },
+    "kmeans": {
+      "3": {
+        "ari_vs_q1": 0.034,
+        "ari_vs_q2": 0.12,
+        "ari_vs_q3": 0.055,
+        "inertia": 1008.75
+      },
+      "9": {
+        "ari_vs_operators": 0.025,
+        "inertia": 949.79
+      },
+      "27": {
+        "ari_vs_27cell": 0.04,
+        "inertia": 889.78
+      }
+    }
+  },
+  "ari_exclusion": {
+    "ari_all": 0.0959,
+    "ari_excluding_sparse": 0.2711,
+    "cells_excluded": [
+      "RELATING/SIGNIFICANCE"
+    ],
+    "n_excluded": 398,
+    "interpretation": "ARI barely changes (0.096 -> 0.271) after excluding sparse cells. The correlation persists in well-populated cells. Reading 2 has support: Mode and Domain are not fully independent dimensions."
+  },
+  "entity_z": 7.87,
+  "phasepost": {
+    "consensus": {
+      "ALT(Dissecting, Lens)": 94,
+      "INS(Making, Entity)": 78,
+      "SUP(Tracing, Paradigm)": 208,
+      "ALT(Unraveling, Paradigm)": 162,
+      "REC(Composing, Paradigm)": 25,
+      "CON(Tracing, Network)": 138,
+      "SEG(Dissecting, Link)": 40,
+      "CON(Binding, Link)": 109,
+      "SYN(Making, Link)": 17,
+      "SYN(Composing, Network)": 45,
+      "INS(Composing, Kind)": 20,
+      "SUP(Binding, Lens)": 170,
+      "SEG(Unraveling, Network)": 77,
+      "REC(Making, Lens)": 35,
+      "NUL(Unraveling, Kind)": 15,
+      "INS(Cultivating, Void)": 21,
+      "SIG(Tracing, Kind)": 5,
+      "CON(Tending, Field)": 17,
+      "SUP(Tending, Atmosphere)": 20,
+      "ALT(Clearing, Atmosphere)": 6,
+      "SEG(Clearing, Field)": 4,
+      "NUL(Dissecting, Entity)": 19,
+      "SIG(Tending, Void)": 5,
+      "SIG(Binding, Entity)": 15,
+      "REC(Cultivating, Atmosphere)": 2,
+      "NUL(Clearing, Void)": 4,
+      "SYN(Cultivating, Field)": 3
+    },
+    "claude": {
+      "SUP(Tracing, Paradigm)": 586,
+      "ALT(Unraveling, Paradigm)": 414,
+      "ALT(Dissecting, Lens)": 187,
+      "SUP(Binding, Lens)": 351,
+      "NUL(Dissecting, Entity)": 30,
+      "INS(Making, Entity)": 115,
+      "SYN(Composing, Network)": 159,
+      "CON(Binding, Link)": 195,
+      "REC(Composing, Paradigm)": 106,
+      "CON(Tracing, Network)": 320,
+      "INS(Cultivating, Void)": 55,
+      "SEG(Dissecting, Link)": 115,
+      "REC(Making, Lens)": 89,
+      "SEG(Unraveling, Network)": 210,
+      "SYN(Making, Link)": 85,
+      "NUL(Unraveling, Kind)": 44,
+      "INS(Composing, Kind)": 88,
+      "SYN(Cultivating, Field)": 38,
+      "REC(Cultivating, Atmosphere)": 18,
+      "CON(Tending, Field)": 68,
+      "SUP(Tending, Atmosphere)": 96,
+      "SEG(Clearing, Field)": 47,
+      "SIG(Tracing, Kind)": 29,
+      "SIG(Binding, Entity)": 45,
+      "ALT(Clearing, Atmosphere)": 61,
+      "SIG(Tending, Void)": 14,
+      "NUL(Clearing, Void)": 25
+    },
+    "gpt4": {
+      "CON(Tracing, Network)": 309,
+      "SUP(Tracing, Paradigm)": 398,
+      "ALT(Dissecting, Lens)": 280,
+      "REC(Making, Lens)": 125,
+      "CON(Binding, Link)": 264,
+      "CON(Tending, Field)": 67,
+      "INS(Making, Entity)": 241,
+      "ALT(Unraveling, Paradigm)": 309,
+      "SUP(Binding, Lens)": 403,
+      "SEG(Clearing, Field)": 19,
+      "REC(Composing, Paradigm)": 108,
+      "SEG(Dissecting, Link)": 133,
+      "SEG(Unraveling, Network)": 159,
+      "NUL(Dissecting, Entity)": 91,
+      "SYN(Making, Link)": 75,
+      "SYN(Composing, Network)": 96,
+      "INS(Composing, Kind)": 68,
+      "ALT(Clearing, Atmosphere)": 32,
+      "REC(Cultivating, Atmosphere)": 12,
+      "NUL(Unraveling, Kind)": 59,
+      "SYN(Cultivating, Field)": 17,
+      "SUP(Tending, Atmosphere)": 72,
+      "INS(Cultivating, Void)": 62,
+      "NUL(Clearing, Void)": 18,
+      "SIG(Tracing, Kind)": 48,
+      "SIG(Tending, Void)": 37,
+      "SIG(Binding, Entity)": 90
+    }
+  }
+}

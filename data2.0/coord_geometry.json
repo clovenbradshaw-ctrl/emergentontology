@@ -1,0 +1,51 @@
+{
+  "n_pairs": 5000,
+  "n_clauses": 3595,
+  "coordinate_systems": {
+    "alpha": {
+      "description": "Arithmetic {0,1,2} \u2014 Q1 Mode",
+      "values": [
+        0,
+        1,
+        2
+      ]
+    },
+    "eta": {
+      "description": "Geometric {-1,+1,\u221a2} \u2014 Q2 Domain",
+      "values": [
+        -1,
+        1,
+        1.414214
+      ]
+    },
+    "omega": {
+      "description": "Transcendental {2,\u221a2,2^\u221a2} \u2014 Q3 Object",
+      "values": [
+        2,
+        1.414214,
+        2.665144
+      ]
+    }
+  },
+  "correlations_with_embedding_distance": {
+    "uniform_count": 0.1419,
+    "alpha_weighted": 0.1318,
+    "eta_weighted": 0.1093,
+    "omega_weighted": 0.0923,
+    "mixed_AGT": 0.0923
+  },
+  "per_axis_correlations": {
+    "alpha_q1": 0.0435,
+    "eta_q2": 0.0652,
+    "omega_q3": 0.1031,
+    "uniform_q1": 0.0333,
+    "uniform_q2": 0.1103,
+    "uniform_q3": 0.1081
+  },
+  "interpretation": {
+    "best_predictor": "uniform_count",
+    "best_correlation": 0.1419,
+    "mixed_beats_uniform": false,
+    "improvement": -0.0496
+  }
+}

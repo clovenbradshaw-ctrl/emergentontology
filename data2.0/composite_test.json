@@ -1,0 +1,1171 @@
+{
+  "act_face": {
+    "reconstruction": {
+      "NUL": {
+        "reconstruction_error": 0.6835,
+        "is_primitive": true,
+        "weights": {
+          "INS": 0.5086,
+          "ALT": 0.2915,
+          "REC": 0.0697
+        },
+        "top_contributor": "INS",
+        "top_contributor_weight": 0.5086,
+        "same_mode_as_top": false,
+        "same_domain_as_top": true
+      },
+      "INS": {
+        "reconstruction_error": 0.6641,
+        "is_primitive": true,
+        "weights": {
+          "NUL": 0.4195,
+          "CON": 0.1029,
+          "SUP": 0.3109,
+          "REC": 0.0614
+        },
+        "top_contributor": "NUL",
+        "top_contributor_weight": 0.4195,
+        "same_mode_as_top": false,
+        "same_domain_as_top": true
+      },
+      "SEG": {
+        "reconstruction_error": 0.7009,
+        "is_primitive": true,
+        "weights": {
+          "INS": 0.079,
+          "CON": 0.1881,
+          "SYN": 0.348,
+          "ALT": 0.356,
+          "SUP": 0.0228
+        },
+        "top_contributor": "ALT",
+        "top_contributor_weight": 0.356,
+        "same_mode_as_top": true,
+        "same_domain_as_top": false
+      },
+      "CON": {
+        "reconstruction_error": 0.7369,
+        "is_primitive": true,
+        "weights": {
+          "NUL": 0.0537,
+          "INS": 0.1542,
+          "SEG": 0.2118,
+          "SYN": 0.08,
+          "ALT": 0.0991,
+          "SUP": 0.2489,
+          "REC": 0.0539
+        },
+        "top_contributor": "SUP",
+        "top_contributor_weight": 0.2489,
+        "same_mode_as_top": true,
+        "same_domain_as_top": false
+      },
+      "SYN": {
+        "reconstruction_error": 0.8676,
+        "is_primitive": true,
+        "weights": {
+          "SEG": 0.4507,
+          "CON": 0.0486,
+          "REC": 0.0359
+        },
+        "top_contributor": "SEG",
+        "top_contributor_weight": 0.4507,
+        "same_mode_as_top": false,
+        "same_domain_as_top": true
+      },
+      "ALT": {
+        "reconstruction_error": 0.6623,
+        "is_primitive": true,
+        "weights": {
+          "NUL": 0.1667,
+          "SEG": 0.2578,
+          "CON": 0.0331,
+          "SUP": 0.0451,
+          "REC": 0.419
+        },
+        "top_contributor": "REC",
+        "top_contributor_weight": 0.419,
+        "same_mode_as_top": false,
+        "same_domain_as_top": true
+      },
+      "SUP": {
+        "reconstruction_error": 0.6459,
+        "is_primitive": true,
+        "weights": {
+          "INS": 0.3065,
+          "SEG": 0.0178,
+          "CON": 0.1871,
+          "ALT": 0.12,
+          "REC": 0.3106
+        },
+        "top_contributor": "REC",
+        "top_contributor_weight": 0.3106,
+        "same_mode_as_top": false,
+        "same_domain_as_top": true
+      },
+      "REC": {
+        "reconstruction_error": 0.5989,
+        "is_primitive": true,
+        "weights": {
+          "NUL": 0.0803,
+          "INS": 0.1608,
+          "CON": 0.0316,
+          "SYN": 0.1015,
+          "ALT": 0.4005,
+          "SUP": 0.2739
+        },
+        "top_contributor": "ALT",
+        "top_contributor_weight": 0.4005,
+        "same_mode_as_top": false,
+        "same_domain_as_top": true
+      }
+    },
+    "cross_axis": {
+      "NUL": {
+        "mode_family": [
+          "SEG",
+          "ALT"
+        ],
+        "domain_family": [
+          "INS"
+        ],
+        "error_from_mode": 0.8459,
+        "error_from_domain": 0.7522,
+        "mode_weights": {
+          "SEG": 0.0761,
+          "ALT": 0.487
+        },
+        "domain_weights": {
+          "INS": 0.6589
+        },
+        "more_mode_composite": false,
+        "interpretation": "NUL (DIFF\u00d7EXIST): mode-family error=0.846, domain-family error=0.752. More recoverable from same-domain operators."
+      },
+      "INS": {
+        "mode_family": [
+          "SYN",
+          "REC"
+        ],
+        "domain_family": [
+          "NUL"
+        ],
+        "error_from_mode": 0.8261,
+        "error_from_domain": 0.7522,
+        "mode_weights": {
+          "REC": 0.5635
+        },
+        "domain_weights": {
+          "NUL": 0.6589
+        },
+        "more_mode_composite": false,
+        "interpretation": "INS (GENE\u00d7EXIST): mode-family error=0.826, domain-family error=0.752. More recoverable from same-domain operators."
+      },
+      "SEG": {
+        "mode_family": [
+          "NUL",
+          "ALT"
+        ],
+        "domain_family": [
+          "CON",
+          "SYN"
+        ],
+        "error_from_mode": 0.8267,
+        "error_from_domain": 0.7772,
+        "mode_weights": {
+          "NUL": 0.0727,
+          "ALT": 0.5208
+        },
+        "domain_weights": {
+          "CON": 0.4095,
+          "SYN": 0.3697
+        },
+        "more_mode_composite": false,
+        "interpretation": "SEG (DIFF\u00d7STRUCT): mode-family error=0.827, domain-family error=0.777. More recoverable from same-domain operators."
+      },
+      "CON": {
+        "mode_family": [
+          "SUP"
+        ],
+        "domain_family": [
+          "SEG",
+          "SYN"
+        ],
+        "error_from_mode": 0.8178,
+        "error_from_domain": 0.8517,
+        "mode_weights": {
+          "SUP": 0.5755
+        },
+        "domain_weights": {
+          "SEG": 0.4918,
+          "SYN": 0.06
+        },
+        "more_mode_composite": true,
+        "interpretation": "CON (RELA\u00d7STRUCT): mode-family error=0.818, domain-family error=0.852. More recoverable from same-mode operators."
+      },
+      "SYN": {
+        "mode_family": [
+          "INS",
+          "REC"
+        ],
+        "domain_family": [
+          "SEG",
+          "CON"
+        ],
+        "error_from_mode": 0.959,
+        "error_from_domain": 0.868,
+        "mode_weights": {
+          "REC": 0.2832
+        },
+        "domain_weights": {
+          "SEG": 0.4612,
+          "CON": 0.0623
+        },
+        "more_mode_composite": false,
+        "interpretation": "SYN (GENE\u00d7STRUCT): mode-family error=0.959, domain-family error=0.868. More recoverable from same-domain operators."
+      },
+      "ALT": {
+        "mode_family": [
+          "NUL",
+          "SEG"
+        ],
+        "domain_family": [
+          "SUP",
+          "REC"
+        ],
+        "error_from_mode": 0.7481,
+        "error_from_domain": 0.7174,
+        "mode_weights": {
+          "NUL": 0.3809,
+          "SEG": 0.4266
+        },
+        "domain_weights": {
+          "SUP": 0.1534,
+          "REC": 0.5839
+        },
+        "more_mode_composite": false,
+        "interpretation": "ALT (DIFF\u00d7SIG_D): mode-family error=0.748, domain-family error=0.717. More recoverable from same-domain operators."
+      },
+      "SUP": {
+        "mode_family": [
+          "CON"
+        ],
+        "domain_family": [
+          "ALT",
+          "REC"
+        ],
+        "error_from_mode": 0.8178,
+        "error_from_domain": 0.7293,
+        "mode_weights": {
+          "CON": 0.5755
+        },
+        "domain_weights": {
+          "ALT": 0.1586,
+          "REC": 0.5654
+        },
+        "more_mode_composite": false,
+        "interpretation": "SUP (RELA\u00d7SIG_D): mode-family error=0.818, domain-family error=0.729. More recoverable from same-domain operators."
+      },
+      "REC": {
+        "mode_family": [
+          "INS",
+          "SYN"
+        ],
+        "domain_family": [
+          "ALT",
+          "SUP"
+        ],
+        "error_from_mode": 0.8026,
+        "error_from_domain": 0.6329,
+        "mode_weights": {
+          "INS": 0.5318,
+          "SYN": 0.1984
+        },
+        "domain_weights": {
+          "ALT": 0.4544,
+          "SUP": 0.4257
+        },
+        "more_mode_composite": false,
+        "interpretation": "REC (GENE\u00d7SIG_D): mode-family error=0.803, domain-family error=0.633. More recoverable from same-domain operators."
+      }
+    },
+    "convex_hull": {
+      "NUL": {
+        "inside_hull_of_others": false,
+        "is_primitive": true
+      },
+      "INS": {
+        "inside_hull_of_others": false,
+        "is_primitive": true
+      },
+      "SEG": {
+        "inside_hull_of_others": false,
+        "is_primitive": true
+      },
+      "CON": {
+        "inside_hull_of_others": false,
+        "is_primitive": true
+      },
+      "SYN": {
+        "inside_hull_of_others": false,
+        "is_primitive": true
+      },
+      "ALT": {
+        "inside_hull_of_others": false,
+        "is_primitive": true
+      },
+      "SUP": {
+        "inside_hull_of_others": false,
+        "is_primitive": true
+      },
+      "REC": {
+        "inside_hull_of_others": false,
+        "is_primitive": true
+      }
+    },
+    "summary": {
+      "primitives_by_reconstruction": [
+        "NUL",
+        "INS",
+        "SEG",
+        "CON",
+        "SYN",
+        "ALT",
+        "SUP",
+        "REC"
+      ],
+      "composites_by_reconstruction": [],
+      "primitives_by_hull": [
+        "NUL",
+        "INS",
+        "SEG",
+        "CON",
+        "SYN",
+        "ALT",
+        "SUP",
+        "REC"
+      ],
+      "composites_by_hull": [],
+      "theory_predicts_primitive": [
+        "ALT",
+        "NUL",
+        "SEG"
+      ],
+      "theory_match_rate": 1.0,
+      "interpretation": "Reconstruction identifies 8 primitives: ['NUL', 'INS', 'SEG', 'CON', 'SYN', 'ALT', 'SUP', 'REC']. Convex hull identifies 8 primitives: ['NUL', 'INS', 'SEG', 'CON', 'SYN', 'ALT', 'SUP', 'REC']. Theory predicts ['ALT', 'NUL', 'SEG'] as most primitive. Theory match rate (reconstruction): 100%."
+    },
+    "mds_stress": 0.000582
+  },
+  "site_face": {
+    "reconstruction": {
+      "Void": {
+        "reconstruction_error": 0.6217,
+        "is_primitive": true,
+        "weights": {
+          "Entity": 0.3363,
+          "Kind": 0.2326,
+          "Field": 0.1963,
+          "Atmosphere": 0.1537
+        },
+        "top_contributor": "Entity",
+        "top_contributor_weight": 0.3363,
+        "same_mode_as_top": true,
+        "same_domain_as_top": false
+      },
+      "Entity": {
+        "reconstruction_error": 0.6926,
+        "is_primitive": true,
+        "weights": {
+          "Void": 0.4545,
+          "Kind": 0.1744,
+          "Link": 0.1021,
+          "Lens": 0.167
+        },
+        "top_contributor": "Void",
+        "top_contributor_weight": 0.4545,
+        "same_mode_as_top": true,
+        "same_domain_as_top": false
+      },
+      "Kind": {
+        "reconstruction_error": 0.5868,
+        "is_primitive": true,
+        "weights": {
+          "Void": 0.2499,
+          "Entity": 0.1706,
+          "Field": 0.2524,
+          "Network": 0.0247,
+          "Atmosphere": 0.1483,
+          "Paradigm": 0.1544
+        },
+        "top_contributor": "Field",
+        "top_contributor_weight": 0.2524,
+        "same_mode_as_top": false,
+        "same_domain_as_top": false
+      },
+      "Field": {
+        "reconstruction_error": 0.4893,
+        "is_primitive": false,
+        "weights": {
+          "Void": 0.2052,
+          "Kind": 0.1924,
+          "Link": 0.162,
+          "Network": 0.0219,
+          "Atmosphere": 0.3604,
+          "Paradigm": 0.1567
+        },
+        "top_contributor": "Atmosphere",
+        "top_contributor_weight": 0.3604,
+        "same_mode_as_top": false,
+        "same_domain_as_top": true
+      },
+      "Link": {
+        "reconstruction_error": 0.7634,
+        "is_primitive": true,
+        "weights": {
+          "Entity": 0.063,
+          "Field": 0.2264,
+          "Network": 0.0553,
+          "Lens": 0.4434
+        },
+        "top_contributor": "Lens",
+        "top_contributor_weight": 0.4434,
+        "same_mode_as_top": false,
+        "same_domain_as_top": true
+      },
+      "Network": {
+        "reconstruction_error": 0.9536,
+        "is_primitive": true,
+        "weights": {
+          "Field": 0.0181,
+          "Link": 0.0412,
+          "Paradigm": 0.2666
+        },
+        "top_contributor": "Paradigm",
+        "top_contributor_weight": 0.2666,
+        "same_mode_as_top": false,
+        "same_domain_as_top": true
+      },
+      "Atmosphere": {
+        "reconstruction_error": 0.5206,
+        "is_primitive": true,
+        "weights": {
+          "Void": 0.1788,
+          "Kind": 0.1274,
+          "Field": 0.3946,
+          "Lens": 0.1585,
+          "Paradigm": 0.1709
+        },
+        "top_contributor": "Field",
+        "top_contributor_weight": 0.3946,
+        "same_mode_as_top": false,
+        "same_domain_as_top": true
+      },
+      "Lens": {
+        "reconstruction_error": 0.6813,
+        "is_primitive": true,
+        "weights": {
+          "Entity": 0.1455,
+          "Link": 0.359,
+          "Atmosphere": 0.1939,
+          "Paradigm": 0.2467
+        },
+        "top_contributor": "Link",
+        "top_contributor_weight": 0.359,
+        "same_mode_as_top": false,
+        "same_domain_as_top": true
+      },
+      "Paradigm": {
+        "reconstruction_error": 0.6818,
+        "is_primitive": true,
+        "weights": {
+          "Kind": 0.107,
+          "Field": 0.2171,
+          "Network": 0.1574,
+          "Atmosphere": 0.2261,
+          "Lens": 0.248
+        },
+        "top_contributor": "Lens",
+        "top_contributor_weight": 0.248,
+        "same_mode_as_top": true,
+        "same_domain_as_top": false
+      }
+    },
+    "cross_axis": {
+      "Void": {
+        "mode_family": [
+          "Entity",
+          "Kind"
+        ],
+        "domain_family": [
+          "Field",
+          "Atmosphere"
+        ],
+        "error_from_mode": 0.6568,
+        "error_from_domain": 0.7172,
+        "mode_weights": {
+          "Entity": 0.3887,
+          "Kind": 0.455
+        },
+        "domain_weights": {
+          "Field": 0.4338,
+          "Atmosphere": 0.2982
+        },
+        "more_mode_composite": true,
+        "interpretation": "Void (Row1\u00d7Col1): mode-family error=0.657, domain-family error=0.717. More recoverable from same-mode operators."
+      },
+      "Entity": {
+        "mode_family": [
+          "Void",
+          "Kind"
+        ],
+        "domain_family": [
+          "Link",
+          "Lens"
+        ],
+        "error_from_mode": 0.7256,
+        "error_from_domain": 0.8767,
+        "mode_weights": {
+          "Void": 0.4745,
+          "Kind": 0.2696
+        },
+        "domain_weights": {
+          "Link": 0.1821,
+          "Lens": 0.3489
+        },
+        "more_mode_composite": true,
+        "interpretation": "Entity (Row1\u00d7Col2): mode-family error=0.726, domain-family error=0.877. More recoverable from same-mode operators."
+      },
+      "Kind": {
+        "mode_family": [
+          "Void",
+          "Entity"
+        ],
+        "domain_family": [
+          "Network",
+          "Paradigm"
+        ],
+        "error_from_mode": 0.7021,
+        "error_from_domain": 0.8263,
+        "mode_weights": {
+          "Void": 0.5199,
+          "Entity": 0.2524
+        },
+        "domain_weights": {
+          "Network": 0.0164,
+          "Paradigm": 0.5581
+        },
+        "more_mode_composite": true,
+        "interpretation": "Kind (Row1\u00d7Col3): mode-family error=0.702, domain-family error=0.826. More recoverable from same-mode operators."
+      },
+      "Field": {
+        "mode_family": [
+          "Link",
+          "Network"
+        ],
+        "domain_family": [
+          "Void",
+          "Atmosphere"
+        ],
+        "error_from_mode": 0.8473,
+        "error_from_domain": 0.5565,
+        "mode_weights": {
+          "Link": 0.4922,
+          "Network": 0.1354
+        },
+        "domain_weights": {
+          "Void": 0.2612,
+          "Atmosphere": 0.6374
+        },
+        "more_mode_composite": false,
+        "interpretation": "Field (Row2\u00d7Col1): mode-family error=0.847, domain-family error=0.557. More recoverable from same-domain operators."
+      },
+      "Link": {
+        "mode_family": [
+          "Field",
+          "Network"
+        ],
+        "domain_family": [
+          "Entity",
+          "Lens"
+        ],
+        "error_from_mode": 0.8561,
+        "error_from_domain": 0.7874,
+        "mode_weights": {
+          "Field": 0.5026,
+          "Network": 0.0537
+        },
+        "domain_weights": {
+          "Entity": 0.1469,
+          "Lens": 0.535
+        },
+        "more_mode_composite": false,
+        "interpretation": "Link (Row2\u00d7Col2): mode-family error=0.856, domain-family error=0.787. More recoverable from same-domain operators."
+      },
+      "Network": {
+        "mode_family": [
+          "Field",
+          "Link"
+        ],
+        "domain_family": [
+          "Kind",
+          "Paradigm"
+        ],
+        "error_from_mode": 0.9748,
+        "error_from_domain": 0.9545,
+        "mode_weights": {
+          "Field": 0.1793,
+          "Link": 0.0696
+        },
+        "domain_weights": {
+          "Kind": 0.0219,
+          "Paradigm": 0.2853
+        },
+        "more_mode_composite": false,
+        "interpretation": "Network (Row2\u00d7Col3): mode-family error=0.975, domain-family error=0.955. Not well approximated by either axis family alone."
+      },
+      "Atmosphere": {
+        "mode_family": [
+          "Lens",
+          "Paradigm"
+        ],
+        "domain_family": [
+          "Void",
+          "Field"
+        ],
+        "error_from_mode": 0.7102,
+        "error_from_domain": 0.5739,
+        "mode_weights": {
+          "Lens": 0.3196,
+          "Paradigm": 0.4724
+        },
+        "domain_weights": {
+          "Void": 0.1909,
+          "Field": 0.6779
+        },
+        "more_mode_composite": false,
+        "interpretation": "Atmosphere (Row3\u00d7Col1): mode-family error=0.710, domain-family error=0.574. More recoverable from same-domain operators."
+      },
+      "Lens": {
+        "mode_family": [
+          "Atmosphere",
+          "Paradigm"
+        ],
+        "domain_family": [
+          "Entity",
+          "Link"
+        ],
+        "error_from_mode": 0.7739,
+        "error_from_domain": 0.7607,
+        "mode_weights": {
+          "Atmosphere": 0.3795,
+          "Paradigm": 0.3166
+        },
+        "domain_weights": {
+          "Entity": 0.2627,
+          "Link": 0.4994
+        },
+        "more_mode_composite": false,
+        "interpretation": "Lens (Row3\u00d7Col2): mode-family error=0.774, domain-family error=0.761. More recoverable from same-domain operators."
+      },
+      "Paradigm": {
+        "mode_family": [
+          "Atmosphere",
+          "Lens"
+        ],
+        "domain_family": [
+          "Kind",
+          "Network"
+        ],
+        "error_from_mode": 0.7236,
+        "error_from_domain": 0.8023,
+        "mode_weights": {
+          "Atmosphere": 0.4904,
+          "Lens": 0.2768
+        },
+        "domain_weights": {
+          "Kind": 0.5262,
+          "Network": 0.2016
+        },
+        "more_mode_composite": true,
+        "interpretation": "Paradigm (Row3\u00d7Col3): mode-family error=0.724, domain-family error=0.802. More recoverable from same-mode operators."
+      }
+    },
+    "convex_hull": {
+      "Void": {
+        "inside_hull_of_others": false,
+        "is_primitive": true
+      },
+      "Entity": {
+        "inside_hull_of_others": false,
+        "is_primitive": true
+      },
+      "Kind": {
+        "inside_hull_of_others": false,
+        "is_primitive": true
+      },
+      "Field": {
+        "inside_hull_of_others": false,
+        "is_primitive": true
+      },
+      "Link": {
+        "inside_hull_of_others": false,
+        "is_primitive": true
+      },
+      "Network": {
+        "inside_hull_of_others": false,
+        "is_primitive": true
+      },
+      "Atmosphere": {
+        "inside_hull_of_others": false,
+        "is_primitive": true
+      },
+      "Lens": {
+        "inside_hull_of_others": false,
+        "is_primitive": true
+      },
+      "Paradigm": {
+        "inside_hull_of_others": false,
+        "is_primitive": true
+      }
+    },
+    "summary": {
+      "primitives_by_reconstruction": [
+        "Void",
+        "Entity",
+        "Kind",
+        "Link",
+        "Network",
+        "Atmosphere",
+        "Lens",
+        "Paradigm"
+      ],
+      "composites_by_reconstruction": [
+        "Field"
+      ],
+      "primitives_by_hull": [
+        "Void",
+        "Entity",
+        "Kind",
+        "Field",
+        "Link",
+        "Network",
+        "Atmosphere",
+        "Lens",
+        "Paradigm"
+      ],
+      "composites_by_hull": [],
+      "theory_predicts_primitive": [
+        "ALT",
+        "NUL",
+        "SEG"
+      ],
+      "theory_match_rate": 0.0,
+      "interpretation": "Reconstruction identifies 8 primitives: ['Void', 'Entity', 'Kind', 'Link', 'Network', 'Atmosphere', 'Lens', 'Paradigm']. Convex hull identifies 9 primitives: ['Void', 'Entity', 'Kind', 'Field', 'Link', 'Network', 'Atmosphere', 'Lens', 'Paradigm']. Theory predicts ['ALT', 'NUL', 'SEG'] as most primitive. Theory match rate (reconstruction): 0%."
+    },
+    "mds_stress": 0.000563
+  },
+  "resolution_face": {
+    "reconstruction": {
+      "Clearing": {
+        "reconstruction_error": 0.5493,
+        "is_primitive": true,
+        "weights": {
+          "Dissecting": 0.1436,
+          "Unraveling": 0.1288,
+          "Tending": 0.3204,
+          "Cultivating": 0.3242,
+          "Making": 0.0934,
+          "Composing": 0.0833
+        },
+        "top_contributor": "Cultivating",
+        "top_contributor_weight": 0.3242,
+        "same_mode_as_top": false,
+        "same_domain_as_top": true
+      },
+      "Dissecting": {
+        "reconstruction_error": 0.7256,
+        "is_primitive": true,
+        "weights": {
+          "Clearing": 0.1317,
+          "Unraveling": 0.3016,
+          "Binding": 0.2353,
+          "Tracing": 0.0881,
+          "Making": 0.1163
+        },
+        "top_contributor": "Unraveling",
+        "top_contributor_weight": 0.3016,
+        "same_mode_as_top": true,
+        "same_domain_as_top": false
+      },
+      "Unraveling": {
+        "reconstruction_error": 0.6448,
+        "is_primitive": true,
+        "weights": {
+          "Clearing": 0.1746,
+          "Dissecting": 0.2366,
+          "Binding": 0.0693,
+          "Tracing": 0.4356
+        },
+        "top_contributor": "Tracing",
+        "top_contributor_weight": 0.4356,
+        "same_mode_as_top": false,
+        "same_domain_as_top": true
+      },
+      "Tending": {
+        "reconstruction_error": 0.5426,
+        "is_primitive": true,
+        "weights": {
+          "Clearing": 0.3299,
+          "Dissecting": 0.0191,
+          "Binding": 0.1701,
+          "Tracing": 0.3242,
+          "Cultivating": 0.2039
+        },
+        "top_contributor": "Clearing",
+        "top_contributor_weight": 0.3299,
+        "same_mode_as_top": false,
+        "same_domain_as_top": true
+      },
+      "Binding": {
+        "reconstruction_error": 0.7947,
+        "is_primitive": true,
+        "weights": {
+          "Dissecting": 0.2761,
+          "Unraveling": 0.0377,
+          "Tending": 0.244,
+          "Cultivating": 0.0449,
+          "Making": 0.1472
+        },
+        "top_contributor": "Dissecting",
+        "top_contributor_weight": 0.2761,
+        "same_mode_as_top": false,
+        "same_domain_as_top": true
+      },
+      "Tracing": {
+        "reconstruction_error": 0.5904,
+        "is_primitive": true,
+        "weights": {
+          "Dissecting": 0.0634,
+          "Unraveling": 0.3576,
+          "Tending": 0.3924,
+          "Making": 0.0377,
+          "Composing": 0.1958
+        },
+        "top_contributor": "Tending",
+        "top_contributor_weight": 0.3924,
+        "same_mode_as_top": true,
+        "same_domain_as_top": false
+      },
+      "Cultivating": {
+        "reconstruction_error": 0.6703,
+        "is_primitive": true,
+        "weights": {
+          "Clearing": 0.3424,
+          "Tending": 0.2274,
+          "Making": 0.2763
+        },
+        "top_contributor": "Clearing",
+        "top_contributor_weight": 0.3424,
+        "same_mode_as_top": false,
+        "same_domain_as_top": true
+      },
+      "Making": {
+        "reconstruction_error": 0.685,
+        "is_primitive": true,
+        "weights": {
+          "Clearing": 0.1572,
+          "Dissecting": 0.2071,
+          "Binding": 0.1269,
+          "Tracing": 0.0696,
+          "Cultivating": 0.3768,
+          "Composing": 0.0228
+        },
+        "top_contributor": "Cultivating",
+        "top_contributor_weight": 0.3768,
+        "same_mode_as_top": true,
+        "same_domain_as_top": false
+      },
+      "Composing": {
+        "reconstruction_error": 0.9209,
+        "is_primitive": true,
+        "weights": {
+          "Clearing": 0.0498,
+          "Tracing": 0.3574
+        },
+        "top_contributor": "Tracing",
+        "top_contributor_weight": 0.3574,
+        "same_mode_as_top": false,
+        "same_domain_as_top": true
+      }
+    },
+    "cross_axis": {
+      "Clearing": {
+        "mode_family": [
+          "Dissecting",
+          "Unraveling"
+        ],
+        "domain_family": [
+          "Tending",
+          "Cultivating"
+        ],
+        "error_from_mode": 0.7727,
+        "error_from_domain": 0.6061,
+        "mode_weights": {
+          "Dissecting": 0.27,
+          "Unraveling": 0.4353
+        },
+        "domain_weights": {
+          "Tending": 0.526,
+          "Cultivating": 0.3485
+        },
+        "more_mode_composite": false,
+        "interpretation": "Clearing (Row1\u00d7Col1): mode-family error=0.773, domain-family error=0.606. More recoverable from same-domain operators."
+      },
+      "Dissecting": {
+        "mode_family": [
+          "Clearing",
+          "Unraveling"
+        ],
+        "domain_family": [
+          "Binding",
+          "Making"
+        ],
+        "error_from_mode": 0.7717,
+        "error_from_domain": 0.8119,
+        "mode_weights": {
+          "Clearing": 0.2693,
+          "Unraveling": 0.4374
+        },
+        "domain_weights": {
+          "Binding": 0.3545,
+          "Making": 0.3272
+        },
+        "more_mode_composite": true,
+        "interpretation": "Dissecting (Row1\u00d7Col2): mode-family error=0.772, domain-family error=0.812. More recoverable from same-mode operators."
+      },
+      "Unraveling": {
+        "mode_family": [
+          "Clearing",
+          "Dissecting"
+        ],
+        "domain_family": [
+          "Tracing",
+          "Composing"
+        ],
+        "error_from_mode": 0.7304,
+        "error_from_domain": 0.714,
+        "mode_weights": {
+          "Clearing": 0.3889,
+          "Dissecting": 0.3919
+        },
+        "domain_weights": {
+          "Tracing": 0.6981
+        },
+        "more_mode_composite": false,
+        "interpretation": "Unraveling (Row1\u00d7Col3): mode-family error=0.730, domain-family error=0.714. More recoverable from same-domain operators."
+      },
+      "Tending": {
+        "mode_family": [
+          "Binding",
+          "Tracing"
+        ],
+        "domain_family": [
+          "Clearing",
+          "Cultivating"
+        ],
+        "error_from_mode": 0.6685,
+        "error_from_domain": 0.6395,
+        "mode_weights": {
+          "Binding": 0.2873,
+          "Tracing": 0.581
+        },
+        "domain_weights": {
+          "Clearing": 0.5856,
+          "Cultivating": 0.2384
+        },
+        "more_mode_composite": false,
+        "interpretation": "Tending (Row2\u00d7Col1): mode-family error=0.668, domain-family error=0.639. More recoverable from same-domain operators."
+      },
+      "Binding": {
+        "mode_family": [
+          "Tending",
+          "Tracing"
+        ],
+        "domain_family": [
+          "Dissecting",
+          "Making"
+        ],
+        "error_from_mode": 0.8533,
+        "error_from_domain": 0.8253,
+        "mode_weights": {
+          "Tending": 0.4681,
+          "Tracing": 0.0728
+        },
+        "domain_weights": {
+          "Dissecting": 0.3663,
+          "Making": 0.2857
+        },
+        "more_mode_composite": false,
+        "interpretation": "Binding (Row2\u00d7Col2): mode-family error=0.853, domain-family error=0.825. More recoverable from same-domain operators."
+      },
+      "Tracing": {
+        "mode_family": [
+          "Tending",
+          "Binding"
+        ],
+        "domain_family": [
+          "Unraveling",
+          "Composing"
+        ],
+        "error_from_mode": 0.7172,
+        "error_from_domain": 0.6847,
+        "mode_weights": {
+          "Tending": 0.6688,
+          "Binding": 0.0515
+        },
+        "domain_weights": {
+          "Unraveling": 0.642,
+          "Composing": 0.2107
+        },
+        "more_mode_composite": false,
+        "interpretation": "Tracing (Row2\u00d7Col3): mode-family error=0.717, domain-family error=0.685. More recoverable from same-domain operators."
+      },
+      "Cultivating": {
+        "mode_family": [
+          "Making",
+          "Composing"
+        ],
+        "domain_family": [
+          "Clearing",
+          "Tending"
+        ],
+        "error_from_mode": 0.7861,
+        "error_from_domain": 0.7031,
+        "mode_weights": {
+          "Making": 0.6157,
+          "Composing": 0.0118
+        },
+        "domain_weights": {
+          "Clearing": 0.4691,
+          "Tending": 0.2882
+        },
+        "more_mode_composite": false,
+        "interpretation": "Cultivating (Row3\u00d7Col1): mode-family error=0.786, domain-family error=0.703. More recoverable from same-domain operators."
+      },
+      "Making": {
+        "mode_family": [
+          "Cultivating",
+          "Composing"
+        ],
+        "domain_family": [
+          "Dissecting",
+          "Binding"
+        ],
+        "error_from_mode": 0.778,
+        "error_from_domain": 0.8333,
+        "mode_weights": {
+          "Cultivating": 0.603,
+          "Composing": 0.1145
+        },
+        "domain_weights": {
+          "Dissecting": 0.3448,
+          "Binding": 0.2913
+        },
+        "more_mode_composite": true,
+        "interpretation": "Making (Row3\u00d7Col2): mode-family error=0.778, domain-family error=0.833. More recoverable from same-mode operators."
+      },
+      "Composing": {
+        "mode_family": [
+          "Cultivating",
+          "Making"
+        ],
+        "domain_family": [
+          "Unraveling",
+          "Tracing"
+        ],
+        "error_from_mode": 0.981,
+        "error_from_domain": 0.9218,
+        "mode_weights": {
+          "Cultivating": 0.0183,
+          "Making": 0.182
+        },
+        "domain_weights": {
+          "Tracing": 0.3817
+        },
+        "more_mode_composite": false,
+        "interpretation": "Composing (Row3\u00d7Col3): mode-family error=0.981, domain-family error=0.922. Not well approximated by either axis family alone."
+      }
+    },
+    "convex_hull": {
+      "Clearing": {
+        "inside_hull_of_others": false,
+        "is_primitive": true
+      },
+      "Dissecting": {
+        "inside_hull_of_others": false,
+        "is_primitive": true
+      },
+      "Unraveling": {
+        "inside_hull_of_others": false,
+        "is_primitive": true
+      },
+      "Tending": {
+        "inside_hull_of_others": false,
+        "is_primitive": true
+      },
+      "Binding": {
+        "inside_hull_of_others": false,
+        "is_primitive": true
+      },
+      "Tracing": {
+        "inside_hull_of_others": false,
+        "is_primitive": true
+      },
+      "Cultivating": {
+        "inside_hull_of_others": false,
+        "is_primitive": true
+      },
+      "Making": {
+        "inside_hull_of_others": false,
+        "is_primitive": true
+      },
+      "Composing": {
+        "inside_hull_of_others": false,
+        "is_primitive": true
+      }
+    },
+    "summary": {
+      "primitives_by_reconstruction": [
+        "Clearing",
+        "Dissecting",
+        "Unraveling",
+        "Tending",
+        "Binding",
+        "Tracing",
+        "Cultivating",
+        "Making",
+        "Composing"
+      ],
+      "composites_by_reconstruction": [],
+      "primitives_by_hull": [
+        "Clearing",
+        "Dissecting",
+        "Unraveling",
+        "Tending",
+        "Binding",
+        "Tracing",
+        "Cultivating",
+        "Making",
+        "Composing"
+      ],
+      "composites_by_hull": [],
+      "theory_predicts_primitive": [
+        "ALT",
+        "NUL",
+        "SEG"
+      ],
+      "theory_match_rate": 0.0,
+      "interpretation": "Reconstruction identifies 9 primitives: ['Clearing', 'Dissecting', 'Unraveling', 'Tending', 'Binding', 'Tracing', 'Cultivating', 'Making', 'Composing']. Convex hull identifies 9 primitives: ['Clearing', 'Dissecting', 'Unraveling', 'Tending', 'Binding', 'Tracing', 'Cultivating', 'Making', 'Composing']. Theory predicts ['ALT', 'NUL', 'SEG'] as most primitive. Theory match rate (reconstruction): 0%."
+    },
+    "mds_stress": 0.001082
+  }
+}
